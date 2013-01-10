@@ -125,47 +125,52 @@ public:
   }
 
 
-  // TODO: use constants
   static void Init(void) {
-    /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
-    /* Set HSION bit */
-    RCC::CR::set(0x00000001);
+    RCC::CR::HSION::set();     /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
 
-    /* Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits */
-#ifndef STM32F10X_CL
-    RCC::CFGR::mask(0xF8FF0000);
+    RCC::CFGR::clear(RCC::CFGR::SW::value |
+                     RCC::CFGR::SWS::value |
+                     RCC::CFGR::HPRE::value |
+                     RCC::CFGR::PPRE1::value | 
+                     RCC::CFGR::PPRE2::value | 
+                     RCC::CFGR::ADCPRE::value | 
+                     RCC::CFGR::MCO::value );
+
+    RCC::CR::clear(RCC::CR::HSEON::value |
+                   RCC::CR::CSSON::value |
+                   RCC::CR::PLLON::value);
+
+    RCC::CR::clear(RCC::CR::HSEBYP::value);
+
+    RCC::CFGR::clear(RCC::CFGR::PLLSRC::value |
+                     RCC::CFGR::PLLXTPRE::value |
+                     RCC::CFGR::PLLMUL::value |
+#ifdef STM32F10X_CL
+                     RCC::CFGR::OTGFSPRE::value
 #else
-    RCC::CFGR::mask(0xF0FF0000);
-#endif /* STM32F10X_CL */   
-  
-    /* Reset HSEON, CSSON and PLLON bits */
-    RCC::CR::mask(0xFEF6FFFF);
-
-    /* Reset HSEBYP bit */
-    RCC::CR::mask(0xFFFBFFFF);
-
-    /* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
-    RCC::CFGR::mask(0xFF80FFFF);
+                     RCC::CFGR::USBPRE::value 
+#endif
+                     );
 
 #ifdef STM32F10X_CL
-    /* Reset PLL2ON and PLL3ON bits */
-    RCC::CR::mask(0xEBFFFFFF);
+    RCC::CR::clear(RCC::CR::PLL2ON::value, RCC::CR::PLL3ON::value);
+#endif
 
     /* Disable all interrupts and clear pending bits  */
-    RCC::CIR::store(0x00FF0000);
+    RCC::CIR::store(RCC::CIR::LSIRDYC::value |
+                    RCC::CIR::LSERDYC::value |
+                    RCC::CIR::HSIRDYC::value |
+                    RCC::CIR::HSERDYC::value |
+                    RCC::CIR::PLLRDYC::value |
+#ifdef STM32F10X_CL
+                    RCC::CIR::PLL2RDYC::value |
+                    RCC::CIR::PLL3RDYC::value |
+#endif
+                    RCC::CIR::CSSC::value);
 
-    /* Reset CFGR2 register */
+#ifdef STM32F10X_CL
     RCC::CFGR2::reset();
-#elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) 
-    /* Disable all interrupts and clear pending bits  */
-    RCC::CIR::store(0x009F0000);
-
-    /* Reset CFGR2 register */
-    RCC::CFGR2::reset();
-#else
-    /* Disable all interrupts and clear pending bits  */
-    RCC::CIR::store(0x009F0000);
-#endif /* STM32F10X_CL */
+#endif
   }
 };
 

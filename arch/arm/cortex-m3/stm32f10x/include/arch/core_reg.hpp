@@ -717,6 +717,26 @@ struct PeripheralRegister {
 #endif
       };
 
+#ifdef STM32F10X_CL
+      /** USB OTG FS prescaler  */
+      template<typename Rb>
+      struct __OTGFSPRE
+      : public Rb
+      {
+        typedef RegisterConst< Rb, 0x0 > DIV3;
+        typedef RegisterConst< Rb, 0x1 > DIV2;
+      };
+#else
+      /** USB prescaler  */
+      template<typename Rb>
+      struct __USBPRE
+      : public Rb
+      {
+        typedef RegisterConst< Rb, 0x0 > DIV1_5;
+        typedef RegisterConst< Rb, 0x1 > DIV1;
+      };
+#endif
+
       /** Microcontroller Clock Output  */
       template<typename Rb>
       struct __MCO
@@ -747,8 +767,10 @@ struct PeripheralRegister {
       typedef __PLLXTPRE< RegisterBits< R, 17,  1 > > PLLXTPRE; /**< [17:17] HSE divider for PLL entry / LSB of division factor PREDIV1   */
       typedef __PLLMUL  < RegisterBits< R, 18,  4 > > PLLMUL;   /**< [21:18] PLL multiplication factor                                    */
 #ifdef STM32F10X_CL
+      typedef __OTGFSPRE< RegisterBits< R, 22,  1 > > OTGFSPRE; /**< [22:22] USB OTG FS prescaler                                         */
       typedef __MCO     < RegisterBits< R, 24,  4 > > MCO; /**< [27:24] Microcontroller Clock Output   */
 #else
+      typedef __USBPRE  < RegisterBits< R, 22,  1 > > USBPRE;   /**< [22:22] USB prescaler                                                */
       typedef __MCO     < RegisterBits< R, 24,  3 > > MCO; /**< [26:24] Microcontroller Clock Output   */
 #endif
     };
