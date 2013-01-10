@@ -19,10 +19,8 @@
  */
 
 #include <core.hpp>
-#include <kernel.hpp>
 #include <arch/irq.hpp>
 #include <cstdint>
-
 
 extern uint32_t _data_lma; /* load address of data section */
 extern uint32_t _sdata;
@@ -35,7 +33,6 @@ extern void (*__fini_array_start []) (void);
 extern void (*__fini_array_end   []) (void);
 
 
-#ifndef CORE_SIMULATION
 class CoreStartup : public Core {
 public:
   static void init_data_section(void) {
@@ -66,6 +63,7 @@ public:
   }
 };
 
+
 struct CoreStartupIrqShell : public IrqShell {
   CoreStartupIrqShell() {
     CoreStartup::init_data_section();
@@ -77,28 +75,3 @@ struct CoreStartupIrqShell : public IrqShell {
     CoreStartup::call_dtors();
   };
 };
-
-/* Reset core exception: triggered on system startup (system entry point). */
-void CoreExceptionReset::Handler(void) {
-  CoreStartupIrqShell shell;
-
-  Kernel::init();
-  Kernel::run();
-}
-
-#else // CORE_SIMULATION
-
-#include <iostream>
-
-
-int main(int argc, char *argv[])
-{
-  std::cout << "cppcore simulation" << std::endl
-            << "------------------" << std::endl
-            << std::endl;
-
-  Kernel::init();
-  Kernel::run();
-}
-
-#endif // CORE_SIMULATION
