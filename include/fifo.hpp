@@ -120,6 +120,7 @@ public:
     return true;
   }
 
+  /* NOTE: this does write nothing if the string does not fit into the buffer! */
   bool pushs(const T * data) {
     /* producer only: updates write_index after writing */
     unsigned int write_index = atomic_write_index.load(std::memory_order_acquire);
@@ -129,6 +130,7 @@ public:
     while(data[i]) {
       unsigned int next_write_index = increment(write_index);
       if(next_write_index == read_index) {
+        /* no update of atomic_write_index. all the copying before is discarded! */
         return false; /* buffer full */
       }
       buf[write_index] = data[i];
@@ -140,6 +142,7 @@ public:
     return true;
   }
 
+  /* NOTE: this does write nothing if the string does not fit into the buffer! */
   bool pushs(const T * data, unsigned int count) {
     /* producer only: updates write_index after writing */
     unsigned int write_index = atomic_write_index.load(std::memory_order_acquire);
@@ -149,6 +152,7 @@ public:
     while(i < count) {
       unsigned int next_write_index = increment(write_index);
       if(next_write_index == read_index) {
+        /* no update of atomic_write_index. all the copying before is discarded! */
         return false; /* buffer full */
       }
       buf[write_index] = data[i];
