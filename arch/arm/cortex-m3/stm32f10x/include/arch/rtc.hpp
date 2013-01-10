@@ -118,11 +118,11 @@ public:
     return (RTC::DIVH::RTC_DIV::test() << 16 ) | RTC::DIVL::load();
   }
 
-  struct StaticIrqShell : public IrqShell {
-    StaticIrqShell() { ClearSecondFlag(); }
+  struct StaticIrqWrap : public IrqWrap {
+    StaticIrqWrap() { ClearSecondFlag(); }
   };
-  struct AlarmIrqShell : public IrqShell {
-    AlarmIrqShell() { ClearAlarmFlag(); }
+  struct AlarmIrqWrap : public IrqWrap {
+    AlarmIrqWrap() { ClearAlarmFlag(); }
   };
 
   /* Power interface clock enable; Backup interface clock enable */

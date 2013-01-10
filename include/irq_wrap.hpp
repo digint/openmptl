@@ -23,20 +23,20 @@
 #define IRQ_SHELL_HPP_INCLUDED
 
 
-struct IrqShell {
+struct IrqWrap {
 // TODO: check virtual declaration
-  IrqShell() { }
-  ~IrqShell() { }
+  IrqWrap() { }
+  ~IrqWrap() { }
 };
 
-struct DefaultIrqShell : public IrqShell {
-  ~DefaultIrqShell () { while(1); }
+struct DefaultIrqWrap : public IrqWrap {
+  ~DefaultIrqWrap () { while(1); }
 };
 
 #if 0
-struct CountedIrqShell {
+struct CountedIrqWrap {
   static int count;
-  CountedIrqShell() { counter++; }
+  CountedIrqWrap() { counter++; }
 };
 #endif
 

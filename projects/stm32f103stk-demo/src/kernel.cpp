@@ -56,7 +56,7 @@ static volatile unsigned int usart_irq_errors;
 
 template<>
 void rtc::GlobalIrq::Handler(void) {
-  rtc::StaticIrqShell shell;  // clears second flag in constructor
+  rtc::StaticIrqWrap wrap;  // clears second flag in constructor
 
   //  seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
   seconds++;

@@ -19,7 +19,7 @@
  */
 
 #include <core.hpp>
-#include <irq_shell.hpp>
+#include <irq_wrap.hpp>
 #include <cstdint>
 
 extern uint32_t _data_lma; /* load address of data section */
@@ -64,14 +64,14 @@ public:
 };
 
 
-struct CoreStartupIrqShell : public IrqShell {
-  CoreStartupIrqShell() {
+struct CoreStartupIrqWrap : public IrqWrap {
+  CoreStartupIrqWrap() {
     CoreStartup::init_data_section();
     CoreStartup::init_bss_section();
     CoreStartup::InitHW();    /* init hardware BEFORE calling ctors, they might depend on it */
     CoreStartup::call_ctors();
   };
-  ~CoreStartupIrqShell() { 
+  ~CoreStartupIrqWrap() { 
     CoreStartup::call_dtors();
   };
 };

@@ -28,7 +28,7 @@
 
 /* Reset core exception: triggered on system startup (system entry point). */
 void CoreExceptionReset::Handler(void) {
-  CoreStartupIrqShell shell;
+  CoreStartupIrqWrap wrap;
 
   Kernel::init();
   Kernel::run();

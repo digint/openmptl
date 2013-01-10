@@ -25,7 +25,7 @@
 #include <arch/nvic.hpp>
 #include <arch/scb.hpp>
 #include <cppcore_setup.hpp>
-#include <irq_shell.hpp>
+#include <irq_wrap.hpp>
 //#include <functional>
 
 typedef void( *const irq_func_t )( void );
@@ -125,7 +125,7 @@ class CoreExceptionHardFault {
 private:
 //  static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
-    DefaultIrqShell shell;
+    DefaultIrqWrap wrap;
   }
 };
 
@@ -138,7 +138,7 @@ class CoreExceptionNMI {
 private:
 //  static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
-    DefaultIrqShell shell;
+    DefaultIrqWrap wrap;
   }
 };
 
@@ -152,7 +152,7 @@ class CoreException : public IrqBase {
 
 //  static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
-    DefaultIrqShell shell;
+    DefaultIrqWrap wrap;
   }
 
   static void SetPriority(uint32_t priority) {
@@ -178,7 +178,7 @@ class Irq : public IrqBase {
   //       code bloat is about 600 bytes for all functions defined in irq.cpp.
 //  static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
-    DefaultIrqShell shell;
+    DefaultIrqWrap wrap;
   }
   //  static const std::function<void(void)> Handler;
   //  static irq_func_t Handler;
