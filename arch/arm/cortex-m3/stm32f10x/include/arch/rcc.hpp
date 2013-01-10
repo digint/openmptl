@@ -126,7 +126,8 @@ public:
 
 
   static void Init(void) {
-    RCC::CR::HSION::set();     /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
+    /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
+    RCC::CR::HSION::set();
 
     RCC::CFGR::clear(RCC::CFGR::SW::value |
                      RCC::CFGR::SWS::value |
