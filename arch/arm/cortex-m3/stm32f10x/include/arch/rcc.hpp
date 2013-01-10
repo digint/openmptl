@@ -153,7 +153,8 @@ public:
                      );
 
 #ifdef STM32F10X_CL
-    RCC::CR::clear(RCC::CR::PLL2ON::value, RCC::CR::PLL3ON::value);
+    RCC::CR::clear(RCC::CR::PLL2ON::value |
+                   RCC::CR::PLL3ON::value);
 #endif
 
     /* Disable all interrupts and clear pending bits  */
