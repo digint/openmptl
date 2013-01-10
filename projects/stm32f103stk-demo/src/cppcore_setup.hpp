@@ -21,18 +21,7 @@
 #ifndef SETUP_HPP_INCLUDED
 #define SETUP_HPP_INCLUDED
 
-// TODO: define these somewhere else
-typedef unsigned int freq_t;
-
-static constexpr freq_t operator"" _hz (unsigned long long x) { return x; }
-static constexpr freq_t operator"" _khz(unsigned long long x) { return x * 1000; }
-static constexpr freq_t operator"" _mhz(unsigned long long x) { return x * 1000 * 1000; }
-
-static constexpr freq_t operator"" _khz(long double x)        { return x * 1000; }
-static constexpr freq_t operator"" _mhz(long double x)        { return x * 1000 * 1000; }
-
-//static_assert(1.0009_khz == 1000, "doubles are always rounded down");
-
+#include <freq.hpp>
 
 struct CoreSetup {
   // static constexpr freq_t clock_frequency = 24_mhz;
