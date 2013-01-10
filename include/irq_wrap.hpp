@@ -19,8 +19,8 @@
  */
 
 
-#ifndef IRQ_SHELL_HPP_INCLUDED
-#define IRQ_SHELL_HPP_INCLUDED
+#ifndef IRQ_WRAP_HPP_INCLUDED
+#define IRQ_WRAP_HPP_INCLUDED
 
 
 struct IrqWrap {
@@ -41,4 +41,4 @@ struct CountedIrqWrap {
 #endif
 
 
-#endif //IRQ_SHELL_HPP_INCLUDED
+#endif //IRQ_WRAP_HPP_INCLUDED
