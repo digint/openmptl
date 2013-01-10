@@ -19,34 +19,26 @@
  */
 
 
-#include <core_startup.hpp>
-#include <arch/irq.hpp>
-#include <kernel.hpp>
+#ifndef IRQ_SHELL_HPP_INCLUDED
+#define IRQ_SHELL_HPP_INCLUDED
 
 
-#ifndef CORE_SIMULATION
+struct IrqShell {
+// TODO: check virtual declaration
+  IrqShell() { }
+  ~IrqShell() { }
+};
 
-/* Reset core exception: triggered on system startup (system entry point). */
-void CoreExceptionReset::Handler(void) {
-  CoreStartupIrqShell shell;
+struct DefaultIrqShell : public IrqShell {
+  ~DefaultIrqShell () { while(1); }
+};
 
-  Kernel::init();
-  Kernel::run();
-}
+#if 0
+struct CountedIrqShell {
+  static int count;
+  CountedIrqShell() { counter++; }
+};
+#endif
 
-#else // CORE_SIMULATION
 
-#include <iostream>
-
-
-int main(int argc, char *argv[])
-{
-  std::cout << "cppcore simulation" << std::endl
-            << "------------------" << std::endl
-            << std::endl;
-
-  Kernel::init();
-  Kernel::run();
-}
-
-#endif // CORE_SIMULATION
+#endif //IRQ_SHELL_HPP_INCLUDED

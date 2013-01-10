@@ -19,7 +19,7 @@
  */
 
 #include <core.hpp>
-#include <arch/irq.hpp>
+#include <irq_shell.hpp>
 #include <cstdint>
 
 extern uint32_t _data_lma; /* load address of data section */

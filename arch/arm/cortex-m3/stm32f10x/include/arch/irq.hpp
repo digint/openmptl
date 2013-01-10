@@ -25,6 +25,7 @@
 #include <arch/nvic.hpp>
 #include <arch/scb.hpp>
 #include <cppcore_setup.hpp>
+#include <irq_shell.hpp>
 //#include <functional>
 
 typedef void( *const irq_func_t )( void );
@@ -38,27 +39,6 @@ private:
   static irq_func_t vector_table[] __attribute__ ((section(".isr_vector")));
   //    static const std::function<void(void)> vector_table[] __attribute__ ((section(".isr_vector")));
 };
-
-
-////////////////////  IrqShell  ////////////////////
-
-
-struct IrqShell {
-// TODO: check virtual declaration
-  IrqShell() { }
-  ~IrqShell() { }
-};
-
-struct DefaultIrqShell : public IrqShell {
-  ~DefaultIrqShell () { while(1); }
-};
-
-#if 0
-struct CountedIrqShell {
-  static int count;
-  CountedIrqShell() { counter++; }
-};
-#endif
 
 
 ////////////////////  IrqBase  ////////////////////
