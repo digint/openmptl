@@ -22,7 +22,7 @@
 #define CORE_HPP_INCLUDED
 
 #include <cppcore_setup.hpp>
-#include <arch/core_reg.hpp>
+#include <arch/register_defs.hpp>
 
 
 ////////////////////  cIrq  ////////////////////
