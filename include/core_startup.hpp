@@ -33,7 +33,7 @@ extern void (*__fini_array_start []) (void);
 extern void (*__fini_array_end   []) (void);
 
 
-class CoreStartup : public Core {
+class CoreStartup {
 public:
   static void init_data_section(void) {
     uint32_t *src = &_data_lma;
@@ -68,9 +68,13 @@ struct CoreStartupIrqWrap : public IrqWrap {
   CoreStartupIrqWrap() {
     CoreStartup::init_data_section();
     CoreStartup::init_bss_section();
-    CoreStartup::InitHW();    /* init hardware BEFORE calling ctors, they might depend on it */
+
+    /* init hardware BEFORE calling ctors, they might depend on it */
+    Core::InitHW();
+
     CoreStartup::call_ctors();
   };
+
   ~CoreStartupIrqWrap() { 
     CoreStartup::call_dtors();
   };
