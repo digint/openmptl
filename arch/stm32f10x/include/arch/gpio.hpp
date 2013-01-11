@@ -113,8 +113,8 @@
 
 
 #include <arch/core.hpp>
-#include <arch/rcc.hpp>
 #include <arch/core_resource.hpp>
+#include <freq.hpp>
 
 namespace cGpio
 {
@@ -130,12 +130,6 @@ namespace cGpio
     open_drain,     //< General purpose output open-drain            
     alt_push_pull,  //< Alternate function output push-pull          
     alt_open_drain  //< Alternate function output open-drain         
-  };
-
-  enum class OutputMode {
-    mhz_10,         //< max 10MHz speed
-    mhz_2,          //< max 2MHz speed
-    mhz_50          //< max 50MHz speed
   };
 
   enum class ActiveState {
@@ -209,11 +203,11 @@ public:
     GPIOx::BRR::store(pin_mask);
   }
 
-  static int read_input_bit() {
+  static uint32_t read_input_bit() {
     return GPIOx::IDR::test(pin_mask);
   }
 
-  static int read_output_bit() {
+  static uint32_t read_output_bit() {
     return GPIOx::ODR::test(pin_mask);
   }
 };
@@ -264,8 +258,8 @@ public:
                         > resources;
 
 
-  static int active() {
-    int input = base::read_input_bit();
+  static bool active(void) {
+    bool input = base::read_input_bit();
     return active_state == cGpio::ActiveState::low ? !input : input;
   }
 };
@@ -277,9 +271,14 @@ public:
 template<char port,
          int pin_no,
          cGpio::OutputConfig cnf,
-         cGpio::OutputMode mode = cGpio::OutputMode::mhz_50,
+         freq_t speed = 50_mhz,
          cGpio::ActiveState active_state = cGpio::ActiveState::low>
 class GpioOutput : public GpioBase<port, pin_no> {
+
+  static_assert((speed == 2_mhz) || 
+                (speed == 10_mhz) || 
+                (speed == 50_mhz),
+                "Illegal frequency for GpioOutput speed (allowed: 2_mhz, 10_mhz, 50_mhz)");
 
   typedef GpioBase<port, pin_no> base;
 
@@ -293,8 +292,8 @@ public:
                                           (cnf == cGpio::OutputConfig::alt_push_pull)  ? 2 :
                                           (cnf == cGpio::OutputConfig::alt_open_drain) ? 3 :
                                           0) << 2) << base::crx_shift;
-  static constexpr uint32_t mode_value = ((mode == cGpio::OutputMode::mhz_10) ? 1 :
-                                          (mode == cGpio::OutputMode::mhz_2)  ? 2 :
+  static constexpr uint32_t mode_value = ((speed == 10_mhz) ? 1 :
+                                          (speed == 2_mhz)  ? 2 :
                                           3) << base::crx_shift;
   static constexpr uint32_t crx_value = mode_value | cnf_value;
 
@@ -326,8 +325,8 @@ public:
     }
   }
 
-  static int active() {
-    int input = base::read_input_bit();
+  static bool active() {
+    bool input = base::read_input_bit();
     return active_state == cGpio::ActiveState::low ? !input : input;
   }
 
@@ -340,8 +339,8 @@ public:
     }
   }
 
-  static int latched() {
-    int output = base::read_output_bit();
+  static bool latched() {
+    bool output = base::read_output_bit();
     return active_state == cGpio::ActiveState::low ? !output : output;
   }
 };
@@ -353,11 +352,11 @@ public:
 template<char port,
          int pin_no,
          cGpio::OutputConfig cnf = cGpio::OutputConfig::push_pull,
-         cGpio::OutputMode mode = cGpio::OutputMode::mhz_50,
+         freq_t speed = 50_mhz,
          cGpio::ActiveState active_state = cGpio::ActiveState::low>
-class GpioLed : public GpioOutput<port, pin_no, cnf, mode, active_state> {
+class GpioLed : public GpioOutput<port, pin_no, cnf, speed, active_state> {
 
-  typedef GpioOutput<port, pin_no, cnf, mode, active_state> base;
+  typedef GpioOutput<port, pin_no, cnf, speed, active_state> base;
 
 public:
   static void on() {
@@ -367,8 +366,6 @@ public:
     base::disable();
   }
 };
-
-
 
 #endif // GPIO_HPP_INCLUDED
 
