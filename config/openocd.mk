@@ -1,10 +1,8 @@
 OPENOCD      = openocd
 
+oocd_gdb_port = 3333
 
-# debug level (d0..d3)
-oocd_params  = -d1
-
-# interface and board/target settings (using the OOCD target-library here)
+oocd_params          = -d1             # debug level (d0..d3)
 # oocd_params        += -c "fast enable"
 oocd_params         += $(OPENOCD_CONFIG)
 oocd_params         += -c init -c targets
@@ -19,9 +17,8 @@ oocd_params_reset    = $(oocd_params)
 oocd_params_reset   += -c "reset run"
 oocd_params_reset   += -c "shutdown"
 
-oocd_params_debug    = $(oocd_params)
-oocd_gdb_port        = 3333
-oocd_params_debug   += -c "gdb_port $(oocd_gdb_port)"
+oocd_params_debug    = -c "gdb_port $(oocd_gdb_port)"
+oocd_params_debug   += $(oocd_params)
 oocd_params_debug   += -c "reset halt"
 
 
