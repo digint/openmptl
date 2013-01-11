@@ -21,15 +21,25 @@
 #ifndef RESOURCES_HPP_INCLUDED
 #define RESOURCES_HPP_INCLUDED
 
+#include <arch/systick.hpp>
 #include <arch/gpio.hpp>
 
 
 namespace resources
 {
-  typedef GpioLed<'D', 12> led;
+  typedef SysTick<100_hz, cSysTick::ClockSource::hclk_div8> systick;
 
-  typedef ResourceList< typename led::resources
+  typedef GpioLed<'D', 12, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_green;
+  typedef GpioLed<'D', 13, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_orange;
+  typedef GpioLed<'D', 14, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_red;
+  typedef GpioLed<'D', 15, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_blue;
+
+  typedef ResourceList< typename systick::resources,
+                        typename led_green::resources,
+                        typename led_orange::resources,
+                        typename led_red::resources,
+                        typename led_blue::resources
                         > list;
-
 }
-#endif
+
+#endif // RESOURCES_HPP_INCLUDED
