@@ -201,8 +201,12 @@ struct RegisterBits  // TODO: consider derived from integral_type<>
     type::store(r);
   }
   static void shift_and_set(value_type _value) {
-    _value <<= offset;
-    set(_value);
+    set(shifted_value(_value));
+  }
+
+  // TODO: better naming for this
+  static value_type shifted_value(value_type _value) {
+    return (_value << offset);
   }
 
   template<std::size_t bit_no>
