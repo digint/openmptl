@@ -23,6 +23,7 @@
 #ifndef CORE_SIMULATION
 
 extern uint32_t _eram;
+extern uint32_t _eccm;
 
 static_assert(sizeof(irq_func_t) == 4, "wrong size for irq function pointer");
 static_assert(alignof(irq_func_t) == 4, "wrong alignment for irq function pointer table");
@@ -30,7 +31,12 @@ static_assert(alignof(irq_func_t) == 4, "wrong alignment for irq function pointe
 irq_func_t IrqVector::vector_table[] =
 {
   /* first entry is the top-of-stack value */
+#ifdef FEATURE_STACK_ON_CCM
+  /* put stack to CCM ram (should be faster, but crashed irq handlers) */
+  reinterpret_cast<irq_func_t>(reinterpret_cast<uint32_t>(&_eccm)),
+#else
   reinterpret_cast<irq_func_t>(reinterpret_cast<uint32_t>(&_eram)),
+#endif
 
   /* fixed core exceptions */
 
