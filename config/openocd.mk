@@ -6,8 +6,7 @@ oocd_params  = -d1
 
 # interface and board/target settings (using the OOCD target-library here)
 # oocd_params        += -c "fast enable"
-# oocd_params        += -f interface/arm-usb-ocd.cfg -f board/stm32f10x_128k_eval.cfg
-oocd_params         += -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
+oocd_params         += $(OPENOCD_CONFIG)
 oocd_params         += -c init -c targets
 
 oocd_params_program  = $(oocd_params)

@@ -41,6 +41,7 @@ OPTIMIZER    = -Os
 
 LD_SCRIPT    = stm32f10x_flash_md.ld 
 
+OPENOCD_CONFIG = -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
 
 
 #------------------------------------------------------------------------------
