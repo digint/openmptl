@@ -21,9 +21,9 @@
 #ifndef SYSTICK_HPP_INCLUDED
 #define SYSTICK_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 #include <arch/irq.hpp>
-#include <core_resource.hpp>
+#include <arch/core_resource.hpp>
 
 namespace cSysTick
 {

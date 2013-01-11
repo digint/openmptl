@@ -21,7 +21,7 @@
 #ifndef NVIC_HPP_INCLUDED
 #define NVIC_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 
 
 template<IrqNumber::Interrupt irqn>

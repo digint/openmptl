@@ -20,7 +20,7 @@
 
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
-#include <core.hpp>
+#include <arch/core.hpp>
 
 void Core::InitClocks() {
   int success;

@@ -21,7 +21,7 @@
 #ifndef PWR_HPP_INCLUDED
 #define PWR_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 
 
 class Pwr

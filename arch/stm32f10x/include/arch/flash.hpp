@@ -21,7 +21,7 @@
 #ifndef FLASH_HPP_INCLUDED
 #define FLASH_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 
 
 class Flash

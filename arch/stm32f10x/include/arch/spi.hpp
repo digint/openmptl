@@ -21,7 +21,7 @@
 #ifndef SPI_HPP_INCLUDED
 #define SPI_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 
 namespace cSpi
 {

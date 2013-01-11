@@ -21,7 +21,7 @@
 #ifndef RTC_HPP_INCLUDED
 #define RTC_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 #include <arch/irq.hpp>
 #include <arch/pwr.hpp>
 

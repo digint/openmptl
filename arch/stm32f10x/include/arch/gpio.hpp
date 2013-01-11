@@ -112,9 +112,9 @@
 // required.  
 
 
-#include <core.hpp>
+#include <arch/core.hpp>
 #include <arch/rcc.hpp>
-#include <core_resource.hpp>
+#include <arch/core_resource.hpp>
 
 namespace cGpio
 {

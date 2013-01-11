@@ -21,7 +21,7 @@
 #ifndef ADC_HPP_INCLUDED
 #define ADC_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 #include <arch/rcc.hpp>
 
 namespace cAdc

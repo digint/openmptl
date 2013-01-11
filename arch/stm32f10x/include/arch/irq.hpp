@@ -21,7 +21,7 @@
 #ifndef IRQ_HPP_INCLUDED
 #define IRQ_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 #include <arch/nvic.hpp>
 #include <arch/scb.hpp>
 #include <cppcore_setup.hpp>

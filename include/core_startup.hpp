@@ -18,7 +18,7 @@
  * 
  */
 
-#include <core.hpp>
+#include <arch/core.hpp>
 #include <irq_wrap.hpp>
 #include <cstdint>
 

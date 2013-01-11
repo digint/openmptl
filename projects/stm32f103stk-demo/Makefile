@@ -29,8 +29,7 @@ TINYFSM_TOP  = ../../../tinyfsm
 CROSS        = arm-none-eabi-
 #CROSS       = /opt/toolchain/x86_64-pc-linux-gnu-gcc-4.7.0/bin/x86_64-pc-linux-gnu-
 
-CPPCORE_ARCH    = arm/cortex-m3
-CPPCORE_SUBARCH = stm32f10x
+CPPCORE_ARCH  = stm32f10x
 
 CPUFLAGS     = -mcpu=cortex-m3 -mthumb
 

@@ -21,7 +21,7 @@
 #ifndef SCB_HPP_INCLUDED
 #define SCB_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 
 
 class Scb : private InterruptControllerSetup

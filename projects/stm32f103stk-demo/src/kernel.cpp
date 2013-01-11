@@ -29,7 +29,7 @@
 #include "time.hpp"
 
 #include "printf.h"
-#include <core_resource.hpp>
+#include <arch/core_resource.hpp>
 #include <arch/uart_transport.hpp>
 
 #include <atomic>

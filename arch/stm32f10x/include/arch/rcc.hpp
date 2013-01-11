@@ -21,7 +21,7 @@
 #ifndef RCC_HPP_INCLUDED
 #define RCC_HPP_INCLUDED
 
-#include <core.hpp>
+#include <arch/core.hpp>
 
 
 // TODO: access functions, change public to private
