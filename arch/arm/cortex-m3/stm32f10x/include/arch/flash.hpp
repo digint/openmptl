@@ -34,7 +34,7 @@ public:
     FLASH::ACR::PRFTBE::set();
   }
   static void DisablePrefetchBuffer(void) {
-    FLASH::ACR::PRFTBE::set();
+    FLASH::ACR::PRFTBE::clear();
   }
 
   template<freq_t freq>
