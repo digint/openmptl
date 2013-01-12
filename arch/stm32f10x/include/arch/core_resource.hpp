@@ -41,30 +41,30 @@ template<char port, int pin_no>   struct UniqueGPIO     : CountedResource,  Shar
 template<typename T, typename... Args>
 void ResourceList<T, Args...>::configure(void)
 {
-  Core::RCC::APB1ENR::store( value< SharedAPB1ENR<0> >() );
-  Core::RCC::APB2ENR::store( value< SharedAPB2ENR<0> >() );
+  if(value< SharedAPB1ENR<0> >()) Core::RCC::APB1ENR::store( value< SharedAPB1ENR<0> >() );
+  if(value< SharedAPB2ENR<0> >()) Core::RCC::APB2ENR::store( value< SharedAPB2ENR<0> >() );
 
   // TODO: loop tuple
-  if(value< SharedCRL_Mask<'A', 0> >()) Core::GPIO<'A'>::CRL::store((Core::GPIO<'A'>::CRL::load() & ~value< SharedCRL_Mask<'A', 0> >()) | value< SharedCRL<'A', 0> >());
-  if(value< SharedCRH_Mask<'A', 0> >()) Core::GPIO<'A'>::CRH::store((Core::GPIO<'A'>::CRH::load() & ~value< SharedCRH_Mask<'A', 0> >()) | value< SharedCRH<'A', 0> >());
-
-  if(value< SharedCRL_Mask<'B', 0> >()) Core::GPIO<'B'>::CRL::store((Core::GPIO<'B'>::CRL::load() & ~value< SharedCRL_Mask<'B', 0> >()) | value< SharedCRL<'B', 0> >());
-  if(value< SharedCRH_Mask<'B', 0> >()) Core::GPIO<'B'>::CRH::store((Core::GPIO<'B'>::CRH::load() & ~value< SharedCRH_Mask<'B', 0> >()) | value< SharedCRH<'B', 0> >());
-
-  if(value< SharedCRL_Mask<'C', 0> >()) Core::GPIO<'C'>::CRL::store((Core::GPIO<'C'>::CRL::load() & ~value< SharedCRL_Mask<'C', 0> >()) | value< SharedCRL<'C', 0> >());
-  if(value< SharedCRH_Mask<'C', 0> >()) Core::GPIO<'C'>::CRH::store((Core::GPIO<'C'>::CRH::load() & ~value< SharedCRH_Mask<'C', 0> >()) | value< SharedCRH<'C', 0> >());
-
-  if(value< SharedCRL_Mask<'D', 0> >()) Core::GPIO<'D'>::CRL::store((Core::GPIO<'D'>::CRL::load() & ~value< SharedCRL_Mask<'D', 0> >()) | value< SharedCRL<'D', 0> >());
-  if(value< SharedCRH_Mask<'D', 0> >()) Core::GPIO<'D'>::CRH::store((Core::GPIO<'D'>::CRH::load() & ~value< SharedCRH_Mask<'D', 0> >()) | value< SharedCRH<'D', 0> >());
-
-  if(value< SharedCRL_Mask<'E', 0> >()) Core::GPIO<'E'>::CRL::store((Core::GPIO<'E'>::CRL::load() & ~value< SharedCRL_Mask<'E', 0> >()) | value< SharedCRL<'E', 0> >());
-  if(value< SharedCRH_Mask<'E', 0> >()) Core::GPIO<'E'>::CRH::store((Core::GPIO<'E'>::CRH::load() & ~value< SharedCRH_Mask<'E', 0> >()) | value< SharedCRH<'E', 0> >());
-
-  if(value< SharedCRL_Mask<'F', 0> >()) Core::GPIO<'F'>::CRL::store((Core::GPIO<'F'>::CRL::load() & ~value< SharedCRL_Mask<'F', 0> >()) | value< SharedCRL<'F', 0> >());
-  if(value< SharedCRH_Mask<'F', 0> >()) Core::GPIO<'F'>::CRH::store((Core::GPIO<'F'>::CRH::load() & ~value< SharedCRH_Mask<'F', 0> >()) | value< SharedCRH<'F', 0> >());
-
-  if(value< SharedCRL_Mask<'G', 0> >()) Core::GPIO<'G'>::CRL::store((Core::GPIO<'G'>::CRL::load() & ~value< SharedCRL_Mask<'G', 0> >()) | value< SharedCRL<'G', 0> >());
-  if(value< SharedCRH_Mask<'G', 0> >()) Core::GPIO<'G'>::CRH::store((Core::GPIO<'G'>::CRH::load() & ~value< SharedCRH_Mask<'G', 0> >()) | value< SharedCRH<'G', 0> >());
+  if(value< SharedCRL_Mask<'A', 0> >()) Core::GPIO<'A'>::CRL::set(value< SharedCRL<'A', 0> >(), value< SharedCRL_Mask<'A', 0> >());
+  if(value< SharedCRH_Mask<'A', 0> >()) Core::GPIO<'A'>::CRH::set(value< SharedCRH<'A', 0> >(), value< SharedCRH_Mask<'A', 0> >());
+                                                                                               
+  if(value< SharedCRL_Mask<'B', 0> >()) Core::GPIO<'B'>::CRL::set(value< SharedCRL<'B', 0> >(), value< SharedCRL_Mask<'B', 0> >());
+  if(value< SharedCRH_Mask<'B', 0> >()) Core::GPIO<'B'>::CRH::set(value< SharedCRH<'B', 0> >(), value< SharedCRH_Mask<'B', 0> >());
+                                                                                               
+  if(value< SharedCRL_Mask<'C', 0> >()) Core::GPIO<'C'>::CRL::set(value< SharedCRL<'C', 0> >(), value< SharedCRL_Mask<'C', 0> >());
+  if(value< SharedCRH_Mask<'C', 0> >()) Core::GPIO<'C'>::CRH::set(value< SharedCRH<'C', 0> >(), value< SharedCRH_Mask<'C', 0> >());
+                                                                                               
+  if(value< SharedCRL_Mask<'D', 0> >()) Core::GPIO<'D'>::CRL::set(value< SharedCRL<'D', 0> >(), value< SharedCRL_Mask<'D', 0> >());
+  if(value< SharedCRH_Mask<'D', 0> >()) Core::GPIO<'D'>::CRH::set(value< SharedCRH<'D', 0> >(), value< SharedCRH_Mask<'D', 0> >());
+                                                                                               
+  if(value< SharedCRL_Mask<'E', 0> >()) Core::GPIO<'E'>::CRL::set(value< SharedCRL<'E', 0> >(), value< SharedCRL_Mask<'E', 0> >());
+  if(value< SharedCRH_Mask<'E', 0> >()) Core::GPIO<'E'>::CRH::set(value< SharedCRH<'E', 0> >(), value< SharedCRH_Mask<'E', 0> >());
+                                                                                               
+  if(value< SharedCRL_Mask<'F', 0> >()) Core::GPIO<'F'>::CRL::set(value< SharedCRL<'F', 0> >(), value< SharedCRL_Mask<'F', 0> >());
+  if(value< SharedCRH_Mask<'F', 0> >()) Core::GPIO<'F'>::CRH::set(value< SharedCRH<'F', 0> >(), value< SharedCRH_Mask<'F', 0> >());
+                                                                                               
+  if(value< SharedCRL_Mask<'G', 0> >()) Core::GPIO<'G'>::CRL::set(value< SharedCRL<'G', 0> >(), value< SharedCRL_Mask<'G', 0> >());
+  if(value< SharedCRH_Mask<'G', 0> >()) Core::GPIO<'G'>::CRH::set(value< SharedCRH<'G', 0> >(), value< SharedCRH_Mask<'G', 0> >());
 }
 
 
