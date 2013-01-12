@@ -22,6 +22,8 @@
 
 #ifndef CORE_SIMULATION
 
+#define FEATURE_STACK_ON_CCM
+
 extern uint32_t _eram;
 extern uint32_t _eccm;
 
@@ -32,7 +34,7 @@ irq_func_t IrqVector::vector_table[] =
 {
   /* first entry is the top-of-stack value */
 #ifdef FEATURE_STACK_ON_CCM
-  /* put stack to CCM ram (should be faster, but crashed irq handlers) */
+  /* put stack to CCM ram (should be faster) */
   reinterpret_cast<irq_func_t>(reinterpret_cast<uint32_t>(&_eccm)),
 #else
   reinterpret_cast<irq_func_t>(reinterpret_cast<uint32_t>(&_eram)),
