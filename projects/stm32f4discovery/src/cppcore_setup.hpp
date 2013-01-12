@@ -27,6 +27,7 @@
 struct CoreSetup {
   static constexpr freq_t    clock_frequency = 168_mhz;
   static constexpr voltage_t system_voltage  = 3.3_volt;
+  static constexpr bool      power_save      = false;
 
   /* note that clocks might not be setup when this is called */
   static void Panic(void) { while(1); };

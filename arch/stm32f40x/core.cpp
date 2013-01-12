@@ -20,9 +20,14 @@
 
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
+#include <arch/pwr.hpp>
 #include <arch/core.hpp>
 
 void Core::InitClocks() {
+  static_assert(clock_frequency <= 168_mhz, "unsupported system clock frequency");
+  static_assert(system_voltage >= 1.8_volt && system_voltage <= 3.6_volt, "unsupported system voltage");
+  static_assert(power_save == false || clock_frequency <= 144_mhz, "system clock frequency too high for power save feature");
+
   Rcc::EnableHSE();
   Rcc::WaitHSERDY();
 
@@ -30,6 +35,8 @@ void Core::InitClocks() {
   Flash::EnableInstructionCache();
   Flash::EnableDataCache();
   Flash::SetLatency<clock_frequency, system_voltage>();
+
+  Pwr::SetPowerSave<power_save>();
 
   Rcc::SetSysClock<clock_frequency>();
 }

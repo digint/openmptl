@@ -77,10 +77,6 @@ public:
   static void SetSysClock(void) {
     static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
 
-    // TODO: High Performance Mode switch
-    //    RCC::APB1ENR::PWREN::set();
-    //    Core::PWR::CR::VOS::set();
-
     // auto cfgr = RCC::CFGR::load();
     auto cfgr = RCC::CFGR::reset_value;
     cfgr &= ~(RCC::CFGR::HPRE::value       | RCC::CFGR::PPRE1::value       | RCC::CFGR::PPRE2::value);
