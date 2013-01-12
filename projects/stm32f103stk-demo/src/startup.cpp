@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
             << "------------------" << std::endl
             << std::endl;
 
+  Core::InitHW();
+
   Kernel::init();
   Kernel::run();
 }
