@@ -27,7 +27,7 @@
 
 namespace resources
 {
-  typedef SysTick<100_hz, cSysTick::ClockSource::hclk_div8> systick;
+  typedef SysTick<1_khz, cSysTick::ClockSource::hclk> systick;
 
   typedef GpioLed<'D', 12, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_green;
   typedef GpioLed<'D', 13, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_orange;

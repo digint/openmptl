@@ -30,12 +30,17 @@ using namespace resources;
 //incomplete<Core::SPI<1>::CR1::SPE::type> debug;
 
 
-static volatile int systick_count = 0;
+static volatile int systick_count = 1000;
+static volatile int second = 0;
 
 template<>
 void systick::SysTickIrq::Handler(void) {
-  systick_count++;
-  led_red::toggle();
+  systick_count--;
+  if(systick_count == 0) {
+    systick_count = 1000;
+    second++;
+    led_green::toggle();
+  }
 }
 
 void Kernel::init(void)
@@ -53,28 +58,35 @@ void Kernel::init(void)
 }
 
 
+/********** Test this!
+
+ For observing cycle level performance, use the core counter present within the trace unit included on the STM32.
+
+// From http://forums.arm.com/index.php?showtopic=13949
+ 
+volatile unsigned int *DWT_CYCCNT   = (volatile unsigned int *)0xE0001004; //address of the register
+volatile unsigned int *DWT_CONTROL  = (volatile unsigned int *)0xE0001000; //address of the register
+volatile unsigned int *SCB_DEMCR        = (volatile unsigned int *)0xE000EDFC; //address of the register
+ 
+*SCB_DEMCR = *SCB_DEMCR | 0x01000000;
+*DWT_CYCCNT = 0; // reset the counter
+*DWT_CONTROL = *DWT_CONTROL | 1 ; // enable the counter
+ 
+#define STOPWATCH_START { cyc[0] = *DWT_CYCCNT;}
+#define STOPWATCH_STOP { cyc[1] = *DWT_CYCCNT; cyc[1] = cyc[1] - cyc[0]; }
+
+*/
+
+
 void Kernel::run(void)
 {
-  int systick_old;
-
   if(Core::SCB::CPUID::load() == 0x410FC241) {
     led_blue::on();
   }
 
   while(1)
   {
-#if 0
-    systick_old = systick_count;
-
-    led_green::toggle();
-    while(systick_old == systick_count) {
-      CoreFunctions::nop();
-    }
-#else
-      for (int i = 0; i < 10000000; i++)    __asm__("nop");
-      led_green::toggle();
-#endif
-
-    //    for (int i = 0; i < 10000000; i++)    __asm__("nop");
+    for (int i = 0; i < 10000000; i++)    __asm__("nop");
+    led_orange::toggle();
   }
 }
