@@ -85,19 +85,55 @@ struct PeripheralRegister {
       typedef Register< uint32_t, reg_base + 0x8, access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CFGR";
 
-      typedef RegisterBits< reg_type, 30,  2 > MCO2;      /**< Microcontroller clock output 2     */
-      typedef RegisterBits< reg_type, 27,  3 > MCO2PRE;   /**< MCO2 prescaler                     */
-      typedef RegisterBits< reg_type, 24,  3 > MCO1PRE;   /**< MCO1 prescaler                     */
-      typedef RegisterBits< reg_type, 23,  1 > I2SSRC;    /**< I2S clock selection                */
-      typedef RegisterBits< reg_type, 21,  2 > MCO1;      /**< Microcontroller clock output 1     */
-      typedef RegisterBits< reg_type, 16,  5 > RTCPRE;    /**< HSE division factor for RTC clock  */
-      typedef RegisterBits< reg_type, 13,  3 > PPRE2;     /**< APB high-speed prescaler (APB2)    */
-      typedef RegisterBits< reg_type, 10,  3 > PPRE1;     /**< APB Low speed prescaler (APB1)     */
-      typedef RegisterBits< reg_type,  4,  4 > HPRE;      /**< AHB prescaler                      */
-      typedef RegisterBits< reg_type,  3,  1 > SWS1;      /**< System clock switch status         */
-      typedef RegisterBits< reg_type,  2,  1 > SWS0;      /**< System clock switch status         */
-      typedef RegisterBits< reg_type,  1,  1 > SW1;       /**< System clock switch                */
-      typedef RegisterBits< reg_type,  0,  1 > SW0;       /**< System clock switch                */
+      /** APB1/2 prescaler  */
+      template<typename Rb>
+      struct __PPREx
+      : public Rb
+      {
+        typedef RegisterConst< Rb, 0x0 > DIV1;         /**< 0xx: AHB clock not divided     */
+        typedef RegisterConst< Rb, 0x4 > DIV2;         /**< 100: AHB clock divided by 2    */
+        typedef RegisterConst< Rb, 0x5 > DIV4;         /**< 101: AHB clock divided by 4    */
+        typedef RegisterConst< Rb, 0x6 > DIV8;         /**< 110: AHB clock divided by 8    */
+        typedef RegisterConst< Rb, 0x7 > DIV16;        /**< 111: AHB clock divided by 16   */
+      };
+
+      /** AHB prescaler  */
+      template<typename Rb>
+      struct __HPRE
+      : public Rb
+      {
+        typedef RegisterConst< Rb, 0x0 > DIV1;         /**< 0xxx: system clock not divided      */
+        typedef RegisterConst< Rb, 0x8 > DIV2;         /**< 1000: system clock divided by 2     */
+        typedef RegisterConst< Rb, 0x9 > DIV4;         /**< 1001: system clock divided by 4     */
+        typedef RegisterConst< Rb, 0xA > DIV8;         /**< 1010: system clock divided by 8     */
+        typedef RegisterConst< Rb, 0xB > DIV16;        /**< 1011: system clock divided by 16    */
+        typedef RegisterConst< Rb, 0xC > DIV64;        /**< 1100: system clock divided by 64    */
+        typedef RegisterConst< Rb, 0xD > DIV128;       /**< 1101: system clock divided by 128   */
+        typedef RegisterConst< Rb, 0xE > DIV256;       /**< 1110: system clock divided by 256   */
+        typedef RegisterConst< Rb, 0xF > DIV512;       /**< 1111: system clock divided by 512   */
+      };
+
+      /** System clock Switch  */
+      template<typename Rb>
+      struct __SWx
+      : public Rb
+      {
+        typedef RegisterConst< Rb, 0x0 > HSI;          /**< 00: HSI selected as system clock   */
+        typedef RegisterConst< Rb, 0x1 > HSE;          /**< 01: HSE selected as system clock   */
+        typedef RegisterConst< Rb, 0x2 > PLL;          /**< 10: PLL selected as system clock   */
+      };
+
+      typedef           RegisterBits< reg_type, 30,  2 >   MCO2;      /**< Microcontroller clock output 2     */
+      typedef           RegisterBits< reg_type, 27,  3 >   MCO2PRE;   /**< MCO2 prescaler                     */
+      typedef           RegisterBits< reg_type, 24,  3 >   MCO1PRE;   /**< MCO1 prescaler                     */
+      typedef           RegisterBits< reg_type, 23,  1 >   I2SSRC;    /**< I2S clock selection                */
+      typedef           RegisterBits< reg_type, 21,  2 >   MCO1;      /**< Microcontroller clock output 1     */
+      typedef           RegisterBits< reg_type, 16,  5 >   RTCPRE;    /**< HSE division factor for RTC clock  */
+      typedef __PPREx < RegisterBits< reg_type, 13,  3 > > PPRE2;     /**< APB high-speed prescaler (APB2)    */
+      typedef __PPREx < RegisterBits< reg_type, 10,  3 > > PPRE1;     /**< APB Low speed prescaler (APB1)     */
+      typedef __HPRE  < RegisterBits< reg_type,  4,  4 > > HPRE;      /**< AHB prescaler                      */
+      typedef __SWx   < RegisterBits< reg_type,  2,  2 > > SWS;       /**< System clock switch status         */
+      typedef __SWx   < RegisterBits< reg_type,  0,  2 > > SW;        /**< System clock switch                */
     };
 
     /**
@@ -674,6 +710,56 @@ struct PeripheralRegister {
       typedef RegisterBits< reg_type,  7,  1 > nRST_STDBY;   /**< nRST_STDBY User option bytes  */
       typedef RegisterBits< reg_type,  8,  8 > RDP;          /**< Read protect                  */
       typedef RegisterBits< reg_type, 16, 12 > nWRP;         /**< Not write protect             */
+    };
+  };
+
+
+  /**
+   * Power control
+   */
+  class PWR
+  {
+  public:
+    static constexpr reg_addr_t reg_base = 0x40007000;
+    static constexpr const char * name_str = "PWR";
+
+    /**
+     * power control register
+     */
+    struct CR
+    : public Register< uint32_t, reg_base + 0x0, access::rw, 0x00000000 >
+    {
+      typedef Register< uint32_t, reg_base + 0x0, access::rw, 0x00000000 > reg_type;
+      static constexpr const char * name_str = "CR";
+
+      // TODO: check this (is VOS it set after reset? missing in import!)
+      typedef RegisterBits< reg_type, 14,  1 > VOS;    /**< Regulator voltage scaling output selection   */
+      typedef RegisterBits< reg_type,  9,  1 > FPDS;   /**< Flash power down in Stop mode           */
+      typedef RegisterBits< reg_type,  8,  1 > DBP;    /**< Disable backup domain write protection  */
+      typedef RegisterBits< reg_type,  5,  3 > PLS;    /**< PVD level selection                     */
+      typedef RegisterBits< reg_type,  4,  1 > PVDE;   /**< Power voltage detector enable           */
+      typedef RegisterBits< reg_type,  3,  1 > CSBF;   /**< Clear standby flag                      */
+      typedef RegisterBits< reg_type,  2,  1 > CWUF;   /**< Clear wakeup flag                       */
+      typedef RegisterBits< reg_type,  1,  1 > PDDS;   /**< Power down deepsleep                    */
+      typedef RegisterBits< reg_type,  0,  1 > LPDS;   /**< Low-power deep sleep                    */
+    };
+
+    /**
+     * power control/status register
+     */
+    struct CSR
+    : public Register< uint32_t, reg_base + 0x4, access::rw, 0x00000000 >
+    {
+      typedef Register< uint32_t, reg_base + 0x4, access::rw, 0x00000000 > reg_type;
+      static constexpr const char * name_str = "CSR";
+
+      typedef RegisterBits< reg_type,  0,  1 > WUF;      /**< Wakeup flag                                           */
+      typedef RegisterBits< reg_type,  1,  1 > SBF;      /**< Standby flag                                          */
+      typedef RegisterBits< reg_type,  2,  1 > PVDO;     /**< PVD output                                            */
+      typedef RegisterBits< reg_type,  3,  1 > BRR;      /**< Backup regulator ready                                */
+      typedef RegisterBits< reg_type,  8,  1 > EWUP;     /**< Enable WKUP pin                                       */
+      typedef RegisterBits< reg_type,  9,  1 > BRE;      /**< Backup regulator enable                               */
+      typedef RegisterBits< reg_type, 14,  1 > VOSRDY;   /**< Regulator voltage scaling output selection ready bit  */
     };
   };
 };
