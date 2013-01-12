@@ -30,30 +30,71 @@ template<uint32_t val> struct SharedAPB1ENR : SharedResourceOR, SharedResource<S
 template<uint32_t val> struct SharedAPB2ENR : SharedResourceOR, SharedResource<SharedAPB2ENR<0>, val> { };
 template<uint32_t val> struct SharedAHB1ENR : SharedResourceOR, SharedResource<SharedAHB1ENR<0>, val> { };
 
-template<char port, uint32_t val> struct SharedGpioMODER      : SharedResourceOR, SharedResource<SharedGpioMODER<port, 0>, val>      { };
-template<char port, uint32_t val> struct SharedGpioMODER_Mask : SharedResourceOR, SharedResource<SharedGpioMODER_Mask<port, 0>, val> { };
-template<char port, uint32_t val> struct SharedGpioOTYPER      : SharedResourceOR, SharedResource<SharedGpioOTYPER<port, 0>, val>      { };
-template<char port, uint32_t val> struct SharedGpioOTYPER_Mask : SharedResourceOR, SharedResource<SharedGpioOTYPER_Mask<port, 0>, val> { };
-template<char port, uint32_t val> struct SharedGpioOSPEEDR      : SharedResourceOR, SharedResource<SharedGpioOSPEEDR<port, 0>, val>      { };
+template<char port, uint32_t val> struct SharedGpioMODER        : SharedResourceOR, SharedResource<SharedGpioMODER       <port, 0>, val> { };
+template<char port, uint32_t val> struct SharedGpioMODER_Mask   : SharedResourceOR, SharedResource<SharedGpioMODER_Mask  <port, 0>, val> { };
+template<char port, uint32_t val> struct SharedGpioOTYPER       : SharedResourceOR, SharedResource<SharedGpioOTYPER      <port, 0>, val> { };
+template<char port, uint32_t val> struct SharedGpioOTYPER_Mask  : SharedResourceOR, SharedResource<SharedGpioOTYPER_Mask <port, 0>, val> { };
+template<char port, uint32_t val> struct SharedGpioOSPEEDR      : SharedResourceOR, SharedResource<SharedGpioOSPEEDR     <port, 0>, val> { };
 template<char port, uint32_t val> struct SharedGpioOSPEEDR_Mask : SharedResourceOR, SharedResource<SharedGpioOSPEEDR_Mask<port, 0>, val> { };
-template<char port, uint32_t val> struct SharedGpioPUPDR      : SharedResourceOR, SharedResource<SharedGpioPUPDR<port, 0>, val>      { };
-template<char port, uint32_t val> struct SharedGpioPUPDR_Mask : SharedResourceOR, SharedResource<SharedGpioPUPDR_Mask<port, 0>, val> { };
+template<char port, uint32_t val> struct SharedGpioPUPDR        : SharedResourceOR, SharedResource<SharedGpioPUPDR       <port, 0>, val> { };
+template<char port, uint32_t val> struct SharedGpioPUPDR_Mask   : SharedResourceOR, SharedResource<SharedGpioPUPDR_Mask  <port, 0>, val> { };
 
 template<char port, int pin_no>   struct UniqueGPIO     : CountedResource,  SharedResource<UniqueGPIO<port, pin_no>, 1>  { };
-
 
 
 template<typename T, typename... Args>
 void ResourceList<T, Args...>::configure(void)
 {
-  Core::RCC::APB1ENR::store( value< SharedAPB1ENR<0> >() );
-  Core::RCC::APB2ENR::store( value< SharedAPB2ENR<0> >() );
-  Core::RCC::AHB1ENR::store( value< SharedAHB1ENR<0> >() );
+  /* Enable peripheral clocks */
+  if(value< SharedAPB1ENR<0> >()) Core::RCC::APB1ENR::store( Core::RCC::APB1ENR::reset_value | value< SharedAPB1ENR<0> >() );
+  if(value< SharedAPB2ENR<0> >()) Core::RCC::APB2ENR::store( Core::RCC::APB2ENR::reset_value | value< SharedAPB2ENR<0> >() );
+  if(value< SharedAHB1ENR<0> >()) Core::RCC::AHB1ENR::store( Core::RCC::AHB1ENR::reset_value | value< SharedAHB1ENR<0> >() );
 
-  if(value< SharedGpioMODER_Mask<'D', 0> >()) Core::GPIO<'D'>::MODER::store((Core::GPIO<'D'>::MODER::load() & ~value< SharedGpioMODER_Mask<'D', 0> >()) | value< SharedGpioMODER<'D', 0> >());
-  if(value< SharedGpioOTYPER_Mask<'D', 0> >()) Core::GPIO<'D'>::OTYPER::store((Core::GPIO<'D'>::OTYPER::load() & ~value< SharedGpioOTYPER_Mask<'D', 0> >()) | value< SharedGpioOTYPER<'D', 0> >());
-  if(value< SharedGpioOSPEEDR_Mask<'D', 0> >()) Core::GPIO<'D'>::OSPEEDR::store((Core::GPIO<'D'>::OSPEEDR::load() & ~value< SharedGpioOSPEEDR_Mask<'D', 0> >()) | value< SharedGpioOSPEEDR<'D', 0> >());
-  if(value< SharedGpioPUPDR_Mask<'D', 0> >()) Core::GPIO<'D'>::PUPDR::store((Core::GPIO<'D'>::PUPDR::load() & ~value< SharedGpioPUPDR_Mask<'D', 0> >()) | value< SharedGpioPUPDR<'D', 0> >());
+  /* Setup GPIO register */
+  if(value< SharedGpioMODER_Mask  <'A', 0> >()) Core::GPIO<'A'>::MODER::set(   value< SharedGpioMODER  <'A', 0> >(), value< SharedGpioMODER_Mask  <'A', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'A', 0> >()) Core::GPIO<'A'>::OTYPER::set(  value< SharedGpioOTYPER <'A', 0> >(), value< SharedGpioOTYPER_Mask <'A', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'A', 0> >()) Core::GPIO<'A'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'A', 0> >(), value< SharedGpioOSPEEDR_Mask<'A', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'A', 0> >()) Core::GPIO<'A'>::PUPDR::set(   value< SharedGpioPUPDR  <'A', 0> >(), value< SharedGpioPUPDR_Mask  <'A', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'B', 0> >()) Core::GPIO<'B'>::MODER::set(   value< SharedGpioMODER  <'B', 0> >(), value< SharedGpioMODER_Mask  <'B', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'B', 0> >()) Core::GPIO<'B'>::OTYPER::set(  value< SharedGpioOTYPER <'B', 0> >(), value< SharedGpioOTYPER_Mask <'B', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'B', 0> >()) Core::GPIO<'B'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'B', 0> >(), value< SharedGpioOSPEEDR_Mask<'B', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'B', 0> >()) Core::GPIO<'B'>::PUPDR::set(   value< SharedGpioPUPDR  <'B', 0> >(), value< SharedGpioPUPDR_Mask  <'B', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'C', 0> >()) Core::GPIO<'C'>::MODER::set(   value< SharedGpioMODER  <'C', 0> >(), value< SharedGpioMODER_Mask  <'C', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'C', 0> >()) Core::GPIO<'C'>::OTYPER::set(  value< SharedGpioOTYPER <'C', 0> >(), value< SharedGpioOTYPER_Mask <'C', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'C', 0> >()) Core::GPIO<'C'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'C', 0> >(), value< SharedGpioOSPEEDR_Mask<'C', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'C', 0> >()) Core::GPIO<'C'>::PUPDR::set(   value< SharedGpioPUPDR  <'C', 0> >(), value< SharedGpioPUPDR_Mask  <'C', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'D', 0> >()) Core::GPIO<'D'>::MODER::set(   value< SharedGpioMODER  <'D', 0> >(), value< SharedGpioMODER_Mask  <'D', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'D', 0> >()) Core::GPIO<'D'>::OTYPER::set(  value< SharedGpioOTYPER <'D', 0> >(), value< SharedGpioOTYPER_Mask <'D', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'D', 0> >()) Core::GPIO<'D'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'D', 0> >(), value< SharedGpioOSPEEDR_Mask<'D', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'D', 0> >()) Core::GPIO<'D'>::PUPDR::set(   value< SharedGpioPUPDR  <'D', 0> >(), value< SharedGpioPUPDR_Mask  <'D', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'E', 0> >()) Core::GPIO<'E'>::MODER::set(   value< SharedGpioMODER  <'E', 0> >(), value< SharedGpioMODER_Mask  <'E', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'E', 0> >()) Core::GPIO<'E'>::OTYPER::set(  value< SharedGpioOTYPER <'E', 0> >(), value< SharedGpioOTYPER_Mask <'E', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'E', 0> >()) Core::GPIO<'E'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'E', 0> >(), value< SharedGpioOSPEEDR_Mask<'E', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'E', 0> >()) Core::GPIO<'E'>::PUPDR::set(   value< SharedGpioPUPDR  <'E', 0> >(), value< SharedGpioPUPDR_Mask  <'E', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'F', 0> >()) Core::GPIO<'F'>::MODER::set(   value< SharedGpioMODER  <'F', 0> >(), value< SharedGpioMODER_Mask  <'F', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'F', 0> >()) Core::GPIO<'F'>::OTYPER::set(  value< SharedGpioOTYPER <'F', 0> >(), value< SharedGpioOTYPER_Mask <'F', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'F', 0> >()) Core::GPIO<'F'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'F', 0> >(), value< SharedGpioOSPEEDR_Mask<'F', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'F', 0> >()) Core::GPIO<'F'>::PUPDR::set(   value< SharedGpioPUPDR  <'F', 0> >(), value< SharedGpioPUPDR_Mask  <'F', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'G', 0> >()) Core::GPIO<'G'>::MODER::set(   value< SharedGpioMODER  <'G', 0> >(), value< SharedGpioMODER_Mask  <'G', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'G', 0> >()) Core::GPIO<'G'>::OTYPER::set(  value< SharedGpioOTYPER <'G', 0> >(), value< SharedGpioOTYPER_Mask <'G', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'G', 0> >()) Core::GPIO<'G'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'G', 0> >(), value< SharedGpioOSPEEDR_Mask<'G', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'G', 0> >()) Core::GPIO<'G'>::PUPDR::set(   value< SharedGpioPUPDR  <'G', 0> >(), value< SharedGpioPUPDR_Mask  <'G', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'H', 0> >()) Core::GPIO<'H'>::MODER::set(   value< SharedGpioMODER  <'H', 0> >(), value< SharedGpioMODER_Mask  <'H', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'H', 0> >()) Core::GPIO<'H'>::OTYPER::set(  value< SharedGpioOTYPER <'H', 0> >(), value< SharedGpioOTYPER_Mask <'H', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'H', 0> >()) Core::GPIO<'H'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'H', 0> >(), value< SharedGpioOSPEEDR_Mask<'H', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'H', 0> >()) Core::GPIO<'H'>::PUPDR::set(   value< SharedGpioPUPDR  <'H', 0> >(), value< SharedGpioPUPDR_Mask  <'H', 0> >() );
+
+  if(value< SharedGpioMODER_Mask  <'I', 0> >()) Core::GPIO<'I'>::MODER::set(   value< SharedGpioMODER  <'I', 0> >(), value< SharedGpioMODER_Mask  <'I', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'I', 0> >()) Core::GPIO<'I'>::OTYPER::set(  value< SharedGpioOTYPER <'I', 0> >(), value< SharedGpioOTYPER_Mask <'I', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'I', 0> >()) Core::GPIO<'I'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'I', 0> >(), value< SharedGpioOSPEEDR_Mask<'I', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'I', 0> >()) Core::GPIO<'I'>::PUPDR::set(   value< SharedGpioPUPDR  <'I', 0> >(), value< SharedGpioPUPDR_Mask  <'I', 0> >() );
 }
 
 
