@@ -727,12 +727,11 @@ struct PeripheralRegister {
      * power control register
      */
     struct CR
-    : public Register< uint32_t, reg_base + 0x0, access::rw, 0x00000000 >
+    : public Register< uint32_t, reg_base + 0x0, access::rw, 0x00004000 >
     {
-      typedef Register< uint32_t, reg_base + 0x0, access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, reg_base + 0x0, access::rw, 0x00004000 > reg_type;
       static constexpr const char * name_str = "CR";
 
-      // TODO: check this (is VOS it set after reset? missing in import!)
       typedef RegisterBits< reg_type, 14,  1 > VOS;    /**< Regulator voltage scaling output selection   */
       typedef RegisterBits< reg_type,  9,  1 > FPDS;   /**< Flash power down in Stop mode           */
       typedef RegisterBits< reg_type,  8,  1 > DBP;    /**< Disable backup domain write protection  */
