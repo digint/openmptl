@@ -29,7 +29,7 @@ void Core::InitClocks() {
   //  Flash::EnablePrefetchBuffer();
   Flash::EnableInstructionCache();
   Flash::EnableDataCache();
-  Flash::SetLatency<clock_frequency>();
+  Flash::SetLatency<clock_frequency, system_voltage>();
 
   Rcc::SetSysClock<clock_frequency>();
 }

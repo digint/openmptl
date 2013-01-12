@@ -22,9 +22,11 @@
 #define SETUP_HPP_INCLUDED
 
 #include <freq.hpp>
+#include <voltage.hpp>
 
 struct CoreSetup {
-  static constexpr freq_t clock_frequency = 168_mhz;
+  static constexpr freq_t    clock_frequency = 168_mhz;
+  static constexpr voltage_t system_voltage  = 3.3_volt;
 
   /* note that clocks might not be setup when this is called */
   static void Panic(void) { while(1); };

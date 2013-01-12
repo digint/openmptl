@@ -22,11 +22,54 @@
 #define FLASH_HPP_INCLUDED
 
 #include <arch/core.hpp>
+#include <freq.hpp>
+#include <voltage.hpp>
 
 
 class Flash
 {
   using FLASH = Core::FLASH;
+
+  template<freq_t freq, voltage_t voltage>
+  struct latency {
+    static_assert(freq <= 168_mhz, "unsupported system clock frequency");
+    static_assert(voltage >= 1.8_volt && voltage <= 3.6_volt, "unsupported system voltage");
+
+    static constexpr FLASH::ACR::LATENCY::value_type value = 
+      (voltage <= 2.1_volt) ? ((freq <= 20_mhz)  ?  0  :
+                               (freq <= 40_mhz)  ?  1  :
+                               (freq <= 60_mhz)  ?  2  :
+                               (freq <= 80_mhz)  ?  3  :
+                               (freq <= 100_mhz) ?  4  :
+                               (freq <= 120_mhz) ?  5  :
+                               (freq <= 140_mhz) ?  6  :
+                               (freq <= 160_mhz) ?  7  :
+                               -1 ) :
+      (voltage <= 2.4_volt) ? ((freq <= 22_mhz)  ?  0  :
+                               (freq <= 44_mhz)  ?  1  :
+                               (freq <= 66_mhz)  ?  2  :
+                               (freq <= 88_mhz)  ?  3  :
+                               (freq <= 110_mhz) ?  4  :
+                               (freq <= 132_mhz) ?  5  :
+                               (freq <= 154_mhz) ?  6  :
+                               (freq <= 168_mhz) ?  7  :
+                               -1 ) :
+      (voltage <= 2.7_volt) ? ((freq <= 24_mhz)  ?  0  :
+                               (freq <= 48_mhz)  ?  1  :
+                               (freq <= 72_mhz)  ?  2  :
+                               (freq <= 96_mhz)  ?  3  :
+                               (freq <= 120_mhz) ?  4  :
+                               (freq <= 144_mhz) ?  5  :
+                               (freq <= 168_mhz) ?  6  :
+                               -1 ) :
+      (voltage <= 3.6_volt) ? ((freq <= 30_mhz)  ?  0  :
+                               (freq <= 60_mhz)  ?  1  :
+                               (freq <= 90_mhz)  ?  2  :
+                               (freq <= 120_mhz) ?  3  :
+                               (freq <= 150_mhz) ?  4  :
+                               (freq <= 168_mhz) ?  5  :
+                               -1 ) : -1;
+  };
 
 public:
 
@@ -51,19 +94,10 @@ public:
     FLASH::ACR::DCEN::clear();
   }
 
-  template<freq_t freq>
+  template<freq_t freq, voltage_t voltage>
   static void SetLatency(void) {
-    static_assert(freq == 168_mhz || freq == 120_mhz,
-                  "unsupported system clock frequency");
-
-    switch(freq) {
-    case 120_mhz:
-      FLASH::ACR::LATENCY::shift_and_set(0x3);  // 3WS
-      break;
-    case 168_mhz:
-      FLASH::ACR::LATENCY::shift_and_set(0x5);  // 5WS
-      break;
-    }
+    static_assert(latency<freq, voltage>::value <= 7, "invalid FLASH::ACR::LATENCY value");
+    FLASH::ACR::LATENCY::shift_and_set(latency<freq, voltage>::value);
   }
 };
 
