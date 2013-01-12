@@ -155,6 +155,7 @@ struct Register
 
   static T    test (T const value) { return type::load() & value;          }
   static void set  (T const value) { type::store( type::load() | value );  }
+  static void set  (T const value, T const mask) { type::store( (type::load() & ~mask) | value );  }
   static void clear(T const value) { type::store( type::load() & ~value ); }
   static void mask (T const value) { type::store( type::load() & value );  }
   static void reset()              { type::store(reset_value);             }
