@@ -243,24 +243,14 @@ struct PeripheralRegister {
     class __CFGR
     : public R
     {
-      /** System clock Switch  */
+      /** System clock Switch (Status) */
       template<typename Rb>
-      struct __SW
+      struct __SWx
       : public Rb
       {
         typedef RegisterConst< Rb, 0x0 > HSI;          /**< 00: HSI selected as system clock   */
         typedef RegisterConst< Rb, 0x1 > HSE;          /**< 01: HSE selected as system clock   */
         typedef RegisterConst< Rb, 0x2 > PLL;          /**< 10: PLL selected as system clock   */
-      };
-
-      /** System clock Switch Status  */
-      template<typename Rb>
-      struct __SWS
-      : public Rb
-      {
-        typedef RegisterConst< Rb, 0x0 > HSI;          /**< 00: HSI oscillator used as system clock   */
-        typedef RegisterConst< Rb, 0x1 > HSE;          /**< 01: HSE oscillator used as system clock   */
-        typedef RegisterConst< Rb, 0x2 > PLL;          /**< 02: PLL used as system clock              */
       };
 
       /** AHB prescaler  */
@@ -404,8 +394,8 @@ struct PeripheralRegister {
 
     public:
 
-      typedef __SW      < RegisterBits< R,  0,  2 > > SW;       /**< [ 1: 0] System clock Switch                                          */
-      typedef __SWS     < RegisterBits< R,  2,  2 > > SWS;      /**< [ 3: 2] System Clock Switch Status                                   */
+      typedef __SWx     < RegisterBits< R,  0,  2 > > SW;       /**< [ 1: 0] System clock Switch                                          */
+      typedef __SWx     < RegisterBits< R,  2,  2 > > SWS;      /**< [ 3: 2] System Clock Switch Status                                   */
       typedef __HPRE    < RegisterBits< R,  4,  4 > > HPRE;     /**< [ 7: 4] AHB prescaler                                                */
       typedef __PPREx   < RegisterBits< R,  8,  3 > > PPRE1;    /**< [10: 8] APB low-speed prescaler (APB1)                               */
       typedef __PPREx   < RegisterBits< R, 11,  3 > > PPRE2;    /**< [13:11] APB high-speed prescaler (APB2)                              */
