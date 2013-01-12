@@ -105,10 +105,10 @@ struct RegisterStorage
   static void store(T const value) {
     std::cout <<  __PRETTY_FUNCTION__ << std::endl
               << "addr = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << addr  << std::endl
-              << "cur  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << value
-              << " = " << bitvalue(value) << std::endl
-              << "new  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << reg_value
-              << " = " << bitvalue(reg_value) << std::endl;
+              << "cur  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << reg_value
+              << " = " << bitvalue(reg_value) << std::endl
+              << "new  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << value
+              << " = " << bitvalue(value) << std::endl;
 
     reg_value = value;
 
@@ -206,7 +206,7 @@ struct RegisterBits  // TODO: consider derived from integral_type<>
   }
 
   // TODO: better naming for this
-  static value_type shifted_value(value_type _value) {
+  static constexpr value_type shifted_value(value_type _value) {
     return (_value << offset);
   }
 

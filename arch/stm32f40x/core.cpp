@@ -23,15 +23,10 @@
 #include <arch/core.hpp>
 
 void Core::InitClocks() {
-  int success;
-
   Rcc::EnableHSE();
-  success = Rcc::WaitHSERDY();
+  Rcc::WaitHSERDY();
 
-  if(!success)
-    Panic();
-
-  Flash::EnablePrefetchBuffer();
+  //  Flash::EnablePrefetchBuffer();
   Flash::EnableInstructionCache();
   Flash::EnableDataCache();
   Flash::SetLatency<clock_frequency>();

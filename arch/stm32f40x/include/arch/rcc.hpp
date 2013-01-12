@@ -18,9 +18,6 @@
  * 
  */
 
-// TODO: this is merely a copy from stm32f10x/rcc.hpp
-//       fix this!!!
-
 #ifndef RCC_HPP_INCLUDED
 #define RCC_HPP_INCLUDED
 
@@ -29,65 +26,75 @@
 
 // TODO: access functions, change public to private
 class Rcc {
-private:
-
-  static constexpr int hse_startup_timeout = 1500;
-
-public:
 
   using RCC = Core::RCC;
+
+  template<int m, int n, int p, int q>
+  struct pllcfgr_hse {
+    static_assert(m >= 2 && m <= 63,                    "Invalid PLLM value");
+    static_assert(n >= 2 && n <= 432,                   "Invalid PLLN value");
+    static_assert(p == 2 || p == 4 || p == 6 || p == 8, "Invalid PLLP value");
+    static_assert(q >= 2 && q <= 15,                    "Invalid PLLQ value");
+
+    static constexpr RCC::PLLCFGR::value_type value =
+      RCC::PLLCFGR::PLLM::shifted_value(m)           |
+      RCC::PLLCFGR::PLLN::shifted_value(n)           |
+      RCC::PLLCFGR::PLLP::shifted_value((p >> 1) -1) |
+      RCC::PLLCFGR::PLLQ::shifted_value(q)           |
+      RCC::PLLCFGR::PLLSRC::value;  // HSE
+  };
+
+public:
 
   static void EnableHSE(void) {
     RCC::CR::HSEON::set();
   }
-  static bool WaitHSERDY() {
-    int timeout = hse_startup_timeout;
-    while(!(RCC::CR::HSERDY::test()) && timeout){
-      timeout--;
-    }
-    return timeout;
+  static void WaitHSERDY() {
+    while(RCC::CR::HSERDY::test() == false);
+  }
+  static void EnableHSI(void) {
+    RCC::CR::HSION::set();
+  }
+  static void WaitHSIRDY() {
+    while(RCC::CR::HSIRDY::test() == false);
   }
 
   /* Note: this is only valid for clocks setup by SetSysClock() function */
   template<freq_t freq>
   struct ClockFrequency {
+    static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
+
     static constexpr freq_t hclk  = freq;
-    static constexpr freq_t pclk1 = freq <= 36_mhz ? freq : freq / 2;
-    static constexpr freq_t pclk2 = freq;
+    static constexpr freq_t pclk1 = ( freq == 120_mhz ? 30_mhz :
+                                      freq == 168_mhz ? 60_mhz :
+                                      0 );
+    static constexpr freq_t pclk2 = ( freq == 120_mhz ? 42_mhz :
+                                      freq == 168_mhz ? 84_mhz :
+                                      0 );
   };
 
-  /**
-   * @brief  Sets System clock frequency and configure HCLK, PCLK2 
-   *         and PCLK1 prescalers.
-   * @note   This function should be used only after reset.
-   * @note   HSE must be enabled before this function is called.
-   * @param  freq frequency (Hz) to be set
-   */
   template<freq_t freq>
   static void SetSysClock(void) {
+    static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
 
-    static_assert(freq == 168_mhz,
-                  "unsupported system clock frequency");
+    // TODO: High Performance Mode switch
+    //    RCC::APB1ENR::PWREN::set();
+    //    Core::PWR::CR::VOS::set();
 
-    //    auto cfgr = RCC::CFGR::load();
+    // auto cfgr = RCC::CFGR::load();
+    auto cfgr = RCC::CFGR::reset_value;
+    cfgr &= ~(RCC::CFGR::HPRE::value       | RCC::CFGR::PPRE1::value       | RCC::CFGR::PPRE2::value);
+    cfgr |=   RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE1::DIV4::value | RCC::CFGR::PPRE2::DIV2::value;
+    RCC::CFGR::store(cfgr);
 
     switch(freq) {
+    case 120_mhz:
+      RCC::PLLCFGR::store(pllcfgr_hse<8, 240, 2, 5>::value);
+      break;
     case 168_mhz:
-      /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
-      /* PLLCLK = 8MHz * 9 = 72 MHz                   */
-      RCC::CFGR::HPRE::shift_and_set(0x0); // DIV1
-      RCC::CFGR::PPRE1::shift_and_set(0x5); // DIV4
-      RCC::CFGR::PPRE2::shift_and_set(0x4); // DIV2
-
-      RCC::PLLCFGR::store(RCC::PLLCFGR::PLLM::shifted_value(8)   | 
-                          RCC::PLLCFGR::PLLN::shifted_value(336) |
-                          RCC::PLLCFGR::PLLP::shifted_value(2)   |
-                          RCC::PLLCFGR::PLLQ::shifted_value(7)   |
-                          RCC::PLLCFGR::PLLSRC::value
-                          );
+      RCC::PLLCFGR::store(pllcfgr_hse<8, 336, 2, 7>::value);
       break;
     }
-    //    RCC::CFGR::store(cfgr);
 
     /* Enable PLL */
     RCC::CR::PLLON::set();
@@ -96,16 +103,28 @@ public:
     while(RCC::CR::PLLRDY::test() == 0);
 
     /* Select PLL as system clock source */
-    //    RCC::CFGR::SW::PLL::set();
-    RCC::CFGR::SW1::set();
+    RCC::CFGR::SW::PLL::set();
 
     /* Wait for PLL to be used */
-    //    while(RCC::CFGR::SWS::PLL::test() == false);
-    while(RCC::CFGR::SWS1::test() == 0);
+    while(RCC::CFGR::SWS::PLL::test() == false);
   }
 
 
   static void Init(void) {
+    /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
+    RCC::CR::HSION::set();
+
+    RCC::CFGR::store(RCC::CFGR::reset_value);
+
+    RCC::CR::clear(RCC::CR::HSEON::value |
+                   RCC::CR::CSSON::value |
+                   RCC::CR::PLLON::value);
+
+    RCC::PLLCFGR::store(RCC::PLLCFGR::reset_value);
+
+    RCC::CR::clear(RCC::CR::HSEBYP::value);
+
+    RCC::CIR::store(RCC::CIR::reset_value);
   }
 };
 

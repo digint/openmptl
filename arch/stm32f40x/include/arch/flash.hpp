@@ -53,10 +53,13 @@ public:
 
   template<freq_t freq>
   static void SetLatency(void) {
-    static_assert(freq == 168_mhz,
+    static_assert(freq == 168_mhz || freq == 120_mhz,
                   "unsupported system clock frequency");
 
     switch(freq) {
+    case 120_mhz:
+      FLASH::ACR::LATENCY::shift_and_set(0x3);  // 3WS
+      break;
     case 168_mhz:
       FLASH::ACR::LATENCY::shift_and_set(0x5);  // 5WS
       break;
