@@ -25,7 +25,7 @@ static_assert(alignof(irq_handler_t) == 4, "wrong alignment for irq function poi
 
 
 template<int N, const uint32_t *stack_top, typename... irqs>
-struct VectorTable : VectorTable<N - 1, stack_top, irqs..., Irq<N - 1> >
+struct VectorTable : VectorTable<N - 1, stack_top, Irq<N - 1>, irqs... >
 { };
 
 template<const uint32_t *stack_top, typename... irqs>
