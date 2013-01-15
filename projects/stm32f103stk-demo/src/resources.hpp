@@ -28,7 +28,7 @@
 #include <joystick/stm32f103stk/joystick.hpp>
 #include <arch/rtc.hpp>
 #include <arch/usart.hpp>
-#include <arch/irq.hpp>
+#include <arch/nvic.hpp>
 
 
 namespace resources

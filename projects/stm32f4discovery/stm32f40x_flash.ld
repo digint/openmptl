@@ -18,6 +18,9 @@ PROVIDE(_eccm = ORIGIN(CCM) + LENGTH(CCM));
 PROVIDE(_snvram = ORIGIN(NVRAM));
 PROVIDE(_envram = ORIGIN(NVRAM) + LENGTH(NVRAM));
 
+/* PROVIDE(_stack_top = _eram); */
+PROVIDE(_stack_top = _eccm);
+
 SECTIONS
 {
     .isr_vector :

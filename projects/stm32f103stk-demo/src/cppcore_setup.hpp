@@ -32,7 +32,7 @@ struct CoreSetup {
 };
 
 struct InterruptControllerSetup {
-  static const unsigned priority_bits = 4;
+  static constexpr unsigned priority_bits = 4;
 };
 
 // TODO: nice interrupt priority setup

@@ -10,6 +10,8 @@ MEMORY
 PROVIDE(_sram = ORIGIN(RAM));
 PROVIDE(_eram = ORIGIN(RAM) + LENGTH(RAM));
 
+PROVIDE(_stack_top = _eram);
+
 SECTIONS
 {
     .isr_vector :

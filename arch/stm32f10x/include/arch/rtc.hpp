@@ -22,7 +22,7 @@
 #define RTC_HPP_INCLUDED
 
 #include <arch/core.hpp>
-#include <arch/irq.hpp>
+#include <arch/nvic.hpp>
 #include <arch/pwr.hpp>
 
 
@@ -44,8 +44,8 @@ private:
 
 public:
 
-  typedef Irq<IrqNumber::Interrupt::RTC>      GlobalIrq; /**< RTC global Interrupt                   */
-  typedef Irq<IrqNumber::Interrupt::RTCAlarm> AlarmIrq;  /**< RTC Alarm through EXTI Line Interrupt  */
+  typedef IrqRTC      GlobalIrq; /**< RTC global Interrupt                   */
+  typedef IrqRTCAlarm AlarmIrq;  /**< RTC Alarm through EXTI Line Interrupt  */
 
 
   static void WaitSync(void) {

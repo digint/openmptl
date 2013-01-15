@@ -28,7 +28,7 @@ typedef unsigned int systick_t;
 
 class time
 {
-  friend CoreException<IrqNumber::CoreException::SysTick>;
+  friend CoreException<CoreExceptionNumber::SysTick>;
 
   static std::atomic<systick_t> systick_count;
   //static systick_t systick_count;

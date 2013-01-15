@@ -20,7 +20,7 @@
 
 
 #include <core_startup.hpp>
-#include <arch/irq.hpp>
+#include <arch/nvic.hpp>
 #include <kernel.hpp>
 
 

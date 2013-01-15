@@ -33,19 +33,16 @@ struct VectorTable<0, stack_top, irqs...> {
   static const irq_handler_t vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] __attribute__ ((section(".isr_vector")));
 };
 
-
 template<const uint32_t *stack_top, typename... irqs>
 const irq_handler_t VectorTable<0, stack_top, irqs...>::vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] = {
   reinterpret_cast<irq_handler_t>(stack_top),
 
   /* fixed core exceptions */
-
   CoreExceptionReset     ::Handler,
   CoreExceptionNMI       ::Handler,
   CoreExceptionHardFault ::Handler,
 
   /* settable core exceptions */
-
   CoreException< CoreExceptionNumber::MemoryManagement >::Handler,
   CoreException< CoreExceptionNumber::BusFault         >::Handler,
   CoreException< CoreExceptionNumber::UsageFault       >::Handler,
@@ -65,12 +62,9 @@ const irq_handler_t VectorTable<0, stack_top, irqs...>::vector_table[sizeof...(i
 
 #define FEATURE_STACK_ON_CCM
 
-#define NUMOF_IRQ_CHANNELS  82
+extern const uint32_t _stack_top;
 
-extern const uint32_t _eram;
-extern const uint32_t _eccm;
-
-typedef VectorTable<82, &_eccm> ConfiguredVector;
+typedef VectorTable<NvicSetup::irq_channels, &_stack_top> ConfiguredVector;
 
 static_assert(sizeof(ConfiguredVector::vector_table) == 4 * (NvicSetup::irq_channels + NvicCortexSetup::core_exceptions), "IRQ vector table size error");
 
