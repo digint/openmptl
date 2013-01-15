@@ -26,19 +26,8 @@
 #include <arch/scb.hpp>
 #include <cppcore_setup.hpp>
 #include <irq_wrap.hpp>
-//#include <functional>
 
-typedef void( *const irq_func_t )( void );
-
-
-////////////////////  IrqVector  ////////////////////
-
-
-class IrqVector {
-private:
-  static irq_func_t vector_table[] __attribute__ ((section(".isr_vector")));
-  //    static const std::function<void(void)> vector_table[] __attribute__ ((section(".isr_vector")));
-};
+typedef void( *const irq_handler_t )( void );
 
 
 ////////////////////  IrqBase  ////////////////////
@@ -109,10 +98,9 @@ public:
 
 
 class CoreExceptionReset {
-  friend class IrqVector;
-private:
-  // no default handler, this one MUST be implemented.
-//  static void Handler(void)  __attribute__((__interrupt__));
+public:
+  /* no default handler, this one MUST be implemented. */
+  // static void Handler(void)  __attribute__((__interrupt__));
   static void Handler(void);
 };
 
@@ -121,9 +109,8 @@ private:
 
 
 class CoreExceptionHardFault {
-  friend class IrqVector;
-private:
-//  static void Handler(void)  __attribute__((__interrupt__)) {
+public:
+  // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
@@ -134,9 +121,8 @@ private:
 
 
 class CoreExceptionNMI {
-  friend class IrqVector;
-private:
-//  static void Handler(void)  __attribute__((__interrupt__)) {
+public:
+  // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
@@ -148,9 +134,9 @@ private:
 
 template<IrqNumber::CoreException irqn>
 class CoreException : public IrqBase {
-  friend class IrqVector;
+public:
 
-//  static void Handler(void)  __attribute__((__interrupt__)) {
+  // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
@@ -168,20 +154,20 @@ class CoreException : public IrqBase {
 ////////////////////  Irq  ////////////////////
 
 
-template<IrqNumber::Interrupt irqn>
+template<int irqn>
 class Irq : public IrqBase {
-  friend class IrqVector;
+public:
 
-//  static const uint32_t irqn = static_cast<uint32_t>(irq_number);
+  static constexpr int irq_number = irqn;
 
   // TODO: find a way to tell the compiler not to duplicate all this code.
   //       code bloat is about 600 bytes for all functions defined in irq.cpp.
-//  static void Handler(void)  __attribute__((__interrupt__)) {
+  // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
   //  static const std::function<void(void)> Handler;
-  //  static irq_func_t Handler;
+  //  static irq_handler_t Handler;
 
 public:
   static void Enable(void) {
@@ -212,6 +198,46 @@ public:
   static uint32_t GetPriority(void) {
     return Nvic<irqn>::GetPriority();
   }
+};
+
+
+////////////////////  IrqVector  ////////////////////
+
+
+template<int N, const uint32_t *stack_top, typename... irqs>
+struct IrqVector : IrqVector<N - 1, stack_top, irqs..., Irq<N - 1> >
+{ };
+
+template<const uint32_t *stack_top, typename... irqs>
+struct IrqVector<0, stack_top, irqs...> {
+  static const irq_handler_t vector_table[sizeof...(irqs) + 16] __attribute__ ((section(".isr_vector")));
+};
+
+
+template<const uint32_t *stack_top, typename... irqs>
+const irq_handler_t IrqVector<0, stack_top, irqs...>::vector_table[sizeof...(irqs) + 16] = {
+  reinterpret_cast<irq_handler_t>(stack_top),
+
+  /* fixed core exceptions */
+
+  CoreExceptionReset     ::Handler,
+  CoreExceptionNMI       ::Handler,
+  CoreExceptionHardFault ::Handler,
+
+  /* settable core exceptions */
+
+  CoreException< IrqNumber::CoreException::MemoryManagement >::Handler,
+  CoreException< IrqNumber::CoreException::BusFault         >::Handler,
+  CoreException< IrqNumber::CoreException::UsageFault       >::Handler,
+  0, 0, 0, 0,    /* reserved */
+  CoreException< IrqNumber::CoreException::SVCall           >::Handler,
+  CoreException< IrqNumber::CoreException::DebugMonitor     >::Handler,
+  0,             /* reserved */
+  CoreException< IrqNumber::CoreException::PendSV           >::Handler,
+  CoreException< IrqNumber::CoreException::SysTick          >::Handler,
+
+  /* nvic irq channels */
+  irqs::Handler...
 };
 
 
