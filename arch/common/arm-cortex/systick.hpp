@@ -22,7 +22,7 @@
 #define COMMON_ARM_CORTEX_SYSTICK_HPP_INCLUDED
 
 #include <arch/core.hpp>
-#include <arch/irq.hpp>
+#include <arch/nvic.hpp>
 #include <arch/core_resource.hpp>
 
 namespace cSysTick
@@ -65,7 +65,7 @@ public:
 
   typedef ResourceList<> resources;
 
-  typedef CoreException<IrqNumber::CoreException::SysTick> SysTickIrq; /**< Cortex-M3 System Tick Interrupt */
+  typedef CoreException<CoreExceptionNumber::SysTick> SysTickIrq; /**< Cortex-M3 System Tick Interrupt */
 
   static void SetReload(SCB::STRVR::value_type reload) {
 //    assert((reload >= 1) && (reload <= 0xFFFFFF));

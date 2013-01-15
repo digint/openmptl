@@ -25,30 +25,20 @@
 #include <arch/register_defs.hpp>
 
 
-////////////////////  cIrq  ////////////////////
+////////////////////  CoreExceptionNumber  ////////////////////
 
 
-namespace IrqNumber
+/*****  ARM Cortex Processor Exceptions Numbers *****/
+enum class CoreExceptionNumber : int
 {
-  /*****  Cortex-M3 Processor Exceptions Numbers *****/
-  enum class CoreException : int
-  {
-//    NonMaskableInt         = -14,    /**< 2 Non Maskable Interrupt                                        */
-    MemoryManagement       = -12,    /**< 4 Cortex-M3 Memory Management Interrupt                           */
-    BusFault               = -11,    /**< 5 Cortex-M3 Bus Fault Interrupt                                   */
-    UsageFault             = -10,    /**< 6 Cortex-M3 Usage Fault Interrupt                                 */
-    SVCall                 = -5,     /**< 11 Cortex-M3 SV Call Interrupt                                    */
-    DebugMonitor           = -4,     /**< 12 Cortex-M3 Debug Monitor Interrupt                              */
-    PendSV                 = -2,     /**< 14 Cortex-M3 Pend SV Interrupt                                    */
-    SysTick                = -1      /**< 15 Cortex-M3 System Tick Interrupt                                */
-  };
-
-  /*****  STM32 specific Interrupt Numbers *****/
-  enum class Interrupt : uint32_t
-  {
-    // TODO
-  };
-}
+  MemoryManagement       = -12,    /**< 4 Cortex-M3 Memory Management Interrupt                           */
+  BusFault               = -11,    /**< 5 Cortex-M3 Bus Fault Interrupt                                   */
+  UsageFault             = -10,    /**< 6 Cortex-M3 Usage Fault Interrupt                                 */
+  SVCall                 = -5,     /**< 11 Cortex-M3 SV Call Interrupt                                    */
+  DebugMonitor           = -4,     /**< 12 Cortex-M3 Debug Monitor Interrupt                              */
+  PendSV                 = -2,     /**< 14 Cortex-M3 Pend SV Interrupt                                    */
+  SysTick                = -1      /**< 15 Cortex-M3 System Tick Interrupt                                */
+};
 
 
 ////////////////////  CoreFunctions  ////////////////////

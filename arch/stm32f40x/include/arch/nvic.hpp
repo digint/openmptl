@@ -23,4 +23,8 @@
 
 #include "../../../common/arm-cortex/nvic.hpp"
 
+struct NvicSetup {
+  static constexpr int irq_channels = 82;
+};
+
 #endif // NVIC_HPP_INCLUDED

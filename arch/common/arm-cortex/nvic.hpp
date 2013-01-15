@@ -22,12 +22,147 @@
 #define COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED
 
 #include <arch/core.hpp>
+#include <arch/scb.hpp>
+#include <cppcore_setup.hpp>
+#include <irq_wrap.hpp>
 
 
-template<IrqNumber::Interrupt irqn>
-class Nvic : private InterruptControllerSetup
-{
+typedef void( *const irq_handler_t )( void );
+
+
+struct NvicCortexSetup {
+  static constexpr std::size_t core_exceptions = 16;
+};
+
+
+////////////////////  NvicPriority  ////////////////////
+
+
+template<int irqn>
+class NvicPriority : public InterruptControllerSetup {
 public:
+  /**
+   * @brief  Encode the priority for an interrupt
+   *
+   * @param  PriorityGroup    The used priority group
+   * @param  PreemptPriority  The preemptive priority value (starting from 0)
+   * @param  SubPriority      The sub priority value (starting from 0)
+   * @return                  The encoded priority for the interrupt
+   *
+   * Encode the priority for an interrupt with the given priority group,
+   * preemptive priority value and sub priority value.
+   * In case of a conflict between priority grouping and available
+   * priority bits (priority_bits) the samllest possible priority group is set.
+   *
+   * The returned priority value can be used for NVIC_SetPriority(...) function
+   */
+  static inline uint32_t EncodePriority (uint32_t group, uint32_t preempt_priority, uint32_t sub_priority) {
+//TODO      assert(group == (group & 0x07));
+    uint32_t preempt_priority_bits;
+    uint32_t sub_priority_bits;
+
+    preempt_priority_bits = ((7 - group) > priority_bits) ? priority_bits : 7 - group;
+    sub_priority_bits     = ((group + priority_bits) < 7) ? 0 : group - 7 + priority_bits;
+ 
+    return (
+      ((preempt_priority & ((1 << (preempt_priority_bits)) - 1)) << sub_priority_bits) |
+      ((sub_priority     & ((1 << (sub_priority_bits    )) - 1)))
+      );
+  }
+
+
+  /**
+   * @brief  Decode the priority of an interrupt
+   *
+   * @param  Priority           The priority for the interrupt
+   * @param  PriorityGroup      The used priority group
+   * @param  pPreemptPriority   The preemptive priority value (starting from 0)
+   * @param  pSubPriority       The sub priority value (starting from 0)
+   *
+   * Decode an interrupt priority value with the given priority group to 
+   * preemptive priority value and sub priority value.
+   * In case of a conflict between priority grouping and available
+   * priority bits (priority_bits) the samllest possible priority group is set.
+   *
+   * The priority value can be retrieved with NVIC_GetPriority(...) function
+   */
+  static inline void DecodePriority (uint32_t priority, uint32_t group, uint32_t* preempt_priority, uint32_t* sub_priority) {
+//TODO      assert(group == (group & 0x07));
+    uint32_t preempt_priority_bits;
+    uint32_t sub_priority_bits;
+
+    preempt_priority_bits = ((7 - group) > priority_bits) ? priority_bits : 7 - group;
+    sub_priority_bits     = ((group + priority_bits) < 7) ? 0 : group - 7 + priority_bits;
+  
+    *preempt_priority = (priority >> sub_priority_bits) & ((1 << (preempt_priority_bits)) - 1);
+    *sub_priority     = (priority                   ) & ((1 << (sub_priority_bits    )) - 1);
+  }
+};
+
+
+////////////////////  CoreExceptionReset  ////////////////////
+
+
+class CoreExceptionReset {
+public:
+  /* no default handler, this one MUST be implemented. */
+  // static void Handler(void)  __attribute__((__interrupt__));
+  static void Handler(void);
+};
+
+
+////////////////////  CoreExceptionHardFault  ////////////////////
+
+
+class CoreExceptionHardFault {
+public:
+  // static void Handler(void)  __attribute__((__interrupt__)) {
+  static void Handler(void) {
+    DefaultIrqWrap wrap;
+  }
+};
+
+
+////////////////////  CoreExceptionNMI  ////////////////////
+
+
+class CoreExceptionNMI {
+public:
+  // static void Handler(void)  __attribute__((__interrupt__)) {
+  static void Handler(void) {
+    DefaultIrqWrap wrap;
+  }
+};
+
+
+////////////////////  CoreException  ////////////////////
+
+
+template<CoreExceptionNumber irqn>
+class CoreException : public NvicPriority<static_cast<int>(irqn)> {
+public:
+
+  // static void Handler(void)  __attribute__((__interrupt__)) {
+  static void Handler(void) {
+    DefaultIrqWrap wrap;
+  }
+
+  static void SetPriority(uint32_t priority) {
+    Scb::SetPriority<irqn>(priority);
+  }
+
+  static uint32_t GetPriority(void) {
+    return Scb::GetPriority<irqn>();
+  }
+};
+
+
+////////////////////  Irq  ////////////////////
+
+
+template<unsigned int irqn>
+class Irq : public NvicPriority<irqn> {
+
   static constexpr std::size_t reg_index = (uint32_t)irqn >> 5;
   static constexpr std::size_t irq_bit = 1 << ((uint32_t)irqn & 0x1F);
 
@@ -37,100 +172,51 @@ public:
   using ISPRx = NVIC::ISPR<reg_index>;
   using ICPRx = NVIC::ICPR<reg_index>;
   using IABRx = NVIC::IABR<reg_index>;
-  using IPRx  = NVIC::IPR<(std::size_t)irqn>;
+  using IPRx  = NVIC::IPR<irqn>;
 
-  static void EnableIrq(void) {
+public:
+
+  static constexpr int irq_number = irqn;
+
+  // TODO: find a way to tell the compiler not to duplicate all this code.
+  //       code bloat is about 600 bytes for all functions defined in irq.cpp.
+  // static void Handler(void)  __attribute__((__interrupt__)) {
+  static void Handler(void) {
+    DefaultIrqWrap wrap;
+  }
+  //  static const std::function<void(void)> Handler;
+  //  static irq_handler_t Handler;
+
+  static void Enable(void) {
     ISERx::store(irq_bit);
   }
-  static void DisableIrq(void) {
+  static void Disable(void) {
     ICERx::store(irq_bit);
   }
 
-  /**
-   * @brief  Read the interrupt pending bit for a device specific interrupt source
-   * 
-   * @param  IRQn    The number of the device specifc interrupt
-   * @return         1 = interrupt pending, 0 = interrupt not pending
-   *
-   * Read the pending register in NVIC and return 1 if its status is pending, 
-   * otherwise it returns 0
-   */
   static bool IsPending(void) {
     return ISPRx::load() & irq_bit;
   }
-
-  /**
-   * @brief  Set the pending bit for an external interrupt
-   * 
-   * @param  IRQn    The number of the interrupt for set pending
-   *
-   * Set the pending bit for the specified interrupt.
-   * The interrupt number cannot be a negative value.
-   */
   static void SetPending(void) {
-    ISPRx::store(irq_bit); /* set interrupt pending */
+    ISPRx::store(irq_bit);
   }
 
-  /**
-   * @brief  Clear the pending bit for an external interrupt
-   *
-   * @param  IRQn    The number of the interrupt for clear pending
-   *
-   * Clear the pending bit for the specified interrupt. 
-   * The interrupt number cannot be a negative value.
-   */
   static void ClearPending(void) {
-    ICPRx::store(irq_bit); /* Clear pending interrupt */
+    ICPRx::store(irq_bit);
   }
-
-  /**
-   * @brief  Read the active bit for an external interrupt
-   *
-   * @param  IRQn    The number of the interrupt for read active bit
-   * @return         1 = interrupt active, 0 = interrupt not active
-   *
-   * Read the active register in NVIC and returns 1 if its status is active, 
-   * otherwise it returns 0.
-   */
   static bool IsActive(void) {
     return IABRx::load() & (irq_bit);
   }
 
-  /**
-   * @brief  Set the priority for an interrupt
-   *
-   * @param  IRQn      The number of the interrupt for set priority
-   * @param  priority  The priority to set
-   *
-   * Set the priority for the specified interrupt. The interrupt 
-   * number can be positive to specify an external (device specific) 
-   * interrupt, or negative to specify an internal (core) interrupt.
-   *
-   * Note: The priority cannot be set for every core interrupt.
-   */
   static void SetPriority(uint32_t priority) {
-    IPRx::store((priority << (8 - priority_bits)) & 0xff);
+    IPRx::store((priority << (8 - InterruptControllerSetup::priority_bits)) & 0xff);
   }
 
-  /**
-   * @brief  Read the priority for an interrupt
-   *
-   * @param  IRQn      The number of the interrupt for get priority
-   * @return           The priority for the interrupt
-   *
-   * Read the priority for the specified interrupt. The interrupt 
-   * number can be positive to specify an external (device specific) 
-   * interrupt, or negative to specify an internal (core) interrupt.
-   *
-   * The returned priority value is automatically aligned to the implemented
-   * priority bits of the microcontroller.
-   *
-   * Note: The priority cannot be set for every core interrupt.
-   */
   static uint32_t GetPriority(void) {
-    return((uint32_t)(IPRx::load() >> (8 - priority_bits)));
+    return((uint32_t)(IPRx::load() >> (8 - InterruptControllerSetup::priority_bits)));
   }
 };
+
 
 
 #endif // COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED

@@ -34,7 +34,7 @@ struct CoreSetup {
 };
 
 struct InterruptControllerSetup {
-  static const unsigned priority_bits = 4;
+  static constexpr unsigned priority_bits = 4;
 };
 
 #endif // SETUP_HPP_INCLUDED

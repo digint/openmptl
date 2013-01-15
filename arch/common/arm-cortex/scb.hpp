@@ -76,7 +76,7 @@ public:
    *
    * Note: The priority cannot be set for every core interrupt.
    */
-  template<IrqNumber::CoreException irqn>
+  template<CoreExceptionNumber irqn>
   static void SetPriority(uint32_t priority) {
     // TODO: core_reg magic
     SCB::SHPR<((uint32_t)irqn & 0xF)-4>::store((priority << (8 - priority_bits)) & 0xff);
@@ -97,7 +97,7 @@ public:
    *
    * Note: The priority cannot be set for every core interrupt.
    */
-  template<IrqNumber::CoreException irqn>
+  template<CoreExceptionNumber irqn>
   static uint32_t GetPriority(void) {
     // TODO: core_reg magic
     return((uint32_t)(SCB::SHPR<((uint32_t)irqn & 0xF)-4>::load() >> (8 - priority_bits)));
