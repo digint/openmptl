@@ -21,12 +21,12 @@
 #ifndef FLASH_HPP_INCLUDED
 #define FLASH_HPP_INCLUDED
 
-#include <arch/core.hpp>
+#include <arch/register_defs.hpp>
 
 
 class Flash
 {
-  using FLASH = Core::FLASH;
+  using FLASH = Reg::FLASH;
 
 public:
 

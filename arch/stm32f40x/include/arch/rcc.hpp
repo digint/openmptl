@@ -21,13 +21,13 @@
 #ifndef RCC_HPP_INCLUDED
 #define RCC_HPP_INCLUDED
 
-#include <arch/core.hpp>
+#include <arch/register_defs.hpp>
 
 
 // TODO: access functions, change public to private
 class Rcc {
 
-  using RCC = Core::RCC;
+  using RCC = Reg::RCC;
 
   template<int m, int n, int p, int q>
   struct pllcfgr_hse {

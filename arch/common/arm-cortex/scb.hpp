@@ -21,13 +21,13 @@
 #ifndef COMMON_ARM_CORTEX_SCB_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_SCB_HPP_INCLUDED
 
-#include <arch/core.hpp>
+#include <arch/register_defs.hpp>
 
 
 class Scb : private InterruptControllerSetup
 {
 
-  using SCB = Core::SCB;
+  using SCB = Reg::SCB;
 
 public:
   /**

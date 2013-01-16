@@ -45,7 +45,7 @@ template<freq_t interrupt_rate,   //< interrupt rate in Hz
          cSysTick::ClockSource clock_source = cSysTick::ClockSource::hclk_div8>
 class SysTick
 {
-  using SCB = Core::SCB;
+  using SCB = Reg::SCB;
 
 public:
 

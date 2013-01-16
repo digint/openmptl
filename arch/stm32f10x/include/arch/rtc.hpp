@@ -28,7 +28,7 @@
 
 class Rtc
 {
-  using RTC = Core::RTC;
+  using RTC = Reg::RTC;
 
 private:
   static void EnterConfigMode(void) {
@@ -49,7 +49,7 @@ public:
 
 
   static void WaitSync(void) {
-    while(Core::RCC::BDCR::LSERDY::test() == 0);
+    while(Reg::RCC::BDCR::LSERDY::test() == 0);
 #if 1
     RTC::CRL::RSF::clear();
     while(RTC::CRL::RSF::test() == 0);
@@ -126,7 +126,7 @@ public:
   };
 
   /* Power interface clock enable; Backup interface clock enable */
-  static constexpr uint32_t apb1enr = Core::RCC::APB1ENR::PWREN::value | Core::RCC::APB1ENR::BKPEN::value;
+  static constexpr uint32_t apb1enr = Reg::RCC::APB1ENR::PWREN::value | Reg::RCC::APB1ENR::BKPEN::value;
   typedef ResourceList< SharedAPB1ENR< apb1enr > > resources;
 
   static void Init(void) {
@@ -134,21 +134,21 @@ public:
     Pwr::DisableBackupDomainWriteProtection();
 
     /* Backup domain software reset */
-    Core::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
-    Core::RCC::BDCR::BDRST::clear();  // TODO: rcc.hpp
+    Reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
+    Reg::RCC::BDCR::BDRST::clear();  // TODO: rcc.hpp
 
     /* External Low Speed oscillator enable */
-    Core::RCC::BDCR::LSEON::clear();  // TODO: rcc.hpp
-    Core::RCC::BDCR::LSEON::set();  // TODO: rcc.hpp
+    Reg::RCC::BDCR::LSEON::clear();  // TODO: rcc.hpp
+    Reg::RCC::BDCR::LSEON::set();  // TODO: rcc.hpp
 
     /* Internal Low Speed oscillator disable */
-    Core::RCC::CSR::LSION::clear();
+    Reg::RCC::CSR::LSION::clear();
 
     /* LSE oscillator clock used as RTC clock */
-    Core::RCC::BDCR::set(Core::RCC::BDCR::RTCSEL::LSE::value);
+    Reg::RCC::BDCR::set(Reg::RCC::BDCR::RTCSEL::LSE::value);
 
     /* RTC clock enable */
-    Core::RCC::BDCR::RTCEN::set();
+    Reg::RCC::BDCR::RTCEN::set();
 
     WaitSync();
 

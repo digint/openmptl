@@ -159,7 +159,7 @@ protected:
   static constexpr uint32_t crx_shift = (pin_no % 8) << 2;
   static constexpr uint32_t crx_mask = 0x0F << crx_shift;
 
-  typedef Core::GPIO<port> GPIOx;
+  typedef Reg::GPIO<port> GPIOx;
 
 #if 0
   // TODO: finish this. needs to go to something like "template<int port> GpioPort" in order to work correctly
@@ -180,14 +180,14 @@ protected:
 
 public:
 
-  static constexpr uint32_t apb2enr = (port == 'A' ? Core::RCC::APB2ENR::IOPAEN::value : 
-                                       port == 'B' ? Core::RCC::APB2ENR::IOPBEN::value : 
-                                       port == 'C' ? Core::RCC::APB2ENR::IOPCEN::value : 
-                                       port == 'D' ? Core::RCC::APB2ENR::IOPDEN::value : 
-                                       port == 'E' ? Core::RCC::APB2ENR::IOPEEN::value :
+  static constexpr uint32_t apb2enr = (port == 'A' ? Reg::RCC::APB2ENR::IOPAEN::value : 
+                                       port == 'B' ? Reg::RCC::APB2ENR::IOPBEN::value : 
+                                       port == 'C' ? Reg::RCC::APB2ENR::IOPCEN::value : 
+                                       port == 'D' ? Reg::RCC::APB2ENR::IOPDEN::value : 
+                                       port == 'E' ? Reg::RCC::APB2ENR::IOPEEN::value :
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-                                       port == 'F' ? Core::RCC::APB2ENR::IOPFEN::value : 
-                                       port == 'G' ? Core::RCC::APB2ENR::IOPGEN::value :
+                                       port == 'F' ? Reg::RCC::APB2ENR::IOPFEN::value : 
+                                       port == 'G' ? Reg::RCC::APB2ENR::IOPGEN::value :
 #endif
                                        0 );
 

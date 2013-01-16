@@ -18,38 +18,34 @@
  * 
  */
 
+#ifndef CORE_STARTUP_HPP_INCLUDED
+#define CORE_STARTUP_HPP_INCLUDED
+
+#include <cppcore_setup.hpp>
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
 #include <arch/pwr.hpp>
-#include <arch/core.hpp>
 
-void Core::InitClocks() {
+struct CoreStartup : CoreSetup {
   static_assert(clock_frequency <= 168_mhz, "unsupported system clock frequency");
   static_assert(system_voltage >= 1.8_volt && system_voltage <= 3.6_volt, "unsupported system voltage");
   static_assert(power_save == false || clock_frequency <= 144_mhz, "system clock frequency too high for power save feature");
 
-  Rcc::EnableHSE();
-  Rcc::WaitHSERDY();
+  static void InitClocks() {
+    Rcc::Init();
 
-  //  Flash::EnablePrefetchBuffer();
-  Flash::EnableInstructionCache();
-  Flash::EnableDataCache();
-  Flash::SetLatency<clock_frequency, system_voltage>();
+    Rcc::EnableHSE();
+    Rcc::WaitHSERDY();
 
-  Pwr::SetPowerSave<power_save>();
+    //  Flash::EnablePrefetchBuffer();
+    Flash::EnableInstructionCache();
+    Flash::EnableDataCache();
+    Flash::SetLatency<clock_frequency, system_voltage>();
 
-  Rcc::SetSysClock<clock_frequency>();
-}
+    Pwr::SetPowerSave<power_save>();
 
-/* NOTE: this function is called BEFORE ANY constructors of static objects are called! */
-void Core::InitHW(void) {
-  Rcc::Init();
-  InitClocks();
+    Rcc::SetSysClock<clock_frequency>();
+  }
+};
 
-// TODO  InterruptController::Init();
-//	NVIC_SetPriorityGrouping(7);	// no preemption, 4 bit of subprio
-//      NVIC_SetPriorityGrouping(6);	// 1 bit preemption, 3 bit of subprio
-//	NVIC_SetPriorityGrouping(5);	// 2 bit preemption, 2 bit of subprio
-//	NVIC_SetPriorityGrouping(4);	// 3 bit preemption, 1 bit of subprio
-//	NVIC_SetPriorityGrouping(3);	// 4 bit preemption, 0 bit of subprio
-}
+#endif // CORE_STARTUP_HPP_INCLUDED

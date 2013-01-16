@@ -191,7 +191,7 @@ struct PeripheralMemoryMap
 
 
 
-struct PeripheralRegister {
+namespace Reg {
 
   static constexpr reg_addr_t PERIPH_BASE = 0x40000000;
   static constexpr reg_addr_t APB1_BASE   = PERIPH_BASE;
@@ -1501,9 +1501,9 @@ struct PeripheralRegister {
 
     using access = RegisterAccess;
 
-    static constexpr reg_addr_t reg_base = spi_no == 1 ? PeripheralRegister::APB2_BASE + 0x3000 :
-                                           spi_no == 2 ? PeripheralRegister::APB1_BASE + 0x3800 :
-                                           spi_no == 3 ? PeripheralRegister::APB1_BASE + 0x3C00 :
+    static constexpr reg_addr_t reg_base = spi_no == 1 ? APB2_BASE + 0x3000 :
+                                           spi_no == 2 ? APB1_BASE + 0x3800 :
+                                           spi_no == 3 ? APB1_BASE + 0x3C00 :
                                            0;
 
     /** SPI control register 1 */
@@ -1800,6 +1800,8 @@ struct PeripheralRegister {
     typedef __CR3 < Register< uint32_t, reg_base + 0x14, access::rw         > > CR3;
     typedef __GTPR< Register< uint32_t, reg_base + 0x18, access::rw         > > GTPR;
   };
-};
+}
+
+
 
 #endif // CORE_REG_HPP_INCLUDED

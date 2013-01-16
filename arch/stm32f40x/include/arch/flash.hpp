@@ -21,14 +21,14 @@
 #ifndef FLASH_HPP_INCLUDED
 #define FLASH_HPP_INCLUDED
 
-#include <arch/core.hpp>
+#include <arch/register_defs.hpp>
 #include <freq.hpp>
 #include <voltage.hpp>
 
 
 class Flash
 {
-  using FLASH = Core::FLASH;
+  using FLASH = Reg::FLASH;
 
   template<freq_t freq, voltage_t voltage>
   struct latency {

@@ -22,7 +22,7 @@
 #define COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 
 #include <cppcore_setup.hpp>
-#include <arch/register_defs.hpp>
+#include <arch/core_startup.hpp>
 
 
 ////////////////////  CoreFunctions  ////////////////////
@@ -44,28 +44,36 @@ struct CoreFunctions
   static inline void dsb()               { __asm volatile ("dsb"); }
   static inline void dmb()               { __asm volatile ("dmb"); }
   static inline void clrex()             { __asm volatile ("clrex"); }
+
+
+  static void nop(unsigned value) {
+    while(value-- > 0 ) { CoreFunctions::nop(); }
+  }
 };
 
 
 ////////////////////  Core  ////////////////////
 
 
-class Core : public CoreRegister,
-             public PeripheralRegister,
-             public CoreSetup,
+class Core : public CoreStartup,
              public CoreFunctions
 {
 public:
 
   /* Initialize the hardware. */
   /* NOTE: this function is called BEFORE ANY static object constructors are called! */
-  static void InitHW(void);
+  static void Init(void) {
+    CoreStartup::InitClocks();
 
-  static void nop(unsigned value) {
-    while(value-- > 0 ) { CoreFunctions::nop(); }
+    // TODO  InterruptController::Init();
+    //  NVIC_SetPriorityGrouping(7);  // no preemption, 4 bit of subprio
+    //  NVIC_SetPriorityGrouping(6);  // 1 bit preemption, 3 bit of subprio
+    //  NVIC_SetPriorityGrouping(5);  // 2 bit preemption, 2 bit of subprio
+    //  NVIC_SetPriorityGrouping(4);  // 3 bit preemption, 1 bit of subprio
+    //  NVIC_SetPriorityGrouping(3);  // 4 bit preemption, 0 bit of subprio
   }
 
-  /* make sure clock_frequency is set correctly in cppcore_setup.hpp */
+  /* Make sure clock_frequency is set correctly in cppcore_setup.hpp */
   static_assert(clock_frequency >= 0, "invalid clock frequency (maybe you forgot to set it in cppcore_setup.hpp ?)");
 
 #if 0
@@ -76,8 +84,6 @@ public:
   };
 #endif
 
-private:
-  static inline void InitClocks();
 };
 
 #endif // COMMON_ARM_CORTEX_CORE_HPP_INCLUDED

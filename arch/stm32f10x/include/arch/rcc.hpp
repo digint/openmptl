@@ -21,7 +21,8 @@
 #ifndef RCC_HPP_INCLUDED
 #define RCC_HPP_INCLUDED
 
-#include <arch/core.hpp>
+#include <arch/register_defs.hpp>
+#include <freq.hpp>
 
 
 // TODO: access functions, change public to private
@@ -32,7 +33,7 @@ private:
 
 public:
 
-  using RCC = Core::RCC;
+  using RCC = Reg::RCC;
 
   static void EnableHSE(void) {
     RCC::CR::HSEON::set();

@@ -18,34 +18,30 @@
  * 
  */
 
+#ifndef CORE_STARTUP_HPP_INCLUDED
+#define CORE_STARTUP_HPP_INCLUDED
+
+#include <cppcore_setup.hpp>
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
-#include <arch/core.hpp>
 
-void Core::InitClocks() {
-  int success;
+struct CoreStartup : CoreSetup {
+  static_assert(clock_frequency <= 72_mhz, "unsupported system clock frequency");
 
-  Rcc::EnableHSE();
-  success = Rcc::WaitHSERDY();
+  static void InitClocks(void) {
+    int success;
 
-  if(!success)
-    Panic();
+    Rcc::EnableHSE();
+    success = Rcc::WaitHSERDY();
 
-  Flash::EnablePrefetchBuffer();
-  Flash::SetLatency<clock_frequency>();
+    if(!success)
+      Panic();
 
-  Rcc::SetSysClock<clock_frequency>();
-}
+    Flash::EnablePrefetchBuffer();
+    Flash::SetLatency<clock_frequency>();
 
-/* NOTE: this function is called BEFORE ANY constructors of static objects are called! */
-void Core::InitHW(void) {
-  Rcc::Init();
-  InitClocks();
+    Rcc::SetSysClock<clock_frequency>();
+  }
+};
 
-// TODO  InterruptController::Init();
-//	NVIC_SetPriorityGrouping(7);	// no preemption, 4 bit of subprio
-//      NVIC_SetPriorityGrouping(6);	// 1 bit preemption, 3 bit of subprio
-//	NVIC_SetPriorityGrouping(5);	// 2 bit preemption, 2 bit of subprio
-//	NVIC_SetPriorityGrouping(4);	// 3 bit preemption, 1 bit of subprio
-//	NVIC_SetPriorityGrouping(3);	// 4 bit preemption, 0 bit of subprio
-}
+#endif // CORE_STARTUP_HPP_INCLUDED

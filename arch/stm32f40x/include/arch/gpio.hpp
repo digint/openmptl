@@ -62,20 +62,20 @@ protected:
   static constexpr uint32_t pin_mask = (uint32_t)1 << pin_no;
   static constexpr uint32_t pin_mask_double  = (uint32_t)3 << (pin_no * 2);
 
-  typedef Core::GPIO<port> GPIOx;
+  typedef Reg::GPIO<port> GPIOx;
 
 
 public:
 
-  static constexpr uint32_t ahb1enr = ( port == 'A' ? Core::RCC::AHB1ENR::GPIOAEN::value : 
-                                        port == 'B' ? Core::RCC::AHB1ENR::GPIOBEN::value : 
-                                        port == 'C' ? Core::RCC::AHB1ENR::GPIOCEN::value : 
-                                        port == 'D' ? Core::RCC::AHB1ENR::GPIODEN::value : 
-                                        port == 'E' ? Core::RCC::AHB1ENR::GPIOEEN::value : 
-                                        port == 'F' ? Core::RCC::AHB1ENR::GPIOFEN::value : 
-                                        port == 'G' ? Core::RCC::AHB1ENR::GPIOGEN::value : 
-                                        port == 'H' ? Core::RCC::AHB1ENR::GPIOHEN::value : 
-                                        port == 'I' ? Core::RCC::AHB1ENR::GPIOIEN::value : 
+  static constexpr uint32_t ahb1enr = ( port == 'A' ? Reg::RCC::AHB1ENR::GPIOAEN::value : 
+                                        port == 'B' ? Reg::RCC::AHB1ENR::GPIOBEN::value : 
+                                        port == 'C' ? Reg::RCC::AHB1ENR::GPIOCEN::value : 
+                                        port == 'D' ? Reg::RCC::AHB1ENR::GPIODEN::value : 
+                                        port == 'E' ? Reg::RCC::AHB1ENR::GPIOEEN::value : 
+                                        port == 'F' ? Reg::RCC::AHB1ENR::GPIOFEN::value : 
+                                        port == 'G' ? Reg::RCC::AHB1ENR::GPIOGEN::value : 
+                                        port == 'H' ? Reg::RCC::AHB1ENR::GPIOHEN::value : 
+                                        port == 'I' ? Reg::RCC::AHB1ENR::GPIOIEN::value : 
                                         0 );
 
   typedef ResourceList< SharedAHB1ENR< ahb1enr >,

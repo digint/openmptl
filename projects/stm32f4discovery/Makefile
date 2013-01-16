@@ -84,7 +84,7 @@ include $(CPPCORE_TOP)/config/system.mk
 # cppcore sources/includes
 #
 include $(CPPCORE_TOP)/config/cppcore.mk
-SRCS        += $(CPPCORE_SRC)
+#SRCS        += $(CPPCORE_SRC)
 INCLUDE     += $(CPPCORE_INCLUDE)
 
 vpath %.cpp $(CPPCORE_SRC_DIRS)

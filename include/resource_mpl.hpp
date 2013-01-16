@@ -22,6 +22,7 @@
 #define RESOURCE_MPL_HPP_INCLUDED
 
 #include <type_traits>
+#include <cstdint>
 
 // debug mpl
 //template<typename T> struct incomplete;

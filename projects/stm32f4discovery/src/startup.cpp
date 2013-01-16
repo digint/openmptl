@@ -19,7 +19,7 @@
  */
 
 
-#include <core_startup.hpp>
+#include <crt.hpp>
 #include <arch/nvic.hpp>
 #include <kernel.hpp>
 
@@ -28,7 +28,7 @@
 
 /* Reset core exception: triggered on system startup (system entry point). */
 void CoreException::Reset::Handler(void) {
-  CoreStartupIrqWrap wrap;
+  CRunTimeIrqWrap wrap;
 
   Kernel::init();
   Kernel::run();
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
             << "------------------" << std::endl
             << std::endl;
 
-  Core::InitHW();
+  Core::Init();
 
   Kernel::init();
   Kernel::run();

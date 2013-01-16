@@ -41,9 +41,7 @@ struct CoreMemoryMap
 ////////////////////  CoreRegister  ////////////////////
 
 
-class CoreRegister {
-
-public:
+namespace Reg {
 
   using access = RegisterAccess;
 
@@ -373,7 +371,7 @@ public:
     struct IPR  : Register<uint32_t, 0xE000E400 + 4 * index, access::rw >
     { static_assert(index < 60, "invalid index for register"); };
   };
-};
+}
 
 
 

@@ -46,55 +46,55 @@ template<typename T, typename... Args>
 void ResourceList<T, Args...>::configure(void)
 {
   /* Enable peripheral clocks */
-  if(value< SharedAPB1ENR<0> >()) Core::RCC::APB1ENR::store( Core::RCC::APB1ENR::reset_value | value< SharedAPB1ENR<0> >() );
-  if(value< SharedAPB2ENR<0> >()) Core::RCC::APB2ENR::store( Core::RCC::APB2ENR::reset_value | value< SharedAPB2ENR<0> >() );
-  if(value< SharedAHB1ENR<0> >()) Core::RCC::AHB1ENR::store( Core::RCC::AHB1ENR::reset_value | value< SharedAHB1ENR<0> >() );
+  if(value< SharedAPB1ENR<0> >()) Reg::RCC::APB1ENR::store( Reg::RCC::APB1ENR::reset_value | value< SharedAPB1ENR<0> >() );
+  if(value< SharedAPB2ENR<0> >()) Reg::RCC::APB2ENR::store( Reg::RCC::APB2ENR::reset_value | value< SharedAPB2ENR<0> >() );
+  if(value< SharedAHB1ENR<0> >()) Reg::RCC::AHB1ENR::store( Reg::RCC::AHB1ENR::reset_value | value< SharedAHB1ENR<0> >() );
 
   /* Setup GPIO register */
-  if(value< SharedGpioMODER_Mask  <'A', 0> >()) Core::GPIO<'A'>::MODER::set(   value< SharedGpioMODER  <'A', 0> >(), value< SharedGpioMODER_Mask  <'A', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'A', 0> >()) Core::GPIO<'A'>::OTYPER::set(  value< SharedGpioOTYPER <'A', 0> >(), value< SharedGpioOTYPER_Mask <'A', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'A', 0> >()) Core::GPIO<'A'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'A', 0> >(), value< SharedGpioOSPEEDR_Mask<'A', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'A', 0> >()) Core::GPIO<'A'>::PUPDR::set(   value< SharedGpioPUPDR  <'A', 0> >(), value< SharedGpioPUPDR_Mask  <'A', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'A', 0> >()) Reg::GPIO<'A'>::MODER::set(   value< SharedGpioMODER  <'A', 0> >(), value< SharedGpioMODER_Mask  <'A', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'A', 0> >()) Reg::GPIO<'A'>::OTYPER::set(  value< SharedGpioOTYPER <'A', 0> >(), value< SharedGpioOTYPER_Mask <'A', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'A', 0> >()) Reg::GPIO<'A'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'A', 0> >(), value< SharedGpioOSPEEDR_Mask<'A', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'A', 0> >()) Reg::GPIO<'A'>::PUPDR::set(   value< SharedGpioPUPDR  <'A', 0> >(), value< SharedGpioPUPDR_Mask  <'A', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'B', 0> >()) Core::GPIO<'B'>::MODER::set(   value< SharedGpioMODER  <'B', 0> >(), value< SharedGpioMODER_Mask  <'B', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'B', 0> >()) Core::GPIO<'B'>::OTYPER::set(  value< SharedGpioOTYPER <'B', 0> >(), value< SharedGpioOTYPER_Mask <'B', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'B', 0> >()) Core::GPIO<'B'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'B', 0> >(), value< SharedGpioOSPEEDR_Mask<'B', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'B', 0> >()) Core::GPIO<'B'>::PUPDR::set(   value< SharedGpioPUPDR  <'B', 0> >(), value< SharedGpioPUPDR_Mask  <'B', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'B', 0> >()) Reg::GPIO<'B'>::MODER::set(   value< SharedGpioMODER  <'B', 0> >(), value< SharedGpioMODER_Mask  <'B', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'B', 0> >()) Reg::GPIO<'B'>::OTYPER::set(  value< SharedGpioOTYPER <'B', 0> >(), value< SharedGpioOTYPER_Mask <'B', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'B', 0> >()) Reg::GPIO<'B'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'B', 0> >(), value< SharedGpioOSPEEDR_Mask<'B', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'B', 0> >()) Reg::GPIO<'B'>::PUPDR::set(   value< SharedGpioPUPDR  <'B', 0> >(), value< SharedGpioPUPDR_Mask  <'B', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'C', 0> >()) Core::GPIO<'C'>::MODER::set(   value< SharedGpioMODER  <'C', 0> >(), value< SharedGpioMODER_Mask  <'C', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'C', 0> >()) Core::GPIO<'C'>::OTYPER::set(  value< SharedGpioOTYPER <'C', 0> >(), value< SharedGpioOTYPER_Mask <'C', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'C', 0> >()) Core::GPIO<'C'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'C', 0> >(), value< SharedGpioOSPEEDR_Mask<'C', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'C', 0> >()) Core::GPIO<'C'>::PUPDR::set(   value< SharedGpioPUPDR  <'C', 0> >(), value< SharedGpioPUPDR_Mask  <'C', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'C', 0> >()) Reg::GPIO<'C'>::MODER::set(   value< SharedGpioMODER  <'C', 0> >(), value< SharedGpioMODER_Mask  <'C', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'C', 0> >()) Reg::GPIO<'C'>::OTYPER::set(  value< SharedGpioOTYPER <'C', 0> >(), value< SharedGpioOTYPER_Mask <'C', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'C', 0> >()) Reg::GPIO<'C'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'C', 0> >(), value< SharedGpioOSPEEDR_Mask<'C', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'C', 0> >()) Reg::GPIO<'C'>::PUPDR::set(   value< SharedGpioPUPDR  <'C', 0> >(), value< SharedGpioPUPDR_Mask  <'C', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'D', 0> >()) Core::GPIO<'D'>::MODER::set(   value< SharedGpioMODER  <'D', 0> >(), value< SharedGpioMODER_Mask  <'D', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'D', 0> >()) Core::GPIO<'D'>::OTYPER::set(  value< SharedGpioOTYPER <'D', 0> >(), value< SharedGpioOTYPER_Mask <'D', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'D', 0> >()) Core::GPIO<'D'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'D', 0> >(), value< SharedGpioOSPEEDR_Mask<'D', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'D', 0> >()) Core::GPIO<'D'>::PUPDR::set(   value< SharedGpioPUPDR  <'D', 0> >(), value< SharedGpioPUPDR_Mask  <'D', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'D', 0> >()) Reg::GPIO<'D'>::MODER::set(   value< SharedGpioMODER  <'D', 0> >(), value< SharedGpioMODER_Mask  <'D', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'D', 0> >()) Reg::GPIO<'D'>::OTYPER::set(  value< SharedGpioOTYPER <'D', 0> >(), value< SharedGpioOTYPER_Mask <'D', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'D', 0> >()) Reg::GPIO<'D'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'D', 0> >(), value< SharedGpioOSPEEDR_Mask<'D', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'D', 0> >()) Reg::GPIO<'D'>::PUPDR::set(   value< SharedGpioPUPDR  <'D', 0> >(), value< SharedGpioPUPDR_Mask  <'D', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'E', 0> >()) Core::GPIO<'E'>::MODER::set(   value< SharedGpioMODER  <'E', 0> >(), value< SharedGpioMODER_Mask  <'E', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'E', 0> >()) Core::GPIO<'E'>::OTYPER::set(  value< SharedGpioOTYPER <'E', 0> >(), value< SharedGpioOTYPER_Mask <'E', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'E', 0> >()) Core::GPIO<'E'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'E', 0> >(), value< SharedGpioOSPEEDR_Mask<'E', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'E', 0> >()) Core::GPIO<'E'>::PUPDR::set(   value< SharedGpioPUPDR  <'E', 0> >(), value< SharedGpioPUPDR_Mask  <'E', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'E', 0> >()) Reg::GPIO<'E'>::MODER::set(   value< SharedGpioMODER  <'E', 0> >(), value< SharedGpioMODER_Mask  <'E', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'E', 0> >()) Reg::GPIO<'E'>::OTYPER::set(  value< SharedGpioOTYPER <'E', 0> >(), value< SharedGpioOTYPER_Mask <'E', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'E', 0> >()) Reg::GPIO<'E'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'E', 0> >(), value< SharedGpioOSPEEDR_Mask<'E', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'E', 0> >()) Reg::GPIO<'E'>::PUPDR::set(   value< SharedGpioPUPDR  <'E', 0> >(), value< SharedGpioPUPDR_Mask  <'E', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'F', 0> >()) Core::GPIO<'F'>::MODER::set(   value< SharedGpioMODER  <'F', 0> >(), value< SharedGpioMODER_Mask  <'F', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'F', 0> >()) Core::GPIO<'F'>::OTYPER::set(  value< SharedGpioOTYPER <'F', 0> >(), value< SharedGpioOTYPER_Mask <'F', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'F', 0> >()) Core::GPIO<'F'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'F', 0> >(), value< SharedGpioOSPEEDR_Mask<'F', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'F', 0> >()) Core::GPIO<'F'>::PUPDR::set(   value< SharedGpioPUPDR  <'F', 0> >(), value< SharedGpioPUPDR_Mask  <'F', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'F', 0> >()) Reg::GPIO<'F'>::MODER::set(   value< SharedGpioMODER  <'F', 0> >(), value< SharedGpioMODER_Mask  <'F', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'F', 0> >()) Reg::GPIO<'F'>::OTYPER::set(  value< SharedGpioOTYPER <'F', 0> >(), value< SharedGpioOTYPER_Mask <'F', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'F', 0> >()) Reg::GPIO<'F'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'F', 0> >(), value< SharedGpioOSPEEDR_Mask<'F', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'F', 0> >()) Reg::GPIO<'F'>::PUPDR::set(   value< SharedGpioPUPDR  <'F', 0> >(), value< SharedGpioPUPDR_Mask  <'F', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'G', 0> >()) Core::GPIO<'G'>::MODER::set(   value< SharedGpioMODER  <'G', 0> >(), value< SharedGpioMODER_Mask  <'G', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'G', 0> >()) Core::GPIO<'G'>::OTYPER::set(  value< SharedGpioOTYPER <'G', 0> >(), value< SharedGpioOTYPER_Mask <'G', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'G', 0> >()) Core::GPIO<'G'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'G', 0> >(), value< SharedGpioOSPEEDR_Mask<'G', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'G', 0> >()) Core::GPIO<'G'>::PUPDR::set(   value< SharedGpioPUPDR  <'G', 0> >(), value< SharedGpioPUPDR_Mask  <'G', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'G', 0> >()) Reg::GPIO<'G'>::MODER::set(   value< SharedGpioMODER  <'G', 0> >(), value< SharedGpioMODER_Mask  <'G', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'G', 0> >()) Reg::GPIO<'G'>::OTYPER::set(  value< SharedGpioOTYPER <'G', 0> >(), value< SharedGpioOTYPER_Mask <'G', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'G', 0> >()) Reg::GPIO<'G'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'G', 0> >(), value< SharedGpioOSPEEDR_Mask<'G', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'G', 0> >()) Reg::GPIO<'G'>::PUPDR::set(   value< SharedGpioPUPDR  <'G', 0> >(), value< SharedGpioPUPDR_Mask  <'G', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'H', 0> >()) Core::GPIO<'H'>::MODER::set(   value< SharedGpioMODER  <'H', 0> >(), value< SharedGpioMODER_Mask  <'H', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'H', 0> >()) Core::GPIO<'H'>::OTYPER::set(  value< SharedGpioOTYPER <'H', 0> >(), value< SharedGpioOTYPER_Mask <'H', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'H', 0> >()) Core::GPIO<'H'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'H', 0> >(), value< SharedGpioOSPEEDR_Mask<'H', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'H', 0> >()) Core::GPIO<'H'>::PUPDR::set(   value< SharedGpioPUPDR  <'H', 0> >(), value< SharedGpioPUPDR_Mask  <'H', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'H', 0> >()) Reg::GPIO<'H'>::MODER::set(   value< SharedGpioMODER  <'H', 0> >(), value< SharedGpioMODER_Mask  <'H', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'H', 0> >()) Reg::GPIO<'H'>::OTYPER::set(  value< SharedGpioOTYPER <'H', 0> >(), value< SharedGpioOTYPER_Mask <'H', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'H', 0> >()) Reg::GPIO<'H'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'H', 0> >(), value< SharedGpioOSPEEDR_Mask<'H', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'H', 0> >()) Reg::GPIO<'H'>::PUPDR::set(   value< SharedGpioPUPDR  <'H', 0> >(), value< SharedGpioPUPDR_Mask  <'H', 0> >() );
 
-  if(value< SharedGpioMODER_Mask  <'I', 0> >()) Core::GPIO<'I'>::MODER::set(   value< SharedGpioMODER  <'I', 0> >(), value< SharedGpioMODER_Mask  <'I', 0> >() );
-  if(value< SharedGpioOTYPER_Mask <'I', 0> >()) Core::GPIO<'I'>::OTYPER::set(  value< SharedGpioOTYPER <'I', 0> >(), value< SharedGpioOTYPER_Mask <'I', 0> >() );
-  if(value< SharedGpioOSPEEDR_Mask<'I', 0> >()) Core::GPIO<'I'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'I', 0> >(), value< SharedGpioOSPEEDR_Mask<'I', 0> >() );
-  if(value< SharedGpioPUPDR_Mask  <'I', 0> >()) Core::GPIO<'I'>::PUPDR::set(   value< SharedGpioPUPDR  <'I', 0> >(), value< SharedGpioPUPDR_Mask  <'I', 0> >() );
+  if(value< SharedGpioMODER_Mask  <'I', 0> >()) Reg::GPIO<'I'>::MODER::set(   value< SharedGpioMODER  <'I', 0> >(), value< SharedGpioMODER_Mask  <'I', 0> >() );
+  if(value< SharedGpioOTYPER_Mask <'I', 0> >()) Reg::GPIO<'I'>::OTYPER::set(  value< SharedGpioOTYPER <'I', 0> >(), value< SharedGpioOTYPER_Mask <'I', 0> >() );
+  if(value< SharedGpioOSPEEDR_Mask<'I', 0> >()) Reg::GPIO<'I'>::OSPEEDR::set( value< SharedGpioOSPEEDR<'I', 0> >(), value< SharedGpioOSPEEDR_Mask<'I', 0> >() );
+  if(value< SharedGpioPUPDR_Mask  <'I', 0> >()) Reg::GPIO<'I'>::PUPDR::set(   value< SharedGpioPUPDR  <'I', 0> >(), value< SharedGpioPUPDR_Mask  <'I', 0> >() );
 }
 
 

@@ -24,9 +24,9 @@
 #include <register.hpp>
 #include "../../../common/arm-cortex/core_register.hpp"
 
-using access = RegisterAccess;
+namespace Reg {
 
-struct PeripheralRegister {
+  using access = RegisterAccess;
 
   /**
    * Reset and clock control
@@ -761,7 +761,7 @@ struct PeripheralRegister {
       typedef RegisterBits< reg_type, 14,  1 > VOSRDY;   /**< Regulator voltage scaling output selection ready bit  */
     };
   };
-};
+}
 
 
 #endif // CORE_REG_HPP_INCLUDED

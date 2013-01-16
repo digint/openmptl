@@ -160,7 +160,7 @@ class IrqChannel : public NvicPriority<irqn> {
   static constexpr std::size_t  reg_index = (uint32_t)irqn >> 5;
   static constexpr std::size_t  irq_bit = 1 << ((uint32_t)irqn & 0x1F);
 
-  using NVIC  = Core::NVIC;
+  using NVIC  = Reg::NVIC;
   using ISERx = NVIC::ISER<reg_index>;
   using ICERx = NVIC::ICER<reg_index>;
   using ISPRx = NVIC::ISPR<reg_index>;

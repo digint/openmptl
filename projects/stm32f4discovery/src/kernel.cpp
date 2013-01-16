@@ -80,7 +80,7 @@ volatile unsigned int *SCB_DEMCR        = (volatile unsigned int *)0xE000EDFC; /
 
 void Kernel::run(void)
 {
-  if(Core::SCB::CPUID::load() == 0x410FC241) {
+  if(Reg::SCB::CPUID::load() == 0x410FC241) {
     led_blue::on();
   }
 

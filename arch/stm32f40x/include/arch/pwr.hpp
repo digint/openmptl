@@ -28,7 +28,7 @@ class Pwr
 {
 public:
 
-  using PWR = Core::PWR;
+  using PWR = Reg::PWR;
 
   static void DisableBackupDomainWriteProtection(void) {
     PWR::CR::DBP::set();
