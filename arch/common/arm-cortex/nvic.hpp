@@ -106,7 +106,6 @@ public:
 class CoreExceptionReset {
 public:
   /* no default handler, this one MUST be implemented. */
-  // static void Handler(void)  __attribute__((__interrupt__));
   static void Handler(void);
 };
 
@@ -116,7 +115,6 @@ public:
 
 class CoreExceptionHardFault {
 public:
-  // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
@@ -128,7 +126,6 @@ public:
 
 class CoreExceptionNMI {
 public:
-  // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
@@ -138,11 +135,13 @@ public:
 ////////////////////  CoreException  ////////////////////
 
 
-template<CoreExceptionNumber irqn>
+template<int irqn>
 class CoreException : public NvicPriority<static_cast<int>(irqn)> {
+  static_assert(irqn < 0 && irqn > -16, "illegal core exception interrupt number");
 public:
 
-  // static void Handler(void)  __attribute__((__interrupt__)) {
+  static constexpr int irq_number = irqn;
+
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
@@ -157,14 +156,23 @@ public:
 };
 
 
+typedef CoreException<-12>  CoreExceptionMemoryManagement;
+typedef CoreException<-11>  CoreExceptionBusFault;
+typedef CoreException<-10>  CoreExceptionUsageFault;
+typedef CoreException<-5>   CoreExceptionSVCall;
+typedef CoreException<-4>   CoreExceptionDebugMonitor;
+typedef CoreException<-2>   CoreExceptionPendSV;
+typedef CoreException<-1>   CoreExceptionSysTick;
+
+
 ////////////////////  Irq  ////////////////////
 
 
 template<unsigned int irqn>
 class Irq : public NvicPriority<irqn> {
 
-  static constexpr std::size_t reg_index = (uint32_t)irqn >> 5;
-  static constexpr std::size_t irq_bit = 1 << ((uint32_t)irqn & 0x1F);
+  static constexpr std::size_t  reg_index = (uint32_t)irqn >> 5;
+  static constexpr std::size_t  irq_bit = 1 << ((uint32_t)irqn & 0x1F);
 
   using NVIC  = Core::NVIC;
   using ISERx = NVIC::ISER<reg_index>;
@@ -178,14 +186,10 @@ public:
 
   static constexpr int irq_number = irqn;
 
-  // TODO: find a way to tell the compiler not to duplicate all this code.
-  //       code bloat is about 600 bytes for all functions defined in irq.cpp.
   // static void Handler(void)  __attribute__((__interrupt__)) {
   static void Handler(void) {
     DefaultIrqWrap wrap;
   }
-  //  static const std::function<void(void)> Handler;
-  //  static irq_handler_t Handler;
 
   static void Enable(void) {
     ISERx::store(irq_bit);

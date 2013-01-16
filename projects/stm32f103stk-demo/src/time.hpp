@@ -28,12 +28,15 @@ typedef unsigned int systick_t;
 
 class time
 {
-  friend CoreException<CoreExceptionNumber::SysTick>;
-
   static std::atomic<systick_t> systick_count;
   //static systick_t systick_count;
 
 public:
+
+  static void tick(void) {
+    time::systick_count.fetch_add(1, std::memory_order_relaxed);
+    //  time::systick_count++;
+  }
 
   static systick_t get_systick() {
     return systick_count.load(std::memory_order_relaxed);

@@ -24,9 +24,8 @@
 using namespace resources;
 
 template<>
-void systick::SysTickIrq::Handler(void) {
-  time::systick_count.fetch_add(1, std::memory_order_relaxed);
-  //  time::systick_count++;
+void systick::Irq::Handler(void) {
+  time::tick();
 }
 
 //systick_t time::systick_count;

@@ -22,18 +22,7 @@
 #define NVIC_HPP_INCLUDED
 
 #include "../../../common/arm-cortex/nvic.hpp"
-
-struct NvicSetup {
-#if defined(STM32F10X_LD) || defined(STM32F10X_MD)
-  static constexpr int irq_channels = 43;
-#elif defined(STM32F10X_LD_VL) || defined(STM32F10X_MD_VL)
-  static constexpr int irq_channels = 56;
-#elif defined(STM32F10X_HD) || defined(STM32F10X_XL)
-  static constexpr int irq_channels = 60;
-#elif defined(STM32F10X_CL)
-  static constexpr int irq_channels = 68;
-#endif
-};
+#include "../../../common/arm-cortex/vector_table.hpp"
 
 typedef Irq<0>   IrqWWDG;                   /**< Window WatchDog Interrupt                   */
 typedef Irq<1>   IrqPVD;                    /**< PVD through EXTI Line detection Interrupt   */
@@ -75,6 +64,7 @@ typedef Irq<38>  IrqUSART2;                 /**< USART2 global Interrupt        
 typedef Irq<40>  IrqEXTI15_10;              /**< External Line[15:10] Interrupts                              */
 typedef Irq<41>  IrqRTCAlarm;               /**< RTC Alarm through EXTI Line Interrupt                        */
 typedef Irq<42>  IrqUSBWakeUp;              /**< USB Device WakeUp from suspend through EXTI Line Interrupt   */
+#define LAST_IRQ_CHANNEL  42
 #endif // STM32F10X_LD
 
 #ifdef STM32F10X_LD_VL
@@ -96,6 +86,7 @@ typedef Irq<41>  IrqRTCAlarm;               /**< RTC Alarm through EXTI Line Int
 typedef Irq<42>  IrqCEC;                    /**< HDMI-CEC Interrupt                                 */
 typedef Irq<54>  IrqTIM6_DAC;               /**< TIM6 and DAC underrun Interrupt                    */
 typedef Irq<55>  IrqTIM7;                   /**< TIM7 Interrupt                                     */
+#define LAST_IRQ_CHANNEL  55
 #endif // STM32F10X_LD_VL
 
 #ifdef STM32F10X_MD
@@ -124,6 +115,7 @@ typedef Irq<39>  IrqUSART3;                 /**< USART3 global Interrupt        
 typedef Irq<40>  IrqEXTI15_10;              /**< External Line[15:10] Interrupts                              */
 typedef Irq<41>  IrqRTCAlarm;               /**< RTC Alarm through EXTI Line Interrupt                        */
 typedef Irq<42>  IrqUSBWakeUp;              /**< USB Device WakeUp from suspend through EXTI Line Interrupt   */
+#define LAST_IRQ_CHANNEL  42
 #endif // STM32F10X_MD
 
 #ifdef STM32F10X_MD_VL
@@ -150,6 +142,7 @@ typedef Irq<41>  IrqRTCAlarm;               /**< RTC Alarm through EXTI Line Int
 typedef Irq<42>  IrqCEC;                    /**< HDMI-CEC Interrupt                                 */
 typedef Irq<54>  IrqTIM6_DAC;               /**< TIM6 and DAC underrun Interrupt                    */
 typedef Irq<55>  IrqTIM7;                   /**< TIM7 Interrupt                                     */
+#define LAST_IRQ_CHANNEL  55
 #endif // STM32F10X_MD_VL
 
 #ifdef STM32F10X_HD
@@ -195,6 +188,7 @@ typedef Irq<56>  IrqDMA2_Channel1;          /**< DMA2 Channel 1 global Interrupt
 typedef Irq<57>  IrqDMA2_Channel2;          /**< DMA2 Channel 2 global Interrupt                              */
 typedef Irq<58>  IrqDMA2_Channel3;          /**< DMA2 Channel 3 global Interrupt                              */
 typedef Irq<59>  IrqDMA2_Channel4_5;        /**< DMA2 Channel 4 and Channel 5 global Interrupt                */
+#define LAST_IRQ_CHANNEL  59
 #endif // STM32F10X_HD
 
 #ifdef STM32F10X_XL
@@ -240,6 +234,7 @@ typedef Irq<56>  IrqDMA2_Channel1;          /**< DMA2 Channel 1 global Interrupt
 typedef Irq<57>  IrqDMA2_Channel2;          /**< DMA2 Channel 2 global Interrupt                                     */
 typedef Irq<58>  IrqDMA2_Channel3;          /**< DMA2 Channel 3 global Interrupt                                     */
 typedef Irq<59>  IrqDMA2_Channel4_5;        /**< DMA2 Channel 4 and Channel 5 global Interrupt                       */
+#define LAST_IRQ_CHANNEL  59
 #endif // STM32F10X_XL
 
 #ifdef STM32F10X_CL
@@ -286,6 +281,16 @@ typedef Irq<64>  IrqCAN2_RX0;               /**< CAN2 RX0 Interrupt             
 typedef Irq<65>  IrqCAN2_RX1;               /**< CAN2 RX1 Interrupt                                           */
 typedef Irq<66>  IrqCAN2_SCE;               /**< CAN2 SCE Interrupt                                           */
 typedef Irq<67>  IrqOTG_FS;                 /**< USB OTG FS global Interrupt                                  */
+
+#define LAST_IRQ_CHANNEL  67
 #endif // STM32F10X_CL
+
+
+extern const uint32_t _stack_top;  // provided by linker script
+
+/* Configure vector table */
+typedef VectorTableBuilder<LAST_IRQ_CHANNEL + 1, &_stack_top>::value VectorTable;
+
+#undef LAST_IRQ_CHANNEL
 
 #endif // NVIC_HPP_INCLUDED

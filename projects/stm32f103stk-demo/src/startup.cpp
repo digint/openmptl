@@ -34,10 +34,14 @@ void CoreExceptionReset::Handler(void) {
   Kernel::run();
 }
 
+/* Build the vector table */
+VectorTable vector_table;
+
+
 #else // CORE_SIMULATION
 
-#include <iostream>
 
+#include <iostream>
 
 int main(int argc, char *argv[])
 {

@@ -54,22 +54,22 @@ const irq_handler_t VectorTableImpl<stack_top, irqs...>::vector_table[table_size
   reinterpret_cast<irq_handler_t>(stack_top),
 
   /* fixed core exceptions */
-  CoreExceptionReset     ::Handler,
-  CoreExceptionNMI       ::Handler,
-  CoreExceptionHardFault ::Handler,
+  CoreExceptionReset            ::Handler,
+  CoreExceptionNMI              ::Handler,
+  CoreExceptionHardFault        ::Handler,
 
   /* settable core exceptions */
-  CoreException< CoreExceptionNumber::MemoryManagement >::Handler,
-  CoreException< CoreExceptionNumber::BusFault         >::Handler,
-  CoreException< CoreExceptionNumber::UsageFault       >::Handler,
+  CoreExceptionMemoryManagement ::Handler,
+  CoreExceptionBusFault         ::Handler,
+  CoreExceptionUsageFault       ::Handler,
   0, 0, 0, 0,    /* reserved */
-  CoreException< CoreExceptionNumber::SVCall           >::Handler,
-  CoreException< CoreExceptionNumber::DebugMonitor     >::Handler,
+  CoreExceptionSVCall           ::Handler,
+  CoreExceptionDebugMonitor     ::Handler,
   0,             /* reserved */
-  CoreException< CoreExceptionNumber::PendSV           >::Handler,
-  CoreException< CoreExceptionNumber::SysTick          >::Handler,
+  CoreExceptionPendSV           ::Handler,
+  CoreExceptionSysTick          ::Handler,
 
-  /* nvic irq channels */
+  /* device specific irq channels */
   irqs::Handler...
 };
 

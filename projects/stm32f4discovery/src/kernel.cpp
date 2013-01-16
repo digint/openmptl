@@ -34,7 +34,7 @@ static volatile int systick_count = 1000;
 static volatile int second = 0;
 
 template<>
-void systick::SysTickIrq::Handler(void) {
+void systick::Irq::Handler(void) {
   systick_count--;
   if(systick_count == 0) {
     systick_count = 1000;
