@@ -18,8 +18,8 @@
  * 
  */
 
-#ifndef CORE_REG_HPP_INCLUDED
-#define CORE_REG_HPP_INCLUDED
+#ifndef REGISTER_DEFS_HPP_INCLUDED
+#define REGISTER_DEFS_HPP_INCLUDED
 
 //
 //  core register definition: wrap bitfields into Register classes
@@ -78,7 +78,6 @@
 
 #include <register.hpp>
 #include "../../../common/arm-cortex/core_register.hpp"
-
 
 namespace Reg {
 
@@ -1691,6 +1690,4 @@ namespace Reg {
   };
 }
 
-
-
-#endif // CORE_REG_HPP_INCLUDED
+#endif // REGISTER_DEFS_HPP_INCLUDED

@@ -23,7 +23,7 @@
 
 #include <arch/core.hpp>
 #include <arch/scb.hpp>
-#include <cppcore_setup.hpp>
+#include <core_setup.hpp>
 #include <irq_wrap.hpp>
 
 

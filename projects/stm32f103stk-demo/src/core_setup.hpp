@@ -35,13 +35,4 @@ struct InterruptControllerSetup {
   static constexpr unsigned priority_bits = 4;
 };
 
-// TODO: nice interrupt priority setup
-//
-//    SetPriorityGrouping(3 + priority_bits); // TODO: check this!
-//	NVIC_SetPriorityGrouping(7);	// no preemption, 4 bit of subprio
-//      NVIC_SetPriorityGrouping(6);	// 1 bit preemption, 3 bit of subprio
-//	NVIC_SetPriorityGrouping(5);	// 2 bit preemption, 2 bit of subprio
-//	NVIC_SetPriorityGrouping(4);	// 3 bit preemption, 1 bit of subprio
-//	NVIC_SetPriorityGrouping(3);	// 4 bit preemption, 0 bit of subprio
-
 #endif // SETUP_HPP_INCLUDED

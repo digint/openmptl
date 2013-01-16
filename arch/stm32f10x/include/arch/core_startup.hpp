@@ -21,11 +21,12 @@
 #ifndef CORE_STARTUP_HPP_INCLUDED
 #define CORE_STARTUP_HPP_INCLUDED
 
-#include <cppcore_setup.hpp>
+#include <core_setup.hpp>
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
 
 struct CoreStartup : CoreSetup {
+  /* Make sure clock_frequency is set correctly in "core_setup.hpp" */
   static_assert(clock_frequency <= 72_mhz, "unsupported system clock frequency");
 
   static void InitClocks(void) {

@@ -22,6 +22,7 @@
 #include <irq_wrap.hpp>
 #include <cstdint>
 
+/* Make sure your linker script provides these: */
 extern uint32_t _data_lma; /* load address of data section */
 extern uint32_t _sdata;
 extern uint32_t _edata;
@@ -63,6 +64,9 @@ struct CRunTime {
 };
 
 
+/* Instantiate CRunTimeIrqWrap in your system entry point in order to
+ * initialize data and bss sections, and to initialize the core.
+ */
 struct CRunTimeIrqWrap : public IrqWrap {
   CRunTimeIrqWrap() {
     CRunTime::init_data_section();

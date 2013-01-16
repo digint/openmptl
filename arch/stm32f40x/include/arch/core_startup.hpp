@@ -21,12 +21,13 @@
 #ifndef CORE_STARTUP_HPP_INCLUDED
 #define CORE_STARTUP_HPP_INCLUDED
 
-#include <cppcore_setup.hpp>
+#include <core_setup.hpp>
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
 #include <arch/pwr.hpp>
 
 struct CoreStartup : CoreSetup {
+  /* Make sure the following variablesare set correctly in "core_setup.hpp": */
   static_assert(clock_frequency <= 168_mhz, "unsupported system clock frequency");
   static_assert(system_voltage >= 1.8_volt && system_voltage <= 3.6_volt, "unsupported system voltage");
   static_assert(power_save == false || clock_frequency <= 144_mhz, "system clock frequency too high for power save feature");

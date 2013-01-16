@@ -21,7 +21,6 @@
 #ifndef COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 
-#include <cppcore_setup.hpp>
 #include <arch/core_startup.hpp>
 
 
@@ -30,8 +29,8 @@
 
 struct CoreFunctions
 {
-  static inline void enable_irq()        { __asm volatile ("cpsie i"); } //< global interrupt enable
-  static inline void disable_irq()       { __asm volatile ("cpsid i"); } //< global interrupt disable
+  static inline void enable_irq()        { __asm volatile ("cpsie i"); }  /**< global interrupt enable   */
+  static inline void disable_irq()       { __asm volatile ("cpsid i"); }  /**< global interrupt disable  */
 
   static inline void enable_fault_irq()  { __asm volatile ("cpsie f"); }
   static inline void disable_fault_irq() { __asm volatile ("cpsid f"); }
@@ -45,36 +44,23 @@ struct CoreFunctions
   static inline void dmb()               { __asm volatile ("dmb"); }
   static inline void clrex()             { __asm volatile ("clrex"); }
 
-
-  static void nop(unsigned value) {
-    while(value-- > 0 ) { CoreFunctions::nop(); }
-  }
+  static void nop(unsigned value)        { while(value--) nop(); }
 };
 
 
 ////////////////////  Core  ////////////////////
 
 
-class Core : public CoreStartup,
-             public CoreFunctions
+struct Core : CoreStartup, CoreFunctions
 {
-public:
-
-  /* Initialize the hardware. */
-  /* NOTE: this function is called BEFORE ANY static object constructors are called! */
+  /* Initialize the hardware.
+   * NOTE: This function is called BEFORE ANY static object constructors are called!
+   */
   static void Init(void) {
     CoreStartup::InitClocks();
 
-    // TODO  InterruptController::Init();
-    //  NVIC_SetPriorityGrouping(7);  // no preemption, 4 bit of subprio
-    //  NVIC_SetPriorityGrouping(6);  // 1 bit preemption, 3 bit of subprio
-    //  NVIC_SetPriorityGrouping(5);  // 2 bit preemption, 2 bit of subprio
-    //  NVIC_SetPriorityGrouping(4);  // 3 bit preemption, 1 bit of subprio
-    //  NVIC_SetPriorityGrouping(3);  // 4 bit preemption, 0 bit of subprio
+    // TODO: NVIC Priority Grouping MPL magic
   }
-
-  /* Make sure clock_frequency is set correctly in cppcore_setup.hpp */
-  static_assert(clock_frequency >= 0, "invalid clock frequency (maybe you forgot to set it in cppcore_setup.hpp ?)");
 
 #if 0
   struct CriticalSection
@@ -83,7 +69,6 @@ public:
     ~CriticalSection() { enable_irq(); }
   };
 #endif
-
 };
 
 #endif // COMMON_ARM_CORTEX_CORE_HPP_INCLUDED

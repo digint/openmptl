@@ -21,26 +21,6 @@
 #ifndef COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
 
-
-////////////////////  CoreMemoryMap  ////////////////////
-
-
-/* Memory mapping of Cortex-M3 Hardware */
-struct CoreMemoryMap
-{
-  static constexpr reg_addr_t SCS_BASE        = 0xE000E000;         /**< System Control Space Base Address   */
-  static constexpr reg_addr_t ITM_BASE        = 0xE0000000;         /**< ITM Base Address                    */
-  static constexpr reg_addr_t CoreDebug_BASE  = 0xE000EDF0;         /**< Core Debug Base Address             */
-  static constexpr reg_addr_t SysTick_BASE    = SCS_BASE +  0x0010; /**< SysTick Base Address                */
-  static constexpr reg_addr_t NVIC_BASE       = SCS_BASE +  0x0100; /**< NVIC Base Address                   */
-  static constexpr reg_addr_t SCB_BASE        = SCS_BASE +  0x0D00; /**< System Control Block Base Address   */
-  static constexpr reg_addr_t MPU_BASE        = SCS_BASE +  0x0D90; /**< Memory Protection Unit              */
-};
-
-
-////////////////////  CoreRegister  ////////////////////
-
-
 namespace Reg {
 
   using access = RegisterAccess;
@@ -372,8 +352,5 @@ namespace Reg {
     { static_assert(index < 60, "invalid index for register"); };
   };
 }
-
-
-
 
 #endif // COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
