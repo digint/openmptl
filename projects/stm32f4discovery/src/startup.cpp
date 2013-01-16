@@ -34,6 +34,10 @@ void CoreExceptionReset::Handler(void) {
   Kernel::run();
 }
 
+/* Build the vector table by declaring a dummy pointer to it */
+irq_handler_t *vector_table_dummy = VectorTable::vector_table;
+
+
 #else // CORE_SIMULATION
 
 #include <iostream>

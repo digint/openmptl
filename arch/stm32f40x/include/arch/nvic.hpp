@@ -22,9 +22,13 @@
 #define NVIC_HPP_INCLUDED
 
 #include "../../../common/arm-cortex/nvic.hpp"
+#include "../../../common/arm-cortex/vector_table.hpp"
 
-struct NvicSetup {
-  static constexpr int irq_channels = 82;
-};
+extern const uint32_t _stack_top;  // provided by linker script
+
+/* configure vector table with 82 irq channels */
+typedef VectorTableBuilder<82, &_stack_top> VectorTable;
+
+static_assert(sizeof(VectorTable::vector_table) == 4 * (82 + NvicCortexSetup::core_exceptions), "IRQ vector table size error");
 
 #endif // NVIC_HPP_INCLUDED

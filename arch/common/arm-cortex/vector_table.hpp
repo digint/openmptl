@@ -18,6 +18,10 @@
  * 
  */
 
+
+#ifndef COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
+#define COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
+
 #include <arch/nvic.hpp>
 
 static_assert(sizeof(irq_handler_t)  == 4, "wrong size for irq function pointer");
@@ -25,16 +29,16 @@ static_assert(alignof(irq_handler_t) == 4, "wrong alignment for irq function poi
 
 
 template<int N, const uint32_t *stack_top, typename... irqs>
-struct VectorTable : VectorTable<N - 1, stack_top, Irq<N - 1>, irqs... >
+struct VectorTableBuilder : VectorTableBuilder<N - 1, stack_top, Irq<N - 1>, irqs... >
 { };
 
 template<const uint32_t *stack_top, typename... irqs>
-struct VectorTable<0, stack_top, irqs...> {
+struct VectorTableBuilder<0, stack_top, irqs...> {
   static const irq_handler_t vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] __attribute__ ((section(".isr_vector")));
 };
 
 template<const uint32_t *stack_top, typename... irqs>
-const irq_handler_t VectorTable<0, stack_top, irqs...>::vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] = {
+const irq_handler_t VectorTableBuilder<0, stack_top, irqs...>::vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] = {
   reinterpret_cast<irq_handler_t>(stack_top),
 
   /* fixed core exceptions */
@@ -58,22 +62,7 @@ const irq_handler_t VectorTable<0, stack_top, irqs...>::vector_table[sizeof...(i
 };
 
 
-#ifndef CORE_SIMULATION
-
-#define FEATURE_STACK_ON_CCM
-
-extern const uint32_t _stack_top;
-
-typedef VectorTable<NvicSetup::irq_channels, &_stack_top> ConfiguredVector;
-
-static_assert(sizeof(ConfiguredVector::vector_table) == 4 * (NvicSetup::irq_channels + NvicCortexSetup::core_exceptions), "IRQ vector table size error");
-
-
-/* declare dummy pointer (builds the vector table) */
-irq_handler_t *vector_table_dummy = ConfiguredVector::vector_table;
-
 /* Explicit template instantiation (does not work, vector_table is stripped)  */
 // template class VectorTable<82, &_eram>;
 
-
-#endif // CORE_SIMULATION
+#endif // COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
