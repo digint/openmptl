@@ -65,7 +65,7 @@ public:
 
   typedef ResourceList<> resources;
 
-  typedef CoreExceptionSysTick Irq; /**< System Tick Interrupt */
+  typedef CoreException::SysTick Irq; /**< System Tick Interrupt */
 
   static void SetReload(SCB::STRVR::value_type reload) {
 //    assert((reload >= 1) && (reload <= 0xFFFFFF));

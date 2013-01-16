@@ -100,43 +100,11 @@ public:
 };
 
 
-////////////////////  CoreExceptionReset  ////////////////////
-
-
-class CoreExceptionReset {
-public:
-  /* no default handler, this one MUST be implemented. */
-  static void Handler(void);
-};
-
-
-////////////////////  CoreExceptionHardFault  ////////////////////
-
-
-class CoreExceptionHardFault {
-public:
-  static void Handler(void) {
-    DefaultIrqWrap wrap;
-  }
-};
-
-
-////////////////////  CoreExceptionNMI  ////////////////////
-
-
-class CoreExceptionNMI {
-public:
-  static void Handler(void) {
-    DefaultIrqWrap wrap;
-  }
-};
-
-
 ////////////////////  CoreException  ////////////////////
 
 
 template<int irqn>
-class CoreException : public NvicPriority<static_cast<int>(irqn)> {
+class CoreExceptionImpl : public NvicPriority<static_cast<int>(irqn)> {
   static_assert(irqn < 0 && irqn > -16, "illegal core exception interrupt number");
 public:
 
@@ -156,20 +124,38 @@ public:
 };
 
 
-typedef CoreException<-12>  CoreExceptionMemoryManagement;
-typedef CoreException<-11>  CoreExceptionBusFault;
-typedef CoreException<-10>  CoreExceptionUsageFault;
-typedef CoreException<-5>   CoreExceptionSVCall;
-typedef CoreException<-4>   CoreExceptionDebugMonitor;
-typedef CoreException<-2>   CoreExceptionPendSV;
-typedef CoreException<-1>   CoreExceptionSysTick;
+namespace CoreException {
+  struct Reset {
+    /* no default handler, this one MUST be implemented. */
+    static void Handler(void);
+  };
 
+  struct HardFault {
+    static void Handler(void) {
+      DefaultIrqWrap wrap;
+    }
+  };
+
+  struct NMI {
+    static void Handler(void) {
+      DefaultIrqWrap wrap;
+    }
+  };
+
+  typedef CoreExceptionImpl<-12>  MemoryManagement;
+  typedef CoreExceptionImpl<-11>  BusFault;
+  typedef CoreExceptionImpl<-10>  UsageFault;
+  typedef CoreExceptionImpl<-5>   SVCall;
+  typedef CoreExceptionImpl<-4>   DebugMonitor;
+  typedef CoreExceptionImpl<-2>   PendSV;
+  typedef CoreExceptionImpl<-1>   SysTick;
+}
 
 ////////////////////  Irq  ////////////////////
 
 
 template<unsigned int irqn>
-class Irq : public NvicPriority<irqn> {
+class IrqChannel : public NvicPriority<irqn> {
 
   static constexpr std::size_t  reg_index = (uint32_t)irqn >> 5;
   static constexpr std::size_t  irq_bit = 1 << ((uint32_t)irqn & 0x1F);

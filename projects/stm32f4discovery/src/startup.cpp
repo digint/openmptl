@@ -27,7 +27,7 @@
 #ifndef CORE_SIMULATION
 
 /* Reset core exception: triggered on system startup (system entry point). */
-void CoreExceptionReset::Handler(void) {
+void CoreException::Reset::Handler(void) {
   CoreStartupIrqWrap wrap;
 
   Kernel::init();

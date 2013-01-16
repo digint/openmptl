@@ -54,20 +54,20 @@ const irq_handler_t VectorTableImpl<stack_top, irqs...>::vector_table[table_size
   reinterpret_cast<irq_handler_t>(stack_top),
 
   /* fixed core exceptions */
-  CoreExceptionReset            ::Handler,
-  CoreExceptionNMI              ::Handler,
-  CoreExceptionHardFault        ::Handler,
+  CoreException::Reset            ::Handler,
+  CoreException::NMI              ::Handler,
+  CoreException::HardFault        ::Handler,
 
   /* settable core exceptions */
-  CoreExceptionMemoryManagement ::Handler,
-  CoreExceptionBusFault         ::Handler,
-  CoreExceptionUsageFault       ::Handler,
+  CoreException::MemoryManagement ::Handler,
+  CoreException::BusFault         ::Handler,
+  CoreException::UsageFault       ::Handler,
   0, 0, 0, 0,    /* reserved */
-  CoreExceptionSVCall           ::Handler,
-  CoreExceptionDebugMonitor     ::Handler,
+  CoreException::SVCall           ::Handler,
+  CoreException::DebugMonitor     ::Handler,
   0,             /* reserved */
-  CoreExceptionPendSV           ::Handler,
-  CoreExceptionSysTick          ::Handler,
+  CoreException::PendSV           ::Handler,
+  CoreException::SysTick          ::Handler,
 
   /* device specific irq channels */
   irqs::Handler...
@@ -78,7 +78,7 @@ const irq_handler_t VectorTableImpl<stack_top, irqs...>::vector_table[table_size
  * VectorTableBuilder: Provides a VectorTableImpl with N irq channels
  */
 template<int N, const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilder : VectorTableBuilder<N - 1, stack_top, Irq<N - 1>, irqs... >
+struct VectorTableBuilder : VectorTableBuilder<N - 1, stack_top, IrqChannel<N - 1>, irqs... >
 { };
 
 template<const uint32_t *stack_top, typename... irqs>

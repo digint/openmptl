@@ -97,7 +97,7 @@ public:
   typedef GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull > gpio_tx;
   typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
 
-  typedef IrqUSART2   GlobalIrq; /**< USART2 global Interrupt */
+  typedef Irq::USART2   GlobalIrq; /**< USART2 global Interrupt */
 
 
   

@@ -44,8 +44,8 @@ private:
 
 public:
 
-  typedef IrqRTC      GlobalIrq; /**< RTC global Interrupt                   */
-  typedef IrqRTCAlarm AlarmIrq;  /**< RTC Alarm through EXTI Line Interrupt  */
+  typedef Irq::RTC      GlobalIrq; /**< RTC global Interrupt                   */
+  typedef Irq::RTCAlarm AlarmIrq;  /**< RTC Alarm through EXTI Line Interrupt  */
 
 
   static void WaitSync(void) {
