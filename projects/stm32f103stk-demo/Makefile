@@ -80,17 +80,18 @@ include $(CPPCORE_TOP)/config/system.mk
 
 
 #------------------------------------------------------------------------------
-# cppcore sources/includes
+# cppcore includes
 #
 include $(CPPCORE_TOP)/config/cppcore.mk
-#SRCS        += $(CPPCORE_SRC)
 INCLUDE     += $(CPPCORE_INCLUDE)
+
+#SRCS        += $(CPPCORE_SRC)
+#vpath %.cpp $(CPPCORE_SRC_DIRS)
 
 # add all drivers
 DRIVERS_SRC_DIRS = $(wildcard $(CPPCORE_DRIVERS_DIR)/*/*)
 SRCS            += $(wildcard $(addsuffix /*.cpp, $(DRIVERS_SRC_DIRS)))
-
-vpath %.cpp $(CPPCORE_SRC_DIRS) $(DRIVERS_SRC_DIRS)
+vpath %.cpp $(DRIVERS_SRC_DIRS)
 
 #------------------------------------------------------------------------------
 # boost includes

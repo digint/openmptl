@@ -28,7 +28,6 @@ TINYFSM_TOP  = ../../../tinyfsm
 
 CROSS        = arm-none-eabi-
 #CROSS       = /opt/toolchain/x86_64-pc-linux-gnu-gcc-4.7.0/bin/x86_64-pc-linux-gnu-
-#CROSS       = /mnt/ext0/tmp/arm-none-eabi-4.7.2-new/bin/arm-none-eabi-
 
 CPPCORE_ARCH = stm32f40x
 
@@ -81,13 +80,13 @@ include $(CPPCORE_TOP)/config/system.mk
 
 
 #------------------------------------------------------------------------------
-# cppcore sources/includes
+# cppcore includes
 #
 include $(CPPCORE_TOP)/config/cppcore.mk
 #SRCS        += $(CPPCORE_SRC)
 INCLUDE     += $(CPPCORE_INCLUDE)
 
-vpath %.cpp $(CPPCORE_SRC_DIRS)
+#vpath %.cpp $(CPPCORE_SRC_DIRS)
 
 
 #------------------------------------------------------------------------------
