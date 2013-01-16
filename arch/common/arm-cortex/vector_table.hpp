@@ -74,16 +74,24 @@ const irq_handler_t VectorTableImpl<stack_top, irqs...>::vector_table[table_size
 };
 
 
-/**
- * VectorTableBuilder: Provides a VectorTableImpl with N irq channels
- */
 template<int N, const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilder : VectorTableBuilder<N - 1, stack_top, IrqChannel<N - 1>, irqs... >
+struct VectorTableBuilderImpl : VectorTableBuilderImpl<N - 1, stack_top, IrqChannel<N - 1>, irqs... >
 { };
 
 template<const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilder<0, stack_top, irqs...> {
+struct VectorTableBuilderImpl<0, stack_top, irqs...> {
   typedef VectorTableImpl<stack_top, irqs...> value;
+};
+
+
+/**
+ * VectorTableBuilder: Provides a VectorTableImpl by setting the
+ * number of irq channels and the top-of-stack.
+ */
+template<int irq_channels, const uint32_t *stack_top>
+struct VectorTableBuilder : VectorTableBuilderImpl<irq_channels, stack_top>::value
+{
+  static_assert(sizeof(VectorTableBuilderImpl<irq_channels, stack_top>::value::vector_table) == 4 * (irq_channels + NvicCortexSetup::core_exceptions), "IRQ vector table size error");
 };
 
 

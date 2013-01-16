@@ -35,7 +35,8 @@ void CoreException::Reset::Handler(void) {
 }
 
 /* Build the vector table */
-VectorTable vector_table;
+extern const uint32_t _stack_top;  // provided by linker script
+VectorTable<&_stack_top> vector_table;
 
 
 #else // CORE_SIMULATION
