@@ -4,9 +4,8 @@ CPPCORE_DRIVERS_DIR = $(CPPCORE_TOP)/drivers
 CPPCORE_INCLUDE_DIR = $(CPPCORE_TOP)/include
 
 CPPCORE_SRC_DIRS    = $(CPPCORE_ARCH_DIR)/$(CPPCORE_ARCH)
-CPPCORE_SRC_DIRS   += $(CPPCORE_ARCH_DIR)/common/arm-cortex    # hardcoded for now
 
-CPPCORE_SRC  = $(wildcard $(addsuffix /*.cpp, $(CPPCORE_SRC_DIRS)))
+CPPCORE_SRC         = $(wildcard $(addsuffix /*.cpp, $(CPPCORE_SRC_DIRS)))
 
 CPPCORE_INCLUDE     = -I $(CPPCORE_INCLUDE_DIR)
 CPPCORE_INCLUDE    += -I $(CPPCORE_DRIVERS_DIR)

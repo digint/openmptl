@@ -27,18 +27,30 @@
 static_assert(sizeof(irq_handler_t)  == 4, "wrong size for irq function pointer");
 static_assert(alignof(irq_handler_t) == 4, "wrong alignment for irq function pointer table");
 
-
-template<int N, const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilder : VectorTableBuilder<N - 1, stack_top, Irq<N - 1>, irqs... >
-{ };
-
+/**
+ * VectorTableImpl: Provides a static vector table:
+ *
+ * - pointer to reset value of stack pointer
+ * - pointer to 16 exception vector handler
+ * - pointer to N irq channel handler
+ *
+ * Instantiating this class puts the table to the ".isr_vector" section.
+ *
+ */
 template<const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilder<0, stack_top, irqs...> {
-  static const irq_handler_t vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] __attribute__ ((section(".isr_vector")));
+struct VectorTableImpl {
+  static constexpr std::size_t core_exceptions = NvicCortexSetup::core_exceptions;
+  static constexpr std::size_t irq_channels    = sizeof...(irqs);
+  static constexpr std::size_t table_size      = core_exceptions + irq_channels;
+  
+  static const irq_handler_t vector_table[table_size] __attribute__ ((section(".isr_vector")));
+
+  /* Build the vector table by declaring a pointer to it */
+  irq_handler_t *vector_table_start = vector_table;
 };
 
 template<const uint32_t *stack_top, typename... irqs>
-const irq_handler_t VectorTableBuilder<0, stack_top, irqs...>::vector_table[sizeof...(irqs) + NvicCortexSetup::core_exceptions] = {
+const irq_handler_t VectorTableImpl<stack_top, irqs...>::vector_table[table_size] = {
   reinterpret_cast<irq_handler_t>(stack_top),
 
   /* fixed core exceptions */
@@ -62,7 +74,20 @@ const irq_handler_t VectorTableBuilder<0, stack_top, irqs...>::vector_table[size
 };
 
 
+/**
+ * VectorTableBuilder: Provides a VectorTableImpl with N irq channels
+ */
+template<int N, const uint32_t *stack_top, typename... irqs>
+struct VectorTableBuilder : VectorTableBuilder<N - 1, stack_top, Irq<N - 1>, irqs... >
+{ };
+
+template<const uint32_t *stack_top, typename... irqs>
+struct VectorTableBuilder<0, stack_top, irqs...> {
+  typedef VectorTableImpl<stack_top, irqs...> value;
+};
+
+
 /* Explicit template instantiation (does not work, vector_table is stripped)  */
-// template class VectorTable<82, &_eram>;
+// template class VectorTable<82, &_stack_top>;
 
 #endif // COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
