@@ -191,8 +191,8 @@ public:
 #endif
                                        0 );
 
-  typedef ResourceList< SharedAPB2ENR< apb2enr >,
-                        UniqueGPIO<port, pin_no>
+  typedef ResourceList< SharedRegister<Reg::RCC::APB2ENR, apb2enr>,
+                        UniqueResource<GpioBase<port, pin_no> >
                         > resources;
 
 
@@ -251,10 +251,8 @@ public:
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
   typedef ResourceList< typename base::resources,
-                        SharedCRL< port, crl_value >,
-                        SharedCRH< port, crh_value >,
-                        SharedCRL_Mask< port, crl_mask >,
-                        SharedCRH_Mask< port, crh_mask >
+                        SharedRegister< typename Reg::GPIO<port>::CRL, crl_value, crl_mask >,
+                        SharedRegister< typename Reg::GPIO<port>::CRH, crh_value, crh_mask >
                         > resources;
 
 
@@ -303,10 +301,8 @@ public:
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
   typedef ResourceList< typename base::resources,
-                        SharedCRL< port, crl_value >,
-                        SharedCRH< port, crh_value >,
-                        SharedCRL_Mask< port, crl_mask >,
-                        SharedCRH_Mask< port, crh_mask >
+                        SharedRegister< typename Reg::GPIO<port>::CRL, crl_value, crl_mask >,
+                        SharedRegister< typename Reg::GPIO<port>::CRH, crh_value, crh_mask >
                         > resources;
 
   static void enable() {

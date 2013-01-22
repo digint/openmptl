@@ -158,7 +158,7 @@ public:
 #endif
                                    0);
 
-  typedef SharedAPB2ENR< apb2enr > resources;
+  typedef ResourceList< SharedRegister< Reg::RCC::APB2ENR, apb2enr > > resources;
 
   using ADCx = Reg::ADC<adc_no>;
 

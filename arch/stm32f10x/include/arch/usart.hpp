@@ -107,9 +107,9 @@ public:
                                        usart_no == 3 ? Reg::RCC::APB1ENR::USART3EN::value : 
                                        0);
 
-  typedef ResourceList< SharedAPB1ENR< apb1enr >,
-                        typename gpio_tx::resources,
-                        typename gpio_rx::resources
+  typedef ResourceList< typename gpio_tx::resources,
+                        typename gpio_rx::resources,
+                        SharedRegister< Reg::RCC::APB1ENR, apb1enr >
                         > resources;
 
   static void Send(typename USARTx::DR::value_type data) {

@@ -45,8 +45,7 @@ void systick::Irq::Handler(void) {
 
 void Kernel::init(void)
 {
-//  resources::list::assert();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
-  resources::list::configure();  // TODO: this should be called init(), since configure is special (e.g. spi)
+  resources::list::set_shared_register();
 
   led_green::init(); led_green::off();
   led_orange::init(); led_orange::off();

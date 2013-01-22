@@ -81,19 +81,19 @@ void usart::GlobalIrq::Handler(void) {
   transport.ProcessIO(usart_rx_fifo, usart_tx_fifo);
 }
 
-
 void Kernel::init(void)
 {
 //  resources::list::assert();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
-  resources::list::configure();  // TODO: this should be called init(), since configure is special (e.g. spi)
-  
+//  resources::list::set();  // TODO: this should be called init(), since configure is special (e.g. spi)
+  resources::list::set_shared_register();
+
 #ifdef CORE_SIMULATION
   // set TXE and RXNE bits, SPI::sendByte loops on it
-  Core::SPI<1>::SR::set(0x0002 | 0x0001);
+  Reg::SPI<1>::SR::set(0x0002 | 0x0001);
 
   
-  Core::RCC::BDCR::set(0x00000002);
-  Core::RTC::CRL::set(0x0008);
+  Reg::RCC::BDCR::set(0x00000002);
+  Reg::RTC::CRL::set(0x0008);
 #endif
 
   systick::Init();

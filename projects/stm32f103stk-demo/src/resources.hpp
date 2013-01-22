@@ -54,14 +54,13 @@ namespace resources
   typedef Usart<2, 115200> usart;
 
 
-  typedef ResourceList< typename lcd_n3310::resources,
-                        typename nrf::resources,
-                        typename joy::resources,
-                        typename led::resources,
-                        typename rtc::resources,
-                        typename systick::resources,
-                        typename usart::resources
+  typedef ResourceList< lcd_n3310::resources,
+                        nrf::resources,
+                        joy::resources,
+                        led::resources,
+                        rtc::resources,
+                        systick::resources,
+                        usart::resources
                         > list;
-
 }
 #endif

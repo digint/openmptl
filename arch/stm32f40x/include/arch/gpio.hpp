@@ -78,8 +78,8 @@ public:
                                         port == 'I' ? Reg::RCC::AHB1ENR::GPIOIEN::value : 
                                         0 );
 
-  typedef ResourceList< SharedAHB1ENR< ahb1enr >,
-                        UniqueGPIO<port, pin_no>
+  typedef ResourceList< SharedRegister< Reg::RCC::AHB1ENR, ahb1enr >,
+                        UniqueResource< GpioBase<port, pin_no> >
                         > resources;
 
 
@@ -123,14 +123,10 @@ public:
                                            0x00) << (base::pin_no * 2) ;
 
   typedef ResourceList< typename base::resources,
-                        SharedGpioMODER< port, moder_value >,
-                        SharedGpioOTYPER< port, 0 >,
-                        SharedGpioOSPEEDR< port, 0 >,
-                        SharedGpioPUPDR< port, pupdr_value >,
-                        SharedGpioMODER_Mask< port, base::pin_mask_double >,
-                        SharedGpioOTYPER_Mask< port, base::pin_mask >,
-                        SharedGpioOSPEEDR_Mask< port, base::pin_mask_double >,
-                        SharedGpioPUPDR_Mask< port, base::pin_mask_double >
+                        SharedRegister< typename Reg::GPIO<port>::MODER,   moder_value, base::pin_mask_double >,
+                        SharedRegister< typename Reg::GPIO<port>::OTYPER,  0,           base::pin_mask        >,
+                        SharedRegister< typename Reg::GPIO<port>::OSPEEDR, 0,           base::pin_mask_double >,
+                        SharedRegister< typename Reg::GPIO<port>::PUPDR,   pupdr_value, base::pin_mask_double >
                         > resources;
 
   static bool active(void) {
@@ -173,14 +169,10 @@ public:
 
 
   typedef ResourceList< typename base::resources,
-                        SharedGpioMODER< port, moder_value >,
-                        SharedGpioOTYPER< port, otyper_value >,
-                        SharedGpioOSPEEDR< port, ospeedr_value >,
-                        SharedGpioPUPDR< port, 0 >,
-                        SharedGpioMODER_Mask< port, base::pin_mask_double >,
-                        SharedGpioOTYPER_Mask< port, base::pin_mask >,
-                        SharedGpioOSPEEDR_Mask< port, base::pin_mask_double >,
-                        SharedGpioPUPDR_Mask< port, base::pin_mask_double >
+                        SharedRegister< typename Reg::GPIO<port>::MODER,   moder_value,   base::pin_mask_double >,
+                        SharedRegister< typename Reg::GPIO<port>::OTYPER,  otyper_value,  base::pin_mask        >,
+                        SharedRegister< typename Reg::GPIO<port>::OSPEEDR, ospeedr_value, base::pin_mask_double >,
+                        SharedRegister< typename Reg::GPIO<port>::PUPDR,   0,             base::pin_mask_double >
                         > resources;
 
   static void enable() {

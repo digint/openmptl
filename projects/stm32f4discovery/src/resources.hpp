@@ -34,11 +34,11 @@ namespace resources
   typedef GpioLed<'D', 14, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_red;
   typedef GpioLed<'D', 15, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_blue;
 
-  typedef ResourceList< typename systick::resources,
-                        typename led_green::resources,
-                        typename led_orange::resources,
-                        typename led_red::resources,
-                        typename led_blue::resources
+  typedef ResourceList< systick::resources,
+                        led_green::resources,
+                        led_orange::resources,
+                        led_red::resources,
+                        led_blue::resources
                         > list;
 }
 

@@ -24,34 +24,34 @@
 // example reaction. triggered as soon as SPI1_CR1 is touched.
 #ifdef CORE_SIMULATION
 template<>
-void RegisterReaction<Core::SPI<1>::CR1::value_type, Core::SPI<1>::CR1::addr>::react(Core::SPI<1>::CR1::value_type const value) {
+void RegisterReaction<Reg::SPI<1>::CR1::value_type, Reg::SPI<1>::CR1::addr>::react(Reg::SPI<1>::CR1::value_type const value) {
 
   std::cout << __PRETTY_FUNCTION__ << std::endl;  // NOTE: this is gcc specific
 
   //  assert(value != 0x0040, "gna");
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX value= " << std::hex << Core::SPI<1>::CR1::SPE::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX test= " << std::hex << Core::SPI<1>::CR1::SPE::test() << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX shift= " << std::hex << Core::SPI<1>::CR1::SPE::test_and_shift() << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX value= " << std::hex << Reg::SPI<1>::CR1::SPE::value << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX test= " << std::hex << Reg::SPI<1>::CR1::SPE::test() << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX shift= " << std::hex << Reg::SPI<1>::CR1::SPE::test_and_shift() << std::endl;
 
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX value= " << std::hex << Core::SPI<1>::CR1::BR::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX test= " << std::hex << Core::SPI<1>::CR1::BR::test() << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX shift= " << std::hex << Core::SPI<1>::CR1::BR::test_and_shift() << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit0= " << std::hex << Core::SPI<1>::CR1::BR::bit<0>::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit1= " << std::hex << Core::SPI<1>::CR1::BR::bit<1>::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit2= " << std::hex << Core::SPI<1>::CR1::BR::bit<2>::value << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX value= " << std::hex << Reg::SPI<1>::CR1::BR::value << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX test= " << std::hex << Reg::SPI<1>::CR1::BR::test() << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX shift= " << std::hex << Reg::SPI<1>::CR1::BR::test_and_shift() << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit0= " << std::hex << Reg::SPI<1>::CR1::BR::bit<0>::value << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit1= " << std::hex << Reg::SPI<1>::CR1::BR::bit<1>::value << std::endl;
+  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit2= " << std::hex << Reg::SPI<1>::CR1::BR::bit<2>::value << std::endl;
 
-  std::cout << "CAST value= " << std::hex << Core::SPI<1>::CR1::SPE() << std::endl;
+  std::cout << "CAST value= " << std::hex << Reg::SPI<1>::CR1::SPE() << std::endl;
 
-  std::cout << "prescaler<>= " << std::hex << Core::SPI<1>::CR1::BR::Prescaler<256>::value << std::endl;
+  std::cout << "prescaler<>= " << std::hex << Reg::SPI<1>::CR1::BR::Prescaler<256>::value << std::endl;
 
-  Core::SPI<1>::CR1::BR::Prescaler<256>::set();
+  Reg::SPI<1>::CR1::BR::Prescaler<256>::set();
 
-  //  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit2= " << std::hex << Core::SPI<1>::CR1::BR::bit<3>::value << std::endl;
+  //  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit2= " << std::hex << Reg::SPI<1>::CR1::BR::bit<3>::value << std::endl;
 #if 1
-  if(value & Core::SPI<1>::CR1::SPE::value) {
+  if(value & Reg::SPI<1>::CR1::SPE::value) {
     std::cout << "RegisterReaction: SPIx::CR1::SPE::value -> set(TXE | RXNE)" << std::endl;
-    Core::SPI<1>::SR::set(Core::SPI<1>::SR::TXE::value | 
-                          Core::SPI<1>::SR::RXNE::value);
+    Reg::SPI<1>::SR::set(Reg::SPI<1>::SR::TXE::value | 
+                          Reg::SPI<1>::SR::RXNE::value);
   }
 #endif
 }

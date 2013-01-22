@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
             << "------------------" << std::endl
             << std::endl;
 
-  Core::Init();
+  //  Core::Init();
 
   Kernel::init();
   Kernel::run();

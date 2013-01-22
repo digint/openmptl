@@ -24,8 +24,10 @@
 
 #include <arch/nvic.hpp>
 
+#ifndef CORE_SIMULATION
 static_assert(sizeof(irq_handler_t)  == 4, "wrong size for irq function pointer");
 static_assert(alignof(irq_handler_t) == 4, "wrong alignment for irq function pointer table");
+#endif
 
 /**
  * VectorTableImpl: Provides a static vector table:

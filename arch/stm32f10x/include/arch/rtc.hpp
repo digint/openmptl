@@ -127,7 +127,7 @@ public:
 
   /* Power interface clock enable; Backup interface clock enable */
   static constexpr uint32_t apb1enr = Reg::RCC::APB1ENR::PWREN::value | Reg::RCC::APB1ENR::BKPEN::value;
-  typedef ResourceList< SharedAPB1ENR< apb1enr > > resources;
+  typedef ResourceList< SharedRegister< Reg::RCC::APB1ENR, apb1enr > > resources;
 
   static void Init(void) {
     /* Disable backup domain write protection */

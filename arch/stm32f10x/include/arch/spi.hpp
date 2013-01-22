@@ -67,8 +67,8 @@ public:
 #endif
                                        0);
 
-  typedef ResourceList< SharedAPB1ENR< apb1enr >,
-                        SharedAPB2ENR< apb2enr >
+  typedef ResourceList< SharedRegister< Reg::RCC::APB1ENR, apb1enr >,
+                        SharedRegister< Reg::RCC::APB2ENR, apb2enr >
                         > resources;
 
   template<cSpi::MasterSelection master_selection = cSpi::MasterSelection::master,
