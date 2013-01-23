@@ -45,6 +45,7 @@ void systick::Irq::Handler(void) {
 
 void Kernel::init(void)
 {
+  resources::list::assert_unique();
   resources::list::set_shared_register();
 
   led_green::init(); led_green::off();

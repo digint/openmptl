@@ -83,8 +83,7 @@ void usart::GlobalIrq::Handler(void) {
 
 void Kernel::init(void)
 {
-//  resources::list::assert();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
-//  resources::list::set();  // TODO: this should be called init(), since configure is special (e.g. spi)
+  //  resources::list::assert_unique();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
   resources::list::set_shared_register();
 
 #ifdef CORE_SIMULATION
