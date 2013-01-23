@@ -94,7 +94,6 @@ struct RegisterStorage
     return reg_value;
   }
 
-  // TODO: global function
   static std::string bitvalue(T const value) {
     std::string s = std::bitset<sizeof(value_type) * 8>(value).to_string();
     for(unsigned i = sizeof(value_type) * 8 - 8; i > 0; i -= 8)
@@ -105,9 +104,9 @@ struct RegisterStorage
   static void store(T const value) {
     std::cout <<  __PRETTY_FUNCTION__ << std::endl
               << "addr = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << addr  << std::endl
-              << "cur  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << reg_value
+              << "cur  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +reg_value  // '+value' makes sure a char is printed as number
               << " = " << bitvalue(reg_value) << std::endl
-              << "new  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << value
+              << "new  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +value      // '+value' makes sure a char is printed as number
               << " = " << bitvalue(value) << std::endl;
 
     reg_value = value;
