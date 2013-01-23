@@ -32,92 +32,9 @@
  *
  */
 
-#include <type_traits> // std::is_integral<>
+#include <type_traits>
 #include <cstdint>
-
-
-typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
-
-enum class RegisterAccess { ro, wo, rw };
-
-
-#ifndef CORE_SIMULATION
-
-template< typename        T,
-          reg_addr_t      addr,
-          RegisterAccess  access,
-          T               reset >
-struct RegisterStorage
-{
-  typedef T value_type; // TODO: volatile
-  static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
-
-  static T    load()               { return *value_ptr;  }
-  static void store(T const value) { *value_ptr = value; }
-};
-
-#else /* CORE_SIMULATION */
-
-#include <bitset>
-#include <iostream>
-#include <iomanip>
-#include <typeinfo>
-
-template< typename T, reg_addr_t addr >
-struct RegisterReaction
-{
-  static void react(T const value);
-};
-
-template< typename T, reg_addr_t addr >
-void RegisterReaction<T, addr>::react(T const) {
-  std::cout << "RegisterReaction <default>" << std::endl;
-}
-
-
-template< typename        T,
-          reg_addr_t      addr,
-          RegisterAccess  access,
-          T               reset >
-struct RegisterStorage
-{
-  typedef T value_type;
-  static T reg_value;
-
-  static std::string bitvalue(T const value) {
-    std::string s = std::bitset<sizeof(value_type) * 8>(value).to_string();
-    for(unsigned i = sizeof(value_type) * 8 - 8; i > 0; i -= 8)
-      s.insert(i, 1, ' ');
-    return "[ " + s + " ]";
-  }
-
-  static T load() {
-    return reg_value;
-  }
-
-  static void store(T const value) {
-    std::cout <<  __PRETTY_FUNCTION__ << std::endl
-              << "addr = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << addr  << std::endl
-              << "cur  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +reg_value  // '+value' makes sure a char is printed as number
-              << " = " << bitvalue(reg_value) << std::endl
-              << "new  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +value      // '+value' makes sure a char is printed as number
-              << " = " << bitvalue(value) << std::endl;
-
-    reg_value = value;
-    RegisterReaction<T, addr>::react(value);
-  }
-};
-
-/* initialize reg_value to the reset value */
-template< typename        T,
-          reg_addr_t      addr,
-          RegisterAccess  access,
-          T               reset >
-T RegisterStorage<T, addr, access, reset>::reg_value = reset;
-
-#endif /* CORE_SIMULATION */
-
-
+#include "register_storage.hpp"
 
 
 template< typename        T,
@@ -153,6 +70,8 @@ struct Register
   static void reset()              { type::store(reset_value);             }
 };
 
+
+////////////////////  RegisterBits  ////////////////////
 
 
 template< typename R,             /* Register type */
@@ -207,6 +126,8 @@ struct RegisterBits  // TODO: consider derived from integral_type<>
   constexpr operator value_type() { return value; }
 };
 
+
+////////////////////  RegisterConst  ////////////////////
 
 
 /** NOTE: _value is shifted with offset of R! */
