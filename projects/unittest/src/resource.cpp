@@ -29,7 +29,7 @@
 
 struct A : Register< uint32_t, 0x1000, RegisterAccess::rw, 0 > {};
 struct B : Register< uint32_t, 0x2000, RegisterAccess::rw, 0x44444444 > {};
-struct C : Register< uint32_t, 0x3000, RegisterAccess::rw, 0 > {};
+struct C : Register< uint8_t,  0x3000, RegisterAccess::rw, 0 > {};
 struct D : Register< uint32_t, 0x4000, RegisterAccess::rw, 0x55555555 > {};
 
 template<typename... Args>
@@ -45,7 +45,7 @@ typedef SharedRegister< A, 0x00000011, 0x000000ff > test0;
 typedef SharedRegister< A, 0x00001100, 0x0000ff00 > test1;
 typedef SharedRegister< B, 0x00110000, 0x00ff0000 > test2;
 typedef SharedRegister< A, 0x11000000, 0xff000000 > test3;
-typedef SharedRegister< C, 0x00000011, 0x000000ff > test4;
+typedef SharedRegister< C, 0x10,       0xff       > test4;
 typedef UniqueResource< A > uniq0;
 typedef UniqueResource< B > uniq1;
 typedef UniqueResource< C > uniq2;
@@ -76,7 +76,7 @@ int main()
 
   assert(A::load() == 0x11001111);
   assert(B::load() == 0x44114444);
-  assert(C::load() == 0x00000011);
+  assert(C::load() == 0x10);
   assert(D::load() == 0x55555555);
   
 

@@ -34,19 +34,21 @@ struct ResourceBase {
 ////////////////////  SharedRegister  ////////////////////
 
 
-template<uint32_t _set_mask, uint32_t _clear_mask>
-struct reg_value {
-  static constexpr uint32_t set_mask   = _set_mask;
-  static constexpr uint32_t clear_mask = _clear_mask;
-
-  template<typename T>
-  using combine = reg_value<set_mask | T::set_mask, clear_mask | T::clear_mask>;
-};
-
-template<typename R, uint32_t _set_mask, uint32_t _clear_mask = 0 >
+template<typename R, typename R::value_type _set_mask, typename R::value_type _clear_mask = 0 >
 struct SharedRegister : ResourceBase {
   typedef R reg_type;
-  typedef reg_value<_set_mask, _clear_mask> value_type;
+  typedef SharedRegister<R, _set_mask, _clear_mask> value_type;
+
+  typedef typename R::value_type reg_value_type;
+  static constexpr reg_value_type set_mask   = _set_mask;
+  static constexpr reg_value_type clear_mask = _clear_mask;
+
+  /* Combine two SharedRegister of same reg_type:                      */
+  /* Returns SharedRegister with or'ed set_mask and or'ed clear_mask.  */
+  template<typename Rc>
+  struct combine : SharedRegister<R, set_mask | Rc::set_mask, clear_mask | Rc::clear_mask> {
+    static_assert(std::is_same<reg_type, typename Rc::reg_type>::value, "oops, combining values for different register...");
+  };
 
   /* If the filter matches our reg_type, append reg_value<value, mask>  */
   /* to the filtered_list.                                              */
@@ -180,7 +182,8 @@ struct ResourceList {
   }
 
   static constexpr void assert_unique() {
-    static_assert(resource_value_type<UniqueResourceFilter>::is_unique, "ResourceList contains UniqueResource which are not unique. (see compile messages above)");
+    static_assert(resource_value_type<UniqueResourceFilter>::is_unique,
+                  "ResourceList contains UniqueResource which are not unique. (see compile messages above)");
   }
 
   static void set_shared_register();  // implemented in core_resource.hpp (TODO: generic functions which sets all register)

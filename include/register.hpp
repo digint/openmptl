@@ -63,21 +63,16 @@ struct RegisterStorage
 #include <iomanip>
 #include <typeinfo>
 
-template< typename T,
-          reg_addr_t      addr
-          >
+template< typename T, reg_addr_t addr >
 struct RegisterReaction
 {
   static void react(T const value);
 };
 
-template< typename        T,
-          reg_addr_t      addr
-          >
+template< typename T, reg_addr_t addr >
 void RegisterReaction<T, addr>::react(T const) {
   std::cout << "RegisterReaction <default>" << std::endl;
 }
-
 
 
 template< typename        T,
@@ -87,18 +82,17 @@ template< typename        T,
 struct RegisterStorage
 {
   typedef T value_type;
-
   static T reg_value;
-
-  static T load() {
-    return reg_value;
-  }
 
   static std::string bitvalue(T const value) {
     std::string s = std::bitset<sizeof(value_type) * 8>(value).to_string();
     for(unsigned i = sizeof(value_type) * 8 - 8; i > 0; i -= 8)
       s.insert(i, 1, ' ');
     return "[ " + s + " ]";
+  }
+
+  static T load() {
+    return reg_value;
   }
 
   static void store(T const value) {
@@ -110,7 +104,6 @@ struct RegisterStorage
               << " = " << bitvalue(value) << std::endl;
 
     reg_value = value;
-
     RegisterReaction<T, addr>::react(value);
   }
 };
@@ -180,14 +173,10 @@ struct RegisterBits  // TODO: consider derived from integral_type<>
   static constexpr value_type bitmask = ((1 << width) - 1) << offset;
   static constexpr value_type value   = bitmask;  // TODO: try enable_if<> in order to prevent access if width > 1
 
-  // TODO: use R::, not type::
   static value_type test()           { return type::load() & bitmask;  }
   static value_type test_and_shift() { return test() >> offset; }
 
-  // TODO: prevent access if width == 1
-  static bool       test(value_type const _value) {
-    return test() == _value;
-  }
+  static bool       test(value_type const _value) { return test() == _value; }
 
   static void       set()            { type::set(value);            }
   static void       clear()          { type::clear(value);          }
@@ -221,11 +210,7 @@ struct RegisterBits  // TODO: consider derived from integral_type<>
 
 
 /** NOTE: _value is shifted with offset of R! */
-
-/*  TODO: _value should actually be of type R::value_type, but
-    template declaration forbids this, and we don't want to introduce
-    another template parameter. */
-template< typename R, uintmax_t _value >
+template< typename R, typename R::value_type _value >
 struct RegisterConst
 {
   typedef typename R::value_type value_type;
