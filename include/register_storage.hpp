@@ -21,12 +21,12 @@
 #ifndef REGISTER_STORAGE_HPP_INCLUDED
 #define REGISTER_STORAGE_HPP_INCLUDED
 
-typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
-
 enum class RegisterAccess { ro, wo, rw };
 
 
 #ifndef CORE_SIMULATION
+
+typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
 
 template< typename        T,
           reg_addr_t      addr,
@@ -50,6 +50,8 @@ struct RegisterStorage
 #include <iomanip>
 #include <typeinfo>
 
+typedef uint32_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
+
 template< typename T, reg_addr_t addr >
 struct RegisterReaction
 {
@@ -58,7 +60,7 @@ struct RegisterReaction
 
 template< typename T, reg_addr_t addr >
 void RegisterReaction<T, addr>::react(T const) {
-  std::cout << "RegisterReaction <default>" << std::endl;
+  //  std::cout << "react <default>" << std::endl;
 }
 
 
@@ -79,15 +81,22 @@ struct RegisterStorage
   }
 
   static T load() {
+    std::cout << "load  "
+              << "0x" << std::hex << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr
+              << "  cur:  0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +reg_value  // '+value' makes sure a char is printed as number
+              << " = " << bitvalue(reg_value) << std::endl;
+
     return reg_value;
   }
 
   static void store(T const value) {
-    std::cout <<  __PRETTY_FUNCTION__ << std::endl
-              << "addr = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << addr  << std::endl
-              << "cur  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +reg_value  // '+value' makes sure a char is printed as number
+    std::cout << "store "
+              << "0x" << std::hex << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr
+
+              << "  cur:  0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +reg_value  // '+value' makes sure a char is printed as number
               << " = " << bitvalue(reg_value) << std::endl
-              << "new  = 0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +value      // '+value' makes sure a char is printed as number
+              << "                "
+              << "  new:  0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +value      // '+value' makes sure a char is printed as number
               << " = " << bitvalue(value) << std::endl;
 
     reg_value = value;
