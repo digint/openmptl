@@ -31,7 +31,7 @@
 #include "printf.h"
 #include <arch/core_resource.hpp>
 #include <arch/uart_transport.hpp>
-
+#include <arch/dwt.hpp>  // CycleCounter
 #include <atomic>
 
 using namespace resources;
@@ -153,9 +153,9 @@ public:
 
 void Kernel::run(void)
 {
+  CycleCounter cycle_counter;
   FifoStream<ringbuffer_t, UsartStreamDevice<usart> > usart_tx_fifo_stream(usart_tx_fifo);
   Terminal terminal(usart_rx_fifo, usart_tx_fifo_stream);
-
   char joytext_buf[16] = "              ";
   const char * joypos_text = "center";
   Joystick::Position joypos = Joystick::Position::center;
@@ -168,6 +168,7 @@ void Kernel::run(void)
   TextRow    joytext   (ilist, joytext_buf);
   DataRow    rtc_sec   (ilist, "rtc");
   DataRowHex tick      (ilist, "tick");
+  DataRow    cycle     (ilist, "cyc");
   DataRowHex irq_count (ilist, "#irq");
   DataRowHex eirq      (ilist, "eirq");
  
@@ -208,7 +209,9 @@ void Kernel::run(void)
         break;
       }
     }
+    cycle_counter.start();
     sprintf(joytext_buf, " joy: %s %s", (joy::buttonPressed() ? "x" : "o"), joypos_text);
+    cycle_counter.stop();
 
     // update screen rows
     rtc_sec = seconds;
@@ -216,6 +219,7 @@ void Kernel::run(void)
     tick = time::get_systick();
     irq_count = usart_irq_count;
     eirq = usart_irq_errors;
+    cycle = cycle_counter.get();
 
 
     // poll terminal
