@@ -92,7 +92,7 @@ class Usart
 
 public:  
 
-  using USARTx = Reg::USART<usart_no>;
+  using USARTx = reg::USART<usart_no>;
 
   typedef GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull > gpio_tx;
   typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
@@ -103,13 +103,13 @@ public:
   
   static_assert(usart_no != 1, "usart 1 is not yet supported, sorry...");
   static constexpr uint32_t apb1enr = ( // usart_no == 1 ? Reg::RCC::APB2ENR::USART1EN::value : 
-                                       usart_no == 2 ? Reg::RCC::APB1ENR::USART2EN::value : 
-                                       usart_no == 3 ? Reg::RCC::APB1ENR::USART3EN::value : 
+                                       usart_no == 2 ? reg::RCC::APB1ENR::USART2EN::value : 
+                                       usart_no == 3 ? reg::RCC::APB1ENR::USART3EN::value : 
                                        0);
 
   typedef ResourceList< typename gpio_tx::resources,
                         typename gpio_rx::resources,
-                        SharedRegister< Reg::RCC::APB1ENR, apb1enr >
+                        SharedRegister< reg::RCC::APB1ENR, apb1enr >
                         > resources;
 
   static void Send(typename USARTx::DR::value_type data) {

@@ -36,117 +36,119 @@
 #include <cstdint>
 #include "register_storage.hpp"
 
+namespace reg {
 
-template< typename        T,
-          reg_addr_t      _addr,
-          RegisterAccess  _access,
-          T               _reset_value = 0 >
-struct Register
-{
-  static_assert(std::is_integral<T>::value, "T must be an integral type");
-  static_assert(std::is_unsigned<T>::value, "T must be an unsigned type");
+  template< typename   T,
+            reg_addr_t _addr,
+            Access     _access,
+            T          _reset_value = 0 >
+  struct Register
+  {
+    static_assert(std::is_integral<T>::value, "T must be an integral type");
+    static_assert(std::is_unsigned<T>::value, "T must be an unsigned type");
 
-  typedef RegisterStorage<T, _addr, _access, _reset_value> type;
-  typedef typename type::value_type value_type;
+    typedef RegisterStorage<T, _addr, _access, _reset_value> type;
+    typedef typename type::value_type value_type;
 
-  static constexpr reg_addr_t addr        = _addr;
-  static constexpr T          reset_value = _reset_value;
+    static constexpr reg_addr_t addr        = _addr;
+    static constexpr T          reset_value = _reset_value;
 
-  static T load() {
-    static_assert(_access != RegisterAccess::wo, "read access to a write-only register");
-    return type::load();
-  }
+    static T load() {
+      static_assert(_access != Access::wo, "read access to a write-only register");
+      return type::load();
+    }
 
-  static void store(T const value) {
-    static_assert(_access != RegisterAccess::ro, "write access to a read-only register");
-    type::store(value);
-  }
+    static void store(T const value) {
+      static_assert(_access != Access::ro, "write access to a read-only register");
+      type::store(value);
+    }
 
-  static T    test (T const value) { return type::load() & value;          }
-  static void set  (T const value) { type::store( type::load() | value );  }
-  static void set  (T const value, T const mask) { type::store( (type::load() & ~mask) | value );  }
-  static void clear(T const value) { type::store( type::load() & ~value ); }
-  static void mask (T const value) { type::store( type::load() & value );  }
-  static void reset()              { type::store(reset_value);             }
-};
-
-
-////////////////////  RegisterBits  ////////////////////
-
-
-template< typename R,             /* Register type */
-          std::size_t _offset,    /* bit offset */
-          std::size_t width = 1   /* width of sub-register (numof bits) */
-          >
-struct RegisterBits  // TODO: consider derived from integral_type<>
-{
-  typedef R type;
-  typedef typename type::value_type value_type;
-
-  static constexpr std::size_t offset = _offset;
-
-  static_assert(width >= 1, "invalid width");
-  static_assert(offset + width <= sizeof(value_type) * 8, "invalid width/offset");
-
-  /** create mask bits (e.g. width(3) = 0b111 = 7) */
-  static constexpr value_type bitmask = ((1 << width) - 1) << offset;
-  static constexpr value_type value   = bitmask;  // TODO: try enable_if<> in order to prevent access if width > 1
-
-  static value_type test()           { return type::load() & bitmask;  }
-  static value_type test_and_shift() { return test() >> offset; }
-
-  static bool       test(value_type const _value) { return test() == _value; }
-
-  static void       set()            { type::set(value);            }
-  static void       clear()          { type::clear(value);          }
-
-  /** NOTE: this does not check if _value is masked correctly! */
-  static void set(value_type _value) {
-    // assert((_value & bitmask) == _value);
-    auto r = type::load();
-    r &= ~bitmask;
-    r |= _value;
-    type::store(r);
-  }
-  static void shift_and_set(value_type _value) {
-    set(shifted_value(_value));
-  }
-
-  // TODO: better naming for this
-  static constexpr value_type shifted_value(value_type _value) {
-    return (_value << offset);
-  }
-
-  template<std::size_t bit_no>
-  struct bit : RegisterBits< type, offset + bit_no, 1 > {
-    static_assert(bit_no < width, "invalid bit_no");
+    static T    test (T const value) { return type::load() & value;          }
+    static void set  (T const value) { type::store( type::load() | value );  }
+    static void set  (T const value, T const mask) { type::store( (type::load() & ~mask) | value );  }
+    static void clear(T const value) { type::store( type::load() & ~value ); }
+    static void mask (T const value) { type::store( type::load() & value );  }
+    static void reset()              { type::store(reset_value);             }
   };
 
-  // cast operator
-  constexpr operator value_type() { return value; }
-};
+
+  ////////////////////  RegisterBits  ////////////////////
 
 
-////////////////////  RegisterConst  ////////////////////
+  template< typename R,             /* Register type */
+            std::size_t _offset,    /* bit offset */
+            std::size_t width = 1   /* width of sub-register (numof bits) */
+            >
+  struct RegisterBits  // TODO: consider derived from integral_type<>
+  {
+    typedef R type;
+    typedef typename type::value_type value_type;
+
+    static constexpr std::size_t offset = _offset;
+
+    static_assert(width >= 1, "invalid width");
+    static_assert(offset + width <= sizeof(value_type) * 8, "invalid width/offset");
+
+    /** create mask bits (e.g. width(3) = 0b111 = 7) */
+    static constexpr value_type bitmask = ((1 << width) - 1) << offset;
+    static constexpr value_type value   = bitmask;  // TODO: try enable_if<> in order to prevent access if width > 1
+
+    static value_type test()           { return type::load() & bitmask;  }
+    static value_type test_and_shift() { return test() >> offset; }
+
+    static bool       test(value_type const _value) { return test() == _value; }
+
+    static void       set()            { type::set(value);            }
+    static void       clear()          { type::clear(value);          }
+
+    /** NOTE: this does not check if _value is masked correctly! */
+    static void set(value_type _value) {
+      // assert((_value & bitmask) == _value);
+      auto r = type::load();
+      r &= ~bitmask;
+      r |= _value;
+      type::store(r);
+    }
+    static void shift_and_set(value_type _value) {
+      set(shifted_value(_value));
+    }
+
+    // TODO: better naming for this
+    static constexpr value_type shifted_value(value_type _value) {
+      return (_value << offset);
+    }
+
+    template<std::size_t bit_no>
+    struct bit : RegisterBits< type, offset + bit_no, 1 > {
+      static_assert(bit_no < width, "invalid bit_no");
+    };
+
+    // cast operator
+    constexpr operator value_type() { return value; }
+  };
 
 
-/** NOTE: _value is shifted with offset of R! */
-template< typename R, typename R::value_type _value >
-struct RegisterConst
-{
-  typedef typename R::value_type value_type;
-  typedef R type;
+  ////////////////////  RegisterConst  ////////////////////
 
-  static constexpr value_type value = _value << R::offset;
 
-  static_assert((value & R::bitmask) == value, "value does not fit into bits of R");
+  /** NOTE: _value is shifted with offset of R! */
+  template< typename R, typename R::value_type _value >
+  struct RegisterConst
+  {
+    typedef typename R::value_type value_type;
+    typedef R type;
 
-  static void set()     { type::set(value);   }
-  static bool test()    { return type::test(value); }
+    static constexpr value_type value = _value << R::offset;
 
-  // cast operator
-  constexpr operator value_type() { return value; }
-};
+    static_assert((value & R::bitmask) == value, "value does not fit into bits of R");
 
+    static void set()     { type::set(value);   }
+    static bool test()    { return type::test(value); }
+
+    // cast operator
+    constexpr operator value_type() { return value; }
+  };
+
+}
 
 #endif // REGISTER_HPP_INCLUDED

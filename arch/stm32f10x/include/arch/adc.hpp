@@ -149,18 +149,18 @@ class Adc
   static_assert((numof_channel >= 1) && (numof_channel <= 16), "Invalid ADC channel sequence length");
 
 public:
-  static constexpr uint32_t apb2enr = (adc_no == 1 ? Reg::RCC::APB2ENR::ADC1EN::value : 
+  static constexpr uint32_t apb2enr = (adc_no == 1 ? reg::RCC::APB2ENR::ADC1EN::value : 
 #if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL)
-                                   adc_no == 2 ? Reg::RCC::APB2ENR::ADC2EN::value : 
+                                   adc_no == 2 ? reg::RCC::APB2ENR::ADC2EN::value : 
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-                                   adc_no == 3 ? Reg::RCC::APB2ENR::ADC3EN::value : 
+                                   adc_no == 3 ? reg::RCC::APB2ENR::ADC3EN::value : 
 #endif
                                    0);
 
-  typedef ResourceList< SharedRegister< Reg::RCC::APB2ENR, apb2enr > > resources;
+  typedef ResourceList< SharedRegister< reg::RCC::APB2ENR, apb2enr > > resources;
 
-  using ADCx = Reg::ADC<adc_no>;
+  using ADCx = reg::ADC<adc_no>;
 
   static void init(void) {
     // ADCx CR1 config
@@ -189,15 +189,15 @@ public:
     switch(adc_no) {
     case 1:
       // Enable ADC1 reset state
-      Reg::RCC::APB2RSTR::ADC1RST::set();
+      reg::RCC::APB2RSTR::ADC1RST::set();
       // Release ADC1 from reset state
-      Reg::RCC::APB2RSTR::ADC1RST::clear();
+      reg::RCC::APB2RSTR::ADC1RST::clear();
       break;
     case 2:
       // Enable ADC2 reset state
-      Reg::RCC::APB2RSTR::ADC2RST::set();
+      reg::RCC::APB2RSTR::ADC2RST::set();
       // Release ADC2 from reset state
-      Reg::RCC::APB2RSTR::ADC2RST::clear();
+      reg::RCC::APB2RSTR::ADC2RST::clear();
     }
   }
 

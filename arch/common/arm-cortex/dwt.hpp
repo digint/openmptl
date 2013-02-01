@@ -25,16 +25,16 @@
 
 class Dwt
 {
-  using DWT = Reg::DWT;
+  using DWT = reg::DWT;
 
 public:
 
   static void enable(void) {
-    Reg::DEBUG::DEMCR::TRCENA::set();
+    reg::DEBUG::DEMCR::TRCENA::set();
   }
 
   static void disable(void) {
-    Reg::DEBUG::DEMCR::TRCENA::clear();
+    reg::DEBUG::DEMCR::TRCENA::clear();
   }
 
   static void cycle_counter_enable(void) {
@@ -53,7 +53,7 @@ public:
  */
 class CycleCounter
 {
-  using DWT = Reg::DWT;
+  using DWT = reg::DWT;
 
   decltype(Dwt::cycle_counter_load()) value;
 

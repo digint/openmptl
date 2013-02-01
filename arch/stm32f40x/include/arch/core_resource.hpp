@@ -26,55 +26,57 @@
 template<typename... Args>
 void ResourceList<Args...>::set_shared_register(void)
 {
+  using namespace reg;
+
   /* Enable peripheral clocks */
-  set_register<Reg::RCC::APB1ENR>();
-  set_register<Reg::RCC::APB2ENR>();
-  set_register<Reg::RCC::AHB1ENR>();
+  set_register<RCC::APB1ENR>();
+  set_register<RCC::APB2ENR>();
+  set_register<RCC::AHB1ENR>();
 
-  set_register<Reg::GPIO<'A'>::MODER>();
-  set_register<Reg::GPIO<'A'>::OTYPER>();
-  set_register<Reg::GPIO<'A'>::OSPEEDR>();
-  set_register<Reg::GPIO<'A'>::PUPDR>();
+  set_register<GPIO<'A'>::MODER>();
+  set_register<GPIO<'A'>::OTYPER>();
+  set_register<GPIO<'A'>::OSPEEDR>();
+  set_register<GPIO<'A'>::PUPDR>();
 
-  set_register<Reg::GPIO<'B'>::MODER>();
-  set_register<Reg::GPIO<'B'>::OTYPER>();
-  set_register<Reg::GPIO<'B'>::OSPEEDR>();
-  set_register<Reg::GPIO<'B'>::PUPDR>();
+  set_register<GPIO<'B'>::MODER>();
+  set_register<GPIO<'B'>::OTYPER>();
+  set_register<GPIO<'B'>::OSPEEDR>();
+  set_register<GPIO<'B'>::PUPDR>();
 
-  set_register<Reg::GPIO<'C'>::MODER>();
-  set_register<Reg::GPIO<'C'>::OTYPER>();
-  set_register<Reg::GPIO<'C'>::OSPEEDR>();
-  set_register<Reg::GPIO<'C'>::PUPDR>();
+  set_register<GPIO<'C'>::MODER>();
+  set_register<GPIO<'C'>::OTYPER>();
+  set_register<GPIO<'C'>::OSPEEDR>();
+  set_register<GPIO<'C'>::PUPDR>();
 
-  set_register<Reg::GPIO<'D'>::MODER>();
-  set_register<Reg::GPIO<'D'>::OTYPER>();
-  set_register<Reg::GPIO<'D'>::OSPEEDR>();
-  set_register<Reg::GPIO<'D'>::PUPDR>();
+  set_register<GPIO<'D'>::MODER>();
+  set_register<GPIO<'D'>::OTYPER>();
+  set_register<GPIO<'D'>::OSPEEDR>();
+  set_register<GPIO<'D'>::PUPDR>();
 
-  set_register<Reg::GPIO<'E'>::MODER>();
-  set_register<Reg::GPIO<'E'>::OTYPER>();
-  set_register<Reg::GPIO<'E'>::OSPEEDR>();
-  set_register<Reg::GPIO<'E'>::PUPDR>();
+  set_register<GPIO<'E'>::MODER>();
+  set_register<GPIO<'E'>::OTYPER>();
+  set_register<GPIO<'E'>::OSPEEDR>();
+  set_register<GPIO<'E'>::PUPDR>();
 
-  set_register<Reg::GPIO<'F'>::MODER>();
-  set_register<Reg::GPIO<'F'>::OTYPER>();
-  set_register<Reg::GPIO<'F'>::OSPEEDR>();
-  set_register<Reg::GPIO<'F'>::PUPDR>();
+  set_register<GPIO<'F'>::MODER>();
+  set_register<GPIO<'F'>::OTYPER>();
+  set_register<GPIO<'F'>::OSPEEDR>();
+  set_register<GPIO<'F'>::PUPDR>();
 
-  set_register<Reg::GPIO<'G'>::MODER>();
-  set_register<Reg::GPIO<'G'>::OTYPER>();
-  set_register<Reg::GPIO<'G'>::OSPEEDR>();
-  set_register<Reg::GPIO<'G'>::PUPDR>();
+  set_register<GPIO<'G'>::MODER>();
+  set_register<GPIO<'G'>::OTYPER>();
+  set_register<GPIO<'G'>::OSPEEDR>();
+  set_register<GPIO<'G'>::PUPDR>();
 
-  set_register<Reg::GPIO<'H'>::MODER>();
-  set_register<Reg::GPIO<'H'>::OTYPER>();
-  set_register<Reg::GPIO<'H'>::OSPEEDR>();
-  set_register<Reg::GPIO<'H'>::PUPDR>();
+  set_register<GPIO<'H'>::MODER>();
+  set_register<GPIO<'H'>::OTYPER>();
+  set_register<GPIO<'H'>::OSPEEDR>();
+  set_register<GPIO<'H'>::PUPDR>();
 
-  set_register<Reg::GPIO<'I'>::MODER>();
-  set_register<Reg::GPIO<'I'>::OTYPER>();
-  set_register<Reg::GPIO<'I'>::OSPEEDR>();
-  set_register<Reg::GPIO<'I'>::PUPDR>();
+  set_register<GPIO<'I'>::MODER>();
+  set_register<GPIO<'I'>::OTYPER>();
+  set_register<GPIO<'I'>::OSPEEDR>();
+  set_register<GPIO<'I'>::PUPDR>();
 }
 
 #if 0

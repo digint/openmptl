@@ -26,23 +26,25 @@
 template<typename... Args>
 void ResourceList<Args...>::set_shared_register(void)
 {
-  set_register<Reg::RCC::APB1ENR>();
-  set_register<Reg::RCC::APB2ENR>();
+  using namespace reg;
 
-  set_register<Reg::GPIO<'A'>::CRL>();
-  set_register<Reg::GPIO<'A'>::CRH>();
-  set_register<Reg::GPIO<'B'>::CRL>();
-  set_register<Reg::GPIO<'B'>::CRH>();
-  set_register<Reg::GPIO<'C'>::CRL>();
-  set_register<Reg::GPIO<'C'>::CRH>();
-  set_register<Reg::GPIO<'D'>::CRL>();
-  set_register<Reg::GPIO<'D'>::CRH>();
-  set_register<Reg::GPIO<'E'>::CRL>();
-  set_register<Reg::GPIO<'E'>::CRH>();
-  set_register<Reg::GPIO<'F'>::CRL>();
-  set_register<Reg::GPIO<'F'>::CRH>();
-  set_register<Reg::GPIO<'G'>::CRL>();
-  set_register<Reg::GPIO<'G'>::CRH>();
+  set_register<RCC::APB1ENR>();
+  set_register<RCC::APB2ENR>();
+
+  set_register<GPIO<'A'>::CRL>();
+  set_register<GPIO<'A'>::CRH>();
+  set_register<GPIO<'B'>::CRL>();
+  set_register<GPIO<'B'>::CRH>();
+  set_register<GPIO<'C'>::CRL>();
+  set_register<GPIO<'C'>::CRH>();
+  set_register<GPIO<'D'>::CRL>();
+  set_register<GPIO<'D'>::CRH>();
+  set_register<GPIO<'E'>::CRL>();
+  set_register<GPIO<'E'>::CRH>();
+  set_register<GPIO<'F'>::CRL>();
+  set_register<GPIO<'F'>::CRH>();
+  set_register<GPIO<'G'>::CRL>();
+  set_register<GPIO<'G'>::CRH>();
 }
 
 #if 0

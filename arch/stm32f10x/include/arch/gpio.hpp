@@ -159,7 +159,7 @@ protected:
   static constexpr uint32_t crx_shift = (pin_no % 8) << 2;
   static constexpr uint32_t crx_mask = 0x0F << crx_shift;
 
-  typedef Reg::GPIO<port> GPIOx;
+  typedef reg::GPIO<port> GPIOx;
 
 #if 0
   // TODO: finish this. needs to go to something like "template<int port> GpioPort" in order to work correctly
@@ -180,18 +180,18 @@ protected:
 
 public:
 
-  static constexpr uint32_t apb2enr = (port == 'A' ? Reg::RCC::APB2ENR::IOPAEN::value : 
-                                       port == 'B' ? Reg::RCC::APB2ENR::IOPBEN::value : 
-                                       port == 'C' ? Reg::RCC::APB2ENR::IOPCEN::value : 
-                                       port == 'D' ? Reg::RCC::APB2ENR::IOPDEN::value : 
-                                       port == 'E' ? Reg::RCC::APB2ENR::IOPEEN::value :
+  static constexpr uint32_t apb2enr = (port == 'A' ? reg::RCC::APB2ENR::IOPAEN::value : 
+                                       port == 'B' ? reg::RCC::APB2ENR::IOPBEN::value : 
+                                       port == 'C' ? reg::RCC::APB2ENR::IOPCEN::value : 
+                                       port == 'D' ? reg::RCC::APB2ENR::IOPDEN::value : 
+                                       port == 'E' ? reg::RCC::APB2ENR::IOPEEN::value :
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-                                       port == 'F' ? Reg::RCC::APB2ENR::IOPFEN::value : 
-                                       port == 'G' ? Reg::RCC::APB2ENR::IOPGEN::value :
+                                       port == 'F' ? reg::RCC::APB2ENR::IOPFEN::value : 
+                                       port == 'G' ? reg::RCC::APB2ENR::IOPGEN::value :
 #endif
                                        0 );
 
-  typedef ResourceList< SharedRegister<Reg::RCC::APB2ENR, apb2enr>,
+  typedef ResourceList< SharedRegister<reg::RCC::APB2ENR, apb2enr>,
                         UniqueResource<GpioBase<port, pin_no> >
                         > resources;
 
@@ -251,8 +251,8 @@ public:
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
   typedef ResourceList< typename base::resources,
-                        SharedRegister< typename Reg::GPIO<port>::CRL, crl_value, crl_mask >,
-                        SharedRegister< typename Reg::GPIO<port>::CRH, crh_value, crh_mask >
+                        SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
+                        SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
                         > resources;
 
 
@@ -301,8 +301,8 @@ public:
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
   typedef ResourceList< typename base::resources,
-                        SharedRegister< typename Reg::GPIO<port>::CRL, crl_value, crl_mask >,
-                        SharedRegister< typename Reg::GPIO<port>::CRH, crh_value, crh_mask >
+                        SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
+                        SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
                         > resources;
 
   static void enable() {

@@ -27,7 +27,7 @@
 // TODO: access functions, change public to private
 class Rcc {
 
-  using RCC = Reg::RCC;
+  using RCC = reg::RCC;
 
   template<int m, int n, int p, int q>
   struct pllcfgr_hse {

@@ -25,11 +25,6 @@
 
 using namespace resources;
 
-// Hint: template debugging:
-//template<typename T> struct incomplete;
-//incomplete<Core::SPI<1>::CR1::SPE::type> debug;
-
-
 static volatile int systick_count = 1000;
 static volatile int second = 0;
 
@@ -59,13 +54,14 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  if(Reg::SCB::CPUID::load() == 0x410FC241) {
+  if(reg::SCB::CPUID::load() == 0x410FC241) {
     led_blue::on();
   }
 
   while(1)
   {
-    for (int i = 0; i < 10000000; i++)    __asm__("nop");
+    reg++;
+    Core::nop(10000000);
     led_orange::toggle();
   }
 }

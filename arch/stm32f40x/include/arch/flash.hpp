@@ -28,7 +28,7 @@
 
 class Flash
 {
-  using FLASH = Reg::FLASH;
+  using FLASH = reg::FLASH;
 
   template<freq_t freq, voltage_t voltage>
   struct latency {

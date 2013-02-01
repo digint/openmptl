@@ -26,7 +26,7 @@
 
 class Flash
 {
-  using FLASH = Reg::FLASH;
+  using FLASH = reg::FLASH;
 
 public:
 

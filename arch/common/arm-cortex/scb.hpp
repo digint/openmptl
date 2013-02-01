@@ -27,7 +27,7 @@
 class Scb : private InterruptControllerSetup
 {
 
-  using SCB = Reg::SCB;
+  using SCB = reg::SCB;
 
 public:
   /**

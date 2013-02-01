@@ -79,15 +79,12 @@
 #include <register.hpp>
 #include "../../../common/arm-cortex/core_register.hpp"
 
-namespace Reg {
+namespace reg {
 
   static constexpr reg_addr_t PERIPH_BASE = 0x40000000;
   static constexpr reg_addr_t APB1_BASE   = PERIPH_BASE;
   static constexpr reg_addr_t APB2_BASE   = PERIPH_BASE + 0x10000;
   static constexpr reg_addr_t AHB_BASE    = PERIPH_BASE + 0x20000;
-
-  using access = RegisterAccess;
-
 
   /**
    * Reset and clock control (RCC)
@@ -707,19 +704,19 @@ namespace Reg {
 
   public:
 
-    typedef __CR      < Register< uint32_t, reg_base + 0x00, access::rw, 0x00000083 /*TODO: 0x0000xx83*/ > > CR;
-    typedef __CFGR    < Register< uint32_t, reg_base + 0x04, access::rw > > CFGR;
-    typedef __CIR     < Register< uint32_t, reg_base + 0x08, access::rw > > CIR;
-    typedef __APB2RSTR< Register< uint32_t, reg_base + 0x0c, access::rw > > APB2RSTR;
-    typedef __APB1RSTR< Register< uint32_t, reg_base + 0x10, access::rw > > APB1RSTR;
-    typedef __AHBENR  < Register< uint32_t, reg_base + 0x14, access::rw > > AHBENR;
-    typedef __APB2ENR < Register< uint32_t, reg_base + 0x18, access::rw > > APB2ENR;
-    typedef __APB1ENR < Register< uint32_t, reg_base + 0x1c, access::rw > > APB1ENR;
-    typedef __BDCR    < Register< uint32_t, reg_base + 0x20, access::rw > > BDCR;
-    typedef __CSR     < Register< uint32_t, reg_base + 0x24, access::rw, 0x0C000000 > > CSR;
+    typedef __CR      < Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000083 /*TODO: 0x0000xx83*/ > > CR;
+    typedef __CFGR    < Register< uint32_t, reg_base + 0x04, Access::rw > > CFGR;
+    typedef __CIR     < Register< uint32_t, reg_base + 0x08, Access::rw > > CIR;
+    typedef __APB2RSTR< Register< uint32_t, reg_base + 0x0c, Access::rw > > APB2RSTR;
+    typedef __APB1RSTR< Register< uint32_t, reg_base + 0x10, Access::rw > > APB1RSTR;
+    typedef __AHBENR  < Register< uint32_t, reg_base + 0x14, Access::rw > > AHBENR;
+    typedef __APB2ENR < Register< uint32_t, reg_base + 0x18, Access::rw > > APB2ENR;
+    typedef __APB1ENR < Register< uint32_t, reg_base + 0x1c, Access::rw > > APB1ENR;
+    typedef __BDCR    < Register< uint32_t, reg_base + 0x20, Access::rw > > BDCR;
+    typedef __CSR     < Register< uint32_t, reg_base + 0x24, Access::rw, 0x0C000000 > > CSR;
 #ifdef STM32F10X_CL
-    typedef __AHBRSTR < Register< uint32_t, reg_base + 0x28, access::rw > > AHBRSTR;
-    typedef __CFGR2   < Register< uint32_t, reg_base + 0x2c, access::rw > > CFGR2;
+    typedef __AHBRSTR < Register< uint32_t, reg_base + 0x28, Access::rw > > AHBRSTR;
+    typedef __CFGR2   < Register< uint32_t, reg_base + 0x2c, Access::rw > > CFGR2;
 #endif
   };
 
@@ -777,8 +774,8 @@ namespace Reg {
 
   public:
 
-    typedef __CR < Register< uint32_t, reg_base + 0x00, access::rw > > CR;
-    typedef __CSR< Register< uint32_t, reg_base + 0x04, access::rw > > CSR;
+    typedef __CR < Register< uint32_t, reg_base + 0x00, Access::rw > > CR;
+    typedef __CSR< Register< uint32_t, reg_base + 0x04, Access::rw > > CSR;
   };
 
 
@@ -946,18 +943,18 @@ namespace Reg {
 
   public:
 
-    typedef __ACR    < Register< uint32_t, reg_base + 0x00, access::rw, 0x00000030 > > ACR;
-    typedef __KEYR   < Register< uint32_t, reg_base + 0x04, access::rw > > KEYR;
-    typedef __OPTKEYR< Register< uint32_t, reg_base + 0x08, access::rw > > OPTKEYR;
-    typedef __SR     < Register< uint32_t, reg_base + 0x0c, access::rw > > SR;
-    typedef __CR     < Register< uint32_t, reg_base + 0x10, access::rw > > CR;
-    typedef __AR     < Register< uint32_t, reg_base + 0x14, access::rw > > AR;
-    typedef __OBR    < Register< uint32_t, reg_base + 0x1c, access::rw > > OBR;
-    typedef __WRPR   < Register< uint32_t, reg_base + 0x20, access::rw > > WRPR;
-    typedef __KEYR2  < Register< uint32_t, reg_base + 0x44, access::rw > > KEYR2;
-    typedef __SR2    < Register< uint32_t, reg_base + 0x4c, access::rw > > SR2;
-    typedef __CR2    < Register< uint32_t, reg_base + 0x50, access::rw > > CR2;
-    typedef __AR2    < Register< uint32_t, reg_base + 0x54, access::rw > > AR2;
+    typedef __ACR    < Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000030 > > ACR;
+    typedef __KEYR   < Register< uint32_t, reg_base + 0x04, Access::rw > > KEYR;
+    typedef __OPTKEYR< Register< uint32_t, reg_base + 0x08, Access::rw > > OPTKEYR;
+    typedef __SR     < Register< uint32_t, reg_base + 0x0c, Access::rw > > SR;
+    typedef __CR     < Register< uint32_t, reg_base + 0x10, Access::rw > > CR;
+    typedef __AR     < Register< uint32_t, reg_base + 0x14, Access::rw > > AR;
+    typedef __OBR    < Register< uint32_t, reg_base + 0x1c, Access::rw > > OBR;
+    typedef __WRPR   < Register< uint32_t, reg_base + 0x20, Access::rw > > WRPR;
+    typedef __KEYR2  < Register< uint32_t, reg_base + 0x44, Access::rw > > KEYR2;
+    typedef __SR2    < Register< uint32_t, reg_base + 0x4c, Access::rw > > SR2;
+    typedef __CR2    < Register< uint32_t, reg_base + 0x50, Access::rw > > CR2;
+    typedef __AR2    < Register< uint32_t, reg_base + 0x54, Access::rw > > AR2;
   };
 
 
@@ -1083,16 +1080,16 @@ namespace Reg {
   public:
 
     // TODO: use "uint_fast16_t", this is way cooler!
-    typedef __CRH < Register< uint32_t, reg_base + 0x00, access::rw         > > CRH;  /**< RTC control register high             */
-    typedef __CRL < Register< uint32_t, reg_base + 0x04, access::rw, 0x0020 > > CRL;  /**< RTC control register low              */
-    typedef __PRLH< Register< uint32_t, reg_base + 0x08, access::wo         > > PRLH; /**< RTC prescaler load register high      */
-    typedef __PRLL< Register< uint32_t, reg_base + 0x0c, access::wo, 0x8000 > > PRLL; /**< RTC prescaler load register low       */
-    typedef __DIVH< Register< uint32_t, reg_base + 0x10, access::ro         > > DIVH; /**< RTC prescaler divider register high   */
-    typedef __DIVL< Register< uint32_t, reg_base + 0x14, access::ro, 0x8000 > > DIVL; /**< RTC prescaler divider register low    */
-    typedef __CNTH< Register< uint32_t, reg_base + 0x18, access::rw         > > CNTH; /**< RTC counter register high             */
-    typedef __CNTL< Register< uint32_t, reg_base + 0x1c, access::rw         > > CNTL; /**< RTC counter register low              */
-    typedef __ALRH< Register< uint32_t, reg_base + 0x20, access::wo         > > ALRH; /**< RTC alarm register high               */
-    typedef __ALRL< Register< uint32_t, reg_base + 0x24, access::wo         > > ALRL; /**< RTC alarm register low                */
+    typedef __CRH < Register< uint32_t, reg_base + 0x00, Access::rw         > > CRH;  /**< RTC control register high             */
+    typedef __CRL < Register< uint32_t, reg_base + 0x04, Access::rw, 0x0020 > > CRL;  /**< RTC control register low              */
+    typedef __PRLH< Register< uint32_t, reg_base + 0x08, Access::wo         > > PRLH; /**< RTC prescaler load register high      */
+    typedef __PRLL< Register< uint32_t, reg_base + 0x0c, Access::wo, 0x8000 > > PRLL; /**< RTC prescaler load register low       */
+    typedef __DIVH< Register< uint32_t, reg_base + 0x10, Access::ro         > > DIVH; /**< RTC prescaler divider register high   */
+    typedef __DIVL< Register< uint32_t, reg_base + 0x14, Access::ro, 0x8000 > > DIVL; /**< RTC prescaler divider register low    */
+    typedef __CNTH< Register< uint32_t, reg_base + 0x18, Access::rw         > > CNTH; /**< RTC counter register high             */
+    typedef __CNTL< Register< uint32_t, reg_base + 0x1c, Access::rw         > > CNTL; /**< RTC counter register low              */
+    typedef __ALRH< Register< uint32_t, reg_base + 0x20, Access::wo         > > ALRH; /**< RTC alarm register high               */
+    typedef __ALRL< Register< uint32_t, reg_base + 0x24, Access::wo         > > ALRL; /**< RTC alarm register low                */
   };
 
 
@@ -1107,13 +1104,13 @@ namespace Reg {
     static constexpr std::size_t gpio_no   = reg_name - 'A';
     static constexpr reg_addr_t  reg_base = APB2_BASE + 0x0800 + gpio_no * 0x0400;
     
-    typedef Register< uint32_t, reg_base + 0x00, access::rw, 0x44444444 > CRL;            /**< Port configuration register low    */
-    typedef Register< uint32_t, reg_base + 0x04, access::rw, 0x44444444 > CRH;            /**< Port configuration register high   */
-    typedef Register< uint32_t, reg_base + 0x08, access::ro /* TODO: 0x0000XXXX */ > IDR; /**< Port input data register           */
-    typedef Register< uint32_t, reg_base + 0x0c, access::rw             > ODR;            /**< Port output data register          */
-    typedef Register< uint32_t, reg_base + 0x10, access::wo             > BSRR;           /**< Port bit set/reset register        */
-    typedef Register< uint32_t, reg_base + 0x14, access::wo             > BRR;            /**< Port bit reset register            */
-    typedef Register< uint32_t, reg_base + 0x18, access::rw             > LCKR;           /**< Port configuration lock register   */
+    typedef Register< uint32_t, reg_base + 0x00, Access::rw, 0x44444444 > CRL;            /**< Port configuration register low    */
+    typedef Register< uint32_t, reg_base + 0x04, Access::rw, 0x44444444 > CRH;            /**< Port configuration register high   */
+    typedef Register< uint32_t, reg_base + 0x08, Access::ro /* TODO: 0x0000XXXX */ > IDR; /**< Port input data register           */
+    typedef Register< uint32_t, reg_base + 0x0c, Access::rw             > ODR;            /**< Port output data register          */
+    typedef Register< uint32_t, reg_base + 0x10, Access::wo             > BSRR;           /**< Port bit set/reset register        */
+    typedef Register< uint32_t, reg_base + 0x14, Access::wo             > BRR;            /**< Port bit reset register            */
+    typedef Register< uint32_t, reg_base + 0x18, Access::rw             > LCKR;           /**< Port configuration lock register   */
   };
 
 
@@ -1349,30 +1346,30 @@ namespace Reg {
 
   public:
 
-    typedef __SR   < Register< uint32_t, reg_base + 0x00, access::rw > > SR;
-    typedef __CR1  < Register< uint32_t, reg_base + 0x04, access::rw > > CR1;
-    typedef __CR2  < Register< uint32_t, reg_base + 0x08, access::rw > > CR2;
-    typedef __SMPR1< Register< uint32_t, reg_base + 0x0c, access::rw > > SMPR1;
-    typedef __SMPR2< Register< uint32_t, reg_base + 0x10, access::rw > > SMPR2;
+    typedef __SR   < Register< uint32_t, reg_base + 0x00, Access::rw > > SR;
+    typedef __CR1  < Register< uint32_t, reg_base + 0x04, Access::rw > > CR1;
+    typedef __CR2  < Register< uint32_t, reg_base + 0x08, Access::rw > > CR2;
+    typedef __SMPR1< Register< uint32_t, reg_base + 0x0c, Access::rw > > SMPR1;
+    typedef __SMPR2< Register< uint32_t, reg_base + 0x10, Access::rw > > SMPR2;
 
     template<std::size_t jofr_no>
     struct JOFR
-    : __JOFR<Register< uint32_t, reg_base + 0x14 + (jofr_no - 1) * 4, access::rw >>
+    : __JOFR<Register< uint32_t, reg_base + 0x14 + (jofr_no - 1) * 4, Access::rw >>
     { static_assert((jofr_no >= 1) && (jofr_no <= 4), "invalid index for register"); };
 
-    typedef __HTR  < Register< uint32_t, reg_base + 0x24, access::rw, 0x00000FFF > > HTR;
-    typedef __LTR  < Register< uint32_t, reg_base + 0x28, access::rw             > > LTR;
-    typedef __SQR1 < Register< uint32_t, reg_base + 0x2c, access::rw             > > SQR1;
-    typedef __SQR2 < Register< uint32_t, reg_base + 0x30, access::rw             > > SQR2;
-    typedef __SQR3 < Register< uint32_t, reg_base + 0x34, access::rw             > > SQR3;
-    typedef __JSQR < Register< uint32_t, reg_base + 0x38, access::rw             > > JSQR;
+    typedef __HTR  < Register< uint32_t, reg_base + 0x24, Access::rw, 0x00000FFF > > HTR;
+    typedef __LTR  < Register< uint32_t, reg_base + 0x28, Access::rw             > > LTR;
+    typedef __SQR1 < Register< uint32_t, reg_base + 0x2c, Access::rw             > > SQR1;
+    typedef __SQR2 < Register< uint32_t, reg_base + 0x30, Access::rw             > > SQR2;
+    typedef __SQR3 < Register< uint32_t, reg_base + 0x34, Access::rw             > > SQR3;
+    typedef __JSQR < Register< uint32_t, reg_base + 0x38, Access::rw             > > JSQR;
 
     template<std::size_t jdr_no>
     struct JDR
-    : __JDR<Register< uint32_t, reg_base + 0x3c + (jdr_no - 1) * 4, access::ro >>
+    : __JDR<Register< uint32_t, reg_base + 0x3c + (jdr_no - 1) * 4, Access::ro >>
     { static_assert((jdr_no >= 1) && (jdr_no <= 4), "invalid index for register"); };
 
-    typedef __DR   < Register< uint32_t, reg_base + 0x4c, access::ro > > DR;
+    typedef __DR   < Register< uint32_t, reg_base + 0x4c, Access::ro > > DR;
   };                                                    
 
 
@@ -1386,8 +1383,6 @@ namespace Reg {
   class SPI
   {
     static_assert((spi_no >= 1) && (spi_no <= 3), "invalid SPI number"); // TODO: depends on cpu sub-arch
-
-    using access = RegisterAccess;
 
     static constexpr reg_addr_t reg_base = spi_no == 1 ? APB2_BASE + 0x3000 :
                                            spi_no == 2 ? APB1_BASE + 0x3800 :
@@ -1527,15 +1522,15 @@ namespace Reg {
 
   public:
 
-    typedef __CR1    < Register< uint32_t, reg_base + 0x00, access::rw         > > CR1;
-    typedef __CR2    < Register< uint32_t, reg_base + 0x04, access::rw         > > CR2;
-    typedef __SR     < Register< uint32_t, reg_base + 0x08, access::rw, 0x0002 > > SR;
-    typedef __DR     < Register< uint32_t, reg_base + 0x0c, access::rw         > > DR;
-    typedef __CRCPR  < Register< uint32_t, reg_base + 0x10, access::rw, 0x0007 > > CRCPR;
-    typedef __RXCRCR < Register< uint32_t, reg_base + 0x14, access::ro         > > RXCRCR;
-    typedef __TXCRCR < Register< uint32_t, reg_base + 0x18, access::ro         > > TXCRCR;
-    typedef __I2SCFGR< Register< uint32_t, reg_base + 0x1c, access::rw         > > I2SCFGR;
-    typedef __I2SPR  < Register< uint32_t, reg_base + 0x20, access::rw, 0x0010 > > I2SPR;
+    typedef __CR1    < Register< uint32_t, reg_base + 0x00, Access::rw         > > CR1;
+    typedef __CR2    < Register< uint32_t, reg_base + 0x04, Access::rw         > > CR2;
+    typedef __SR     < Register< uint32_t, reg_base + 0x08, Access::rw, 0x0002 > > SR;
+    typedef __DR     < Register< uint32_t, reg_base + 0x0c, Access::rw         > > DR;
+    typedef __CRCPR  < Register< uint32_t, reg_base + 0x10, Access::rw, 0x0007 > > CRCPR;
+    typedef __RXCRCR < Register< uint32_t, reg_base + 0x14, Access::ro         > > RXCRCR;
+    typedef __TXCRCR < Register< uint32_t, reg_base + 0x18, Access::ro         > > TXCRCR;
+    typedef __I2SCFGR< Register< uint32_t, reg_base + 0x1c, Access::rw         > > I2SCFGR;
+    typedef __I2SPR  < Register< uint32_t, reg_base + 0x20, Access::rw, 0x0010 > > I2SPR;
   };
 
 
@@ -1680,13 +1675,13 @@ namespace Reg {
 
   public:
 
-    typedef __SR  < Register< uint32_t, reg_base + 0x00, access::rw, 0x00C0 > > SR;
-    typedef __DR  < Register< uint32_t, reg_base + 0x04, access::rw         > > DR;
-    typedef __BRR < Register< uint32_t, reg_base + 0x08, access::rw         > > BRR;
-    typedef __CR1 < Register< uint32_t, reg_base + 0x0c, access::rw         > > CR1;
-    typedef __CR2 < Register< uint32_t, reg_base + 0x10, access::rw         > > CR2;
-    typedef __CR3 < Register< uint32_t, reg_base + 0x14, access::rw         > > CR3;
-    typedef __GTPR< Register< uint32_t, reg_base + 0x18, access::rw         > > GTPR;
+    typedef __SR  < Register< uint32_t, reg_base + 0x00, Access::rw, 0x00C0 > > SR;
+    typedef __DR  < Register< uint32_t, reg_base + 0x04, Access::rw         > > DR;
+    typedef __BRR < Register< uint32_t, reg_base + 0x08, Access::rw         > > BRR;
+    typedef __CR1 < Register< uint32_t, reg_base + 0x0c, Access::rw         > > CR1;
+    typedef __CR2 < Register< uint32_t, reg_base + 0x10, Access::rw         > > CR2;
+    typedef __CR3 < Register< uint32_t, reg_base + 0x14, Access::rw         > > CR3;
+    typedef __GTPR< Register< uint32_t, reg_base + 0x18, Access::rw         > > GTPR;
   };
 }
 

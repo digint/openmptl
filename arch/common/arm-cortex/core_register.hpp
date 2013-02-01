@@ -21,9 +21,7 @@
 #ifndef COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
 
-namespace Reg {
-
-  using access = RegisterAccess;
+namespace reg {
 
   /**
    * System Control Register
@@ -240,45 +238,45 @@ namespace Reg {
 
   public:
 
-    typedef          Register< uint32_t, 0xE000E008, access::rw >   ACTLR; /**< Auxiliary Control Register, ACTLR   */
-    typedef __STCSR< Register< uint32_t, 0xE000E010, access::rw > > STCSR;
-    typedef          Register< uint32_t, 0xE000E014, access::rw >   STRVR; /**< SysTick Reload Value Register        */
-    typedef          Register< uint32_t, 0xE000E018, access::rw >   STCVR; /**< SysTick Current Value Register   */
-    typedef __STCR < Register< uint32_t, 0xE000E01C, access::ro > > STCR;
-    typedef __CPUID< Register< uint32_t, 0xE000ED00, access::ro, 0x412FC231 > > CPUID;
-    typedef __ICSR < Register< uint32_t, 0xE000ED04, access::rw > > ICSR;
-    typedef __VTOR < Register< uint32_t, 0xE000ED08, access::rw > > VTOR;
-    typedef __AIRCR< Register< uint32_t, 0xE000ED0C, access::rw > > AIRCR;
-    typedef __SCR  < Register< uint32_t, 0xE000ED10, access::rw > > SCR;
-    typedef __CCR  < Register< uint32_t, 0xE000ED14, access::rw, 0x00000200 > > CCR; // TODO: 16-bit
+    typedef          Register< uint32_t, 0xE000E008, Access::rw >   ACTLR; /**< Auxiliary Control Register, ACTLR   */
+    typedef __STCSR< Register< uint32_t, 0xE000E010, Access::rw > > STCSR;
+    typedef          Register< uint32_t, 0xE000E014, Access::rw >   STRVR; /**< SysTick Reload Value Register        */
+    typedef          Register< uint32_t, 0xE000E018, Access::rw >   STCVR; /**< SysTick Current Value Register   */
+    typedef __STCR < Register< uint32_t, 0xE000E01C, Access::ro > > STCR;
+    typedef __CPUID< Register< uint32_t, 0xE000ED00, Access::ro, 0x412FC231 > > CPUID;
+    typedef __ICSR < Register< uint32_t, 0xE000ED04, Access::rw > > ICSR;
+    typedef __VTOR < Register< uint32_t, 0xE000ED08, Access::rw > > VTOR;
+    typedef __AIRCR< Register< uint32_t, 0xE000ED0C, Access::rw > > AIRCR;
+    typedef __SCR  < Register< uint32_t, 0xE000ED10, Access::rw > > SCR;
+    typedef __CCR  < Register< uint32_t, 0xE000ED14, Access::rw, 0x00000200 > > CCR; // TODO: 16-bit
 
     template<std::size_t index>
     struct SHPR
-    : __SHPR < Register< uint32_t, 0xE000ED18 + 4 * index, access::rw > >
+    : __SHPR < Register< uint32_t, 0xE000ED18 + 4 * index, Access::rw > >
     { static_assert(index < 3, "invalid index for register"); };
 
-    typedef __SHCSR< Register< uint32_t, 0xE000ED24, access::rw > > SHCSR;
-    typedef __CFSR < Register< uint32_t, 0xE000ED28, access::rw > > CFSR;
-    typedef __HFSR < Register< uint32_t, 0xE000ED2C, access::rw > > HFSR;
-    typedef __DFSR < Register< uint32_t, 0xE000ED30, access::rw > > DFSR;
-    typedef          Register< uint32_t, 0xE000ED34, access::rw             > MMFAR;    /**< MemManage Fault Address Register[b]     */
-    typedef          Register< uint32_t, 0xE000ED38, access::rw             > BFAR;     /**< BusFault Address Register[b]            */
-    typedef          Register< uint32_t, 0xE000ED3C, access::rw             > AFSR;     /**< Auxiliary Fault Status Register, AFSR   */
-    typedef          Register< uint32_t, 0xE000ED40, access::ro, 0x00000030 > ID_PFR0;  /**< Processor Feature Register 0            */
-    typedef          Register< uint32_t, 0xE000ED44, access::ro, 0x00000200 > ID_PFR1;  /**< Processor Feature Register 1            */
-    typedef          Register< uint32_t, 0xE000ED48, access::ro, 0x00100000 > ID_DFR0;  /**< Debug Features Register 0[c]            */
-    typedef          Register< uint32_t, 0xE000ED4C, access::ro             > ID_AFR0;  /**< Auxiliary Features Register 0           */
-    typedef          Register< uint32_t, 0xE000ED50, access::ro, 0x00100030 > ID_MMFR0; /**< Memory Model Feature Register 0         */
-    typedef          Register< uint32_t, 0xE000ED54, access::ro             > ID_MMFR1; /**< Memory Model Feature Register 1         */
-    typedef          Register< uint32_t, 0xE000ED58, access::ro, 0x01000000 > ID_MMFR2; /**< Memory Model Feature Register 2         */
-    typedef          Register< uint32_t, 0xE000ED5C, access::ro             > ID_MMFR3; /**< Memory Model Feature Register 3         */
-    typedef          Register< uint32_t, 0xE000ED60, access::ro, 0x01100110 > ID_ISAR0; /**< Instruction Set Attributes Register 0   */
-    typedef          Register< uint32_t, 0xE000ED64, access::ro, 0x02111000 > ID_ISAR1; /**< Instruction Set Attributes Register 1   */
-    typedef          Register< uint32_t, 0xE000ED68, access::ro, 0x21112231 > ID_ISAR2; /**< Instruction Set Attributes Register 2   */
-    typedef          Register< uint32_t, 0xE000ED6C, access::ro, 0x01111110 > ID_ISAR3; /**< Instruction Set Attributes Register 3   */
-    typedef          Register< uint32_t, 0xE000ED70, access::ro, 0x01310132 > ID_ISAR4; /**< Instruction Set Attributes Register 4   */
-    typedef          Register< uint32_t, 0xE000ED88, access::rw             > CPACR;    /**< Coprocessor Access Control Register     */
-    typedef          Register< uint32_t, 0xE000EF00, access::wo             > STIR;     /**< Software Triggered Interrupt Register   */
+    typedef __SHCSR< Register< uint32_t, 0xE000ED24, Access::rw > > SHCSR;
+    typedef __CFSR < Register< uint32_t, 0xE000ED28, Access::rw > > CFSR;
+    typedef __HFSR < Register< uint32_t, 0xE000ED2C, Access::rw > > HFSR;
+    typedef __DFSR < Register< uint32_t, 0xE000ED30, Access::rw > > DFSR;
+    typedef          Register< uint32_t, 0xE000ED34, Access::rw             > MMFAR;    /**< MemManage Fault Address Register[b]     */
+    typedef          Register< uint32_t, 0xE000ED38, Access::rw             > BFAR;     /**< BusFault Address Register[b]            */
+    typedef          Register< uint32_t, 0xE000ED3C, Access::rw             > AFSR;     /**< Auxiliary Fault Status Register, AFSR   */
+    typedef          Register< uint32_t, 0xE000ED40, Access::ro, 0x00000030 > ID_PFR0;  /**< Processor Feature Register 0            */
+    typedef          Register< uint32_t, 0xE000ED44, Access::ro, 0x00000200 > ID_PFR1;  /**< Processor Feature Register 1            */
+    typedef          Register< uint32_t, 0xE000ED48, Access::ro, 0x00100000 > ID_DFR0;  /**< Debug Features Register 0[c]            */
+    typedef          Register< uint32_t, 0xE000ED4C, Access::ro             > ID_AFR0;  /**< Auxiliary Features Register 0           */
+    typedef          Register< uint32_t, 0xE000ED50, Access::ro, 0x00100030 > ID_MMFR0; /**< Memory Model Feature Register 0         */
+    typedef          Register< uint32_t, 0xE000ED54, Access::ro             > ID_MMFR1; /**< Memory Model Feature Register 1         */
+    typedef          Register< uint32_t, 0xE000ED58, Access::ro, 0x01000000 > ID_MMFR2; /**< Memory Model Feature Register 2         */
+    typedef          Register< uint32_t, 0xE000ED5C, Access::ro             > ID_MMFR3; /**< Memory Model Feature Register 3         */
+    typedef          Register< uint32_t, 0xE000ED60, Access::ro, 0x01100110 > ID_ISAR0; /**< Instruction Set Attributes Register 0   */
+    typedef          Register< uint32_t, 0xE000ED64, Access::ro, 0x02111000 > ID_ISAR1; /**< Instruction Set Attributes Register 1   */
+    typedef          Register< uint32_t, 0xE000ED68, Access::ro, 0x21112231 > ID_ISAR2; /**< Instruction Set Attributes Register 2   */
+    typedef          Register< uint32_t, 0xE000ED6C, Access::ro, 0x01111110 > ID_ISAR3; /**< Instruction Set Attributes Register 3   */
+    typedef          Register< uint32_t, 0xE000ED70, Access::ro, 0x01310132 > ID_ISAR4; /**< Instruction Set Attributes Register 4   */
+    typedef          Register< uint32_t, 0xE000ED88, Access::rw             > CPACR;    /**< Coprocessor Access Control Register     */
+    typedef          Register< uint32_t, 0xE000EF00, Access::wo             > STIR;     /**< Software Triggered Interrupt Register   */
   };
 
 
@@ -291,17 +289,17 @@ namespace Reg {
    */
   struct MPU
   {
-    typedef   Register< uint32_t, 0xE000ED90, access::ro, 0x00000800 > TYPE;    /**< MPU Type Register                        */
-    typedef   Register< uint32_t, 0xE000ED94, access::rw             > CTRL;    /**< MPU Control Register                     */
-    typedef   Register< uint32_t, 0xE000ED98, access::rw             > RNR;     /**< MPU Region Number Register               */
-    typedef   Register< uint32_t, 0xE000ED9C, access::rw             > RBAR;    /**< MPU Region Base Address Register         */
-    typedef   Register< uint32_t, 0xE000EDA0, access::rw             > RASR;    /**< MPU Region Attribute and Size Register   */
-    typedef   Register< uint32_t, 0xE000EDA4, access::rw             > RBAR_A1; /**< MPU alias registers                      */
-    typedef   Register< uint32_t, 0xE000EDA8, access::rw             > RASR_A1; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDAC, access::rw             > RBAR_A2; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB0, access::rw             > RASR_A2; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB4, access::rw             > RBAR_A3; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB8, access::rw             > RASR_A3; /**<                                          */
+    typedef   Register< uint32_t, 0xE000ED90, Access::ro, 0x00000800 > TYPE;    /**< MPU Type Register                        */
+    typedef   Register< uint32_t, 0xE000ED94, Access::rw             > CTRL;    /**< MPU Control Register                     */
+    typedef   Register< uint32_t, 0xE000ED98, Access::rw             > RNR;     /**< MPU Region Number Register               */
+    typedef   Register< uint32_t, 0xE000ED9C, Access::rw             > RBAR;    /**< MPU Region Base Address Register         */
+    typedef   Register< uint32_t, 0xE000EDA0, Access::rw             > RASR;    /**< MPU Region Attribute and Size Register   */
+    typedef   Register< uint32_t, 0xE000EDA4, Access::rw             > RBAR_A1; /**< MPU alias registers                      */
+    typedef   Register< uint32_t, 0xE000EDA8, Access::rw             > RASR_A1; /**<                                          */
+    typedef   Register< uint32_t, 0xE000EDAC, Access::rw             > RBAR_A2; /**<                                          */
+    typedef   Register< uint32_t, 0xE000EDB0, Access::rw             > RASR_A2; /**<                                          */
+    typedef   Register< uint32_t, 0xE000EDB4, Access::rw             > RBAR_A3; /**<                                          */
+    typedef   Register< uint32_t, 0xE000EDB8, Access::rw             > RASR_A3; /**<                                          */
   };
 
 
@@ -315,7 +313,7 @@ namespace Reg {
   struct NVIC
   {
     /** Interrupt Controller Type Register */
-    typedef Register< uint32_t, 0xE000E004, access::ro > ICTR;
+    typedef Register< uint32_t, 0xE000E004, Access::ro > ICTR;
 
     // TODO: The following registers are actually only 8bit wide.
     //       Check if access is better using 32bit or 8bit pointer
@@ -323,32 +321,32 @@ namespace Reg {
     /** Interrupt Set-Enable Registers */
     template<std::size_t reg_index>
     struct ISER
-    : Register<uint32_t, 0xE000E100 + 4 * reg_index, access::rw >
+    : Register<uint32_t, 0xE000E100 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Set-Enable Registers */
     template<std::size_t reg_index>
-    struct ICER : Register<uint32_t, 0xE000E180 + 4 * reg_index, access::rw >
+    struct ICER : Register<uint32_t, 0xE000E180 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Set-Pending Registers */
     template<std::size_t reg_index>
-    struct ISPR : Register<uint32_t, 0xE000E200 + 4 * reg_index, access::rw >
+    struct ISPR : Register<uint32_t, 0xE000E200 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Clear-Pending Registers */
     template<std::size_t reg_index>
-    struct ICPR : Register<uint32_t, 0xE000E280 + 4 * reg_index, access::rw >
+    struct ICPR : Register<uint32_t, 0xE000E280 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Active Bit Register */
     template<std::size_t reg_index>
-    struct IABR : Register<uint32_t, 0xE000E300 + 4 * reg_index, access::ro >
+    struct IABR : Register<uint32_t, 0xE000E300 + 4 * reg_index, Access::ro >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
    /** Interrupt Priority Register */
     template<std::size_t index>
-    struct IPR  : Register<uint32_t, 0xE000E400 + 4 * index, access::rw >
+    struct IPR  : Register<uint32_t, 0xE000E400 + 4 * index, Access::rw >
     { static_assert(index < 60, "invalid index for register"); };
   };
 
@@ -371,11 +369,11 @@ namespace Reg {
       typedef RegisterBits< R, 24,  1 > TRCENA;   /**< Enable DWT */
     };
 
-    typedef Register<uint32_t, 0xE000ED30, access::rw> DFSR;   /**< Debug Fault Status Register                   */
-    typedef Register<uint32_t, 0xE000EDF0, access::rw> DHCSR;  /**< Debug Halting Control and Status Register     */
-    typedef Register<uint32_t, 0xE000EDF4, access::wo> DCRSR;  /**< Debug Core Register Selector Register         */
-    typedef Register<uint32_t, 0xE000EDF8, access::rw> DCRDR;  /**< Debug Core Register Data Register             */
-    typedef __DEMCR< Register<uint32_t, 0xE000EDFC, access::rw> > DEMCR;  /**< Debug Exception and Monitor Control Register  */
+    typedef Register<uint32_t, 0xE000ED30, Access::rw> DFSR;   /**< Debug Fault Status Register                   */
+    typedef Register<uint32_t, 0xE000EDF0, Access::rw> DHCSR;  /**< Debug Halting Control and Status Register     */
+    typedef Register<uint32_t, 0xE000EDF4, Access::wo> DCRSR;  /**< Debug Core Register Selector Register         */
+    typedef Register<uint32_t, 0xE000EDF8, Access::rw> DCRDR;  /**< Debug Core Register Data Register             */
+    typedef __DEMCR< Register<uint32_t, 0xE000EDFC, Access::rw> > DEMCR;  /**< Debug Exception and Monitor Control Register  */
   };
 
 
@@ -387,38 +385,38 @@ namespace Reg {
    */
   struct DWT
   {
-    typedef Register<uint32_t, 0xE0001000, access::rw> CTRL;        /**< Control Register  */
-    typedef Register<uint32_t, 0xE0001004, access::rw> CYCCNT;      /**< Cycle Count Register  */
-    typedef Register<uint32_t, 0xE0001008, access::rw> CPICNT;      /**< CPI Count Register  */
-    typedef Register<uint32_t, 0xE000100C, access::rw> EXCCNT;      /**< Exception Overhead Count Register  */
-    typedef Register<uint32_t, 0xE0001010, access::rw> SLEEPCNT;    /**< Sleep Count Register  */
-    typedef Register<uint32_t, 0xE0001014, access::rw> LSUCNT;      /**< LSU Count Register  */
-    typedef Register<uint32_t, 0xE0001018, access::rw> FOLDCNT;     /**< Folded-instruction Count Register  */
-    typedef Register<uint32_t, 0xE000101C, access::ro> PCSR;        /**< Program Counter Sample Register  */
-    typedef Register<uint32_t, 0xE0001020, access::rw> COMP0;       /**< Comparator Register0  */
-    typedef Register<uint32_t, 0xE0001024, access::rw> MASK0;       /**< Mask Register0  */
-    typedef Register<uint32_t, 0xE0001028, access::rw> FUNCTION0;   /**< Function Register0  */
-    typedef Register<uint32_t, 0xE0001030, access::rw> COMP1;       /**< Comparator Register1  */
-    typedef Register<uint32_t, 0xE0001034, access::rw> MASK1;       /**< Mask Register1  */
-    typedef Register<uint32_t, 0xE0001038, access::rw> FUNCTION1;   /**< Function Register1  */
-    typedef Register<uint32_t, 0xE0001040, access::rw> COMP2;       /**< Comparator Register2  */
-    typedef Register<uint32_t, 0xE0001044, access::rw> MASK2;       /**< Mask Register2  */
-    typedef Register<uint32_t, 0xE0001048, access::rw> FUNCTION2;   /**< Function Register2  */
-    typedef Register<uint32_t, 0xE0001050, access::rw> COMP3;       /**< Comparator Register3  */
-    typedef Register<uint32_t, 0xE0001054, access::rw> MASK3;       /**< Mask Register3  */
-    typedef Register<uint32_t, 0xE0001058, access::rw> FUNCTION3;   /**< Function Register3  */
-    typedef Register<uint32_t, 0xE0001FD0, access::ro, 0x04 > PID4; /**< Peripheral identification registers  */
-    typedef Register<uint32_t, 0xE0001FD4, access::ro, 0x00 > PID5;
-    typedef Register<uint32_t, 0xE0001FD8, access::ro, 0x00 > PID6;
-    typedef Register<uint32_t, 0xE0001FDC, access::ro, 0x00 > PID7;
-    typedef Register<uint32_t, 0xE0001FE0, access::ro, 0x02 > PID0;
-    typedef Register<uint32_t, 0xE0001FE4, access::ro, 0xB0 > PID1;
-    typedef Register<uint32_t, 0xE0001FE8, access::ro, 0x3B > PID2;
-    typedef Register<uint32_t, 0xE0001FEC, access::ro, 0x00 > PID3;
-    typedef Register<uint32_t, 0xE0001FF0, access::ro, 0x0D > CID0; /**< Component identification registers  */
-    typedef Register<uint32_t, 0xE0001FF4, access::ro, 0xE0 > CID1;
-    typedef Register<uint32_t, 0xE0001FF8, access::ro, 0x05 > CID2;
-    typedef Register<uint32_t, 0xE0001FFC, access::ro, 0xB1 > CID3;
+    typedef Register<uint32_t, 0xE0001000, Access::rw> CTRL;        /**< Control Register  */
+    typedef Register<uint32_t, 0xE0001004, Access::rw> CYCCNT;      /**< Cycle Count Register  */
+    typedef Register<uint32_t, 0xE0001008, Access::rw> CPICNT;      /**< CPI Count Register  */
+    typedef Register<uint32_t, 0xE000100C, Access::rw> EXCCNT;      /**< Exception Overhead Count Register  */
+    typedef Register<uint32_t, 0xE0001010, Access::rw> SLEEPCNT;    /**< Sleep Count Register  */
+    typedef Register<uint32_t, 0xE0001014, Access::rw> LSUCNT;      /**< LSU Count Register  */
+    typedef Register<uint32_t, 0xE0001018, Access::rw> FOLDCNT;     /**< Folded-instruction Count Register  */
+    typedef Register<uint32_t, 0xE000101C, Access::ro> PCSR;        /**< Program Counter Sample Register  */
+    typedef Register<uint32_t, 0xE0001020, Access::rw> COMP0;       /**< Comparator Register0  */
+    typedef Register<uint32_t, 0xE0001024, Access::rw> MASK0;       /**< Mask Register0  */
+    typedef Register<uint32_t, 0xE0001028, Access::rw> FUNCTION0;   /**< Function Register0  */
+    typedef Register<uint32_t, 0xE0001030, Access::rw> COMP1;       /**< Comparator Register1  */
+    typedef Register<uint32_t, 0xE0001034, Access::rw> MASK1;       /**< Mask Register1  */
+    typedef Register<uint32_t, 0xE0001038, Access::rw> FUNCTION1;   /**< Function Register1  */
+    typedef Register<uint32_t, 0xE0001040, Access::rw> COMP2;       /**< Comparator Register2  */
+    typedef Register<uint32_t, 0xE0001044, Access::rw> MASK2;       /**< Mask Register2  */
+    typedef Register<uint32_t, 0xE0001048, Access::rw> FUNCTION2;   /**< Function Register2  */
+    typedef Register<uint32_t, 0xE0001050, Access::rw> COMP3;       /**< Comparator Register3  */
+    typedef Register<uint32_t, 0xE0001054, Access::rw> MASK3;       /**< Mask Register3  */
+    typedef Register<uint32_t, 0xE0001058, Access::rw> FUNCTION3;   /**< Function Register3  */
+    typedef Register<uint32_t, 0xE0001FD0, Access::ro, 0x04 > PID4; /**< Peripheral identification registers  */
+    typedef Register<uint32_t, 0xE0001FD4, Access::ro, 0x00 > PID5;
+    typedef Register<uint32_t, 0xE0001FD8, Access::ro, 0x00 > PID6;
+    typedef Register<uint32_t, 0xE0001FDC, Access::ro, 0x00 > PID7;
+    typedef Register<uint32_t, 0xE0001FE0, Access::ro, 0x02 > PID0;
+    typedef Register<uint32_t, 0xE0001FE4, Access::ro, 0xB0 > PID1;
+    typedef Register<uint32_t, 0xE0001FE8, Access::ro, 0x3B > PID2;
+    typedef Register<uint32_t, 0xE0001FEC, Access::ro, 0x00 > PID3;
+    typedef Register<uint32_t, 0xE0001FF0, Access::ro, 0x0D > CID0; /**< Component identification registers  */
+    typedef Register<uint32_t, 0xE0001FF4, Access::ro, 0xE0 > CID1;
+    typedef Register<uint32_t, 0xE0001FF8, Access::ro, 0x05 > CID2;
+    typedef Register<uint32_t, 0xE0001FFC, Access::ro, 0xB1 > CID3;
   };
 }
 

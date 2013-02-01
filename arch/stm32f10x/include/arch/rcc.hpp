@@ -33,7 +33,7 @@ private:
 
 public:
 
-  using RCC = Reg::RCC;
+  using RCC = reg::RCC;
 
   static void EnableHSE(void) {
     RCC::CR::HSEON::set();

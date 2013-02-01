@@ -28,7 +28,7 @@
 
 class Rtc
 {
-  using RTC = Reg::RTC;
+  using RTC = reg::RTC;
 
 private:
   static void EnterConfigMode(void) {
@@ -49,7 +49,7 @@ public:
 
 
   static void WaitSync(void) {
-    while(Reg::RCC::BDCR::LSERDY::test() == 0);
+    while(reg::RCC::BDCR::LSERDY::test() == 0);
 #if 1
     RTC::CRL::RSF::clear();
     while(RTC::CRL::RSF::test() == 0);
@@ -126,29 +126,29 @@ public:
   };
 
   /* Power interface clock enable; Backup interface clock enable */
-  static constexpr uint32_t apb1enr = Reg::RCC::APB1ENR::PWREN::value | Reg::RCC::APB1ENR::BKPEN::value;
-  typedef ResourceList< SharedRegister< Reg::RCC::APB1ENR, apb1enr > > resources;
+  static constexpr uint32_t apb1enr = reg::RCC::APB1ENR::PWREN::value | reg::RCC::APB1ENR::BKPEN::value;
+  typedef ResourceList< SharedRegister< reg::RCC::APB1ENR, apb1enr > > resources;
 
   static void Init(void) {
     /* Disable backup domain write protection */
     Pwr::DisableBackupDomainWriteProtection();
 
     /* Backup domain software reset */
-    Reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
-    Reg::RCC::BDCR::BDRST::clear();  // TODO: rcc.hpp
+    reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
+    reg::RCC::BDCR::BDRST::clear();  // TODO: rcc.hpp
 
     /* External Low Speed oscillator enable */
-    Reg::RCC::BDCR::LSEON::clear();  // TODO: rcc.hpp
-    Reg::RCC::BDCR::LSEON::set();  // TODO: rcc.hpp
+    reg::RCC::BDCR::LSEON::clear();  // TODO: rcc.hpp
+    reg::RCC::BDCR::LSEON::set();  // TODO: rcc.hpp
 
     /* Internal Low Speed oscillator disable */
-    Reg::RCC::CSR::LSION::clear();
+    reg::RCC::CSR::LSION::clear();
 
     /* LSE oscillator clock used as RTC clock */
-    Reg::RCC::BDCR::set(Reg::RCC::BDCR::RTCSEL::LSE::value);
+    reg::RCC::BDCR::set(reg::RCC::BDCR::RTCSEL::LSE::value);
 
     /* RTC clock enable */
-    Reg::RCC::BDCR::RTCEN::set();
+    reg::RCC::BDCR::RTCEN::set();
 
     WaitSync();
 
