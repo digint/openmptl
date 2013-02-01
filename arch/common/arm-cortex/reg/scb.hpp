@@ -18,8 +18,8 @@
  * 
  */
 
-#ifndef COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
-#define COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
+#ifndef COMMON_ARM_CORTEX_REG_SCB_HPP_INCLUDED
+#define COMMON_ARM_CORTEX_REG_SCB_HPP_INCLUDED
 
 namespace reg {
 
@@ -278,146 +278,6 @@ namespace reg {
     typedef          Register< uint32_t, 0xE000ED88, Access::rw             > CPACR;    /**< Coprocessor Access Control Register     */
     typedef          Register< uint32_t, 0xE000EF00, Access::wo             > STIR;     /**< Software Triggered Interrupt Register   */
   };
-
-
-
-  /**
-   *  MPU (Memory Protection Unit) Register
-   *
-   * Imported from the Cortex-M3 Technical Reference Manual  (Revision: r2p1)
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct MPU
-  {
-    typedef   Register< uint32_t, 0xE000ED90, Access::ro, 0x00000800 > TYPE;    /**< MPU Type Register                        */
-    typedef   Register< uint32_t, 0xE000ED94, Access::rw             > CTRL;    /**< MPU Control Register                     */
-    typedef   Register< uint32_t, 0xE000ED98, Access::rw             > RNR;     /**< MPU Region Number Register               */
-    typedef   Register< uint32_t, 0xE000ED9C, Access::rw             > RBAR;    /**< MPU Region Base Address Register         */
-    typedef   Register< uint32_t, 0xE000EDA0, Access::rw             > RASR;    /**< MPU Region Attribute and Size Register   */
-    typedef   Register< uint32_t, 0xE000EDA4, Access::rw             > RBAR_A1; /**< MPU alias registers                      */
-    typedef   Register< uint32_t, 0xE000EDA8, Access::rw             > RASR_A1; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDAC, Access::rw             > RBAR_A2; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB0, Access::rw             > RASR_A2; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB4, Access::rw             > RBAR_A3; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB8, Access::rw             > RASR_A3; /**<                                          */
-  };
-
-
-
-  /**
-   *  NVIC (Nested Vectored Interrupt Controller) Register
-   *
-   * Imported from the Cortex-M3 Technical Reference Manual  (Revision: r2p1)
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct NVIC
-  {
-    /** Interrupt Controller Type Register */
-    typedef Register< uint32_t, 0xE000E004, Access::ro > ICTR;
-
-    // TODO: The following registers are actually only 8bit wide.
-    //       Check if access is better using 32bit or 8bit pointer
-
-    /** Interrupt Set-Enable Registers */
-    template<std::size_t reg_index>
-    struct ISER
-    : Register<uint32_t, 0xE000E100 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
-
-    /** Interrupt Set-Enable Registers */
-    template<std::size_t reg_index>
-    struct ICER : Register<uint32_t, 0xE000E180 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
-
-    /** Interrupt Set-Pending Registers */
-    template<std::size_t reg_index>
-    struct ISPR : Register<uint32_t, 0xE000E200 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
-
-    /** Interrupt Clear-Pending Registers */
-    template<std::size_t reg_index>
-    struct ICPR : Register<uint32_t, 0xE000E280 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
-
-    /** Interrupt Active Bit Register */
-    template<std::size_t reg_index>
-    struct IABR : Register<uint32_t, 0xE000E300 + 4 * reg_index, Access::ro >
-    { static_assert(reg_index < 8, "invalid index for register"); };
-
-   /** Interrupt Priority Register */
-    template<std::size_t index>
-    struct IPR  : Register<uint32_t, 0xE000E400 + 4 * index, Access::rw >
-    { static_assert(index < 60, "invalid index for register"); };
-  };
-
-
-  /** 
-   * Debug Register
-   *
-   * Imported from the Cortex-M3 Technical Reference Manual  (Revision: r2p1)
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct DEBUG
-  {
-    /**
-     * Debug Exception and Monitor Control Register
-     */
-    template<typename R>
-    struct __DEMCR
-    : public R
-    {
-      typedef RegisterBits< R, 24,  1 > TRCENA;   /**< Enable DWT */
-    };
-
-    typedef Register<uint32_t, 0xE000ED30, Access::rw> DFSR;   /**< Debug Fault Status Register                   */
-    typedef Register<uint32_t, 0xE000EDF0, Access::rw> DHCSR;  /**< Debug Halting Control and Status Register     */
-    typedef Register<uint32_t, 0xE000EDF4, Access::wo> DCRSR;  /**< Debug Core Register Selector Register         */
-    typedef Register<uint32_t, 0xE000EDF8, Access::rw> DCRDR;  /**< Debug Core Register Data Register             */
-    typedef __DEMCR< Register<uint32_t, 0xE000EDFC, Access::rw> > DEMCR;  /**< Debug Exception and Monitor Control Register  */
-  };
-
-
-  /** 
-   * DWT Register
-   *
-   * Imported from the Cortex-M3 Technical Reference Manual  (Revision: r2p1)
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct DWT
-  {
-    typedef Register<uint32_t, 0xE0001000, Access::rw> CTRL;        /**< Control Register  */
-    typedef Register<uint32_t, 0xE0001004, Access::rw> CYCCNT;      /**< Cycle Count Register  */
-    typedef Register<uint32_t, 0xE0001008, Access::rw> CPICNT;      /**< CPI Count Register  */
-    typedef Register<uint32_t, 0xE000100C, Access::rw> EXCCNT;      /**< Exception Overhead Count Register  */
-    typedef Register<uint32_t, 0xE0001010, Access::rw> SLEEPCNT;    /**< Sleep Count Register  */
-    typedef Register<uint32_t, 0xE0001014, Access::rw> LSUCNT;      /**< LSU Count Register  */
-    typedef Register<uint32_t, 0xE0001018, Access::rw> FOLDCNT;     /**< Folded-instruction Count Register  */
-    typedef Register<uint32_t, 0xE000101C, Access::ro> PCSR;        /**< Program Counter Sample Register  */
-    typedef Register<uint32_t, 0xE0001020, Access::rw> COMP0;       /**< Comparator Register0  */
-    typedef Register<uint32_t, 0xE0001024, Access::rw> MASK0;       /**< Mask Register0  */
-    typedef Register<uint32_t, 0xE0001028, Access::rw> FUNCTION0;   /**< Function Register0  */
-    typedef Register<uint32_t, 0xE0001030, Access::rw> COMP1;       /**< Comparator Register1  */
-    typedef Register<uint32_t, 0xE0001034, Access::rw> MASK1;       /**< Mask Register1  */
-    typedef Register<uint32_t, 0xE0001038, Access::rw> FUNCTION1;   /**< Function Register1  */
-    typedef Register<uint32_t, 0xE0001040, Access::rw> COMP2;       /**< Comparator Register2  */
-    typedef Register<uint32_t, 0xE0001044, Access::rw> MASK2;       /**< Mask Register2  */
-    typedef Register<uint32_t, 0xE0001048, Access::rw> FUNCTION2;   /**< Function Register2  */
-    typedef Register<uint32_t, 0xE0001050, Access::rw> COMP3;       /**< Comparator Register3  */
-    typedef Register<uint32_t, 0xE0001054, Access::rw> MASK3;       /**< Mask Register3  */
-    typedef Register<uint32_t, 0xE0001058, Access::rw> FUNCTION3;   /**< Function Register3  */
-    typedef Register<uint32_t, 0xE0001FD0, Access::ro, 0x04 > PID4; /**< Peripheral identification registers  */
-    typedef Register<uint32_t, 0xE0001FD4, Access::ro, 0x00 > PID5;
-    typedef Register<uint32_t, 0xE0001FD8, Access::ro, 0x00 > PID6;
-    typedef Register<uint32_t, 0xE0001FDC, Access::ro, 0x00 > PID7;
-    typedef Register<uint32_t, 0xE0001FE0, Access::ro, 0x02 > PID0;
-    typedef Register<uint32_t, 0xE0001FE4, Access::ro, 0xB0 > PID1;
-    typedef Register<uint32_t, 0xE0001FE8, Access::ro, 0x3B > PID2;
-    typedef Register<uint32_t, 0xE0001FEC, Access::ro, 0x00 > PID3;
-    typedef Register<uint32_t, 0xE0001FF0, Access::ro, 0x0D > CID0; /**< Component identification registers  */
-    typedef Register<uint32_t, 0xE0001FF4, Access::ro, 0xE0 > CID1;
-    typedef Register<uint32_t, 0xE0001FF8, Access::ro, 0x05 > CID2;
-    typedef Register<uint32_t, 0xE0001FFC, Access::ro, 0xB1 > CID3;
-  };
 }
 
-#endif // COMMON_ARM_CORTEX_CORE_REGISTER_HPP_INCLUDED
+#endif // COMMON_ARM_CORTEX_REG_SCB_HPP_INCLUDED

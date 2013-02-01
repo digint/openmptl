@@ -1,37 +1,29 @@
 /*
- * CppCore - C++ microprocessor core library
+ * Derived from CMSIS-SVD: STM32F40x, version 1.5
+ * <https://cmsis.arm.com/vendor/stmicroelectronics/>
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ * You should have received a copy of the "STMicroelectronics EULA:
+ * version 1.0" along with this program.  If not, see
+ * <https://cmsis.arm.com/vendor/stmicroelectronics/>.
  */
 
-#ifndef REGISTER_DEFS_HPP_INCLUDED
-#define REGISTER_DEFS_HPP_INCLUDED
+/*
+ * Adaptions:
+ * - Axel Burri <axel@tty0.ch>
+ */
+
+#ifndef REG_RCC_HPP_INCLUDED
+#define REG_RCC_HPP_INCLUDED
 
 #include <register.hpp>
-#include "../../../common/arm-cortex/core_register.hpp"
 
 namespace reg {
 
   /**
    * Reset and clock control
    */
-  class RCC
+  struct RCC
   {
-  public:
     static constexpr reg_addr_t reg_base = 0x40023800;
     static constexpr const char * name_str = "RCC";
 
@@ -570,195 +562,6 @@ namespace reg {
       typedef RegisterBits< reg_type,  6,  9 > PLLI2SNx;   /**< PLLI2S multiplication factor for VCO   */
     };
   };
-
-
-  /**
-   * General-purpose and alternate-function I/Os (GPIOs and AFIOs)
-   */
-  template<char reg_name>
-  struct GPIO
-  {
-    static_assert((reg_name >= 'A') && (reg_name <= 'I'), "Invalid index for GPIO register");
-
-    static constexpr std::size_t gpio_no  = reg_name - 'A';
-    static constexpr reg_addr_t  reg_base = 0x40020000 + (gpio_no * 0x0400);
-
-    static constexpr uint32_t moder_reset   = ( reg_name == 'A' ? 0xA8000000 :
-                                                reg_name == 'B' ? 0x00000280 :
-                                                0x00000000 );
-
-    static constexpr uint32_t ospeedr_reset = ( reg_name == 'B' ? 0x000000C0 :
-                                                0x00000000 );
-
-    static constexpr uint32_t pupdr_reset   = ( reg_name == 'A' ? 0x64000000 :
-                                                reg_name == 'B' ? 0x00000100 :
-                                                0x00000000 );
-    
-    typedef Register< uint32_t, reg_base + 0x00, Access::rw, moder_reset   > MODER;   /**< GPIO port mode register               */
-    typedef Register< uint32_t, reg_base + 0x04, Access::rw                > OTYPER;  /**< GPIO port output type register        */
-    typedef Register< uint32_t, reg_base + 0x08, Access::rw, ospeedr_reset > OSPEEDR; /**< GPIO port output speed register       */
-    typedef Register< uint32_t, reg_base + 0x0c, Access::rw, pupdr_reset   > PUPDR;   /**< GPIO port pull-up/pull-down register  */
-    typedef Register< uint32_t, reg_base + 0x10, Access::ro /*0x0000XXXX*/ > IDR;     /**< GPIO port input data register         */
-    typedef Register< uint32_t, reg_base + 0x14, Access::rw                > ODR;     /**< GPIO port output data register        */
-    typedef Register< uint32_t, reg_base + 0x18, Access::wo                > BSRR;    /**< GPIO port bit set/reset register      */
-    typedef Register< uint32_t, reg_base + 0x1c, Access::rw                > LCKR;    /**< GPIO port configuration lock register */
-    typedef Register< uint32_t, reg_base + 0x20, Access::rw                > AFRL;    /**< GPIO alternate function low register  */
-    typedef Register< uint32_t, reg_base + 0x24, Access::rw                > AFRH;    /**< GPIO alternate function high register */
-  };
-
-
-  /**
-   * FLASH
-   */
-  class FLASH
-  {
-  public:
-    static constexpr reg_addr_t reg_base = 0x40023C00;
-    static constexpr const char * name_str = "FLASH";
-
-    /**
-     * Flash access control register
-     */
-    struct ACR
-    : public Register< uint32_t, reg_base + 0x0, Access::rw, 0x00000000 >
-    {
-      typedef Register< uint32_t, reg_base + 0x0, Access::rw, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "ACR";
-
-      typedef RegisterBits< reg_type,  0,  3 > LATENCY;   /**< Latency                   */
-      typedef RegisterBits< reg_type,  8,  1 > PRFTEN;    /**< Prefetch enable           */
-      typedef RegisterBits< reg_type,  9,  1 > ICEN;      /**< Instruction cache enable  */
-      typedef RegisterBits< reg_type, 10,  1 > DCEN;      /**< Data cache enable         */
-      typedef RegisterBits< reg_type, 11,  1 > ICRST;     /**< Instruction cache reset   */
-      typedef RegisterBits< reg_type, 12,  1 > DCRST;     /**< Data cache reset          */
-    };
-
-    /**
-     * Flash key register
-     */
-    struct KEYR
-    : public Register< uint32_t, reg_base + 0x4, Access::wo, 0x00000000 >
-    {
-      typedef Register< uint32_t, reg_base + 0x4, Access::wo, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "KEYR";
-    };
-
-    /**
-     * Flash option key register
-     */
-    struct OPTKEYR
-    : public Register< uint32_t, reg_base + 0x8, Access::wo, 0x00000000 >
-    {
-      typedef Register< uint32_t, reg_base + 0x8, Access::wo, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "OPTKEYR";
-    };
-
-    /**
-     * Status register
-     */
-    struct SR
-    : public Register< uint32_t, reg_base + 0xC, Access::rw, 0x00000000 >
-    {
-      typedef Register< uint32_t, reg_base + 0xC, Access::rw, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "SR";
-
-      typedef RegisterBits< reg_type,  0,  1 > EOP;      /**< End of operation               */
-      typedef RegisterBits< reg_type,  1,  1 > OPERR;    /**< Operation error                */
-      typedef RegisterBits< reg_type,  4,  1 > WRPERR;   /**< Write protection error         */
-      typedef RegisterBits< reg_type,  5,  1 > PGAERR;   /**< Programming alignment error    */
-      typedef RegisterBits< reg_type,  6,  1 > PGPERR;   /**< Programming parallelism error  */
-      typedef RegisterBits< reg_type,  7,  1 > PGSERR;   /**< Programming sequence error     */
-      typedef RegisterBits< reg_type, 16,  1 > BSY;      /**< Busy                           */
-    };
-
-    /**
-     * Control register
-     */
-    struct CR
-    : public Register< uint32_t, reg_base + 0x10, Access::rw, 0x80000000 >
-    {
-      typedef Register< uint32_t, reg_base + 0x10, Access::rw, 0x80000000 > reg_type;
-      static constexpr const char * name_str = "CR";
-
-      typedef RegisterBits< reg_type,  0,  1 > PG;      /**< Programming                        */
-      typedef RegisterBits< reg_type,  1,  1 > SER;     /**< Sector Erase                       */
-      typedef RegisterBits< reg_type,  2,  1 > MER;     /**< Mass Erase                         */
-      typedef RegisterBits< reg_type,  3,  4 > SNB;     /**< Sector number                      */
-      typedef RegisterBits< reg_type,  8,  2 > PSIZE;   /**< Program size                       */
-      typedef RegisterBits< reg_type, 16,  1 > STRT;    /**< Start                              */
-      typedef RegisterBits< reg_type, 24,  1 > EOPIE;   /**< End of operation interrupt enable  */
-      typedef RegisterBits< reg_type, 25,  1 > ERRIE;   /**< Error interrupt enable             */
-      typedef RegisterBits< reg_type, 31,  1 > LOCK;    /**< Lock                               */
-    };
-
-    /**
-     * Flash option control register
-     */
-    struct OPTCR
-    : public Register< uint32_t, reg_base + 0x14, Access::rw, 0x00000014 >
-    {
-      typedef Register< uint32_t, reg_base + 0x14, Access::rw, 0x00000014 > reg_type;
-      static constexpr const char * name_str = "OPTCR";
-
-      typedef RegisterBits< reg_type,  0,  1 > OPTLOCK;      /**< Option lock                   */
-      typedef RegisterBits< reg_type,  1,  1 > OPTSTRT;      /**< Option start                  */
-      typedef RegisterBits< reg_type,  2,  2 > BOR_LEV;      /**< BOR reset Level               */
-      typedef RegisterBits< reg_type,  5,  1 > WDG_SW;       /**< WDG_SW User option bytes      */
-      typedef RegisterBits< reg_type,  6,  1 > nRST_STOP;    /**< nRST_STOP User option bytes   */
-      typedef RegisterBits< reg_type,  7,  1 > nRST_STDBY;   /**< nRST_STDBY User option bytes  */
-      typedef RegisterBits< reg_type,  8,  8 > RDP;          /**< Read protect                  */
-      typedef RegisterBits< reg_type, 16, 12 > nWRP;         /**< Not write protect             */
-    };
-  };
-
-
-  /**
-   * Power control
-   */
-  class PWR
-  {
-  public:
-    static constexpr reg_addr_t reg_base = 0x40007000;
-    static constexpr const char * name_str = "PWR";
-
-    /**
-     * power control register
-     */
-    struct CR
-    : public Register< uint32_t, reg_base + 0x0, Access::rw, 0x00004000 >
-    {
-      typedef Register< uint32_t, reg_base + 0x0, Access::rw, 0x00004000 > reg_type;
-      static constexpr const char * name_str = "CR";
-
-      typedef RegisterBits< reg_type, 14,  1 > VOS;    /**< Regulator voltage scaling output selection   */
-      typedef RegisterBits< reg_type,  9,  1 > FPDS;   /**< Flash power down in Stop mode           */
-      typedef RegisterBits< reg_type,  8,  1 > DBP;    /**< Disable backup domain write protection  */
-      typedef RegisterBits< reg_type,  5,  3 > PLS;    /**< PVD level selection                     */
-      typedef RegisterBits< reg_type,  4,  1 > PVDE;   /**< Power voltage detector enable           */
-      typedef RegisterBits< reg_type,  3,  1 > CSBF;   /**< Clear standby flag                      */
-      typedef RegisterBits< reg_type,  2,  1 > CWUF;   /**< Clear wakeup flag                       */
-      typedef RegisterBits< reg_type,  1,  1 > PDDS;   /**< Power down deepsleep                    */
-      typedef RegisterBits< reg_type,  0,  1 > LPDS;   /**< Low-power deep sleep                    */
-    };
-
-    /**
-     * power control/status register
-     */
-    struct CSR
-    : public Register< uint32_t, reg_base + 0x4, Access::rw, 0x00000000 >
-    {
-      typedef Register< uint32_t, reg_base + 0x4, Access::rw, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "CSR";
-
-      typedef RegisterBits< reg_type,  0,  1 > WUF;      /**< Wakeup flag                                           */
-      typedef RegisterBits< reg_type,  1,  1 > SBF;      /**< Standby flag                                          */
-      typedef RegisterBits< reg_type,  2,  1 > PVDO;     /**< PVD output                                            */
-      typedef RegisterBits< reg_type,  3,  1 > BRR;      /**< Backup regulator ready                                */
-      typedef RegisterBits< reg_type,  8,  1 > EWUP;     /**< Enable WKUP pin                                       */
-      typedef RegisterBits< reg_type,  9,  1 > BRE;      /**< Backup regulator enable                               */
-      typedef RegisterBits< reg_type, 14,  1 > VOSRDY;   /**< Regulator voltage scaling output selection ready bit  */
-    };
-  };
 }
 
-#endif // REGISTER_DEFS_HPP_INCLUDED
+#endif // REG_RCC_HPP_INCLUDED

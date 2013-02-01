@@ -21,7 +21,7 @@
 #ifndef FLASH_HPP_INCLUDED
 #define FLASH_HPP_INCLUDED
 
-#include <arch/register_defs.hpp>
+#include <arch/reg/flash.hpp>
 #include <freq.hpp>
 #include <voltage.hpp>
 

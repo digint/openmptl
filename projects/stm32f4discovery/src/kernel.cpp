@@ -60,7 +60,6 @@ void Kernel::run(void)
 
   while(1)
   {
-    reg++;
     Core::nop(10000000);
     led_orange::toggle();
   }

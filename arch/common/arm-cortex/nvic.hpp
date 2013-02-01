@@ -21,10 +21,10 @@
 #ifndef COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED
 
-#include <arch/core.hpp>
 #include <arch/scb.hpp>
 #include <core_setup.hpp>
 #include <irq_wrap.hpp>
+#include "reg/nvic.hpp"
 
 
 typedef void( *const irq_handler_t )( void );

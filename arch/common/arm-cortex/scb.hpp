@@ -21,7 +21,7 @@
 #ifndef COMMON_ARM_CORTEX_SCB_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_SCB_HPP_INCLUDED
 
-#include <arch/register_defs.hpp>
+#include "reg/scb.hpp"
 
 
 class Scb : private InterruptControllerSetup
