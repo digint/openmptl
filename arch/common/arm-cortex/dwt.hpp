@@ -21,7 +21,8 @@
 #ifndef COMMON_ARM_CORTEX_DWT_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_DWT_HPP_INCLUDED
 
-#include <arch/register_defs.hpp>
+#include "reg/dwt.hpp"
+#include "reg/debug.hpp"
 
 class Dwt
 {

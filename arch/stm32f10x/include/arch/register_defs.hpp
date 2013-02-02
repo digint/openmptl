@@ -77,7 +77,6 @@
 
 
 #include <register.hpp>
-#include "../../../common/arm-cortex/core_register.hpp"
 
 namespace reg {
 
