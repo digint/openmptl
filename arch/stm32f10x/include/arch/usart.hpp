@@ -23,6 +23,7 @@
 
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
+#include <arch/reg/usart.hpp>
 
 namespace cUsart
 {

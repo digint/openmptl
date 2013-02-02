@@ -32,12 +32,67 @@
  *
  */
 
+//
+//  core register definition: wrap bitfields into Register classes
+//
+
+//  Pros:
+//
+//  - uses Register MPL class to wrap the register access. All type
+//    checks are performed on register write, AND on register bitfield
+//    access.
+//
+//  - register bitfields are defined as type "static constexpr uint32_t",
+//    which is very common, simple and straight forward.
+//
+//
+//  Cons:
+//
+//  - MPL stype "::value" variable access
+//
+//
+// *** Don't miss the text from previous commit! ***
+
+
+// Example:
+//
+// TODO: declaration example
+//
+// LINKS: 
+// "uint_fast16_t": http://en.cppreference.com/w/cpp/types/integer
+//
+// static void enable(void) {
+//   SPIx::CR1::SPE::set()  /* SPI Enable */
+// }
+//
+// void MyFunction() {
+//   /* a load() call results in:                                                 */
+//   /*                                                                           */
+//   /* constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);  */
+//   /* auto reg = *value_ptr;                                                    */
+//   /*                                                                           */
+//   /* notes:                                                                    */
+//   /* - "addr" (constexpr) holds the address of (non-pointer-type) SPIx::CR1    */
+//   /* - type "T" is the register type (e.g. uint32_t or uint8_t)                */
+//   /* - reg becomes type "volatile uint32_t                                     */
+//   /*                                                                           */
+//
+//   auto reg = SPIx::CR1::load();
+//   reg &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
+//   SPIx::CR1::store(reg);
+
+//   /* a store() call results in:                                                */
+//   /* *value_ptr = reg;                                                         */
+// }
+//
+
+
 #include <type_traits>
 #include <cstdint>
 #include "register_storage.hpp"
 
-namespace reg {
-
+namespace reg
+{
   template< typename   T,
             reg_addr_t _addr,
             Access     _access,

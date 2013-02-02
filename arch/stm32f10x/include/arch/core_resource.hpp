@@ -21,7 +21,8 @@
 #ifndef CORE_RESOURCE_HPP_INCLUDED
 #define CORE_RESOURCE_HPP_INCLUDED
 
-#include "resource_mpl.hpp"
+#include <resource_mpl.hpp>
+#include <arch/reg/gpio.hpp>
 
 template<typename... Args>
 void ResourceList<Args...>::set_shared_register(void)

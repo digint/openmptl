@@ -21,9 +21,9 @@
 #ifndef RTC_HPP_INCLUDED
 #define RTC_HPP_INCLUDED
 
-#include <arch/core.hpp>
 #include <arch/nvic.hpp>
 #include <arch/pwr.hpp>
+#include <arch/reg/rtc.hpp>
 
 
 class Rtc
