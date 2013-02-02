@@ -1,15 +1,21 @@
 /*
- * Derived from CMSIS-SVD: STM32F40x, version 1.5
- * <https://cmsis.arm.com/vendor/stmicroelectronics/>
+ * CppCore - C++ microprocessor core library
  *
- * You should have received a copy of the "STMicroelectronics EULA:
- * version 1.0" along with this program.  If not, see
- * <https://cmsis.arm.com/vendor/stmicroelectronics/>.
- */
-
-/*
- * Adaptions:
- * - Axel Burri <axel@tty0.ch>
+ * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 
 #ifndef REG_GPIO_HPP_INCLUDED
@@ -17,8 +23,8 @@
 
 #include <register.hpp>
 
-namespace reg {
-
+namespace reg
+{
   /**
    * General-purpose and alternate-function I/Os (GPIOs and AFIOs)
    */

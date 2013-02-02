@@ -1,15 +1,21 @@
 /*
- * Derived from CMSIS-SVD: STM32F40x, version 1.5
- * <https://cmsis.arm.com/vendor/stmicroelectronics/>
+ * CppCore - C++ microprocessor core library
  *
- * You should have received a copy of the "STMicroelectronics EULA:
- * version 1.0" along with this program.  If not, see
- * <https://cmsis.arm.com/vendor/stmicroelectronics/>.
- */
-
-/*
- * Adaptions:
- * - Axel Burri <axel@tty0.ch>
+ * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 
 #ifndef REG_PWR_HPP_INCLUDED
@@ -17,8 +23,8 @@
 
 #include <register.hpp>
 
-namespace reg {
-
+namespace reg
+{
   /**
    * Power control
    */
@@ -28,7 +34,7 @@ namespace reg {
     static constexpr const char * name_str = "PWR";
 
     /**
-     * power control register
+     * Power control register
      */
     struct CR
     : public Register< uint32_t, reg_base + 0x0, Access::rw, 0x00004000 >
@@ -48,7 +54,7 @@ namespace reg {
     };
 
     /**
-     * power control/status register
+     * Power control/status register
      */
     struct CSR
     : public Register< uint32_t, reg_base + 0x4, Access::rw, 0x00000000 >
@@ -56,13 +62,13 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x4, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CSR";
 
-      typedef RegisterBits< reg_type,  0,  1 > WUF;      /**< Wakeup flag                                           */
-      typedef RegisterBits< reg_type,  1,  1 > SBF;      /**< Standby flag                                          */
-      typedef RegisterBits< reg_type,  2,  1 > PVDO;     /**< PVD output                                            */
-      typedef RegisterBits< reg_type,  3,  1 > BRR;      /**< Backup regulator ready                                */
-      typedef RegisterBits< reg_type,  8,  1 > EWUP;     /**< Enable WKUP pin                                       */
-      typedef RegisterBits< reg_type,  9,  1 > BRE;      /**< Backup regulator enable                               */
       typedef RegisterBits< reg_type, 14,  1 > VOSRDY;   /**< Regulator voltage scaling output selection ready bit  */
+      typedef RegisterBits< reg_type,  9,  1 > BRE;      /**< Backup regulator enable                               */
+      typedef RegisterBits< reg_type,  8,  1 > EWUP;     /**< Enable WKUP pin                                       */
+      typedef RegisterBits< reg_type,  3,  1 > BRR;      /**< Backup regulator ready                                */
+      typedef RegisterBits< reg_type,  2,  1 > PVDO;     /**< PVD output                                            */
+      typedef RegisterBits< reg_type,  1,  1 > SBF;      /**< Standby flag                                          */
+      typedef RegisterBits< reg_type,  0,  1 > WUF;      /**< Wakeup flag                                           */
     };
   };
 }

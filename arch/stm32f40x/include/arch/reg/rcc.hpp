@@ -1,15 +1,21 @@
 /*
- * Derived from CMSIS-SVD: STM32F40x, version 1.5
- * <https://cmsis.arm.com/vendor/stmicroelectronics/>
+ * CppCore - C++ microprocessor core library
  *
- * You should have received a copy of the "STMicroelectronics EULA:
- * version 1.0" along with this program.  If not, see
- * <https://cmsis.arm.com/vendor/stmicroelectronics/>.
- */
-
-/*
- * Adaptions:
- * - Axel Burri <axel@tty0.ch>
+ * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 
 #ifndef REG_RCC_HPP_INCLUDED
@@ -17,8 +23,8 @@
 
 #include <register.hpp>
 
-namespace reg {
-
+namespace reg
+{
   /**
    * Reset and clock control
    */
@@ -28,18 +34,18 @@ namespace reg {
     static constexpr const char * name_str = "RCC";
 
     /**
-     * clock control register
+     * Clock control register
      */
     struct CR
-    : public Register< uint32_t, reg_base + 0x0, Access::rw, 0x00000083 >
+    : public Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000083 >
     {
-      typedef Register< uint32_t, reg_base + 0x0, Access::rw, 0x00000083 > reg_type;
+      typedef Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000083 > reg_type;
       static constexpr const char * name_str = "CR";
 
       typedef RegisterBits< reg_type, 27,  1 > PLLI2SRDY;   /**< PLLI2S clock ready flag                */
       typedef RegisterBits< reg_type, 26,  1 > PLLI2SON;    /**< PLLI2S enable                          */
-      typedef RegisterBits< reg_type, 25,  1 > PLLRDY;      /**< Main PLL (PLL) clock ready flag        */
-      typedef RegisterBits< reg_type, 24,  1 > PLLON;       /**< Main PLL (PLL) enable                  */
+      typedef RegisterBits< reg_type, 25,  1 > PLLRDY;      /**< Main PLL clock ready flag              */
+      typedef RegisterBits< reg_type, 24,  1 > PLLON;       /**< Main PLL enable                        */
       typedef RegisterBits< reg_type, 19,  1 > CSSON;       /**< Clock security system enable           */
       typedef RegisterBits< reg_type, 18,  1 > HSEBYP;      /**< HSE clock bypass                       */
       typedef RegisterBits< reg_type, 17,  1 > HSERDY;      /**< HSE clock ready flag                   */
@@ -54,25 +60,25 @@ namespace reg {
      * PLL configuration register
      */
     struct PLLCFGR
-    : public Register< uint32_t, reg_base + 0x4, Access::rw, 0x24003010 >
+    : public Register< uint32_t, reg_base + 0x04, Access::rw, 0x24003010 >
     {
-      typedef Register< uint32_t, reg_base + 0x4, Access::rw, 0x24003010 > reg_type;
+      typedef Register< uint32_t, reg_base + 0x04, Access::rw, 0x24003010 > reg_type;
       static constexpr const char * name_str = "PLLCFGR";
 
-      typedef RegisterBits< reg_type, 24,  4 > PLLQ;     /**< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks  */
-      typedef RegisterBits< reg_type, 22,  1 > PLLSRC;   /**< Main PLL (PLL) and audio PLL (PLLI2S) entry clock source                                */
-      typedef RegisterBits< reg_type, 16,  2 > PLLP;     /**< Main PLL (PLL) division factor for main system clock                                    */
-      typedef RegisterBits< reg_type,  6,  9 > PLLN;     /**< Main PLL (PLL) multiplication factor for VCO                                            */
-      typedef RegisterBits< reg_type,  0,  6 > PLLM;     /**< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock               */
+      typedef RegisterBits< reg_type, 24,  4 > PLLQ;     /**< Main PLL division factor for USB OTG FS, SDIO and random number generator clocks  */
+      typedef RegisterBits< reg_type, 22,  1 > PLLSRC;   /**< Main PLL and audio PLL entry clock source                                         */
+      typedef RegisterBits< reg_type, 16,  2 > PLLP;     /**< Main PLL division factor for main system clock                                    */
+      typedef RegisterBits< reg_type,  6,  9 > PLLN;     /**< Main PLL multiplication factor for VCO                                            */
+      typedef RegisterBits< reg_type,  0,  6 > PLLM;     /**< Division factor for the main PLL and audio PLL input clock                        */
     };
 
     /**
-     * clock configuration register
+     * Clock configuration register
      */
     struct CFGR
-    : public Register< uint32_t, reg_base + 0x8, Access::rw, 0x00000000 >
+    : public Register< uint32_t, reg_base + 0x08, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x8, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, reg_base + 0x08, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CFGR";
 
       /** APB1/2 prescaler  */
@@ -120,37 +126,37 @@ namespace reg {
       typedef           RegisterBits< reg_type, 21,  2 >   MCO1;      /**< Microcontroller clock output 1     */
       typedef           RegisterBits< reg_type, 16,  5 >   RTCPRE;    /**< HSE division factor for RTC clock  */
       typedef __PPREx < RegisterBits< reg_type, 13,  3 > > PPRE2;     /**< APB high-speed prescaler (APB2)    */
-      typedef __PPREx < RegisterBits< reg_type, 10,  3 > > PPRE1;     /**< APB Low speed prescaler (APB1)     */
+      typedef __PPREx < RegisterBits< reg_type, 10,  3 > > PPRE1;     /**< APB low-speed prescaler (APB1)     */
       typedef __HPRE  < RegisterBits< reg_type,  4,  4 > > HPRE;      /**< AHB prescaler                      */
       typedef __SWx   < RegisterBits< reg_type,  2,  2 > > SWS;       /**< System clock switch status         */
       typedef __SWx   < RegisterBits< reg_type,  0,  2 > > SW;        /**< System clock switch                */
     };
 
     /**
-     * clock interrupt register
+     * Clock interrupt register
      */
     struct CIR
-    : public Register< uint32_t, reg_base + 0xC, Access::rw, 0x00000000 >
+    : public Register< uint32_t, reg_base + 0x0C, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0xC, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, reg_base + 0x0C, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CIR";
 
       typedef RegisterBits< reg_type, 23,  1 > CSSC;          /**< Clock security system interrupt clear  */
       typedef RegisterBits< reg_type, 21,  1 > PLLI2SRDYC;    /**< PLLI2S ready interrupt clear           */
-      typedef RegisterBits< reg_type, 20,  1 > PLLRDYC;       /**< Main PLL(PLL) ready interrupt clear    */
+      typedef RegisterBits< reg_type, 20,  1 > PLLRDYC;       /**< Main PLL ready interrupt clear         */
       typedef RegisterBits< reg_type, 19,  1 > HSERDYC;       /**< HSE ready interrupt clear              */
       typedef RegisterBits< reg_type, 18,  1 > HSIRDYC;       /**< HSI ready interrupt clear              */
       typedef RegisterBits< reg_type, 17,  1 > LSERDYC;       /**< LSE ready interrupt clear              */
       typedef RegisterBits< reg_type, 16,  1 > LSIRDYC;       /**< LSI ready interrupt clear              */
       typedef RegisterBits< reg_type, 13,  1 > PLLI2SRDYIE;   /**< PLLI2S ready interrupt enable          */
-      typedef RegisterBits< reg_type, 12,  1 > PLLRDYIE;      /**< Main PLL (PLL) ready interrupt enable  */
+      typedef RegisterBits< reg_type, 12,  1 > PLLRDYIE;      /**< Main PLL ready interrupt enable        */
       typedef RegisterBits< reg_type, 11,  1 > HSERDYIE;      /**< HSE ready interrupt enable             */
       typedef RegisterBits< reg_type, 10,  1 > HSIRDYIE;      /**< HSI ready interrupt enable             */
       typedef RegisterBits< reg_type,  9,  1 > LSERDYIE;      /**< LSE ready interrupt enable             */
       typedef RegisterBits< reg_type,  8,  1 > LSIRDYIE;      /**< LSI ready interrupt enable             */
       typedef RegisterBits< reg_type,  7,  1 > CSSF;          /**< Clock security system interrupt flag   */
       typedef RegisterBits< reg_type,  5,  1 > PLLI2SRDYF;    /**< PLLI2S ready interrupt flag            */
-      typedef RegisterBits< reg_type,  4,  1 > PLLRDYF;       /**< Main PLL (PLL) ready interrupt flag    */
+      typedef RegisterBits< reg_type,  4,  1 > PLLRDYF;       /**< Main PLL ready interrupt flag          */
       typedef RegisterBits< reg_type,  3,  1 > HSERDYF;       /**< HSE ready interrupt flag               */
       typedef RegisterBits< reg_type,  2,  1 > HSIRDYF;       /**< HSI ready interrupt flag               */
       typedef RegisterBits< reg_type,  1,  1 > LSERDYF;       /**< LSE ready interrupt flag               */
@@ -169,7 +175,7 @@ namespace reg {
       typedef RegisterBits< reg_type, 29,  1 > OTGHSRST;    /**< USB OTG HS module reset  */
       typedef RegisterBits< reg_type, 25,  1 > ETHMACRST;   /**< Ethernet MAC reset       */
       typedef RegisterBits< reg_type, 22,  1 > DMA2RST;     /**< DMA2 reset               */
-      typedef RegisterBits< reg_type, 21,  1 > DMA1RST;     /**< DMA2 reset               */
+      typedef RegisterBits< reg_type, 21,  1 > DMA1RST;     /**< DMA1 reset               */
       typedef RegisterBits< reg_type, 12,  1 > CRCRST;      /**< CRC reset                */
       typedef RegisterBits< reg_type,  8,  1 > GPIOIRST;    /**< IO port I reset          */
       typedef RegisterBits< reg_type,  7,  1 > GPIOHRST;    /**< IO port H reset          */
@@ -387,27 +393,27 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x50, Access::rw, 0x7E6791FF > reg_type;
       static constexpr const char * name_str = "AHB1LPENR";
 
-      typedef RegisterBits< reg_type, 30,  1 > OTGHSULPILPEN;   /**< USB OTG HS ULPI clock enable during Sleep mode        */
-      typedef RegisterBits< reg_type, 29,  1 > OTGHSLPEN;       /**< USB OTG HS clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type, 28,  1 > ETHMACPTPLPEN;   /**< Ethernet PTP clock enable during Sleep mode           */
-      typedef RegisterBits< reg_type, 27,  1 > ETHMACRXLPEN;    /**< Ethernet reception clock enable during Sleep mode     */
-      typedef RegisterBits< reg_type, 26,  1 > ETHMACTXLPEN;    /**< Ethernet transmission clock enable during Sleep mode  */
-      typedef RegisterBits< reg_type, 25,  1 > ETHMACLPEN;      /**< Ethernet MAC clock enable during Sleep mode           */
-      typedef RegisterBits< reg_type, 22,  1 > DMA2LPEN;        /**< DMA2 clock enable during Sleep mode                   */
-      typedef RegisterBits< reg_type, 21,  1 > DMA1LPEN;        /**< DMA1 clock enable during Sleep mode                   */
-      typedef RegisterBits< reg_type, 18,  1 > BKPSRAMLPEN;     /**< Backup SRAM interface clock enable during Sleep mode  */
-      typedef RegisterBits< reg_type, 17,  1 > SRAM2LPEN;       /**< SRAM 2 interface clock enable during Sleep mode       */
-      typedef RegisterBits< reg_type, 16,  1 > SRAM1LPEN;       /**< SRAM 1interface clock enable during Sleep mode        */
-      typedef RegisterBits< reg_type, 15,  1 > FLITFLPEN;       /**< Flash interface clock enable during Sleep mode        */
-      typedef RegisterBits< reg_type, 12,  1 > CRCLPEN;         /**< CRC clock enable during Sleep mode                    */
-      typedef RegisterBits< reg_type,  8,  1 > GPIOILPEN;       /**< IO port I clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  7,  1 > GPIOHLPEN;       /**< IO port H clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  6,  1 > GPIOGLPEN;       /**< IO port G clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  5,  1 > GPIOFLPEN;       /**< IO port F clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  4,  1 > GPIOELPEN;       /**< IO port E clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  3,  1 > GPIODLPEN;       /**< IO port D clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  2,  1 > GPIOCLPEN;       /**< IO port C clock enable during Sleep mode              */
-      typedef RegisterBits< reg_type,  1,  1 > GPIOBLPEN;       /**< IO port B clock enable during Sleep mode              */
+      typedef RegisterBits< reg_type, 30,  1 > OTGHSULPILPEN;   /**< USB OTG HS ULPI clock enable during sleep mode        */
+      typedef RegisterBits< reg_type, 29,  1 > OTGHSLPEN;       /**< USB OTG HS clock enable during sleep mode             */
+      typedef RegisterBits< reg_type, 28,  1 > ETHMACPTPLPEN;   /**< Ethernet PTP clock enable during sleep mode           */
+      typedef RegisterBits< reg_type, 27,  1 > ETHMACRXLPEN;    /**< Ethernet reception clock enable during sleep mode     */
+      typedef RegisterBits< reg_type, 26,  1 > ETHMACTXLPEN;    /**< Ethernet transmission clock enable during sleep mode  */
+      typedef RegisterBits< reg_type, 25,  1 > ETHMACLPEN;      /**< Ethernet MAC clock enable during sleep mode           */
+      typedef RegisterBits< reg_type, 22,  1 > DMA2LPEN;        /**< DMA2 clock enable during sleep mode                   */
+      typedef RegisterBits< reg_type, 21,  1 > DMA1LPEN;        /**< DMA1 clock enable during sleep mode                   */
+      typedef RegisterBits< reg_type, 18,  1 > BKPSRAMLPEN;     /**< Backup SRAM interface clock enable during sleep mode  */
+      typedef RegisterBits< reg_type, 17,  1 > SRAM2LPEN;       /**< SRAM 2 interface clock enable during sleep mode       */
+      typedef RegisterBits< reg_type, 16,  1 > SRAM1LPEN;       /**< SRAM 1 interface clock enable during sleep mode        */
+      typedef RegisterBits< reg_type, 15,  1 > FLITFLPEN;       /**< Flash interface clock enable during sleep mode        */
+      typedef RegisterBits< reg_type, 12,  1 > CRCLPEN;         /**< CRC clock enable during sleep mode                    */
+      typedef RegisterBits< reg_type,  8,  1 > GPIOILPEN;       /**< IO port I clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  7,  1 > GPIOHLPEN;       /**< IO port H clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  6,  1 > GPIOGLPEN;       /**< IO port G clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  5,  1 > GPIOFLPEN;       /**< IO port F clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  4,  1 > GPIOELPEN;       /**< IO port E clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  3,  1 > GPIODLPEN;       /**< IO port D clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  2,  1 > GPIOCLPEN;       /**< IO port C clock enable during sleep mode              */
+      typedef RegisterBits< reg_type,  1,  1 > GPIOBLPEN;       /**< IO port B clock enable during sleep mode              */
       typedef RegisterBits< reg_type,  0,  1 > GPIOALPEN;       /**< IO port A clock enable during sleep mode              */
     };
 
@@ -420,9 +426,9 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x54, Access::rw, 0x000000F1 > reg_type;
       static constexpr const char * name_str = "AHB2LPENR";
 
-      typedef RegisterBits< reg_type,  7,  1 > OTGFSLPEN;   /**< USB OTG FS clock enable during Sleep mode               */
-      typedef RegisterBits< reg_type,  6,  1 > RNGLPEN;     /**< Random number generator clock enable during Sleep mode  */
-      typedef RegisterBits< reg_type,  0,  1 > DCMILPEN;    /**< Camera interface enable during Sleep mode               */
+      typedef RegisterBits< reg_type,  7,  1 > OTGFSLPEN;   /**< USB OTG FS clock enable during sleep mode               */
+      typedef RegisterBits< reg_type,  6,  1 > RNGLPEN;     /**< Random number generator clock enable during sleep mode  */
+      typedef RegisterBits< reg_type,  0,  1 > DCMILPEN;    /**< Camera interface enable during sleep mode               */
     };
 
     /**
@@ -434,7 +440,7 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x58, Access::rw, 0x00000001 > reg_type;
       static constexpr const char * name_str = "AHB3LPENR";
 
-      typedef RegisterBits< reg_type,  0,  1 > FSMCLPEN;   /**< Flexible static memory controller module clock enable during Sleep mode  */
+      typedef RegisterBits< reg_type,  0,  1 > FSMCLPEN;   /**< Flexible static memory controller module clock enable during sleep mode  */
     };
 
     /**
@@ -446,29 +452,29 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x60, Access::rw, 0x36FEC9FF > reg_type;
       static constexpr const char * name_str = "APB1LPENR";
 
-      typedef RegisterBits< reg_type, 29,  1 > DACLPEN;      /**< DAC interface clock enable during Sleep mode    */
-      typedef RegisterBits< reg_type, 28,  1 > PWRLPEN;      /**< Power interface clock enable during Sleep mode  */
-      typedef RegisterBits< reg_type, 26,  1 > CAN2LPEN;     /**< CAN 2 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type, 25,  1 > CAN1LPEN;     /**< CAN 1 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type, 23,  1 > I2C3LPEN;     /**< I2C3 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type, 22,  1 > I2C2LPEN;     /**< I2C2 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type, 21,  1 > I2C1LPEN;     /**< I2C1 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type, 20,  1 > UART5LPEN;    /**< UART5 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type, 19,  1 > UART4LPEN;    /**< UART4 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type, 18,  1 > USART3LPEN;   /**< USART3 clock enable during Sleep mode           */
-      typedef RegisterBits< reg_type, 17,  1 > USART2LPEN;   /**< USART2 clock enable during Sleep mode           */
-      typedef RegisterBits< reg_type, 15,  1 > SPI3LPEN;     /**< SPI3 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type, 14,  1 > SPI2LPEN;     /**< SPI2 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type, 11,  1 > WWDGLPEN;     /**< Window watchdog clock enable during Sleep mode  */
-      typedef RegisterBits< reg_type,  8,  1 > TIM14LPEN;    /**< TIM14 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type,  7,  1 > TIM13LPEN;    /**< TIM13 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type,  6,  1 > TIM12LPEN;    /**< TIM12 clock enable during Sleep mode            */
-      typedef RegisterBits< reg_type,  5,  1 > TIM7LPEN;     /**< TIM7 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type,  4,  1 > TIM6LPEN;     /**< TIM6 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type,  3,  1 > TIM5LPEN;     /**< TIM5 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type,  2,  1 > TIM4LPEN;     /**< TIM4 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type,  1,  1 > TIM3LPEN;     /**< TIM3 clock enable during Sleep mode             */
-      typedef RegisterBits< reg_type,  0,  1 > TIM2LPEN;     /**< TIM2 clock enable during Sleep mode             */
+      typedef RegisterBits< reg_type, 29,  1 > DACLPEN;      /**< DAC interface clock enable during sleep mode    */
+      typedef RegisterBits< reg_type, 28,  1 > PWRLPEN;      /**< Power interface clock enable during sleep mode  */
+      typedef RegisterBits< reg_type, 26,  1 > CAN2LPEN;     /**< CAN 2 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type, 25,  1 > CAN1LPEN;     /**< CAN 1 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type, 23,  1 > I2C3LPEN;     /**< I2C3 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type, 22,  1 > I2C2LPEN;     /**< I2C2 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type, 21,  1 > I2C1LPEN;     /**< I2C1 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type, 20,  1 > UART5LPEN;    /**< UART5 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type, 19,  1 > UART4LPEN;    /**< UART4 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type, 18,  1 > USART3LPEN;   /**< USART3 clock enable during sleep mode           */
+      typedef RegisterBits< reg_type, 17,  1 > USART2LPEN;   /**< USART2 clock enable during sleep mode           */
+      typedef RegisterBits< reg_type, 15,  1 > SPI3LPEN;     /**< SPI3 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type, 14,  1 > SPI2LPEN;     /**< SPI2 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type, 11,  1 > WWDGLPEN;     /**< Window watchdog clock enable during sleep mode  */
+      typedef RegisterBits< reg_type,  8,  1 > TIM14LPEN;    /**< TIM14 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type,  7,  1 > TIM13LPEN;    /**< TIM13 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type,  6,  1 > TIM12LPEN;    /**< TIM12 clock enable during sleep mode            */
+      typedef RegisterBits< reg_type,  5,  1 > TIM7LPEN;     /**< TIM7 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type,  4,  1 > TIM6LPEN;     /**< TIM6 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type,  3,  1 > TIM5LPEN;     /**< TIM5 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type,  2,  1 > TIM4LPEN;     /**< TIM4 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type,  1,  1 > TIM3LPEN;     /**< TIM3 clock enable during sleep mode             */
+      typedef RegisterBits< reg_type,  0,  1 > TIM2LPEN;     /**< TIM2 clock enable during sleep mode             */
     };
 
     /**
@@ -480,19 +486,19 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x64, Access::rw, 0x00075F33 > reg_type;
       static constexpr const char * name_str = "APB2LPENR";
 
-      typedef RegisterBits< reg_type, 18,  1 > TIM11LPEN;    /**< TIM11 clock enable during Sleep mode                            */
-      typedef RegisterBits< reg_type, 17,  1 > TIM10LPEN;    /**< TIM10 clock enable during Sleep mode                            */
+      typedef RegisterBits< reg_type, 18,  1 > TIM11LPEN;    /**< TIM11 clock enable during sleep mode                            */
+      typedef RegisterBits< reg_type, 17,  1 > TIM10LPEN;    /**< TIM10 clock enable during sleep mode                            */
       typedef RegisterBits< reg_type, 16,  1 > TIM9LPEN;     /**< TIM9 clock enable during sleep mode                             */
-      typedef RegisterBits< reg_type, 14,  1 > SYSCFGLPEN;   /**< System configuration controller clock enable during Sleep mode  */
-      typedef RegisterBits< reg_type, 12,  1 > SPI1LPEN;     /**< SPI 1 clock enable during Sleep mode                            */
-      typedef RegisterBits< reg_type, 11,  1 > SDIOLPEN;     /**< SDIO clock enable during Sleep mode                             */
-      typedef RegisterBits< reg_type, 10,  1 > ADC3LPEN;     /**< ADC 3 clock enable during Sleep mode                            */
-      typedef RegisterBits< reg_type,  9,  1 > ADC2LPEN;     /**< ADC2 clock enable during Sleep mode                             */
-      typedef RegisterBits< reg_type,  8,  1 > ADC1LPEN;     /**< ADC1 clock enable during Sleep mode                             */
-      typedef RegisterBits< reg_type,  5,  1 > USART6LPEN;   /**< USART6 clock enable during Sleep mode                           */
-      typedef RegisterBits< reg_type,  4,  1 > USART1LPEN;   /**< USART1 clock enable during Sleep mode                           */
-      typedef RegisterBits< reg_type,  1,  1 > TIM8LPEN;     /**< TIM8 clock enable during Sleep mode                             */
-      typedef RegisterBits< reg_type,  0,  1 > TIM1LPEN;     /**< TIM1 clock enable during Sleep mode                             */
+      typedef RegisterBits< reg_type, 14,  1 > SYSCFGLPEN;   /**< System configuration controller clock enable during sleep mode  */
+      typedef RegisterBits< reg_type, 12,  1 > SPI1LPEN;     /**< SPI 1 clock enable during sleep mode                            */
+      typedef RegisterBits< reg_type, 11,  1 > SDIOLPEN;     /**< SDIO clock enable during sleep mode                             */
+      typedef RegisterBits< reg_type, 10,  1 > ADC3LPEN;     /**< ADC 3 clock enable during sleep mode                            */
+      typedef RegisterBits< reg_type,  9,  1 > ADC2LPEN;     /**< ADC2 clock enable during sleep mode                             */
+      typedef RegisterBits< reg_type,  8,  1 > ADC1LPEN;     /**< ADC1 clock enable during sleep mode                             */
+      typedef RegisterBits< reg_type,  5,  1 > USART6LPEN;   /**< USART6 clock enable during sleep mode                           */
+      typedef RegisterBits< reg_type,  4,  1 > USART1LPEN;   /**< USART1 clock enable during sleep mode                           */
+      typedef RegisterBits< reg_type,  1,  1 > TIM8LPEN;     /**< TIM8 clock enable during sleep mode                             */
+      typedef RegisterBits< reg_type,  0,  1 > TIM1LPEN;     /**< TIM1 clock enable during sleep mode                             */
     };
 
     /**
@@ -514,7 +520,7 @@ namespace reg {
     };
 
     /**
-     * clock control & status register
+     * Clock control and status register
      */
     struct CSR
     : public Register< uint32_t, reg_base + 0x74, Access::rw, 0x0E000000 >
@@ -535,7 +541,7 @@ namespace reg {
     };
 
     /**
-     * spread spectrum clock generation register
+     * Spread spectrum clock generation register
      */
     struct SSCGR
     : public Register< uint32_t, reg_base + 0x80, Access::rw, 0x00000000 >
@@ -558,8 +564,8 @@ namespace reg {
       typedef Register< uint32_t, reg_base + 0x84, Access::rw, 0x20003000 > reg_type;
       static constexpr const char * name_str = "PLLI2SCFGR";
 
-      typedef RegisterBits< reg_type, 28,  3 > PLLI2SRx;   /**< PLLI2S division factor for I2S clocks  */
-      typedef RegisterBits< reg_type,  6,  9 > PLLI2SNx;   /**< PLLI2S multiplication factor for VCO   */
+      typedef RegisterBits< reg_type, 28,  3 > PLLI2SR;   /**< PLLI2S division factor for I2S clocks  */
+      typedef RegisterBits< reg_type,  6,  9 > PLLI2SN;   /**< PLLI2S multiplication factor for VCO   */
     };
   };
 }
