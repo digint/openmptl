@@ -21,6 +21,7 @@
 #ifndef REG_USART_HPP_INCLUDED
 #define REG_USART_HPP_INCLUDED
 
+#include <register.hpp>
 #include "../../../../common/reg/usart.hpp"
 
 namespace reg
@@ -28,12 +29,13 @@ namespace reg
   template<std::size_t usart_no>
   class USART
   {
-    static_assert((usart_no >= 1) && (usart_no <= 3), "unsupported USART number");
+    static_assert(((usart_no >= 1) && (usart_no <= 3)) || (usart_no == 6), "unsupported USART number");
   };
 
-  template<> class USART<1> : public __USART_COMMON< 0x40013800 > { };
-  template<> class USART<2> : public __USART_COMMON< 0x40004400 > { };
-  template<> class USART<3> : public __USART_COMMON< 0x40004800 > { };
+  template<> class USART<1> : public __USART_STM32F4< 0x40011000 > { };
+  template<> class USART<2> : public __USART_STM32F4< 0x40004400 > { };
+  template<> class USART<3> : public __USART_STM32F4< 0x40004800 > { };
+  template<> class USART<6> : public __USART_STM32F4< 0x40011400 > { };
 }
 
 #endif // REG_USART_HPP_INCLUDED
