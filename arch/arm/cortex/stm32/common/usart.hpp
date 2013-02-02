@@ -18,8 +18,8 @@
  * 
  */
 
-#ifndef USART_HPP_INCLUDED
-#define USART_HPP_INCLUDED
+#ifndef STM32_COMMON_USART_HPP_INCLUDED
+#define STM32_COMMON_USART_HPP_INCLUDED
 
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
@@ -217,5 +217,5 @@ public:
 
 };
 
-#endif // USART_HPP_INCLUDED
+#endif // STM32_COMMON_USART_HPP_INCLUDED
 
