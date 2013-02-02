@@ -28,12 +28,15 @@ namespace reg
   template<std::size_t spi_no>
   class SPI
   {
-    static_assert((spi_no >= 1) && (spi_no <= 3), "unsupported SPI number"); // TODO: depends on cpu sub-arch
+    static_assert((spi_no >= 1) && (spi_no <= 6), "unsupported SPI number"); // TODO: depends on cpu sub-arch
   };
 
-  template<> class SPI<1> : public __SPI_COMMON< 0x40013000 > { };
-  template<> class SPI<2> : public __SPI_COMMON< 0x40003800 > { };
-  template<> class SPI<3> : public __SPI_COMMON< 0x40003C00 > { };
+  template<> class SPI<1> : public __SPI_COMMON_EXT< 0x40013000 > { };
+  template<> class SPI<2> : public __SPI_COMMON_EXT< 0x40003800 > { };
+  template<> class SPI<3> : public __SPI_COMMON_EXT< 0x40003C00 > { };
+  template<> class SPI<4> : public __SPI_COMMON_EXT< 0x40013400 > { };
+  template<> class SPI<5> : public __SPI_COMMON_EXT< 0x40015000 > { };
+  template<> class SPI<6> : public __SPI_COMMON_EXT< 0x40015400 > { };
 }
 
 #endif // REG_SPI_HPP_INCLUDED
