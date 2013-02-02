@@ -90,7 +90,7 @@ struct VectorTableBuilderImpl<0, stack_top, irqs...> {
  * VectorTableBuilder: Provides a VectorTableImpl by setting the
  * number of irq channels and the top-of-stack.
  */
-template<int irq_channels, const uint32_t *stack_top>
+template<std::size_t irq_channels, const uint32_t *stack_top>
 struct VectorTableBuilder : VectorTableBuilderImpl<irq_channels, stack_top>::value
 {
   static_assert(sizeof(VectorTableBuilderImpl<irq_channels, stack_top>::value::vector_table) == 4 * (irq_channels + NvicCortexSetup::core_exceptions), "IRQ vector table size error");
