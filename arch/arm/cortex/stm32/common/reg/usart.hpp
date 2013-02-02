@@ -36,6 +36,7 @@ namespace reg
   struct __USART_COMMON
   {
     static_assert(base_addr > 0, "invalid base address");
+    static constexpr const char * name_str = "USARTx";
 
     /**
      * Status register
