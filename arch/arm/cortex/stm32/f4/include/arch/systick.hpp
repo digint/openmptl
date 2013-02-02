@@ -18,9 +18,9 @@
  * 
  */
 
-#ifndef SCB_HPP_INCLUDED
-#define SCB_HPP_INCLUDED
+#ifndef SYSTICK_HPP_INCLUDED
+#define SYSTICK_HPP_INCLUDED
 
-#include "../../../common/arm-cortex/scb.hpp"
+#include "../../../../common/systick.hpp"
 
-#endif // SCB_HPP_INCLUDED
+#endif // SYSTICK_HPP_INCLUDED

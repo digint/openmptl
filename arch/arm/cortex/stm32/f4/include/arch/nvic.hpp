@@ -21,8 +21,8 @@
 #ifndef NVIC_HPP_INCLUDED
 #define NVIC_HPP_INCLUDED
 
-#include "../../../common/arm-cortex/nvic.hpp"
-#include "../../../common/arm-cortex/vector_table.hpp"
+#include "../../../../common/nvic.hpp"
+#include "../../../../common/vector_table.hpp"
 
 namespace Irq
 {

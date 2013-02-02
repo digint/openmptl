@@ -18,9 +18,9 @@
  * 
  */
 
-#ifndef DWT_HPP_INCLUDED
-#define DWT_HPP_INCLUDED
+#ifndef CORE_HPP_INCLUDED
+#define CORE_HPP_INCLUDED
 
-#include "../../../common/arm-cortex/dwt.hpp"
+#include "../../../../common/core.hpp"
 
-#endif // DWT_HPP_INCLUDED
+#endif // CORE_HPP_INCLUDED

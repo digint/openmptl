@@ -21,6 +21,6 @@
 #ifndef CORE_HPP_INCLUDED
 #define CORE_HPP_INCLUDED
 
-#include "../../common/arm-cortex/core.hpp"
+#include "../../../../common/core.hpp"
 
 #endif // CORE_HPP_INCLUDED
