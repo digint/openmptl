@@ -26,7 +26,8 @@
 namespace reg
 {
   /** 
-   * Universal synchronous asynchronous receiver transmitter (USART)
+   * Universal synchronous asynchronous receiver transmitter (USART),
+   * common to all stm32 processors.
    *
    * Note that the registers are actually only 16bit wide, but accessing
    * them with 32bit is faster in general.
@@ -40,9 +41,9 @@ namespace reg
      * Status register
      */
     struct SR
-    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00C0 >
+    : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x00C0 >
     {
-      typedef Register< uint32_t, base_addr + 0x0, Access::rw, 0x00C0 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x00, Access::rw, 0x00C0 > reg_type;
       static constexpr const char * name_str = "SR";
 
       typedef RegisterBits< reg_type,  9,  1 > CTS;    /**< CTS flag                      */
@@ -61,9 +62,9 @@ namespace reg
      * Data register
      */
     struct DR
-    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x04, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x04, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "DR";
 
       typedef RegisterBits< reg_type,  0,  9 > DR_;   /**< Data value  */
@@ -73,9 +74,9 @@ namespace reg
      * Baud rate register
      */
     struct BRR
-    : public Register< uint32_t, base_addr + 0x8, Access::rw, 0x0000 >
+    : public Register< uint32_t, base_addr + 0x08, Access::rw, 0x0000 >
     {
-      typedef Register< uint32_t, base_addr + 0x8, Access::rw, 0x0000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x08, Access::rw, 0x0000 > reg_type;
       static constexpr const char * name_str = "BRR";
 
       typedef RegisterBits< reg_type,  4, 12 > DIV_Mantissa;   /**< mantissa of USARTDIV  */
@@ -86,9 +87,9 @@ namespace reg
      * Control register 1
      */
     struct CR1
-    : public Register< uint32_t, base_addr + 0xC, Access::rw, 0x0000 >
+    : public Register< uint32_t, base_addr + 0x0C, Access::rw, 0x0000 >
     {
-      typedef Register< uint32_t, base_addr + 0xC, Access::rw, 0x0000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x0C, Access::rw, 0x0000 > reg_type;
       static constexpr const char * name_str = "CR1";
 
       typedef RegisterBits< reg_type, 13,  1 > UE;       /**< USART enable                            */
@@ -164,20 +165,20 @@ namespace reg
   };
 
 
-  /* STM32F4 are almost identical. They add oversampling and one-sample-bit mode. */
+  /**
+   * Some architectures (e.g. stm32f4xx) provide oversampling and
+   * one-sample-bit mode.
+   */
   template<reg_addr_t base_addr>
-  class __USART_STM32F4 : public __USART_COMMON<base_addr>
+  class __USART_COMMON_EXT : public __USART_COMMON<base_addr>
   {
     typedef __USART_COMMON<base_addr> base;
 
   public:
-    struct CR1 : public base::CR1
-    {
+    struct CR1 : public base::CR1 {
       typedef RegisterBits< typename base::CR1::reg_type, 15,  1 > OVER8;    /**< Oversampling mode  */
     };
-
-    struct CR3 : public base::CR3
-    {
+    struct CR3 : public base::CR3 {
       typedef RegisterBits< typename base::CR3::reg_type, 11,  1 > ONEBIT;   /**< One sample bit method enable  */
     };
   };
