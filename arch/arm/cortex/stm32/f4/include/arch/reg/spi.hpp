@@ -28,9 +28,11 @@ namespace reg
   template<std::size_t spi_no>
   class SPI
   {
-    static_assert((spi_no >= 1) && (spi_no <= 6), "unsupported SPI number"); // TODO: depends on cpu sub-arch
+    /* See available template specialisations below if the compiler asserts here! */
+    static_assert(spi_no == !spi_no, "unsupported SPI number");  // assertion needs to be dependent of template parameter
   };
 
+  // TODO: available SPI depends on cpu sub-arch
   template<> class SPI<1> : public __SPI_COMMON_EXT< 0x40013000 > { };
   template<> class SPI<2> : public __SPI_COMMON_EXT< 0x40003800 > { };
   template<> class SPI<3> : public __SPI_COMMON_EXT< 0x40003C00 > { };

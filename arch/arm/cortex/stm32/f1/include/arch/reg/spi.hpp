@@ -28,12 +28,17 @@ namespace reg
   template<std::size_t spi_no>
   class SPI
   {
-    static_assert((spi_no >= 1) && (spi_no <= 3), "unsupported SPI number"); // TODO: depends on cpu sub-arch
+    /* See available template specialisations below if the compiler asserts here! */
+    static_assert(spi_no == !spi_no, "unsupported SPI number");  // assertion needs to be dependent of template parameter
   };
 
   template<> class SPI<1> : public __SPI_COMMON< 0x40013000 > { };
+#if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
   template<> class SPI<2> : public __SPI_COMMON< 0x40003800 > { };
+#endif
+#if defined (STM32F10X_HD) || defined (STM32F10X_CL)
   template<> class SPI<3> : public __SPI_COMMON< 0x40003C00 > { };
+#endif
 }
 
 #endif // REG_SPI_HPP_INCLUDED

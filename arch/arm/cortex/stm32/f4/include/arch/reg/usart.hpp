@@ -28,7 +28,8 @@ namespace reg
   template<std::size_t usart_no>
   class USART
   {
-    static_assert(((usart_no >= 1) && (usart_no <= 3)) || (usart_no == 6), "unsupported USART number");
+    /* See available template specialisations below if the compiler asserts here! */
+    static_assert(usart_no == !usart_no, "unsupported USART number");  // assertion needs to be dependent of template parameter
   };
 
   template<> class USART<1> : public __USART_COMMON_EXT< 0x40011000 > { };
