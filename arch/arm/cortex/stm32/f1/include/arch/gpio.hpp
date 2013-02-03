@@ -114,6 +114,7 @@
 
 #include <arch/core.hpp>
 #include <arch/core_resource.hpp>
+#include <arch/rcc.hpp>
 #include <freq.hpp>
 
 namespace cGpio
@@ -180,18 +181,7 @@ protected:
 
 public:
 
-  static constexpr uint32_t apb2enr = (port == 'A' ? reg::RCC::APB2ENR::IOPAEN::value : 
-                                       port == 'B' ? reg::RCC::APB2ENR::IOPBEN::value : 
-                                       port == 'C' ? reg::RCC::APB2ENR::IOPCEN::value : 
-                                       port == 'D' ? reg::RCC::APB2ENR::IOPDEN::value : 
-                                       port == 'E' ? reg::RCC::APB2ENR::IOPEEN::value :
-#if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-                                       port == 'F' ? reg::RCC::APB2ENR::IOPFEN::value : 
-                                       port == 'G' ? reg::RCC::APB2ENR::IOPGEN::value :
-#endif
-                                       0 );
-
-  typedef ResourceList< SharedRegister<reg::RCC::APB2ENR, apb2enr>,
+  typedef ResourceList< Rcc::gpio_clock_resources<port>,
                         UniqueResource<GpioBase<port, pin_no> >
                         > resources;
 

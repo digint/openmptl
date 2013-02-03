@@ -23,6 +23,7 @@
 
 #include <arch/nvic.hpp>
 #include <arch/pwr.hpp>
+#include <arch/rcc.hpp>
 #include <arch/reg/rtc.hpp>
 
 
@@ -125,9 +126,7 @@ public:
     AlarmIrqWrap() { ClearAlarmFlag(); }
   };
 
-  /* Power interface clock enable; Backup interface clock enable */
-  static constexpr uint32_t apb1enr = reg::RCC::APB1ENR::PWREN::value | reg::RCC::APB1ENR::BKPEN::value;
-  typedef ResourceList< SharedRegister< reg::RCC::APB1ENR, apb1enr > > resources;
+  typedef Rcc::rtc_clock_resources resources;
 
   static void Init(void) {
     /* Disable backup domain write protection */

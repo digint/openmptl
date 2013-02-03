@@ -21,9 +21,7 @@
 #ifndef GPIO_HPP_INCLUDED
 #define GPIO_HPP_INCLUDED
 
-
-#include <arch/core.hpp>
-#include <arch/core_resource.hpp>
+#include <arch/rcc.hpp>
 
 namespace cGpio
 {
@@ -67,18 +65,7 @@ protected:
 
 public:
 
-  static constexpr uint32_t ahb1enr = ( port == 'A' ? reg::RCC::AHB1ENR::GPIOAEN::value : 
-                                        port == 'B' ? reg::RCC::AHB1ENR::GPIOBEN::value : 
-                                        port == 'C' ? reg::RCC::AHB1ENR::GPIOCEN::value : 
-                                        port == 'D' ? reg::RCC::AHB1ENR::GPIODEN::value : 
-                                        port == 'E' ? reg::RCC::AHB1ENR::GPIOEEN::value : 
-                                        port == 'F' ? reg::RCC::AHB1ENR::GPIOFEN::value : 
-                                        port == 'G' ? reg::RCC::AHB1ENR::GPIOGEN::value : 
-                                        port == 'H' ? reg::RCC::AHB1ENR::GPIOHEN::value : 
-                                        port == 'I' ? reg::RCC::AHB1ENR::GPIOIEN::value : 
-                                        0 );
-
-  typedef ResourceList< SharedRegister< reg::RCC::AHB1ENR, ahb1enr >,
+  typedef ResourceList< Rcc::gpio_clock_resources<port>,
                         UniqueResource< GpioBase<port, pin_no> >
                         > resources;
 

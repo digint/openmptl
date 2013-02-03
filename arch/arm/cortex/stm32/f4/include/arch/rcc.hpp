@@ -22,7 +22,7 @@
 #define RCC_HPP_INCLUDED
 
 #include <arch/reg/rcc.hpp>
-
+#include <arch/core_resource.hpp>
 
 // TODO: access functions, change public to private
 class Rcc {
@@ -122,7 +122,26 @@ public:
 
     RCC::CIR::store(RCC::CIR::reset_value);
   }
+
+  /*
+   * Clock resource declaration (enable peripheral clocks)
+   */
+  template<char>        struct gpio_clock_resources;
 };
+
+
+/*
+ * Clock resource specialisation (enable peripheral clocks)
+ */
+template<> struct Rcc::gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOAEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOBEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOCEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIODEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOEEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOFEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOGEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'H'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOHEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'I'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOIEN::value> > { };
 
 
 #endif // RCC_HPP_INCLUDED

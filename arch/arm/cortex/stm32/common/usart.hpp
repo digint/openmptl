@@ -23,6 +23,7 @@
 
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
+#include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
 
 namespace cUsart
@@ -103,14 +104,10 @@ public:
 
   
   static_assert(usart_no != 1, "usart 1 is not yet supported, sorry...");
-  static constexpr uint32_t apb1enr = ( // usart_no == 1 ? Reg::RCC::APB2ENR::USART1EN::value : 
-                                       usart_no == 2 ? reg::RCC::APB1ENR::USART2EN::value : 
-                                       usart_no == 3 ? reg::RCC::APB1ENR::USART3EN::value : 
-                                       0);
 
   typedef ResourceList< typename gpio_tx::resources,
                         typename gpio_rx::resources,
-                        SharedRegister< reg::RCC::APB1ENR, apb1enr >
+                        Rcc::usart_clock_resources<usart_no>
                         > resources;
 
   static void Send(typename USARTx::DR::value_type data) {

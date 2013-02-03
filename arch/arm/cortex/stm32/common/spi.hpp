@@ -21,6 +21,7 @@
 #ifndef STM32_COMMON_SPI_HPP_INCLUDED
 #define STM32_COMMON_SPI_HPP_INCLUDED
 
+#include <arch/rcc.hpp>
 #include <arch/reg/spi.hpp>
 
 namespace cSpi
@@ -50,26 +51,14 @@ namespace cSpi
 }
 
 
-template<unsigned spi_no>
+template<std::size_t spi_no>
 class Spi  // TODO: rename -> spi_resource (EVERYWHERE!)
 {
   using SPIx = reg::SPI<spi_no>;
 
 public:
 
-  static constexpr uint32_t apb2enr = (spi_no == 1 ? reg::RCC::APB2ENR::SPI1EN::value : 0);
-  static constexpr uint32_t apb1enr = (
-#if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-                                       spi_no == 2 ? reg::RCC::APB1ENR::SPI2EN::value : 
-#endif
-#if defined (STM32F10X_HD) || defined  (STM32F10X_CL)
-                                       spi_no == 3 ? reg::RCC::APB1ENR::SPI3EN::value :
-#endif
-                                       0);
-
-  typedef ResourceList< SharedRegister< reg::RCC::APB1ENR, apb1enr >,
-                        SharedRegister< reg::RCC::APB2ENR, apb2enr >
-                        > resources;
+  typedef Rcc::spi_clock_resources<spi_no> resources;
 
   template<cSpi::MasterSelection master_selection = cSpi::MasterSelection::master,
            unsigned baud_rate_prescaler = 2,  // TODO: use baud-rate here, calculate correct presscaler below

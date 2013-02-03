@@ -22,6 +22,7 @@
 #define RCC_HPP_INCLUDED
 
 #include <arch/reg/rcc.hpp>
+#include <arch/core_resource.hpp>
 #include <freq.hpp>
 
 
@@ -175,7 +176,57 @@ public:
     RCC::CFGR2::reset();
 #endif
   }
+
+
+  /*
+   * Clock resource declaration (enable peripheral clocks)
+   */
+  template<char>        struct gpio_clock_resources;
+  template<std::size_t> struct spi_clock_resources;
+  template<std::size_t> struct usart_clock_resources;
+  template<std::size_t> struct adc_clock_resources;
+
+  using rtc_clock_resources = ResourceList<
+    SharedRegister< RCC::APB1ENR,
+                    ( RCC::APB1ENR::PWREN::value |
+                      RCC::APB1ENR::BKPEN::value ) > >;
 };
 
+
+/*
+ * Clock resource specialisation (enable peripheral clocks)
+ */
+template<> struct Rcc::gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPAEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPBEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPCEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPDEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPEEN::value> > { };
+#if defined (STM32F10X_HD) || defined (STM32F10X_XL)
+template<> struct Rcc::gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPFEN::value> > { };
+template<> struct Rcc::gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPGEN::value> > { };
+#endif
+
+template<> struct Rcc::spi_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::SPI1EN::value> > { };
+#if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
+template<> struct Rcc::spi_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI2EN::value> > { };
+#endif
+#if defined (STM32F10X_HD) || defined (STM32F10X_CL)
+template<> struct Rcc::spi_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI3EN::value> > { };
+#endif
+
+template<> struct Rcc::usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
+template<> struct Rcc::usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
+#if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
+template<> struct Rcc::usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
+#endif
+
+template<> struct Rcc::adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC1EN::value> > { };
+#if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL)
+template<> struct Rcc::adc_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC2EN::value> > { };
+#endif
+#if defined (STM32F10X_HD) || defined (STM32F10X_XL)
+template<> struct Rcc::adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC3EN::value> > { };
+#endif
+  
 
 #endif // RCC_HPP_INCLUDED
