@@ -181,6 +181,9 @@ int main()
   assert(TEST::REG::BITS_4_7::BIT_0_1::test() == false);
   assert(TEST::REG::BITS_4_7::CONST_d::test() == true);
 
+
+  /* Enhanced register functionality */
+
   TEST::REG::store(0xffffffff);
   TEST::REG::clear<TEST::REG::BITS_0_3, TEST::REG::BITS_8_31>();
   assert(TEST::REG::load() == 0x000000f0);
@@ -191,7 +194,11 @@ int main()
 
   TEST::REG::store(0xffffffff);
   TEST::REG::set<TEST::REG::BITS_4_7>(0x50);
+  assert(TEST::REG::load() == 0xffffff5f);
+
+  TEST::REG::store(0xffffff0f);
   TEST::REG::set<TEST::REG::BITS_4_7::bit<1> >();
+  assert(TEST::REG::load() == 0xffffff2f);
 
   // fail: clearing bits from different register
   UNITTEST_STATIC_ASSERT( TEST::REG::clear<TEST::REG2::BITS_0_7>() );

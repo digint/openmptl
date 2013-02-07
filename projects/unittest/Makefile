@@ -28,8 +28,6 @@ CPPCORE_TOP  = ../..
 #CROSS        = x86_64-pc-linux-gnu-
 CROSS       = /opt/toolchain/x86_64-pc-linux-gnu-gcc-4.7.0/bin/x86_64-pc-linux-gnu-
 
-CPPCORE_ARCH  = arm/cortex/stm32/f1
-
 FLAGS        = -DCORE_SIMULATION
 
 
@@ -37,7 +35,7 @@ FLAGS        = -DCORE_SIMULATION
 # input/output setup
 #
 
-SRC_DIR      = src
+SRC_DIR     = src
 
 OBJ_DIR      = obj
 SRC_FAIL_DIR = mustfail_src
@@ -45,6 +43,8 @@ SRC_FAIL_DIR = mustfail_src
 SRCS         = $(wildcard $(addsuffix /*.cpp, $(SRC_DIR)))
 
 FAIL_TEST_SRCS = $(shell perl -- create_fail_src.pl -o $(SRC_FAIL_DIR) $(SRCS))
+
+vpath %.cpp $(SRC_DIR)
 
 
 #------------------------------------------------------------------------------
@@ -64,7 +64,10 @@ INCLUDE     += $(CPPCORE_INCLUDE)
 #------------------------------------------------------------------------------
 # unittest executables go to OBJ_DIR (flat!)
 
-OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(UNITTESTS))
+OBJS        := $(notdir $(SRCS) )
+OBJS        := $(OBJS:.cpp= )
+OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
+
 OBJS_FAIL   := $(FAIL_TEST_SRCS:.cpp=.o)
 
 #------------------------------------------------------------------------------
@@ -74,21 +77,7 @@ OBJS_FAIL   := $(FAIL_TEST_SRCS:.cpp=.o)
 # commmon flags propagated to CFLAGS, CXXFLAGS, ASFLAGS (not LDFLAGS)
 FLAGS       += $(CPUFLAGS)
 FLAGS       += $(INCLUDE)
-
-CFLAGS      += $(FLAGS)
-CFLAGS      += $(OPTIMIZER)
-CFLAGS      += -std=gnu99
-CFLAGS      += -g
-CFLAGS      += -Wall -Wextra
-CFLAGS      += -Wimplicit
-CFLAGS      += -Wcast-align
-CFLAGS      += -Wpointer-arith
-CFLAGS      += -Wredundant-decls
-CFLAGS      += -Wshadow
-CFLAGS      += -Wcast-qual
-CFLAGS      += -Wcast-align
-CFLAGS      += -Wnested-externs
-CFLAGS      += -pedantic
+FLAGS       += -MMD
 
 CXXFLAGS     = $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
@@ -117,13 +106,10 @@ CXXFLAGS    += -pedantic
 #CXXFLAGS    += -Weffc++
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 
-ASFLAGS      = $(FLAGS)
 
-
-.PHONY: all clean test test_fail
+.PHONY: all clean clean_fail test test_fail
 
 all: test test_fail
-	echo $(FAIL_TESTS)
 
 test: $(OBJ_DIR) $(OBJS)
 
@@ -133,7 +119,7 @@ $(SRC_FAIL_DIR)/%.o: $(SRC_FAIL_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $< || true
 	@if [ -e $@ ] ; then echo "--- compilation did NOT fail, but should have!" ; false ; else echo "--- compilation failed, good!" ; fi
 
-$(OBJ_DIR)/%: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%: %.cpp
 	@echo "--- compiling $@"
 	$(CXX) $(CXXFLAGS) -o $@ $<
 	@echo "--- running $@"
