@@ -20,8 +20,15 @@
 
 #define CORE_SIMULATION
 
+/* These are enabled by the Makefile: */
+#define UNITTEST_STATIC_ASSERT(code)
+#define UNITTEST_STATIC_ASSERT_ENABLED(code) code
+
+
 #include <register.hpp>
 #include <cassert>
+
+using namespace reg;
 
 class TEST
 {
@@ -32,7 +39,7 @@ class TEST
   : public R
   {
     template<typename Rb>
-    struct __BITS_4_7
+    struct __CONST
     : public Rb
     {
       typedef RegisterConst< Rb, 0x0 > CONST_0;
@@ -45,16 +52,23 @@ class TEST
 
   public:
 
-    typedef              RegisterBits< R,  0,  4 >   BITS_0_3;
-    typedef __BITS_4_7 < RegisterBits< R,  4,  4 > > BITS_4_7;
+    typedef __CONST < RegisterBits< R,  0,  4 > > BITS_0_3;
+    typedef __CONST < RegisterBits< R,  4,  4 > > BITS_4_7;
     typedef              RegisterBits< R,  8, 24 >   BITS_8_31;
 
   };
 
 public:
-  typedef __REG < Register< uint32_t, reg_base + 0x00, RegisterAccess::rw, 0x55555555 > > REG;
-};
+  typedef __REG < Register< uint32_t, reg_base + 0x00, Access::rw, 0x55555555 > > REG;
 
+  struct REG2
+  : public Register< uint32_t, reg_base + 0x10, Access::rw, 0xaaaaaaaa >
+  {
+    typedef Register< uint32_t, reg_base + 0x10, Access::rw, 0xaaaaaaaa > reg_type;
+
+    typedef RegisterBits< reg_type, 0,  8 > BITS_0_7;
+  };
+};
 
 int main()
 {
@@ -166,6 +180,21 @@ int main()
   assert(TEST::REG::BITS_4_7::BIT_1::test() == false);
   assert(TEST::REG::BITS_4_7::BIT_0_1::test() == false);
   assert(TEST::REG::BITS_4_7::CONST_d::test() == true);
+
+  TEST::REG::store(0xffffffff);
+  TEST::REG::clear<TEST::REG::BITS_0_3, TEST::REG::BITS_8_31>();
+  assert(TEST::REG::load() == 0x000000f0);
+
+  TEST::REG::store(0xffffffff);
+  TEST::REG::set<TEST::REG::BITS_4_7::BIT_1, TEST::REG::BITS_0_3::CONST_d>();
+  assert(TEST::REG::load() == 0xffffff2d);
+
+  TEST::REG::store(0xffffffff);
+  TEST::REG::set<TEST::REG::BITS_4_7>(0x50);
+  TEST::REG::set<TEST::REG::BITS_4_7::bit<1> >();
+
+  // fail: clearing bits from different register
+  UNITTEST_STATIC_ASSERT( TEST::REG::clear<TEST::REG2::BITS_0_7>() );
 
   return 0;
 }

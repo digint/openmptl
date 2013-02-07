@@ -27,10 +27,12 @@
 #include <iostream>
 #include <iomanip>
 
-struct A : Register< uint32_t, 0x1000, RegisterAccess::rw, 0 > {};
-struct B : Register< uint32_t, 0x2000, RegisterAccess::rw, 0x44444444 > {};
-struct C : Register< uint8_t,  0x3000, RegisterAccess::rw, 0 > {};
-struct D : Register< uint32_t, 0x4000, RegisterAccess::rw, 0x55555555 > {};
+using namespace reg;
+
+struct A : Register< uint32_t, 0x1000, Access::rw, 0 > {};
+struct B : Register< uint32_t, 0x2000, Access::rw, 0x44444444 > {};
+struct C : Register< uint8_t,  0x3000, Access::rw, 0 > {};
+struct D : Register< uint32_t, 0x4000, Access::rw, 0x55555555 > {};
 
 template<typename... Args>
 void ResourceList<Args...>::set_shared_register(void)
