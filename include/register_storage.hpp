@@ -21,6 +21,13 @@
 #ifndef REGISTER_STORAGE_HPP_INCLUDED
 #define REGISTER_STORAGE_HPP_INCLUDED
 
+#ifdef CORE_SIMULATION
+#include <iostream>
+#include <iomanip>
+#include <typeinfo>
+#include <bitset>
+#endif // CORE_SIMULATION
+
 namespace reg {
 
   enum class Access { ro, wo, rw };
@@ -32,24 +39,25 @@ namespace reg {
   template< typename   T,
             reg_addr_t addr,
             Access     access,
-            T          reset >
+            T          reset_value >
   struct RegisterStorage
   {
     typedef T value_type; // TODO: volatile?
     static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
 
-    static T    load()               { return *value_ptr;  }
-    static void store(T const value) { *value_ptr = value; }
+    static T    load(void) {
+      static_assert(access != Access::wo, "read access to a write-only register");
+      return *value_ptr;
+    }
+    static void store(T const value) {
+      static_assert(access != Access::ro, "write access to a read-only register");
+      *value_ptr = value;
+    }
   };
 
 
 #else ////////////////////  CORE_SIMULATION  ////////////////////
 
-
-#include <bitset>
-#include <iostream>
-#include <iomanip>
-#include <typeinfo>
 
   typedef uint32_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
 
@@ -82,6 +90,7 @@ namespace reg {
     }
 
     static T load() {
+      static_assert(access != Access::wo, "read access to a write-only register");
       std::cout << "load  "
                 << "0x" << std::hex << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr
                 << "  cur:  0x" << std::hex << std::setfill('0') << std::setw(sizeof(value_type) * 2) << +reg_value  // '+value' makes sure a char is printed as number
@@ -91,6 +100,7 @@ namespace reg {
     }
 
     static void store(T const value) {
+      static_assert(access != Access::ro, "write access to a read-only register");
       std::cout << "store "
                 << "0x" << std::hex << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr
 
@@ -109,8 +119,8 @@ namespace reg {
   template< typename   T,
             reg_addr_t addr,
             Access     access,
-            T          reset >
-  T RegisterStorage<T, addr, access, reset>::reg_value = reset;
+            T          reset_value >
+  T RegisterStorage<T, addr, access, reset_value>::reg_value = reset_value;
 
 #endif // CORE_SIMULATION
 
