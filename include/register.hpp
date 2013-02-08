@@ -132,7 +132,7 @@ namespace reg
 
     static T    test (T const value) { return type::load() & value;          }
     static void set  (T const value) { type::store( type::load() | value );  }
-    static void set  (T const set_mask, T const clear_mask) { type::store( (type::load() & ~clear_mask) | set_mask );  }
+    static void set  (T const set_mask, T const clear_mask) { type::store( (type::load() & ~clear_mask) | set_mask ); }
     static void clear(T const value) { type::store( type::load() & ~value ); }
     static void mask (T const value) { type::store( type::load() & value );  }
     static void reset()              { type::store(reset_value);             }
@@ -192,7 +192,7 @@ namespace reg
     /** NOTE: this does not check if _value is masked correctly! */
     static void set(value_type const _value) { R::set(_value, bitmask); }
     static void shift_and_set(value_type const _value) {
-      set(shifted_value(_value));
+      R::set(shifted_value(_value), bitmask);
     }
 
     // TODO: better naming for this

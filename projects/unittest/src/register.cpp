@@ -115,6 +115,7 @@ int main()
   assert(TEST::REG::BITS_0_3::test() == 0x0); // fail
 #endif
 
+  TEST::REG::store(0xffffffff);
   TEST::REG::BITS_0_3::set(0x0);
   TEST::REG::BITS_4_7::shift_and_set(0xc);
   assert(TEST::REG::BITS_4_7::test() == 0xc0);
