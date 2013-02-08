@@ -196,10 +196,9 @@ public:
     USARTx::CR1::store(cr1);
 
     /* USARTx CR3 config */
-    auto cr3 = USARTx::CR3::load();
-    cr3 &= ~(USARTx::CR3::CTSE::value | USARTx::CR3::RTSE::value);
-    cr3 |= (uint32_t)flow_control << 8;
-    USARTx::CR3::store(cr3);
+    USARTx::CR3::template set<typename USARTx::CR3::CTSE,
+                              typename USARTx::CR3::RTSE>
+      ((uint32_t)flow_control << 8);
 
     /* calculate values for baud rate register */
     unsigned pclk = (usart_no == 1 ?

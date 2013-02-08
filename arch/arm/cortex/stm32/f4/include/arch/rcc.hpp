@@ -105,22 +105,14 @@ public:
     while(RCC::CFGR::SWS::PLL::test() == false);
   }
 
-
   static void Init(void) {
     /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
     RCC::CR::HSION::set();
-
-    RCC::CFGR::store(RCC::CFGR::reset_value);
-
-    RCC::CR::clear(RCC::CR::HSEON::value |
-                   RCC::CR::CSSON::value |
-                   RCC::CR::PLLON::value);
-
-    RCC::PLLCFGR::store(RCC::PLLCFGR::reset_value);
-
-    RCC::CR::clear(RCC::CR::HSEBYP::value);
-
-    RCC::CIR::store(RCC::CIR::reset_value);
+    RCC::CFGR::reset();
+    RCC::CR::clear< RCC::CR::HSEON, RCC::CR::CSSON, RCC::CR::PLLON >();
+    RCC::PLLCFGR::reset();
+    RCC::CR::HSEBYP::clear();
+    RCC::CIR::reset();
   }
 
   /*

@@ -155,25 +155,21 @@ public:
 
   static void init(void) {
     // ADCx CR1 config
-    auto cr1 = ADCx::CR1::load();
-    cr1 &= ~(ADCx::CR1::DUALMOD::value | ADCx::CR1::SCAN::value);
-    cr1 |= (uint32_t)mode      << 16;
-    cr1 |= (uint32_t)scan_mode <<  8;
-    ADCx::CR1::store(cr1);
+    ADCx::CR1::template set<typename ADCx::CR1::DUALMOD,
+                            typename ADCx::CR1::SCAN>
+      (ADCx::CR1::DUALMOD::shifted_value((uint32_t)mode) |
+       ADCx::CR1::SCAN::   shifted_value((uint32_t)scan_mode));
 
     // ADCx CR2 config
-    auto cr2 = ADCx::CR2::load();
-    cr2 &= ~(ADCx::CR2::CONT::value | ADCx::CR2::ALIGN::value | ADCx::CR2::EXTSEL::value);
-    cr2 |= (uint32_t)data_align     << 11;
-    cr2 |= (uint32_t)ext_trig_conv  << 17;
-    cr2 |= (uint32_t)cont_conv_mode <<  1;
-    ADCx::CR2::store(cr2);
+    ADCx::CR2::template set<typename ADCx::CR2::CONT,
+                            typename ADCx::CR2::ALIGN,
+                            typename ADCx::CR2::EXTSEL>
+      (ADCx::CR2::ALIGN:: shifted_value((uint32_t)data_align) |
+       ADCx::CR2::EXTSEL::shifted_value((uint32_t)ext_trig_conv) |
+       ADCx::CR2::CONT::  shifted_value((uint32_t)cont_conv_mode));
 
     // ADCx SQR1 config
-    auto sqr1 = ADCx::SQR1::load();
-    sqr1 &= ~(ADCx::SQR1::L::value);
-    sqr1 |= ((uint32_t)numof_channel - 1) << 20; // set L
-    ADCx::SQR1::store(sqr1);
+    ADCx::SQR1::L::shift_and_set((uint32_t)numof_channel - 1);
   }
 
   static void deinit(void) {
@@ -212,39 +208,29 @@ public:
 
     if(channel > 9) {
       unsigned shift = 3 * (channel - 10);
-      auto smpr1 = ADCx::SMPR1::load();
-      smpr1 &= ~((uint32_t)0x7 << shift);
-      smpr1 |= (uint32_t)sample_time << shift;
-      ADCx::SMPR1::store(smpr1);
+      ADCx::SMPR1::set((uint32_t)sample_time << shift,   /* set_mask */
+                       (uint32_t)0x7 << shift);          /* clear_mask */
     }
     else {
       unsigned shift = 3 * channel;
-      auto smpr2 = ADCx::SMPR2::load();
-      smpr2 &= ~((uint32_t)0x7 << shift);
-      smpr2 |= (uint32_t)sample_time << shift;
-      ADCx::SMPR2::store(smpr2);
+      ADCx::SMPR2::set((uint32_t)sample_time << shift,   /* set_mask */
+                       (uint32_t)0x7 << shift);          /* clear_mask */
     }
 
     if(rank < 7) {
       unsigned shift = 5 * (rank - 1);
-      auto sqr3 = ADCx::SQR3::load();
-      sqr3 &= ~((uint32_t)0x1F << shift);
-      sqr3 |= (uint32_t)channel << shift;
-      ADCx::SQR3::store(sqr3);
+      ADCx::SQR3::set((uint32_t)channel << shift,   /* set_mask */
+                      (uint32_t)0x1F << shift);     /* clear_mask */
     }
     else if(rank < 13) {
       unsigned shift = 5 * (rank - 7);
-      auto sqr2 = ADCx::SQR2::load();
-      sqr2 &= ~((uint32_t)0x1F << shift);
-      sqr2 |= (uint32_t)channel << shift;
-      ADCx::SQR2::store(sqr2);
+      ADCx::SQR2::set((uint32_t)channel << shift,   /* set_mask */
+                      (uint32_t)0x1F << shift);     /* clear_mask */
     }
     else {
       unsigned shift = 5 * (rank - 13);
-      auto sqr1 = ADCx::SQR1::load();
-      sqr1 &= ~((uint32_t)0x1F << shift);
-      sqr1 |= (uint32_t)channel << shift;
-      ADCx::SQR1::store(sqr1);
+      ADCx::SQR1::set((uint32_t)channel << shift,   /* set_mask */
+                      (uint32_t)0x1F << shift);     /* clear_mask */
     }
   }
 
