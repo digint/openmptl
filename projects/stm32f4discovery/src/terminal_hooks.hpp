@@ -18,5 +18,27 @@
  * 
  */
 
-#include "../../../common/uart_transport.hpp"
+#ifndef TERMINAL_HOOKS_HPP_INCLUDED
+#define TERMINAL_HOOKS_HPP_INCLUDED
 
+#include <terminal.hpp>
+
+namespace terminal_hooks
+{
+  struct Help
+  : public TerminalHook
+  {
+    static constexpr const char * cmd      = "help";
+    static constexpr const char * cmd_desc = "display available commands";
+    void run(Terminal & term) {
+      term.help();
+    }
+  };
+
+  // ----------------------------------------------------------------------------
+  // Terminal Commands
+  //
+
+  typedef TerminalHookList< Help > commands;
+}
+#endif

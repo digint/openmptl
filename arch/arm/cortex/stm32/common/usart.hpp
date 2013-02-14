@@ -21,6 +21,7 @@
 #ifndef STM32_COMMON_USART_HPP_INCLUDED
 #define STM32_COMMON_USART_HPP_INCLUDED
 
+#include <arch/core.hpp>
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
 #include <arch/rcc.hpp>
@@ -60,20 +61,6 @@ namespace cUsart
 }
 
 
-struct UsartFlags {
-  static constexpr uint32_t PE    = 0x0001;   /**< Parity Error                  */
-  static constexpr uint32_t FE    = 0x0002;   /**< Framing Error                 */
-  static constexpr uint32_t NE    = 0x0004;   /**< Noise Error Flag              */
-  static constexpr uint32_t ORE   = 0x0008;   /**< OverRun Error                 */
-  static constexpr uint32_t IDLE  = 0x0010;   /**< IDLE line detected            */
-  static constexpr uint32_t RXNE  = 0x0020;   /**< Read Data Register Not Empty  */
-  static constexpr uint32_t TC    = 0x0040;   /**< Transmission Complete         */
-  static constexpr uint32_t TXE   = 0x0080;   /**< Transmit Data Register Empty  */
-  static constexpr uint32_t LBD   = 0x0100;   /**< LIN Break Detection Flag      */
-  static constexpr uint32_t CTS   = 0x0200;   /**< CTS Flag                      */
-};
-
-
 template< std::size_t           usart_no,
           unsigned              baud_rate    = 9600,
           unsigned              word_length  = 8,   /* supported: 8 and 9 bits */
@@ -96,8 +83,9 @@ public:
 
   using USARTx = reg::USART<usart_no>;
 
-  typedef GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull > gpio_tx;
-  typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
+  // TODO: use some kind of map for the gpios
+  //  typedef GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull > gpio_tx;
+  //  typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
 
   typedef Irq::USART2   GlobalIrq; /**< USART2 global Interrupt */
 
@@ -105,8 +93,8 @@ public:
   
   static_assert(usart_no != 1, "usart 1 is not yet supported, sorry...");
 
-  typedef ResourceList< typename gpio_tx::resources,
-                        typename gpio_rx::resources,
+  typedef ResourceList< //typename gpio_tx::resources,
+                        //typename gpio_rx::resources,
                         Rcc::usart_clock_resources<usart_no>
                         > resources;
 

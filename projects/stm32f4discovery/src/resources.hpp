@@ -23,22 +23,33 @@
 
 #include <arch/systick.hpp>
 #include <arch/gpio.hpp>
+#include <arch/usart.hpp>
 
 
 namespace resources
 {
   typedef SysTick<1_khz, cSysTick::ClockSource::hclk> systick;
 
-  typedef GpioLed<'D', 12, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_green;
-  typedef GpioLed<'D', 13, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_orange;
-  typedef GpioLed<'D', 14, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_red;
-  typedef GpioLed<'D', 15, cGpio::OutputConfig::push_pull, 50_mhz, cGpio::ActiveState::high> led_blue;
+  typedef GpioLed<'D', 12, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high> led_green;
+  typedef GpioLed<'D', 13, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high> led_orange;
+  typedef GpioLed<'D', 14, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high> led_red;
+  typedef GpioLed<'D', 15, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high> led_blue;
+
+  typedef Usart<2, 115200> usart;
+  //  typedef GpioOutput< 'A', 2,  cGpio::OutputType::alt_push_pull > gpio_tx;
+  //  typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
+
+  typedef GpioOutputAF<'A', 2, 7, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 25_mhz> gpio_tx;
+  typedef GpioInputAF <'A', 3, 7> gpio_rx;
 
   typedef ResourceList< systick::resources,
                         led_green::resources,
                         led_orange::resources,
                         led_red::resources,
-                        led_blue::resources
+                        led_blue::resources,
+                        usart::resources,
+                        gpio_rx::resources,
+                        gpio_tx::resources
                         > list;
 }
 

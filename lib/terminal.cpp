@@ -18,8 +18,8 @@
  * 
  */
 
-#include "terminal.hpp"
-#include "terminal_hooks.hpp"
+#include <terminal.hpp>
+#include <terminal_hooks.hpp>
 
 void Terminal::help() {
   tx_stream << "List of commands:"
@@ -29,15 +29,17 @@ void Terminal::help() {
 
 void Terminal::process_input()
 {
-  bool do_flush = false;
+  bool flush_tx = false;
   char c;
   while(rx_fifo.pop(c)) {
-    tx_stream.put(c);  // echo
-    do_flush = true;
-    if(c == '\n') {
+    flush_tx = true;
+    if(c == 13) {  // CR
+      tx_stream << newline;  // echo
+
       cmd_buf[cmd_index] = 0;
       
       int exec_count = 0;
+      // TODO: consider passing terminal hooks as template args
       terminal_hooks::commands::execute(*this, exec_count);
       if(cmd_index && !exec_count) {
         tx_stream << cmd_buf << text::notfound << newline;
@@ -47,9 +49,10 @@ void Terminal::process_input()
     }
     else if((c >= 32) && (c <= 126) && (cmd_index < cmd_buf_size))
     {
+      tx_stream.put(c);  // echo
       cmd_buf[cmd_index++] = c;
     }
   }
-  if(do_flush) // prevent unnecessary usart interrupts
+  if(flush_tx) // prevent unnecessary usart interrupts
     tx_stream.flush();
 }

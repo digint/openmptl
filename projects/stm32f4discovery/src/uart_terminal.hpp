@@ -18,5 +18,34 @@
  * 
  */
 
-#include "../../../common/uart_transport.hpp"
+#include <terminal.hpp>
 
+template<typename uart>
+class UartTerminal : public Terminal
+{
+  typedef RingBuffer<char, 512> fifo_type;
+
+public:
+
+  static fifo_type usart_rx_fifo;
+  static fifo_type usart_tx_fifo;
+
+  FifoStream<fifo_type, UsartStreamDevice<uart> > usart_tx_fifo_stream;
+
+
+  typedef typename uart::resources resources;
+
+  typedef typename uart::GlobalIrq Irq;
+
+  static void irq_handler(void);
+
+  UartTerminal(void) : Terminal(usart_rx_fifo, usart_tx_fifo_stream),
+                       usart_tx_fifo_stream(usart_tx_fifo)
+  {
+    uart::init();
+    uart::Enable();
+    uart::GlobalIrq::Enable();
+    uart::template EnableInterrupt<true, false, true, false, false>();
+
+  }
+};

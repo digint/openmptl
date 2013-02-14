@@ -22,6 +22,7 @@
 #include <arch/core.hpp>
 
 #include "resources.hpp"
+#include "uart_terminal.hpp"
 
 using namespace resources;
 
@@ -54,13 +55,20 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
+  UartTerminal<resources::usart> terminal;
+  terminal << "\r\n\r\n\r\nWelcome to CppCore-demo terminal console\r\n" << flush;
+
   if(reg::SCB::CPUID::load() == 0x410FC241) {
     led_blue::on();
   }
 
   while(1)
   {
+    // poll terminal
+    terminal.process_input();
+#if 0
     Core::nop(10000000);
     led_orange::toggle();
+#endif
   }
 }

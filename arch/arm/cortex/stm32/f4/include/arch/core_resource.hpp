@@ -39,46 +39,64 @@ void ResourceList<Args...>::set_shared_register(void)
   set_register<GPIO<'A'>::OTYPER>();
   set_register<GPIO<'A'>::OSPEEDR>();
   set_register<GPIO<'A'>::PUPDR>();
+  set_register<GPIO<'A'>::AFRL>();
+  set_register<GPIO<'A'>::AFRH>();
 
   set_register<GPIO<'B'>::MODER>();
   set_register<GPIO<'B'>::OTYPER>();
   set_register<GPIO<'B'>::OSPEEDR>();
   set_register<GPIO<'B'>::PUPDR>();
+  set_register<GPIO<'B'>::AFRL>();
+  set_register<GPIO<'B'>::AFRH>();
 
   set_register<GPIO<'C'>::MODER>();
   set_register<GPIO<'C'>::OTYPER>();
   set_register<GPIO<'C'>::OSPEEDR>();
   set_register<GPIO<'C'>::PUPDR>();
+  set_register<GPIO<'C'>::AFRL>();
+  set_register<GPIO<'C'>::AFRH>();
 
   set_register<GPIO<'D'>::MODER>();
   set_register<GPIO<'D'>::OTYPER>();
   set_register<GPIO<'D'>::OSPEEDR>();
   set_register<GPIO<'D'>::PUPDR>();
+  set_register<GPIO<'D'>::AFRL>();
+  set_register<GPIO<'D'>::AFRH>();
 
   set_register<GPIO<'E'>::MODER>();
   set_register<GPIO<'E'>::OTYPER>();
   set_register<GPIO<'E'>::OSPEEDR>();
   set_register<GPIO<'E'>::PUPDR>();
+  set_register<GPIO<'E'>::AFRL>();
+  set_register<GPIO<'E'>::AFRH>();
 
   set_register<GPIO<'F'>::MODER>();
   set_register<GPIO<'F'>::OTYPER>();
   set_register<GPIO<'F'>::OSPEEDR>();
   set_register<GPIO<'F'>::PUPDR>();
+  set_register<GPIO<'F'>::AFRL>();
+  set_register<GPIO<'F'>::AFRH>();
 
   set_register<GPIO<'G'>::MODER>();
   set_register<GPIO<'G'>::OTYPER>();
   set_register<GPIO<'G'>::OSPEEDR>();
   set_register<GPIO<'G'>::PUPDR>();
+  set_register<GPIO<'G'>::AFRL>();
+  set_register<GPIO<'G'>::AFRH>();
 
   set_register<GPIO<'H'>::MODER>();
   set_register<GPIO<'H'>::OTYPER>();
   set_register<GPIO<'H'>::OSPEEDR>();
   set_register<GPIO<'H'>::PUPDR>();
+  set_register<GPIO<'H'>::AFRL>();
+  set_register<GPIO<'H'>::AFRH>();
 
   set_register<GPIO<'I'>::MODER>();
   set_register<GPIO<'I'>::OTYPER>();
   set_register<GPIO<'I'>::OSPEEDR>();
   set_register<GPIO<'I'>::PUPDR>();
+  set_register<GPIO<'I'>::AFRL>();
+  set_register<GPIO<'I'>::AFRH>();
 }
 
 #if 0
