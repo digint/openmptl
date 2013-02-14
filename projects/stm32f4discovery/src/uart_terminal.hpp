@@ -19,9 +19,10 @@
  */
 
 #include <terminal.hpp>
+#include <arch/uart_transport.hpp>
 
-template<typename uart>
-class UartTerminal : public Terminal
+template<typename uart, typename cmd_hooks>
+class UartTerminal : public CommandTerminal<cmd_hooks>
 {
   typedef RingBuffer<char, 512> fifo_type;
 
@@ -37,9 +38,7 @@ public:
 
   typedef typename uart::GlobalIrq Irq;
 
-  static void irq_handler(void);
-
-  UartTerminal(void) : Terminal(usart_rx_fifo, usart_tx_fifo_stream),
+  UartTerminal(void) : CommandTerminal<cmd_hooks>(usart_rx_fifo, usart_tx_fifo_stream),
                        usart_tx_fifo_stream(usart_tx_fifo)
   {
     uart::init();

@@ -83,18 +83,18 @@ include $(CPPCORE_TOP)/config/system.mk
 # cppcore includes
 #
 include $(CPPCORE_TOP)/config/cppcore.mk
-SRCS        += $(CPPCORE_SRC)
+#SRCS        += $(CPPCORE_SRC)
 INCLUDE     += $(CPPCORE_INCLUDE)
 
-vpath %.cpp $(CPPCORE_SRC_DIRS)
+#vpath %.cpp $(CPPCORE_SRC_DIRS)
 
 
 #------------------------------------------------------------------------------
 # boost includes
 #
-include $(CPPCORE_TOP)/config/boost.mk
-INCLUDE     += $(BOOST_INCLUDE)
-FLAGS       += $(BOOST_FLAGS)
+#include $(CPPCORE_TOP)/config/boost.mk
+#INCLUDE     += $(BOOST_INCLUDE)
+#FLAGS       += $(BOOST_FLAGS)
 
 
 #------------------------------------------------------------------------------

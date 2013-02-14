@@ -22,16 +22,17 @@
 #define TERMINAL_HOOKS_HPP_INCLUDED
 
 #include <terminal.hpp>
+#include <arch/scb.hpp>
 
 namespace terminal_hooks
 {
-  struct Help
+  struct cpuid
   : public TerminalHook
   {
-    static constexpr const char * cmd      = "help";
-    static constexpr const char * cmd_desc = "display available commands";
+    static constexpr const char * cmd  = "cpuid";
+    static constexpr const char * desc = "prints the SCB::CPUID register";
     void run(Terminal & term) {
-      term.help();
+      term.tx_stream << reg::SCB::CPUID::load() << endl;
     }
   };
 
@@ -39,6 +40,6 @@ namespace terminal_hooks
   // Terminal Commands
   //
 
-  typedef TerminalHookList< Help > commands;
+  typedef TerminalHookList< cpuid > commands;
 }
 #endif

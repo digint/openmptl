@@ -22,7 +22,6 @@
 #define TERMINAL_HPP_INCLUDED
 
 #include <fifo.hpp>
-#include <arch/uart_transport.hpp>
 #include <cstring> // strcmp
 #include <type_traits>
 
@@ -30,54 +29,102 @@
 // Terminal
 //
 
-struct text
+namespace text
 {
-  static constexpr const char * notfound = ": command not found (type \"help\" for a list of available commands)";
-};
+  static constexpr const char * term_cmd_notfound = ": command not found (type \"help\" for a list of available commands)";
+}
 
 class Terminal
 {
+public:
   typedef char char_type;
-  static constexpr std::size_t cmd_buf_size = 80;
 
-  char_type cmd_buf[cmd_buf_size];
-  unsigned cmd_index = 0;
-
+protected:
   Fifo<char_type> & rx_fifo;
-  poorman_ostream<char_type> & tx_stream;
 
 public:
+  poorman_ostream<char_type> & tx_stream;
+
   static constexpr const char_type * newline = "\r\n";
   static constexpr const char_type * prompt  = "# ";
 
   Terminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : rx_fifo(_rx_fifo), tx_stream(_tx_stream) { }
 
-  void process_input();
-  void help();
-  char_type * get_cmd() { return cmd_buf; };
-
   template<typename T>
   poorman_ostream<char> & operator<<(T & st) {
     return tx_stream << st;
   }
-
-private:
 };
 
+
+// ----------------------------------------------------------------------------
+// CommandTerminal
+//
+
+template<typename cmd_hooks>
+class CommandTerminal : public Terminal
+{
+  static constexpr std::size_t cmd_buf_size = 80;
+
+  char_type cmd_buf[cmd_buf_size];
+  unsigned cmd_index = 0;
+
+public:
+
+  CommandTerminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : Terminal(_rx_fifo, _tx_stream) { }
+
+  void process_input(void)
+  {
+    bool flush_tx = false;
+    char c;
+    while(rx_fifo.pop(c)) {
+      flush_tx = true;
+      if(c == 13) {  // CR
+        tx_stream << newline;  // echo
+        cmd_buf[cmd_index] = 0;
+
+        if(cmd_index) {
+          cmd_hooks::template execute<cmd_hooks>(cmd_buf, *this);
+        }
+        tx_stream << prompt;
+        cmd_index = 0;
+      }
+      else if((c >= 32) && (c <= 126) && (cmd_index < cmd_buf_size))
+      {
+        tx_stream.put(c);  // echo
+        cmd_buf[cmd_index++] = c;
+      }
+    }
+    if(flush_tx) // prevent unnecessary usart interrupts
+      tx_stream.flush();
+  }
+};
 
 // ----------------------------------------------------------------------------
 // TerminalHook
 //
 
 struct TerminalHook {
-  static bool parse(Terminal & term, const char * cmd) {
-    return strcmp(term.get_cmd(), cmd) == 0;
-  };
 };
+
 
 // ----------------------------------------------------------------------------
 // TerminalHookList
 //
+
+template<std::size_t... Args>
+struct max {
+  static constexpr std::size_t value = 0;
+};
+
+template<std::size_t T, std::size_t... Args>
+struct max<T, Args...> {
+  static constexpr std::size_t value = T > max<Args...>::value ? T : max<Args...>::value;
+};
+
+
+
+
 
 template<typename... Args>
 struct TerminalHookList;
@@ -85,24 +132,47 @@ struct TerminalHookList;
 template<>
 struct TerminalHookList<>
 {
-  static void execute(Terminal &, int &) { }
+  template<typename HL>
+  static void execute(const char * cmd_buf, Terminal & term) {
+    if(strcmp("help", cmd_buf) == 0) {
+      term << "List of commands:" << term.newline;
+      HL::template list<HL>(term);
+    }
+    else {
+      term << cmd_buf << text::term_cmd_notfound << term.newline;
+    }
+  }
+
+  template<typename HL>
   static void list(Terminal &) { }
 };
 
 template<typename T, typename... Args>
 struct TerminalHookList<T, Args...> {
-  static void execute(Terminal & term, int & exec_count) {
-    if(T::parse(term, T::cmd)) {
+
+  template<typename HL>
+  static void execute(const char * cmd_buf, Terminal & term) {
+    if(strcmp(T::cmd, cmd_buf) == 0) {
       T().run(term);
-      exec_count++;
     }
-    TerminalHookList<Args...>::execute(term, exec_count);
+    else {
+      TerminalHookList<Args...>::template execute<HL>(cmd_buf, term);
+    }
   }
 
+  /** maximum length of all commands (minimum 8) */
+  static constexpr unsigned cmd_maxlen = max<8, strlen(T::cmd), strlen(Args::cmd)...>::value;
+
+  template<typename HL>
   static void list(Terminal & term) {
-    term << T::cmd << "\t\t" << T::cmd_desc << term.newline;
-    TerminalHookList<Args...>::list(term);
+    term << "   " << T::cmd;
+    for(int n = HL::cmd_maxlen - strlen(T::cmd) + 3 ; n > 0; n--)
+      term.tx_stream.put(' ');
+    term << T::desc << endl;
+
+    TerminalHookList<Args...>::template list<HL>(term);
   }
 };
+
 
 #endif

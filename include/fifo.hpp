@@ -65,6 +65,14 @@ public:
     deviceT::flush();
     return *this;
   }
+
+  poorman_ostream<char_type> & endl() {
+    if(deviceT::crlf)
+      fifo.push('\r');
+    fifo.push('\n');
+    deviceT::flush();
+    return *this;
+  }
 };
 
 

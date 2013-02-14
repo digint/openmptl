@@ -70,6 +70,8 @@ public:
 template<typename usart>
 struct UsartStreamDevice
 {
+  static constexpr bool crlf = true;
+
   static void flush() {
     usart::EnableTxInterrupt();
   }

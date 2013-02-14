@@ -38,6 +38,7 @@ public:
   virtual poorman_ostream & puts(const char_type* s) = 0;
   virtual poorman_ostream & write(const char_type* s, unsigned int count) = 0;
   virtual poorman_ostream & flush() = 0;
+  virtual poorman_ostream & endl() = 0;
   //  virtual poorman_ostream & widen(char_type c) { };  // TODO: implement in terminal_ostream
 
   /** hexadecimal output of any integral type */
@@ -61,10 +62,16 @@ public:
   }
 };
 
-/** manipulator, flushes output stream */
+/** manipulator, flushes the output stream */
 template<typename charT>
 inline poorman_ostream<charT> & flush(poorman_ostream<charT> & st) {
   return st.flush();
+}
+
+/** manipulator, outputs newline and flushes the output stream */
+template<typename charT>
+inline poorman_ostream<charT> & endl(poorman_ostream<charT> & st) {
+  return st.endl();
 }
 
 #endif // POORMAN_OSTREAM_HPP_INCLUDED
