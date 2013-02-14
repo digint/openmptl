@@ -23,6 +23,7 @@
 
 #include <arch/reg/rcc.hpp>
 #include <arch/core_resource.hpp>
+#include <freq.hpp>
 
 // TODO: access functions, change public to private
 class Rcc {
@@ -66,9 +67,9 @@ public:
 
     static constexpr freq_t hclk  = freq;
     static constexpr freq_t pclk1 = ( freq == 120_mhz ? 30_mhz :
-                                      freq == 168_mhz ? 60_mhz :
+                                      freq == 168_mhz ? 42_mhz :
                                       0 );
-    static constexpr freq_t pclk2 = ( freq == 120_mhz ? 42_mhz :
+    static constexpr freq_t pclk2 = ( freq == 120_mhz ? 60_mhz :
                                       freq == 168_mhz ? 84_mhz :
                                       0 );
   };
@@ -119,6 +120,7 @@ public:
    * Clock resource declaration (enable peripheral clocks)
    */
   template<char>        struct gpio_clock_resources;
+  template<std::size_t> struct usart_clock_resources;
 };
 
 
@@ -134,6 +136,13 @@ template<> struct Rcc::gpio_clock_resources<'F'> : ResourceList< SharedRegister<
 template<> struct Rcc::gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOGEN::value> > { };
 template<> struct Rcc::gpio_clock_resources<'H'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOHEN::value> > { };
 template<> struct Rcc::gpio_clock_resources<'I'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOIEN::value> > { };
+
+template<> struct Rcc::usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
+template<> struct Rcc::usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
+template<> struct Rcc::usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
+//template<> struct Rcc::usart_clock_resources<4> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART4EN::value> > { };
+//template<> struct Rcc::usart_clock_resources<5> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART5EN::value> > { };
+template<> struct Rcc::usart_clock_resources<6> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART6EN::value> > { };
 
 
 #endif // RCC_HPP_INCLUDED
