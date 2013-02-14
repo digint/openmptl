@@ -25,50 +25,97 @@
 
 namespace cGpio
 {
-  enum class InputConfig {
-    analog,         //< Analog input                
+  enum class ResistorConfig {
     floating,       //< Floating input              
     pull_up,        //< Input with pull-up
     pull_down       //< Input with pull-down
   };
 
-  enum class OutputConfig {
+  enum class OutputType {
     push_pull,      //< General purpose output push-pull (e.g. LED's)
     open_drain,     //< General purpose output open-drain            
-    alt_push_pull,  //< Alternate function output push-pull          
-    alt_open_drain  //< Alternate function output open-drain         
   };
 
   enum class ActiveState {
     low,            //< pin is low-active
     high            //< pin is high-active
   };
+
+  enum class Mode {
+    input,
+    output,
+    alternate_function,
+    analog
+  };
 }
 
 
-////////////////////  GpioBase  ////////////////////
+////////////////////  Gpio  ////////////////////
 
 
-template<char port, int pin_no>
-class GpioBase
+template<char port,
+         unsigned pin_no,
+         cGpio::Mode moder_cnf = cGpio::Mode::input,
+         cGpio::OutputType otype_cnf = cGpio::OutputType::push_pull,
+         freq_t speed = 2_mhz,
+         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
+         unsigned alt_func_num = 0>
+class Gpio
 {
   static_assert((port >= 'A') && (port <= 'I'), "Invalid GPIO port");
-  static_assert((pin_no >= 0) && (pin_no < 16), "Invalid GPIO pin-no");
+  static_assert(pin_no < 16, "Invalid GPIO pin-no");
 
+  static_assert(alt_func_num < 16, "illegal alternate function number");
+
+  static_assert((speed == 2_mhz) || 
+                (speed == 25_mhz) || 
+                (speed == 50_mhz) || 
+                (speed == 100_mhz),
+                "Illegal frequency for GpioOutput speed (allowed: 2_mhz, 25_mhz, 50_mhz, 100_mhz)");
 protected:
+  static constexpr uint32_t pin_mask         = (uint32_t)0x1 << pin_no;
+  static constexpr uint32_t pin_mask_double  = (uint32_t)0x3 << (pin_no * 2);
 
-  static constexpr uint32_t pin_mask = (uint32_t)1 << pin_no;
-  static constexpr uint32_t pin_mask_double  = (uint32_t)3 << (pin_no * 2);
+  static constexpr uint32_t moder_value = (moder_cnf == cGpio::Mode::output ? 1 :
+                                           moder_cnf == cGpio::Mode::alternate_function ? 2 :
+                                           moder_cnf == cGpio::Mode::analog ? 3 :
+                                           0) << (pin_no * 2);
+
+  static constexpr uint32_t otyper_value = (otype_cnf == cGpio::OutputType::open_drain) ? pin_mask : 0;
+
+  static constexpr uint32_t ospeedr_value =  (speed == 25_mhz  ? 1 :
+                                              speed == 50_mhz  ? 2 :
+                                              speed == 100_mhz ? 3 :
+                                              0) << (pin_no * 2) ;
+
+  static constexpr uint32_t pupdr_value =  (resistor_cnf == cGpio::ResistorConfig::pull_up   ? 1 :
+                                            resistor_cnf == cGpio::ResistorConfig::pull_down ? 2 :
+                                            0x00) << (pin_no * 2) ;
+
+  static constexpr uint32_t afrl_value = pin_no <  8 ? alt_func_num << ((pin_no % 8) * 4) : 0;
+  static constexpr uint32_t afrl_mask  = pin_no <  8 ? 0xf          << ((pin_no % 8) * 4) : 0;
+  static constexpr uint32_t afrh_value = pin_no >= 8 ? alt_func_num << ((pin_no % 8) * 4) : 0;
+  static constexpr uint32_t afrh_mask  = pin_no >= 8 ? 0xf          << ((pin_no % 8) * 4) : 0;
 
   typedef reg::GPIO<port> GPIOx;
 
-
 public:
 
+  typedef Gpio<port, pin_no, moder_cnf, otype_cnf, speed, resistor_cnf, alt_func_num> type;
+
+  // TODO: make sure the registers are only set if they differ from reset value
   typedef ResourceList< Rcc::gpio_clock_resources<port>,
-                        UniqueResource< GpioBase<port, pin_no> >
+                        UniqueResource< Gpio<port, pin_no> >,
+                        SharedRegister< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double >,
+                        SharedRegister< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        >,
+                        SharedRegister< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double >,
+                        SharedRegister< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double >,
+                        SharedRegister< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       >,
+                        SharedRegister< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       >
                         > resources;
 
+  static void init() {
+  }
 
   static void set() {
     GPIOx::BSRR::store(pin_mask);
@@ -91,111 +138,136 @@ public:
 
 
 template<char port,
-         int pin_no,
-         cGpio::InputConfig cnf,
+         unsigned pin_no,
+         cGpio::ResistorConfig resistor_cnf,
          cGpio::ActiveState active_state = cGpio::ActiveState::low>
-class GpioInput : public GpioBase<port, pin_no>
+class GpioInput
+: public Gpio< port,
+               pin_no,
+               cGpio::Mode::input,
+               cGpio::OutputType::push_pull,
+               2_mhz,
+               resistor_cnf >
 {
-
-  typedef GpioBase<port, pin_no> base;
-
+  typedef GpioInput<port, pin_no, resistor_cnf, active_state> type;
 public:
-  static void init() {
-  }
-
-  // TODO: alternate function mode (new class for this?)
-  static constexpr uint32_t moder_value = (cnf == cGpio::InputConfig::analog ? 0x11 : 0x00) << (base::pin_no * 2);
-  static constexpr uint32_t pupdr_value = (cnf == cGpio::InputConfig::pull_up   ? 0x01 :
-                                           cnf == cGpio::InputConfig::pull_down ? 0x10 :
-                                           0x00) << (base::pin_no * 2) ;
-
-  typedef ResourceList< typename base::resources,
-                        SharedRegister< typename reg::GPIO<port>::MODER,   moder_value, base::pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::OTYPER,  0,           base::pin_mask        >,
-                        SharedRegister< typename reg::GPIO<port>::OSPEEDR, 0,           base::pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::PUPDR,   pupdr_value, base::pin_mask_double >
-                        > resources;
-
   static bool active(void) {
-    bool input = base::read_input_bit();
+    bool input = type::read_input_bit();
     return active_state == cGpio::ActiveState::low ? !input : input;
   }
 };
+
+
+////////////////////  GpioInputAF  ////////////////////
+
+
+template<char port,
+         unsigned pin_no,
+         unsigned alt_func_num,
+         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating
+         >
+class GpioInputAF
+: public Gpio< port,
+               pin_no,
+               cGpio::Mode::alternate_function,
+               cGpio::OutputType::push_pull,
+               2_mhz,
+               resistor_cnf,
+               alt_func_num >
+{ };
 
 
 ////////////////////  GpioOutput  ////////////////////
 
 
 template<char port,
-         int pin_no,
-         cGpio::OutputConfig cnf,
+         unsigned pin_no,
+         cGpio::OutputType otype_cnf,
+         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
          freq_t speed = 50_mhz,
          cGpio::ActiveState active_state = cGpio::ActiveState::low>
-class GpioOutput : public GpioBase<port, pin_no> {
-
-  static_assert((speed == 2_mhz) || 
-                (speed == 25_mhz) || 
-                (speed == 50_mhz) || 
-                (speed == 100_mhz),
-                "Illegal frequency for GpioOutput speed (allowed: 2_mhz, 25_mhz, 50_mhz, 100_mhz)");
-
-  typedef GpioBase<port, pin_no> base;
-
+class GpioOutput
+: public Gpio< port,
+               pin_no,
+               cGpio::Mode::output,
+               otype_cnf,
+               speed,
+               resistor_cnf >
+{
 public:
-  static void init() {
-  }
-
-  static constexpr uint32_t moder_value = (uint32_t)1 << (pin_no * 2); /* output mode */
-  static constexpr uint32_t otyper_value = ((cnf == cGpio::OutputConfig::open_drain) ||
-                                            (cnf == cGpio::OutputConfig::alt_open_drain)
-                                            ) ? base::pin_mask : 0;
-  static constexpr uint32_t ospeedr_value = (speed == 25_mhz  ? 1 :
-                                             speed == 50_mhz  ? 2 :
-                                             speed == 100_mhz ? 3 :
-                                             0) << (pin_no * 2) ;
-
-
-  typedef ResourceList< typename base::resources,
-                        SharedRegister< typename reg::GPIO<port>::MODER,   moder_value,   base::pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::OTYPER,  otyper_value,  base::pin_mask        >,
-                        SharedRegister< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, base::pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::PUPDR,   0,             base::pin_mask_double >
-                        > resources;
+  typedef GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;
 
   static void enable() {
     if(active_state == cGpio::ActiveState::low) {
-      base::reset();
+      type::reset();
     } else {
-      base::set();
+      type::set();
     }
   }
 
   static void disable() {
     if(active_state == cGpio::ActiveState::low) {
-      base::set();
+      type::set();
     } else {
-      base::reset();
+      type::reset();
     }
   }
 
   static bool active() {
-    bool input = base::read_input_bit();
+    bool input = type::read_input_bit();
     return active_state == cGpio::ActiveState::low ? !input : input;
   }
 
   static void toggle() {
-    if(base::read_input_bit()) {
-      base::reset();
+    if(type::read_input_bit()) {
+      type::reset();
     }
     else {
-      base::set();
+      type::set();
     }
   }
 
   static bool latched() {
-    bool output = base::read_output_bit();
+    bool output = type::read_output_bit();
     return active_state == cGpio::ActiveState::low ? !output : output;
   }
+};
+
+
+////////////////////  GpioOutputAF  ////////////////////
+
+
+template<char port,
+         unsigned pin_no,
+         unsigned alt_func_num,
+         cGpio::OutputType otype_cnf = cGpio::OutputType::open_drain,
+         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
+         freq_t speed = 50_mhz>
+class GpioOutputAF
+: public Gpio< port,
+               pin_no,
+               cGpio::Mode::alternate_function,
+               otype_cnf,
+               speed,
+               resistor_cnf,
+               alt_func_num >
+{ };
+
+
+////////////////////  GpioAnalogIO  ////////////////////
+
+
+template<char port,
+         unsigned pin_no>
+class GpioAnalogIO
+: public Gpio< port,
+               pin_no,
+               cGpio::Mode::analog,
+               cGpio::OutputType::push_pull,
+               2_mhz,
+               cGpio::ResistorConfig::floating >
+{
+  // TODO: get/set analog value
 };
 
 
@@ -203,20 +275,20 @@ public:
 
 
 template<char port,
-         int pin_no,
-         cGpio::OutputConfig cnf = cGpio::OutputConfig::push_pull,
+         unsigned pin_no,
+         cGpio::OutputType otype_cnf = cGpio::OutputType::push_pull,
+         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
          freq_t speed = 50_mhz,
          cGpio::ActiveState active_state = cGpio::ActiveState::low>
-class GpioLed : public GpioOutput<port, pin_no, cnf, speed, active_state> {
-
-  typedef GpioOutput<port, pin_no, cnf, speed, active_state> base;
-
+class GpioLed : public GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> {
 public:
+  typedef GpioLed<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;
+
   static void on() {
-    base::enable();
+    type::enable();
   }
   static void off() {
-    base::disable();
+    type::disable();
   }
 };
 
