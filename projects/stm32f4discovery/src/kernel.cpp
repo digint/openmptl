@@ -30,6 +30,7 @@ using namespace resources;
 
 static volatile int systick_count = 1000;
 static volatile int second = 0;
+Terminal<UsartStreamDevice<resources::usart>, terminal_hooks::commands> terminal;
 
 template<>
 void systick::Irq::Handler(void) {
@@ -39,6 +40,22 @@ void systick::Irq::Handler(void) {
     second++;
     led_green::toggle();
   }
+}
+
+
+template<>
+void UsartStreamDevice<resources::usart>::Irq::Handler(void) {
+  UartIrqTransport<resources::usart> transport;
+
+#if 0
+  usart_irq_count++;
+
+  if(transport.HasErrors()) {
+    usart_irq_errors++;
+  }
+#endif
+
+transport.ProcessIO(terminal.rx_fifo, terminal.tx_stream.fifo);
 }
 
 void Kernel::init(void)
@@ -57,10 +74,8 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  typedef UartTerminal<resources::usart, terminal_hooks::commands> uart_terminal;
-
-  uart_terminal terminal;
-  terminal << "\r\n\r\n\r\nWelcome to CppCore-demo terminal console\r\n" << flush;
+  terminal.open();
+  terminal.tx_stream << "\r\n\r\n\r\nWelcome to CppCore-demo terminal console\r\n" << flush;
 
   while(1)
   {

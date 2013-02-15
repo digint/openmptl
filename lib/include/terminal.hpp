@@ -25,53 +25,45 @@
 #include <cstring> // strcmp
 #include <type_traits>
 
-// ----------------------------------------------------------------------------
-// Terminal
-//
 
 namespace text
 {
   static constexpr const char * term_cmd_notfound = ": command not found (type \"help\" for a list of available commands)";
 }
 
-class Terminal
-{
-public:
-  typedef char char_type;
-
-protected:
-  Fifo<char_type> & rx_fifo;
-
-public:
-  poorman_ostream<char_type> & tx_stream;
-
-  static constexpr const char_type * newline = "\r\n";
-  static constexpr const char_type * prompt  = "# ";
-
-  Terminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : rx_fifo(_rx_fifo), tx_stream(_tx_stream) { }
-
-  template<typename T>
-  poorman_ostream<char> & operator<<(T & st) {
-    return tx_stream << st;
-  }
-};
-
 
 // ----------------------------------------------------------------------------
-// CommandTerminal
+// Terminal
 //
 
-template<typename cmd_hooks>
-class CommandTerminal : public Terminal
+template<typename stream_device_type, typename cmd_hooks>
+class Terminal
 {
+  typedef typename stream_device_type::char_type char_type;
+  typedef FifoStream< RingBuffer<char_type, 512>, stream_device_type > tx_stream_type;
+
   static constexpr std::size_t cmd_buf_size = 80;
 
   char_type cmd_buf[cmd_buf_size];
   unsigned cmd_index = 0;
 
+protected:
+
 public:
 
-  CommandTerminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : Terminal(_rx_fifo, _tx_stream) { }
+  typedef typename stream_device_type::resources resources;
+
+  RingBuffer<char_type, 512> rx_fifo;    /// TODO: private !!!!!!!!
+  tx_stream_type tx_stream;              /// TODO: private !!!!!!!!
+
+  static constexpr const char * newline = "\r\n";
+  static constexpr const char * prompt  = "# ";
+
+  //  Terminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : rx_fifo(_rx_fifo), tx_stream(_tx_stream) { }
+
+  void open() {
+    stream_device_type::open();
+  }
 
   void process_input(void)
   {
@@ -84,7 +76,7 @@ public:
         cmd_buf[cmd_index] = 0;
 
         if(cmd_index) {
-          cmd_hooks::template execute<cmd_hooks>(cmd_buf, *this);
+          cmd_hooks::template execute<cmd_hooks>(cmd_buf, tx_stream);
         }
         tx_stream << prompt;
         cmd_index = 0;
@@ -98,7 +90,26 @@ public:
     if(flush_tx) // prevent unnecessary usart interrupts
       tx_stream.flush();
   }
+
 };
+
+
+// ----------------------------------------------------------------------------
+// CommandTerminal
+//
+
+template<typename rx_fifo_type, typename tx_stream_type, typename cmd_hooks>
+class CommandTerminal : public Terminal<rx_fifo_type, tx_stream_type>
+{
+  typedef Terminal<rx_fifo_type, tx_stream_type> type;
+
+
+public:
+
+  //  CommandTerminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : Terminal(_rx_fifo, _tx_stream) { }
+
+};
+
 
 // ----------------------------------------------------------------------------
 // TerminalHook
@@ -112,16 +123,18 @@ struct TerminalHook {
 // TerminalHookList
 //
 
-template<std::size_t... Args>
-struct max {
-  static constexpr std::size_t value = 0;
-};
+namespace mpl
+{
+  template<std::size_t... Args>
+  struct max {
+    static constexpr std::size_t value = 0;
+  };
 
-template<std::size_t T, std::size_t... Args>
-struct max<T, Args...> {
-  static constexpr std::size_t value = T > max<Args...>::value ? T : max<Args...>::value;
-};
-
+  template<std::size_t T, std::size_t... Args>
+  struct max<T, Args...> {
+    static constexpr std::size_t value = T > max<Args...>::value ? T : max<Args...>::value;
+  };
+}
 
 
 
@@ -133,46 +146,47 @@ template<>
 struct TerminalHookList<>
 {
   template<typename HL>
-  static void execute(const char * cmd_buf, Terminal & term) {
+  static void execute(const char * cmd_buf, poorman_ostream<char> & ostream) {
     if(strcmp("help", cmd_buf) == 0) {
-      term << "List of commands:" << term.newline;
-      HL::template list<HL>(term);
+      ostream << "List of commands:" << endl;
+      HL::template list<HL>(ostream);
     }
     else {
-      term << cmd_buf << text::term_cmd_notfound << term.newline;
+      ostream << cmd_buf << text::term_cmd_notfound << endl;
     }
   }
 
   template<typename HL>
-  static void list(Terminal &) { }
+  static void list(poorman_ostream<char> &) { }
 };
 
 template<typename T, typename... Args>
 struct TerminalHookList<T, Args...> {
 
   template<typename HL>
-  static void execute(const char * cmd_buf, Terminal & term) {
+  static void execute(const char * cmd_buf, poorman_ostream<char> & ostream) {
     if(strcmp(T::cmd, cmd_buf) == 0) {
-      T().run(term);
+      T().run(ostream);
     }
     else {
-      TerminalHookList<Args...>::template execute<HL>(cmd_buf, term);
+      TerminalHookList<Args...>::template execute<HL>(cmd_buf, ostream);
     }
   }
 
   /** maximum length of all commands (minimum 8) */
-  static constexpr unsigned cmd_maxlen = max<8, strlen(T::cmd), strlen(Args::cmd)...>::value;
+  static constexpr unsigned cmd_maxlen = mpl::max<8, strlen(T::cmd), strlen(Args::cmd)...>::value;
 
   template<typename HL>
-  static void list(Terminal & term) {
-    term << "   " << T::cmd;
+  static void list(poorman_ostream<char> & ostream) {
+    ostream << "   " << T::cmd;
     for(int n = HL::cmd_maxlen - strlen(T::cmd) + 3 ; n > 0; n--)
-      term.tx_stream.put(' ');
-    term << T::desc << endl;
+      ostream.put(' ');
+    ostream << T::desc << endl;
 
-    TerminalHookList<Args...>::template list<HL>(term);
+    TerminalHookList<Args...>::template list<HL>(ostream);
   }
 };
+
 
 
 #endif

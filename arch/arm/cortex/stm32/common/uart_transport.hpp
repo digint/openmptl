@@ -70,10 +70,23 @@ public:
 template<typename usart>
 struct UsartStreamDevice
 {
+  typedef char char_type;
+
+  typedef typename usart::resources resources;
+
+  typedef typename usart::GlobalIrq Irq;
+
   static constexpr bool crlf = true;
 
   static void flush() {
     usart::EnableTxInterrupt();
+  }
+
+  static void open(void) {
+    usart::init();
+    usart::Enable();
+    usart::GlobalIrq::Enable();
+    usart::template EnableInterrupt<true, false, true, false, false>();
   }
 };
 

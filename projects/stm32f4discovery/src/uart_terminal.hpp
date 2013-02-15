@@ -21,26 +21,22 @@
 #include <terminal.hpp>
 #include <arch/uart_transport.hpp>
 
+#if 0
 template<typename uart, typename cmd_hooks>
-class UartTerminal : public CommandTerminal<cmd_hooks>
+class UartTerminal
+: public Terminal< UsartStreamDevice<uart>, cmd_hooks >
+#if 0
+: public Terminal< RingBuffer<char, 512>,
+                   FifoStream< RingBuffer<char, 512>, UsartStreamDevice<uart> >,
+                   cmd_hooks >
+#endif
 {
-  typedef RingBuffer<char, 512> fifo_type;
-
-public:
-
-  static fifo_type usart_rx_fifo;
-  static fifo_type usart_tx_fifo;
-
-  FifoStream<fifo_type, UsartStreamDevice<uart> > usart_tx_fifo_stream;
-
-
   typedef typename uart::resources resources;
 
   typedef typename uart::GlobalIrq Irq;
 
-  UartTerminal(void) : CommandTerminal<cmd_hooks>(usart_rx_fifo, usart_tx_fifo_stream),
-                       usart_tx_fifo_stream(usart_tx_fifo)
-  {
+public:
+  UartTerminal(void) {
     uart::init();
     uart::Enable();
     uart::GlobalIrq::Enable();
@@ -48,3 +44,4 @@ public:
 
   }
 };
+#endif

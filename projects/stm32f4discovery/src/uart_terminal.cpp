@@ -22,12 +22,14 @@
 #include "resources.hpp"
 #include "terminal_hooks.hpp"
 
+#if 0
 
+#if 0
 template<typename uart, typename cmd_hooks>
 typename UartTerminal<uart, cmd_hooks>::fifo_type UartTerminal<uart, cmd_hooks>::usart_rx_fifo;
 template<typename uart, typename cmd_hooks>
 typename UartTerminal<uart, cmd_hooks>::fifo_type UartTerminal<uart, cmd_hooks>::usart_tx_fifo;
-
+#endif
 
 
 typedef UartTerminal<resources::usart, terminal_hooks::commands> uart_terminal;
@@ -46,3 +48,4 @@ void uart_terminal::Irq::Handler(void) {
 
   transport.ProcessIO(uart_terminal::usart_rx_fifo, uart_terminal::usart_tx_fifo);
 }
+#endif

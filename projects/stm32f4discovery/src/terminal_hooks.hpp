@@ -31,8 +31,8 @@ namespace terminal_hooks
   {
     static constexpr const char * cmd  = "cpuid";
     static constexpr const char * desc = "prints the SCB::CPUID register";
-    void run(Terminal & term) {
-      term.tx_stream << reg::SCB::CPUID::load() << endl;
+    void run(poorman_ostream<char> & ostream) {
+      ostream << reg::SCB::CPUID::load() << endl;
     }
   };
 
