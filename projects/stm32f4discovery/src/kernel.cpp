@@ -53,8 +53,6 @@ void Kernel::init(void)
   led_red::init(); led_red::off();
   led_blue::init(); led_blue::off();
 
-led_blue::on();
-
   systick::Init();
   systick::EnableInterrupt();
 }
@@ -62,7 +60,7 @@ led_blue::on();
 void Kernel::run(void)
 {
   terminal.open();
-  terminal.tx_stream << "\r\n\r\nWelcome to CppCore-demo terminal console" << endl;
+  terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
 
   while(1)
   {
