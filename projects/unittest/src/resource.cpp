@@ -20,12 +20,9 @@
 
 // #define CORE_SIMULATION
 
-/* These are enabled by the Makefile: */
-#define UNITTEST_STATIC_ASSERT(code)
-#define UNITTEST_STATIC_ASSERT_ENABLED(code) code
-
 #include <resource_mpl.hpp>
 #include <register.hpp>
+#include "unittest_static_assert.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -43,10 +40,13 @@ typedef SharedRegister< A, 0x00001100, 0x0000ff00 > test1;
 typedef SharedRegister< B, 0x00110000, 0x00ff0000 > test2;
 typedef SharedRegister< A, 0x11000000, 0xff000000 > test3;
 typedef SharedRegister< C, 0x10,       0xff       > test4;
+
 typedef UniqueResource< A > uniq0;
 typedef UniqueResource< B > uniq1;
 typedef UniqueResource< C > uniq2;
 typedef UniqueResource< D > uniq3;
+
+
 
 typedef ResourceList < uniq0,
                        ResourceList<ResourceList<test0,

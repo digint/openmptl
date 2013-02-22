@@ -23,10 +23,12 @@
 #define COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
+#include <resource_mpl.hpp>
+#include <type_traits>
 
 #ifndef CORE_SIMULATION
-static_assert(sizeof(irq_handler_t)  == 4, "wrong size for irq function pointer");
-static_assert(alignof(irq_handler_t) == 4, "wrong alignment for irq function pointer table");
+static_assert(sizeof(isr_t)  == 4, "wrong size for irq function pointer");
+static_assert(alignof(isr_t) == 4, "wrong alignment for irq function pointer table");
 #endif
 
 /**
@@ -41,48 +43,59 @@ static_assert(alignof(irq_handler_t) == 4, "wrong alignment for irq function poi
  */
 template<const uint32_t *stack_top, typename... irqs>
 struct VectorTableImpl {
-  static constexpr std::size_t core_exceptions = NvicCortexSetup::core_exceptions;
+  static constexpr std::size_t core_exceptions = 16;  /* this includes the stack_top pointer */
   static constexpr std::size_t irq_channels    = sizeof...(irqs);
-  static constexpr std::size_t table_size      = core_exceptions + irq_channels;
+  static constexpr std::size_t size            = core_exceptions + irq_channels;
   
-  static const irq_handler_t vector_table[table_size] __attribute__ ((section(".isr_vector")));
+  static isr_t vector_table[size] __attribute__ ((section(".isr_vector")));
 
   /* Build the vector table by declaring a pointer to it */
-  irq_handler_t *vector_table_start = vector_table;
+  isr_t *vector_table_p = vector_table;
 };
 
 template<const uint32_t *stack_top, typename... irqs>
-const irq_handler_t VectorTableImpl<stack_top, irqs...>::vector_table[table_size] = {
-  reinterpret_cast<irq_handler_t>(stack_top),
+isr_t VectorTableImpl<stack_top, irqs...>::vector_table[size] = {
+  reinterpret_cast<isr_t>(stack_top),
 
   /* fixed core exceptions */
-  CoreException::Reset            ::Handler,
-  CoreException::NMI              ::Handler,
-  CoreException::HardFault        ::Handler,
+  CoreException::Reset            ::isr,
+  CoreException::NMI              ::isr,
+  CoreException::HardFault        ::isr,
 
   /* settable core exceptions */
-  CoreException::MemoryManagement ::Handler,
-  CoreException::BusFault         ::Handler,
-  CoreException::UsageFault       ::Handler,
+  CoreException::MemoryManagement ::isr,
+  CoreException::BusFault         ::isr,
+  CoreException::UsageFault       ::isr,
   0, 0, 0, 0,    /* reserved */
-  CoreException::SVCall           ::Handler,
-  CoreException::DebugMonitor     ::Handler,
+  CoreException::SVCall           ::isr,
+  CoreException::DebugMonitor     ::isr,
   0,             /* reserved */
-  CoreException::PendSV           ::Handler,
-  CoreException::SysTick          ::Handler,
+  CoreException::PendSV           ::isr,
+  CoreException::SysTick          ::isr,
 
   /* device specific irq channels */
-  irqs::Handler...
+  irqs::Handler::isr...
 };
 
 
-template<int N, const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilderImpl : VectorTableBuilderImpl<N - 1, stack_top, IrqChannel<N - 1>, irqs... >
-{ };
+template<typename R, unsigned int N, const uint32_t *stack_top, typename... irqs>
+struct VectorTableBuilderImpl {
+  typedef typename VectorTableBuilderImpl<
+    R,
+    N - 1,
+    stack_top,
+    typename std::conditional<  /* take handler from ResourceList if present */
+      std::is_void< typename R::template irq_resource< IrqChannel< N - 1 > >::type >::value,
+      IrqChannel<N - 1>,
+      typename R::template irq_resource< IrqChannel< N - 1 > >::type
+      >::type,
+    irqs...
+    >::type type;
+};
 
-template<const uint32_t *stack_top, typename... irqs>
-struct VectorTableBuilderImpl<0, stack_top, irqs...> {
-  typedef VectorTableImpl<stack_top, irqs...> value;
+template<typename R, const uint32_t *stack_top, typename... irqs>
+struct VectorTableBuilderImpl<R, 0, stack_top, irqs...> {
+  typedef VectorTableImpl<stack_top, irqs...> type;
 };
 
 
@@ -90,10 +103,14 @@ struct VectorTableBuilderImpl<0, stack_top, irqs...> {
  * VectorTableBuilder: Provides a VectorTableImpl by setting the
  * number of irq channels and the top-of-stack.
  */
-template<std::size_t irq_channels, const uint32_t *stack_top>
-struct VectorTableBuilder : VectorTableBuilderImpl<irq_channels, stack_top>::value
+template<typename R, std::size_t irq_channels, const uint32_t *stack_top>
+struct VectorTableBuilder : VectorTableBuilderImpl<R, irq_channels, stack_top>::type
 {
-  static_assert(sizeof(VectorTableBuilderImpl<irq_channels, stack_top>::value::vector_table) == 4 * (irq_channels + NvicCortexSetup::core_exceptions), "IRQ vector table size error");
+#ifndef CORE_SIMULATION
+  static_assert(sizeof(VectorTableBuilderImpl<R, irq_channels, stack_top>::type::vector_table)
+                == 4 * (irq_channels + VectorTableImpl<stack_top>::core_exceptions),
+                "IRQ vector table size error");
+#endif
 };
 
 

@@ -26,7 +26,10 @@ PROJECT      = cppcore
 CPPCORE_TOP  = ../..
 
 #CROSS        = x86_64-pc-linux-gnu-
-CROSS       = /opt/toolchain/x86_64-pc-linux-gnu-gcc-4.7.0/bin/x86_64-pc-linux-gnu-
+CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
+
+# needed by some unittests
+CPPCORE_ARCH = arm/cortex/stm32/f4
 
 FLAGS        = -DCORE_SIMULATION
 
@@ -36,6 +39,8 @@ FLAGS        = -DCORE_SIMULATION
 #
 
 SRC_DIR     = src
+
+INCLUDE      += -I $(SRC_DIR)
 
 OBJ_DIR      = obj
 SRC_FAIL_DIR = mustfail_src
@@ -116,13 +121,14 @@ test: $(OBJ_DIR) $(OBJS)
 test_fail: $(SRC_FAIL_DIR) $(OBJS_FAIL)
 
 $(SRC_FAIL_DIR)/%.o: $(SRC_FAIL_DIR)/%.cpp
+	@echo -e "---\n--- compiling $@\n---"
 	$(CXX) $(CXXFLAGS) -o $@ $< || true
-	@if [ -e $@ ] ; then echo "--- compilation did NOT fail, but should have!" ; false ; else echo "--- compilation failed, good!" ; fi
+	@if [ -e $@ ] ; then echo "--- compilation did NOT fail, but should have!" ; false ; else echo -e "---\n--- compilation failed, good!\n---" ; fi
 
 $(OBJ_DIR)/%: %.cpp
-	@echo "--- compiling $@"
+	@echo -e "---\n--- compiling $@\n---"
 	$(CXX) $(CXXFLAGS) -o $@ $<
-	@echo "--- running $@"
+	@echo -e "---\n--- running $@\n---"
 	$@
 
 $(OBJ_DIR):

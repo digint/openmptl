@@ -33,6 +33,9 @@
  */
 template<typename T, typename R = T>
 struct Resource {
+  using type = T;
+  using result_type = R;
+
   /* Append resource R to the filtered_list (Tf) if Filter matches our type (T). */
   template<typename Tf, typename Filter>
   using append_filtered_list = typename std::conditional<
@@ -42,7 +45,7 @@ struct Resource {
 
   /* Append type T to the unique_list (Tu) if unique_list does not yet hold our type (T). */
   template<typename Tu>
-  using append_ulist = typename std::conditional<
+  using append_unique_list = typename std::conditional<
     Tu::template contains<T>::value,
     Tu,
     typename Tu::template append<T>
@@ -68,7 +71,7 @@ struct SharedRegisterFunc
            Rl::template combined_type<type>::clear_mask);
   }
 
-  template<typename Rl> static constexpr void check() { }
+  template<typename Rl> static constexpr bool assert_type() { return true; }
 };
 
 
@@ -95,73 +98,47 @@ struct SharedRegister
 ////////////////////  UniqueResource  ////////////////////
 
 
-template<typename T, typename U>
-struct assert_different {
-  static constexpr bool value = !std::is_same<T, U>::value;
-  static_assert(value, "UniqueResource<...> is not unique! (see compiler output \"assert_different<...>\" above)");
-};
-
-template<typename T, typename... Args>
-struct unique_types;
-template<typename T0, typename T1, typename... Args>
-struct unique_types<T0, T1, Args...> {
-  /* not very efficient, O(n^2) */
-  static constexpr bool value =
-    assert_different<T0, T1>::value &&
-    unique_types<T0, Args...>::value &&
-    unique_types<T1, Args...>::value;
-};
 template<typename T>
-struct unique_types<T> {
-  static constexpr bool value = true;
-};
+struct UniqueResource
+: Resource< UniqueResource<T> >
+{
+  using type = UniqueResource<T>;
 
-
-template<typename... Args>
-struct unique_resource_value {
-  using value_type = unique_resource_value<Args...>;
-  static constexpr bool is_unique = unique_types<Args...>::value;
-
-  template<typename T>
-  using append = unique_resource_value<T, Args...>;
+  template<typename Rl> static void configure() { }
 
   template<typename U>
   struct combine {
-    typedef typename U::template append<Args...> type;
+    static_assert(std::is_void<U>::value,  /* always assert. combining unique resources means that two same types exist */
+                  "ResourceList contains UniqueResource which are not unique. (see compile message \"filtered_list_impl<UniqueResource< XXX >, UniqueResource< XXX >, ... >::combined_type\" above.)");
   };
-};
-
-struct UniqueResourceFunc
-{
-  template<typename Rl> static void configure() { }
 
   template<typename Rl>
-  static constexpr void check() {
-    static_assert(Rl::template combined_type< UniqueResourceFunc >::is_unique,
-                  "ResourceList contains UniqueResource which are not unique. (see compile messages above)");
+  static constexpr bool assert_type() {
+    /* We check for "Rl::combined_type<type>::type here", and assert    */
+    /* in "combine" above. The reason for this is to get nicer          */
+    /* compiler messages than if we were just asserting for             */
+    /* "Rl::resource_filtered_list<type>::size <= 1" (which is also     */
+    /* correct).                                                        */
+    return !std::is_void<typename Rl::template combined_type<type>::type>::value;
   }
 };
-
-template<typename T>
-struct UniqueResource
-: Resource< UniqueResourceFunc, unique_resource_value<T> >
-{ };
 
 
 ////////////////////  IsrResource  ////////////////////
 
 template<typename T>
-struct IrqResource : Resource< IrqResource<T> > {
-  using value_type = T;
+struct IrqResource : Resource< IrqResource<typename T::type>, IrqResource<T> > {
+  using type = IrqResource<T>;
+  using result_type = T;
 
   template<typename U>
   struct combine {
-    using type = T;
-    static_assert(std::is_same<type, typename U::value_type>::value, "gna");
+    static_assert(std::is_void<U>::value,  /* always assert. IrqResource<T> must be unique. */
+                  "ResourceList contains multiple IrqResource with same type. (see compile message \"filtered_list_impl<IrqResource< XXX >, IrqResource< XXX >, ... >::combined_type\" above.)");
   };
 
-  template<typename Rl> static constexpr void check() { }
-  template<typename Rl> static           void configure() { }
+  template<typename Rl> static constexpr bool assert_type() { return true; }
+  template<typename Rl> static           void configure()   { }
 };
 
 
@@ -173,16 +150,16 @@ struct filtered_list_impl;
 
 template<typename Head, typename... Args>
 struct filtered_list_impl<Head, Args...>  {
-  typedef typename Head::template combine<typename filtered_list_impl<Args...>::combined_type>::type combined_type;
+ using combined_type = typename Head::template combine<typename filtered_list_impl<Args...>::combined_type>::type;
 };
 template<typename Head>
 struct filtered_list_impl<Head> {
-  typedef Head combined_type;
+  using combined_type = typename Head::result_type;
 };
 template<>
 struct filtered_list_impl<> {
   /* combined_type is void for empty filtered list */
-  typedef void combined_type;
+  using combined_type = void ;
 };
 
 template<typename... Args>
@@ -193,91 +170,90 @@ struct filtered_list : filtered_list_impl<Args...> {
 };
 
 
-/* Creates a filtered_list<...>: list of value_types from resource    */
-/* classes, with it's type being the combined value_type (e.g. or'ed  */
-/* register values for SharedRegister).                               */
+/* Creates a filtered_list<...>: list of resource class types,               */
+/* providing combined_type (e.g. or'ed  register values for SharedRegister). */
 template<typename T, typename Filter, typename... Args>
 struct make_filtered_list;
 
 template<typename T, typename Filter, typename Head, typename... Args>
 struct make_filtered_list<T, Filter, Head, Args...> {
-  typedef typename make_filtered_list<typename Head::template append_filtered_list<T, Filter>, Filter, Args...>::type type;
+  using type = typename make_filtered_list<typename Head::template append_filtered_list<T, Filter>, Filter, Args...>::type;
 };
 
 template<typename T, typename Filter>
 struct make_filtered_list<T, Filter> {
-  typedef T type;
+  using type = T;
 };
 
 
-
-
-////////////////////  ulist (unique resource type list) ////////////////////
+////////////////////  unique_list  ////////////////////
 
 
 template<typename... Args>
-struct ulist_impl;
+struct unique_list_impl;
 
 template<typename Head, typename... Args>
-struct ulist_impl<Head, Args...>  {
+struct unique_list_impl<Head, Args...>  {
   template<typename T>
   struct contains {
     static constexpr bool value = ( std::is_same<Head, T>::value || 
-                                    ulist_impl<Args...>::template contains<T>::value );
+                                    unique_list_impl<Args...>::template contains<T>::value );
   };
 
   template<typename Rl>
-  static void configure() {
-    Head::template configure<Rl>();
-    ulist_impl<Args...>::template configure<Rl>();
+  static constexpr bool assert_type() {
+    return (Head::template assert_type<Rl>() &&
+            unique_list_impl<Args...>::template assert_type<Rl>() );
   }
   template<typename Rl>
-  static void check() {
-    Head::template check<Rl>();
-    ulist_impl<Args...>::template check<Rl>();
+  static void configure() {
+    Head::template configure<Rl>();
+    unique_list_impl<Args...>::template configure<Rl>();
   }
 };
 template<typename Head>
-struct ulist_impl<Head> {
+struct unique_list_impl<Head> {
   template<typename T>
   using contains = std::is_same<Head, T>;
 
-  template<typename Rl> static void configure() {  Head::template configure<Rl>(); }
-  template<typename Rl> static void check()     {  Head::template check<Rl>(); }
+  template<typename Rl> static constexpr bool assert_type() {
+    return Head::template assert_type<Rl>();
+  }
+  template<typename Rl> static void configure() {
+    Head::template configure<Rl>();
+  }
 };
 template<>
-struct ulist_impl<> {
+struct unique_list_impl<> {
   template<typename T>
   using contains = std::false_type;
 
+  template<typename Rl> static bool assert_type() { return true; }
   template<typename Rl> static void configure() { }
-  template<typename Rl> static void check() { }
 };
 
 template<typename... Args>
-struct ulist : ulist_impl<Args...> {
+struct unique_list : unique_list_impl<Args...> {
   template<typename T>
-  using append = ulist<Args..., T>;
+  using append = unique_list<Args..., T>;
 
   static constexpr std::size_t size = sizeof...(Args);
 };
 
 
-/* Creates a ulist<...>: list of value_types from resource    */
+/* Creates a unique_list<...>: list of unique resource types */
 template<typename T, typename... Args>
-struct make_ulist;
+struct make_unique_list;
 
 template<typename T, typename Head, typename... Args>
-struct make_ulist<T, Head, Args...> {
-  typedef typename make_ulist<typename Head::template append_ulist<T>, Args...>::type type;
+struct make_unique_list<T, Head, Args...> {
+  typedef typename make_unique_list<typename Head::template append_unique_list<T>, Args...>::type type;
 };
 
 template<typename T>
-struct make_ulist<T> {
+struct make_unique_list<T> {
   typedef T type;
 };
-
-
 
 
 ////////////////////  ResourceList  ////////////////////
@@ -292,30 +268,37 @@ struct ResourceList {
   template<typename T, typename Filter>
   using append_filtered_list = typename make_filtered_list<T, Filter, Args...>::type;
 
+  /* Append a ResourceList to a filtered_list. Needed by make_unique_list in    */
+  /* order to create its list from nested ResourceList's                        */
   template<typename T>
-  using append_ulist = typename make_ulist<T, Args...>::type;
+  using append_unique_list = typename make_unique_list<T, Args...>::type;
 
-  template<typename Filter>
-  using resource_filtered_list = typename make_filtered_list<filtered_list<>, Filter, Args...>::type;
+  /* filtered_list, containing all resources of type T */
+  template<typename T>
+  using resource_filtered_list = typename make_filtered_list<filtered_list<>, T, Args...>::type;
 
-  using resource_ulist = typename make_ulist<ulist<>, Args...>::type;
+  /* unique_list, containing all resource types once */
+  using resource_unique_list = typename make_unique_list<unique_list<>, Args...>::type;
 
-  /* Combined resource value_type (e.g. reg_value for SharedRegister) */
-  template<typename Filter>
-  using combined_type = typename resource_filtered_list<Filter>::combined_type;
+  /* Combined resource result_type */
+  template<typename T>
+  using combined_type = typename resource_filtered_list<T>::combined_type;
 
-
-  static void set_shared_register();  // implemented in core_resource.hpp (TODO: generic functions which sets all register)
-
-  template<typename Filter>
-  struct irq_resource
-  {
-    /* Returns Irq from ResourceList, or void if not found */
-    typedef combined_type<Filter> type;
+  /* Returns IrqChannel from ResourceList, or void if not found */
+  template<typename T>
+  struct irq_resource {
+    typedef combined_type< IrqResource<T> > type;
   };
 
-  static           void configure() { resource_ulist::template configure<type>();  }
-  static constexpr void check()     { resource_ulist::template check<type>();  }
+  /* Runs configure() on all resource types */
+  static void configure() {
+    resource_unique_list::template configure<type>();
+  }
+
+  /* Compile-time consistency check of the resource list (calls static_assert() on errors) */
+  static constexpr void check() {
+    static_assert(resource_unique_list::template assert_type<type>(), "ResourceList check failed.");
+  }
 };
 
 #endif // RESOURCE_MPL_HPP_INCLUDED
