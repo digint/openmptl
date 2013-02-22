@@ -20,20 +20,18 @@
 
 #include <kernel.hpp>
 #include <arch/core.hpp>
+#include <arch/uart_transport.hpp>
 
 #include "resources.hpp"
-#include "uart_terminal.hpp"
 #include "terminal_hooks.hpp"
-
 
 using namespace resources;
 
 static volatile int systick_count = 1000;
 static volatile int second = 0;
-Terminal<UsartStreamDevice<resources::usart>, terminal_hooks::commands> terminal;
+Terminal<uart_stream_device, terminal_hooks::commands> terminal;
 
-template<>
-void systick::Irq::Handler(void) {
+void systick_isr(void) {
   systick_count--;
   if(systick_count == 0) {
     systick_count = 1000;
@@ -42,31 +40,20 @@ void systick::Irq::Handler(void) {
   }
 }
 
-
-template<>
-void UsartStreamDevice<resources::usart>::Irq::Handler(void) {
-  UartIrqTransport<resources::usart> transport;
-
-#if 0
-  usart_irq_count++;
-
-  if(transport.HasErrors()) {
-    usart_irq_errors++;
-  }
-#endif
-
-transport.ProcessIO(terminal.rx_fifo, terminal.tx_stream.fifo);
-}
-
 void Kernel::init(void)
 {
-  resources::list::assert_unique();
-  resources::list::set_shared_register();
+  /* check unique resources */
+  resources::list::check();
+
+  /* set all shared register from list */
+  resources::list::configure();
 
   led_green::init(); led_green::off();
   led_orange::init(); led_orange::off();
   led_red::init(); led_red::off();
   led_blue::init(); led_blue::off();
+
+led_blue::on();
 
   systick::Init();
   systick::EnableInterrupt();
@@ -75,7 +62,7 @@ void Kernel::init(void)
 void Kernel::run(void)
 {
   terminal.open();
-  terminal.tx_stream << "\r\n\r\n\r\nWelcome to CppCore-demo terminal console\r\n" << flush;
+  terminal.tx_stream << "\r\n\r\nWelcome to CppCore-demo terminal console" << endl;
 
   while(1)
   {

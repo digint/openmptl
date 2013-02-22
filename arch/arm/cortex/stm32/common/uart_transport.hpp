@@ -42,11 +42,11 @@ public:
       rx_fifo.push(data);
       // usart_rx++;
     }
-  if(flags & SR::TXE::value) {
+    if(flags & SR::TXE::value) {
       char c;
       if(tx_fifo.pop(c)) {
         usart::Send(c); /* implicitely clears TXE flag */
-        //        usart_tx++;
+        // usart_tx++;
       }
       else {
         usart::DisableTxInterrupt();
@@ -68,15 +68,16 @@ public:
 
 
 template<typename usart>
-struct UsartStreamDevice
-{
+struct UartStreamDevice
+{  // TODO: class
   typedef char char_type;
 
-  typedef typename usart::resources resources;
-
-  typedef typename usart::GlobalIrq Irq;
+  typedef RingBuffer<char_type, 512> fifo_type;
 
   static constexpr bool crlf = true;
+
+  static fifo_type rx_fifo;
+  static fifo_type tx_fifo;
 
   static void flush() {
     usart::EnableTxInterrupt();
@@ -88,7 +89,34 @@ struct UsartStreamDevice
     usart::GlobalIrq::Enable();
     usart::template EnableInterrupt<true, false, true, false, false>();
   }
+
+  struct Irq : public usart::GlobalIrq {
+    struct Handler {
+      static void isr(void) {
+        UartIrqTransport<usart> transport;
+#if 0
+        irq_count++;
+        if(transport.HasErrors()) {
+          irq_errors++;
+        }
+#endif
+        transport.ProcessIO(rx_fifo, tx_fifo);
+      }
+    };
+  };
+
+  typedef ResourceList< typename usart::resources,
+                        IrqResource< Irq >
+                        > resources;
 };
+
+template<typename usart>
+RingBuffer<char, 512> UartStreamDevice<usart>::rx_fifo;
+
+template<typename usart>
+RingBuffer<char, 512> UartStreamDevice<usart>::tx_fifo;
+
+
 
 #endif // STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
 

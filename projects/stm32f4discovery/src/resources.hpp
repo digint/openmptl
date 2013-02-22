@@ -23,8 +23,7 @@
 
 #include <arch/systick.hpp>
 #include <arch/gpio.hpp>
-#include <arch/usart.hpp>
-
+#include <arch/uart_transport.hpp>
 
 namespace resources
 {
@@ -35,9 +34,11 @@ namespace resources
   typedef GpioLed<'D', 14, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high> led_red;
   typedef GpioLed<'D', 15, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high> led_blue;
 
-  typedef Usart<2, 115200> usart;
+  //  typedef Usart<2, 115200> usart;
   //  typedef GpioOutput< 'A', 2,  cGpio::OutputType::alt_push_pull > gpio_tx;
   //  typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
+
+  typedef UartStreamDevice< Usart<2, 115200> > uart_stream_device;
 
   typedef GpioOutputAF<'A', 2, 7, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 25_mhz> gpio_tx;
   typedef GpioInputAF <'A', 3, 7> gpio_rx;
@@ -47,7 +48,7 @@ namespace resources
                         led_orange::resources,
                         led_red::resources,
                         led_blue::resources,
-                        usart::resources,
+                        uart_stream_device::resources,
                         gpio_rx::resources,
                         gpio_tx::resources
                         > list;

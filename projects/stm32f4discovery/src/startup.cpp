@@ -23,20 +23,50 @@
 #include <arch/nvic.hpp>
 #include <kernel.hpp>
 
-
 #ifndef CORE_SIMULATION
 
-/* Reset core exception: triggered on system startup (system entry point). */
-void CoreException::Reset::Handler(void) {
-  CRunTimeIrqWrap wrap;
+#include "resources.hpp"
+#include <arch/uart_transport.hpp>
 
-  Kernel::init();
-  Kernel::run();
+extern void systick_isr();
+extern const uint32_t _stack_top;  // provided by linker script
+
+void error_handler(void) {
+  while(1) {
+    resources::led_red::on();
+  }
 }
 
-/* Build the vector table */
-extern const uint32_t _stack_top;  // provided by linker script
-VectorTable<&_stack_top> vector_table;
+void null_handler(void) { }
+
+void warn_handler(void) {
+  resources::led_orange::on();
+}
+
+
+/* Default isr for all core exceptions */
+template<int irqn>
+isr_t CoreExceptionImpl<irqn>::isr = error_handler;
+
+template<> isr_t CoreException::NMI::isr = null_handler;
+template<> isr_t CoreException::SVCall::isr = null_handler;
+template<> isr_t CoreException::DebugMonitor::isr = null_handler;
+template<> isr_t CoreException::PendSV::isr = null_handler;
+//template<> isr_t CoreException::SysTick::isr = null_handler;
+
+
+/* Default isr for all irq channels */
+template<unsigned irqn>
+struct IrqChannel<irqn>::Handler {
+  static constexpr isr_t isr = warn_handler;
+};
+
+/* Set our systick isr */
+template<> isr_t resources::systick::Irq::isr = systick_isr;
+
+/* Build the vector table (use irq handler from all IsrResource<> in resources::list) */
+VectorTable<&_stack_top, resources::list> vector_table;
+
 
 
 #else // CORE_SIMULATION
