@@ -40,7 +40,7 @@ template<typename stream_device_type, typename cmd_hooks>
 class Terminal
 {
   typedef typename stream_device_type::char_type char_type;
-  typedef FifoStream< RingBuffer<char_type, 512>, stream_device_type > tx_stream_type;
+  typedef FifoStream< typename stream_device_type::fifo_type, stream_device_type > tx_stream_type;
 
   static constexpr std::size_t cmd_buf_size = 80;
 
@@ -53,13 +53,13 @@ public:
 
   typedef typename stream_device_type::resources resources;
 
-  RingBuffer<char_type, 512> rx_fifo;    /// TODO: private !!!!!!!!
-  tx_stream_type tx_stream;              /// TODO: private !!!!!!!!
+  tx_stream_type tx_stream;  // TODO: private !!!!!!!!
 
   static constexpr const char * newline = "\r\n";
   static constexpr const char * prompt  = "# ";
 
   //  Terminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : rx_fifo(_rx_fifo), tx_stream(_tx_stream) { }
+  Terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
   void open() {
     stream_device_type::open();
@@ -69,7 +69,7 @@ public:
   {
     bool flush_tx = false;
     char c;
-    while(rx_fifo.pop(c)) {
+    while(stream_device_type::rx_fifo.pop(c)) {
       flush_tx = true;
       if(c == 13) {  // CR
         tx_stream << newline;  // echo
@@ -90,24 +90,6 @@ public:
     if(flush_tx) // prevent unnecessary usart interrupts
       tx_stream.flush();
   }
-
-};
-
-
-// ----------------------------------------------------------------------------
-// CommandTerminal
-//
-
-template<typename rx_fifo_type, typename tx_stream_type, typename cmd_hooks>
-class CommandTerminal : public Terminal<rx_fifo_type, tx_stream_type>
-{
-  typedef Terminal<rx_fifo_type, tx_stream_type> type;
-
-
-public:
-
-  //  CommandTerminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : Terminal(_rx_fifo, _tx_stream) { }
-
 };
 
 
@@ -135,8 +117,6 @@ namespace mpl
     static constexpr std::size_t value = T > max<Args...>::value ? T : max<Args...>::value;
   };
 }
-
-
 
 
 template<typename... Args>
@@ -187,6 +167,4 @@ struct TerminalHookList<T, Args...> {
   }
 };
 
-
-
-#endif
+#endif // TERMINAL_HPP_INCLUDED

@@ -39,10 +39,11 @@ template<typename fifoT, typename deviceT>
 class FifoStream
 : public poorman_ostream<typename fifoT::char_type>
 {
-public:
-  fifoT fifo;  // TODO: private!
+  fifoT & fifo;
 
-  //  FifoStream(fifoT & f) : fifo(f) { };
+public:
+
+  FifoStream(fifoT & f) : fifo(f) { };
 
   typedef typename fifoT::char_type char_type;
 
