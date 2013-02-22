@@ -12,7 +12,6 @@ use File::Spec::Functions qw(splitpath);
 use strict;
 use warnings FATAL => qw( all );
 
-my $count = 0;
 my @outfiles;
 
 my %opts;
@@ -38,6 +37,7 @@ while (my $infile = shift @ARGV) {
   close(INFILE);
 
   my $pre = '';
+  my $count = 0;
 
   while ($text =~ /^\s*UNITTEST_STATIC_ASSERT[^\n]*\n/ms) {
     my $m = $&;

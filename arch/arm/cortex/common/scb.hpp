@@ -22,7 +22,7 @@
 #define COMMON_ARM_CORTEX_SCB_HPP_INCLUDED
 
 #include "reg/scb.hpp"
-
+#include <core_setup.hpp>
 
 class Scb : private InterruptControllerSetup
 {

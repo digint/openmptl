@@ -21,6 +21,8 @@
 #ifndef COMMON_ARM_CORTEX_REG_SCB_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_REG_SCB_HPP_INCLUDED
 
+#include <register.hpp>
+
 namespace reg {
 
   /**

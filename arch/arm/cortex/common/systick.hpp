@@ -23,7 +23,7 @@
 
 #include <arch/core.hpp>
 #include <arch/nvic.hpp>
-#include <arch/core_resource.hpp>
+#include <resource_mpl.hpp>
 
 namespace cSysTick
 {
@@ -32,13 +32,6 @@ namespace cSysTick
     hclk_div8   /**< AHB clock (HCLK) divided by 8 (9MHz)  */
   };
 }
-
-
-#if 0
-  static constexpr uint32_t LOAD_RELOAD     = 0x00FFFFFF;   /**< Value to load into the SysTick Current Value Register when the counter reaches 0  */
-  static constexpr uint32_t STCVR_CURRENT   = 0x00FFFFFF;   /**< Current value at the time the register is accessed                                */
-  static constexpr uint32_t STCR_TENMS      = 0x00FFFFFF;   /**< Reload value to use for 10ms timing                                               */
-#endif
 
 
 template<freq_t interrupt_rate,   //< interrupt rate in Hz

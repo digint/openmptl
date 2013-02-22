@@ -22,6 +22,7 @@
 #define GPIO_HPP_INCLUDED
 
 #include <arch/rcc.hpp>
+#include <arch/reg/gpio.hpp>
 
 namespace cGpio
 {

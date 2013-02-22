@@ -198,7 +198,7 @@ $(LSS): $(ELF)
 
 $(HEX):	$(ELF)
 	@echo "--- generating $@"
-	$(CP) -O ihex $< $@
+	$(OBJCOPY) -O ihex $< $@
 
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"

@@ -18,15 +18,11 @@
  * 
  */
 
-#define CORE_SIMULATION
-
-/* These are enabled by the Makefile: */
-#define UNITTEST_STATIC_ASSERT(code)
-#define UNITTEST_STATIC_ASSERT_ENABLED(code) code
-
+// #define CORE_SIMULATION
 
 #include <register.hpp>
 #include <cassert>
+#include "unittest_static_assert.hpp"
 
 using namespace reg;
 
@@ -202,7 +198,7 @@ int main()
   assert(TEST::REG::load() == 0xffffff2f);
 
   // fail: clearing bits from different register
-  UNITTEST_STATIC_ASSERT( TEST::REG::clear<TEST::REG2::BITS_0_7>() );
+  UNITTEST_STATIC_ASSERT( TEST::REG::clear<TEST::REG2::BITS_0_7>(); )
 
   return 0;
 }

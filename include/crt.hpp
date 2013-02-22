@@ -18,6 +18,9 @@
  * 
  */
 
+#ifndef CRT_HPP_INCLUDED
+#define CRT_HPP_INCLUDED
+
 #include <arch/core.hpp>
 #include <irq_wrap.hpp>
 #include <cstdint>
@@ -68,6 +71,7 @@ struct CRunTime {
  * initialize data and bss sections, and to initialize the core.
  */
 struct CRunTimeIrqWrap : public IrqWrap {
+#ifndef CORE_SIMULATION
   CRunTimeIrqWrap() {
     CRunTime::init_data_section();
     CRunTime::init_bss_section();
@@ -81,4 +85,7 @@ struct CRunTimeIrqWrap : public IrqWrap {
   ~CRunTimeIrqWrap() { 
     CRunTime::call_dtors();
   };
+#endif // CORE_SIMULATION
 };
+
+#endif // CRT_HPP_INCLUDED
