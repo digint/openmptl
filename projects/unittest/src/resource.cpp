@@ -18,7 +18,11 @@
  * 
  */
 
-#define CORE_SIMULATION
+// #define CORE_SIMULATION
+
+/* These are enabled by the Makefile: */
+#define UNITTEST_STATIC_ASSERT(code)
+#define UNITTEST_STATIC_ASSERT_ENABLED(code) code
 
 #include <resource_mpl.hpp>
 #include <register.hpp>
@@ -33,15 +37,6 @@ struct A : Register< uint32_t, 0x1000, Access::rw, 0 > {};
 struct B : Register< uint32_t, 0x2000, Access::rw, 0x44444444 > {};
 struct C : Register< uint8_t,  0x3000, Access::rw, 0 > {};
 struct D : Register< uint32_t, 0x4000, Access::rw, 0x55555555 > {};
-
-template<typename... Args>
-void ResourceList<Args...>::set_shared_register(void)
-{
-  set_register<A>();
-  set_register<B>();
-  set_register<C>();
-  set_register<D>();
-}
 
 typedef SharedRegister< A, 0x00000011, 0x000000ff > test0;
 typedef SharedRegister< A, 0x00001100, 0x0000ff00 > test1;
@@ -67,23 +62,27 @@ typedef ResourceList < uniq0,
 
 typedef ResourceList < list, uniq2 > fail_list;
 
+
 int main()
 {
+  /* check unique resources */
+  list::check();
+  UNITTEST_STATIC_ASSERT( fail_list::check() );
+
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);
   assert(C::load() == 0);
   assert(D::load() == 0x55555555);
 
-  list::set_shared_register();
+  //  SharedRegisterFunc<A>::configure<list>();
+
+  /* set all shared register from list */
+  list::configure();
 
   assert(A::load() == 0x11001111);
   assert(B::load() == 0x44114444);
   assert(C::load() == 0x10);
   assert(D::load() == 0x55555555);
   
-
-  list::assert_unique();
-  //  fail_list::assert_unique();
-
   return 0;
 }
