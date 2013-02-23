@@ -23,7 +23,7 @@
 #define IRQ_WRAP_HPP_INCLUDED
 
 
-struct IrqWrap {
+struct IrqWrap { // TODO: rename IsrWrap
 // TODO: check virtual declaration
   IrqWrap() { }
   ~IrqWrap() { }
