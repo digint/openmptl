@@ -18,14 +18,9 @@
  * 
  */
 
-#ifndef KERNEL_HPP_INCLUDED
-#define KERNEL_HPP_INCLUDED
+#ifndef VECTOR_TABLE_HPP_INCLUDED
+#define VECTOR_TABLE_HPP_INCLUDED
 
-class Kernel
-{
-public:
-  static void init(void);
-  static void run(void) __attribute__ ((noreturn));
-};
+#include "../../../../common/vector_table.hpp"
 
-#endif // KERNEL_HPP_INCLUDED
+#endif // VECTOR_TABLE_HPP_INCLUDED

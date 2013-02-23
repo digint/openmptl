@@ -22,7 +22,6 @@
 #define NVIC_HPP_INCLUDED
 
 #include "../../../../common/nvic.hpp"
-#include "../../../../common/vector_table.hpp"
 
 namespace Irq
 {
@@ -66,7 +65,7 @@ namespace Irq
   typedef IrqChannel<40>  EXTI15_10;              /**< External Line[15:10] Interrupts                              */
   typedef IrqChannel<41>  RTCAlarm;               /**< RTC Alarm through EXTI Line Interrupt                        */
   typedef IrqChannel<42>  USBWakeUp;              /**< USB Device WakeUp from suspend through EXTI Line Interrupt   */
-#define NVIC_NUMOF_INTERRUPTS  43
+  static constexpr int numof_interrupt_channels = 43;
 #endif // STM32F10X_LD
 
 #ifdef STM32F10X_LD_VL
@@ -88,7 +87,7 @@ namespace Irq
   typedef IrqChannel<42>  CEC;                    /**< HDMI-CEC Interrupt                                 */
   typedef IrqChannel<54>  TIM6_DAC;               /**< TIM6 and DAC underrun Interrupt                    */
   typedef IrqChannel<55>  TIM7;                   /**< TIM7 Interrupt                                     */
-#define NVIC_NUMOF_INTERRUPTS  56
+  static constexpr int numof_interrupt_channels = 56;
 #endif // STM32F10X_LD_VL
 
 #ifdef STM32F10X_MD
@@ -117,7 +116,7 @@ namespace Irq
   typedef IrqChannel<40>  EXTI15_10;              /**< External Line[15:10] Interrupts                              */
   typedef IrqChannel<41>  RTCAlarm;               /**< RTC Alarm through EXTI Line Interrupt                        */
   typedef IrqChannel<42>  USBWakeUp;              /**< USB Device WakeUp from suspend through EXTI Line Interrupt   */
-#define NVIC_NUMOF_INTERRUPTS  43
+  static constexpr int numof_interrupt_channels = 43;
 #endif // STM32F10X_MD
 
 #ifdef STM32F10X_MD_VL
@@ -144,7 +143,7 @@ namespace Irq
   typedef IrqChannel<42>  CEC;                    /**< HDMI-CEC Interrupt                                 */
   typedef IrqChannel<54>  TIM6_DAC;               /**< TIM6 and DAC underrun Interrupt                    */
   typedef IrqChannel<55>  TIM7;                   /**< TIM7 Interrupt                                     */
-#define NVIC_NUMOF_INTERRUPTS  56
+  static constexpr int numof_interrupt_channels = 56;
 #endif // STM32F10X_MD_VL
 
 #ifdef STM32F10X_HD
@@ -190,7 +189,7 @@ namespace Irq
   typedef IrqChannel<57>  DMA2_Channel2;          /**< DMA2 Channel 2 global Interrupt                              */
   typedef IrqChannel<58>  DMA2_Channel3;          /**< DMA2 Channel 3 global Interrupt                              */
   typedef IrqChannel<59>  DMA2_Channel4_5;        /**< DMA2 Channel 4 and Channel 5 global Interrupt                */
-#define NVIC_NUMOF_INTERRUPTS  60
+  static constexpr int numof_interrupt_channels = 60;
 #endif // STM32F10X_HD
 
 #ifdef STM32F10X_XL
@@ -236,7 +235,7 @@ namespace Irq
   typedef IrqChannel<57>  DMA2_Channel2;          /**< DMA2 Channel 2 global Interrupt                                     */
   typedef IrqChannel<58>  DMA2_Channel3;          /**< DMA2 Channel 3 global Interrupt                                     */
   typedef IrqChannel<59>  DMA2_Channel4_5;        /**< DMA2 Channel 4 and Channel 5 global Interrupt                       */
-#define NVIC_NUMOF_INTERRUPTS  60
+  static constexpr int numof_interrupt_channels = 60;
 #endif // STM32F10X_XL
 
 #ifdef STM32F10X_CL
@@ -283,20 +282,10 @@ namespace Irq
   typedef IrqChannel<65>  CAN2_RX1;               /**< CAN2 RX1 Interrupt                                           */
   typedef IrqChannel<66>  CAN2_SCE;               /**< CAN2 SCE Interrupt                                           */
   typedef IrqChannel<67>  OTG_FS;                 /**< USB OTG FS global Interrupt                                  */
-#define NVIC_NUMOF_INTERRUPTS  68
+  static constexpr int numof_interrupt_channels = 68;
 #endif // STM32F10X_CL
 } // namespace Irq
 
-
-/**
- * VectorTable: Provides a static vector table.
- *
- * Instantiate this class somewhere in your starup code to puts the
- * table to the ".isr_vector" section.
- */
-template<const uint32_t *stack_top>
-struct VectorTable : VectorTableBuilder<NVIC_NUMOF_INTERRUPTS, stack_top>
-{ };
 
 #undef NVIC_NUMOF_INTERRUPTS
 

@@ -23,13 +23,13 @@
 
 #include <type_traits>
 #include <cstdint>
-
+#include <isr.hpp>  // isr_t
 
 ////////////////////  Resource  ////////////////////
 
 /**
- * T: resource type, used for filtering and executing commands
- * R: resource value, must provide combine<> type
+ * T: resource group type, used for filtering and executing commands
+ * R: resource value type, must provide combine<> type
  */
 template<typename T, typename R = T>
 struct Resource {
@@ -57,9 +57,9 @@ struct Resource {
 
 
 template<typename R>
-struct SharedRegisterFunc
+struct SharedRegisterGroup
 {
-  using type = SharedRegisterFunc<R>;
+  using type = SharedRegisterGroup<R>;
 
   // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register
   // T::store((T::reset_value & ~combined_type<T>::clear_mask) | combined_type<T>::set_mask);
@@ -77,7 +77,7 @@ struct SharedRegisterFunc
 
 template<typename R, typename R::value_type _set_mask, typename R::value_type _clear_mask = 0 >
 struct SharedRegister
-: Resource< SharedRegisterFunc<R>, SharedRegister<R, _set_mask, _clear_mask> >
+: Resource< SharedRegisterGroup<R>, SharedRegister<R, _set_mask, _clear_mask> >
 {
   using reg_type = R;
   using reg_value_type = typename R::value_type;
@@ -126,10 +126,12 @@ struct UniqueResource
 
 ////////////////////  IsrResource  ////////////////////
 
-template<typename T>
-struct IrqResource : Resource< IrqResource<typename T::type>, IrqResource<T> > {
-  using type = IrqResource<T>;
-  using result_type = T;
+
+template<int irqn, isr_t isr>
+struct IrqResource : Resource< IrqResource<irqn, nullptr>, IrqResource<irqn, isr> > {
+  using type = IrqResource<irqn, isr>;
+  using result_type = type;
+  static constexpr isr_t value = isr;
 
   template<typename U>
   struct combine {
@@ -284,10 +286,11 @@ struct ResourceList {
   template<typename T>
   using combined_type = typename resource_filtered_list<T>::combined_type;
 
-  /* Returns IrqChannel from ResourceList, or void if not found */
-  template<typename T>
+  /* Returns Handler from ResourceList, or void if not found */
+  template<int irqn>
   struct irq_resource {
-    typedef combined_type< IrqResource<T> > type;
+    typedef combined_type< IrqResource<irqn, nullptr> > type;
+    static constexpr isr_t value = combined_type< IrqResource<irqn, nullptr> >::value;
   };
 
   /* Runs configure() on all resource types */

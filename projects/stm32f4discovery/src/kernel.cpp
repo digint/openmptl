@@ -22,16 +22,12 @@
 #include <arch/core.hpp>
 #include <arch/uart_transport.hpp>
 
-#include "resources.hpp"
 #include "terminal_hooks.hpp"
-
-using namespace resources;
 
 static volatile int systick_count = 1000;
 static volatile int second = 0;
-Terminal<uart_stream_device, terminal_hooks::commands> terminal;
 
-void systick_isr(void) {
+void Kernel::systick_isr() {
   systick_count--;
   if(systick_count == 0) {
     systick_count = 1000;
@@ -43,10 +39,10 @@ void systick_isr(void) {
 void Kernel::init(void)
 {
   /* check unique resources */
-  resources::list::check();
+  resources::check();
 
-  /* set all shared register from list */
-  resources::list::configure();
+  /* configure resources (set all shared register) */
+  resources::configure();
 
   led_green::init(); led_green::off();
   led_orange::init(); led_orange::off();
@@ -59,12 +55,14 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
+  Terminal<uart_stream_device, terminal_hooks::commands> terminal;
+
   terminal.open();
   terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
 
   while(1)
   {
-    // poll terminal
+    /* poll terminal */
     terminal.process_input();
 #if 0
     Core::nop(10000000);

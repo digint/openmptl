@@ -23,13 +23,9 @@
 
 #include <arch/scb.hpp>
 #include <core_setup.hpp>
-#include <kernel.hpp>
-#include <crt.hpp>
-#include <irq_wrap.hpp>
 #include "reg/nvic.hpp"
-
-
-typedef void( *const isr_t )( void );
+#include <isr.hpp>
+#include <type_traits>
 
 
 ////////////////////  NvicPriority  ////////////////////
@@ -103,38 +99,31 @@ public:
 template<int irqn>
 class CoreExceptionImpl : public NvicPriority<irqn> {
   static_assert(irqn < 0 && irqn > -16, "illegal core exception interrupt number");
-public:
 
+public:
   static constexpr int irq_number = irqn;
 
-  static const isr_t isr;
-  //  static void isr(void);
+#if 0
+  static constexpr bool priority_available = irqn > -13;
 
-  static void SetPriority(uint32_t priority) {
+  static typename std::enable_if<priority_available>::type SetPriority(uint32_t priority) {
     Scb::SetPriority<irqn>(priority);
   }
 
-  static uint32_t GetPriority(void) {
+  static typename std::enable_if<priority_available, uint32_t>::type GetPriority(void) {
     return Scb::GetPriority<irqn>();
   }
+#endif
 };
 
-
-struct CoreException
+namespace CoreException
 {
-  /* Reset core exception: triggered on system startup (system entry point). */
-  struct Reset {
-    //    static const isr_t isr;
-    static void isr(void) {  //  TODO: consider  __attribute__ ((naked)) 
-      CRunTimeIrqWrap wrap;
+  /* fixed core exceptions */
+  typedef CoreExceptionImpl<-15>  Reset;       // TODO: priority is fixed to -3
+  typedef CoreExceptionImpl<-14>  NMI;         // TODO: priority is fixed to -2
+  typedef CoreExceptionImpl<-13>  HardFault;   // TODO: priority is fixed to -1
 
-      Kernel::init();
-      Kernel::run();
-    };
-  };
-
-  typedef CoreExceptionImpl<-14>  NMI;         // TODO: disallow set/get priority for this exception
-  typedef CoreExceptionImpl<-13>  HardFault;   // TODO: disallow set/get priority for this exception
+  /* settable core exceptions */
   typedef CoreExceptionImpl<-12>  MemoryManagement;
   typedef CoreExceptionImpl<-11>  BusFault;
   typedef CoreExceptionImpl<-10>  UsageFault;
@@ -142,7 +131,16 @@ struct CoreException
   typedef CoreExceptionImpl<-4>   DebugMonitor;
   typedef CoreExceptionImpl<-2>   PendSV;
   typedef CoreExceptionImpl<-1>   SysTick;
-};
+
+  static constexpr bool reserved_irqn(int irqn) {
+    return ((irqn == -3) ||
+            (irqn == -6) ||
+            (irqn == -7) ||
+            (irqn == -8) ||
+            (irqn == -9));
+  }
+}
+
 
 ////////////////////  Irq  ////////////////////
 
@@ -162,10 +160,8 @@ class IrqChannel : public NvicPriority<irqn> {
   using IPRx  = NVIC::IPR<irqn>;
 
 public:
-  typedef IrqChannel<irqn> type;
-  static constexpr int irq_number = irqn;
 
-  struct Handler;
+  static constexpr int irq_number = irqn;
 
   static void Enable(void) {
     ISERx::store(irq_bit);
@@ -196,6 +192,5 @@ public:
     return((uint32_t)(IPRx::load() >> (8 - InterruptControllerSetup::priority_bits)));
   }
 };
-
 
 #endif // COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED

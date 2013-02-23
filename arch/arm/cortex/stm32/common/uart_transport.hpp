@@ -90,23 +90,19 @@ struct UartStreamDevice
     usart::template EnableInterrupt<true, false, true, false, false>();
   }
 
-  struct Irq : public usart::GlobalIrq {
-    struct Handler {
-      static void isr(void) {
-        UartIrqTransport<usart> transport;
+  static void isr(void) {
+      UartIrqTransport<usart> transport;
 #if 0
-        irq_count++;
-        if(transport.HasErrors()) {
-          irq_errors++;
-        }
-#endif
-        transport.ProcessIO(rx_fifo, tx_fifo);
+      irq_count++;
+      if(transport.HasErrors()) {
+        irq_errors++;
       }
-    };
-  };
+#endif
+      transport.ProcessIO(rx_fifo, tx_fifo);
+  }
 
   typedef ResourceList< typename usart::resources,
-                        IrqResource< Irq >
+                        IrqResource< usart::GlobalIrq::irq_number, isr >
                         > resources;
 };
 

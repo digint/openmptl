@@ -22,7 +22,6 @@
 #define NVIC_HPP_INCLUDED
 
 #include "../../../../common/nvic.hpp"
-#include "../../../../common/vector_table.hpp"
 
 namespace Irq
 {
@@ -108,18 +107,8 @@ namespace Irq
   typedef IrqChannel<79>  CRYP;                /**< CRYP crypto global interrupt                                             */
   typedef IrqChannel<80>  HASH_RNG;            /**< Hash and Rng global interrupt                                            */
   typedef IrqChannel<81>  FPU;                 /**<  FPU global interrupt                                                    */
+
+  static constexpr int numof_interrupt_channels = 82;
 } // namespace Irq
-
-
-/**
- * VectorTable: Provides a static vector table.
- *
- * Instantiate this class somewhere in your starup code to puts the
- * table to the ".isr_vector" section.
- */
-template<const uint32_t *stack_top, typename R = ResourceList<> >
-struct VectorTable : VectorTableBuilder<R, 82, stack_top>
-{ };
-
 
 #endif // NVIC_HPP_INCLUDED

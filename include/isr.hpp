@@ -18,35 +18,9 @@
  * 
  */
 
-#include <arch/vector_table.hpp>
-#include <kernel.hpp>
+#ifndef ISR_HPP_INCLUDED
+#define ISR_HPP_INCLUDED
 
-#ifndef CORE_SIMULATION
+typedef void( *const isr_t )( void );
 
-extern const uint32_t _stack_top;  /* provided by linker script */
-
-/* Build the vector table:
- * - use irq handler from IsrResource<> in Kernel::resources
- * - use Kernel::error_isr as default isr
- */
-VectorTable<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
-
-
-#else // CORE_SIMULATION
-
-
-#include <iostream>
-
-int main(int argc, char *argv[])
-{
-  std::cout << "cppcore simulation" << std::endl
-            << "------------------" << std::endl
-            << std::endl;
-
-  Core::Init();
-
-  Kernel::init();
-  Kernel::run();
-}
-
-#endif // CORE_SIMULATION
+#endif // ISR_HPP_INCLUDED
