@@ -30,32 +30,45 @@
 /**
  * Template arguments:
  *
- * - T (type): resource type. Acts as filter for resource_type_list. This type (T)
- *             MUST provide the configure() and assert_type() functions.
+ * - T (group_type): resource group type. Acts as filter for resource_type_list. This type (T)
+ *                   MUST provide the configure() and assert_type() functions.
  *
- * - R (result_type): resource value type, MUST provide combine<> type and execute<>().
+ * - R (type): resource type, MUST provide combine<> type and configure() function.
  */
 template<typename T, typename R = T>
 struct Resource {
-  using type = T;
-  using result_type = R;
+  using group_type = T;
+  using type = R;
 
   /* Append resource R to the filtered_list (Tf) if Filter matches our type (T). */
   template<typename Tf, typename Filter>
   using append_filtered_list = typename std::conditional<
-    std::is_same<Filter, T>::value,
-    typename Tf::template append<R>,
+    std::is_same<Filter, group_type>::value,
+    typename Tf::template append<type>,
     Tf>::type;
 
   /* Append type T to the resource_type_list (Tu) if resource_type_list does not yet hold our type (T). */
   template<typename Tu>
   using append_resource_type_list = typename std::conditional<
-    Tu::template contains<T>::value,
+    Tu::template contains<group_type>::value,
     Tu,
-    typename Tu::template append<T>
+    typename Tu::template append<group_type>
     >::type;
 
-  void operator()() { }
+  void configure() { }
+
+  template<typename U>
+  struct combine {
+    /* combine asserts by default */
+    typedef void type;
+    static_assert(std::is_void<U>::value,
+                  "ResourceList contains a resource group which does not implement the combine functor.");
+  };
+};
+
+
+struct ResourceGroup
+{
   template<typename Rl> static constexpr bool assert_type() { return true; }
 };
 
@@ -63,22 +76,16 @@ struct Resource {
 ////////////////////  SharedRegister  ////////////////////
 
 
-template<typename R>
-struct SharedRegisterGroup
-{
-  using type = SharedRegisterGroup<R>;
-
-  // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register
-  // T::store((T::reset_value & ~combined_type<T>::clear_mask) | combined_type<T>::set_mask);
-
-  template<typename Rl> static constexpr bool assert_type() { return true; }
-};
+template<typename T>
+struct SharedRegisterGroup : ResourceGroup
+{ };
 
 
 template<typename R, typename R::value_type _set_mask, typename R::value_type _clear_mask = 0 >
 struct SharedRegister
 : Resource< SharedRegisterGroup<R>, SharedRegister<R, _set_mask, _clear_mask> >
 {
+  //  using type = SharedRegister<R, _set_mask, _clear_mask>;
   using reg_type = R;
   using reg_value_type = typename R::value_type;
 
@@ -87,17 +94,20 @@ struct SharedRegister
 
   /* Combine two SharedRegister of same reg_type:                      */
   /* Returns SharedRegister with or'ed set_mask and or'ed clear_mask.  */
-  template<typename Rc>
+  template<typename U>
   struct combine {
-    typedef SharedRegister<R, set_mask | Rc::set_mask, clear_mask | Rc::clear_mask> type;
-    static_assert(std::is_same<reg_type, typename Rc::reg_type>::value, "oops, combining values for different register...");
+    typedef SharedRegister<R, set_mask | U::set_mask, clear_mask | U::clear_mask> type;
+    static_assert(std::is_same<reg_type, typename U::reg_type>::value, "oops, combining values for different register...");
   };
 
-  /* Called by execute on a combined SharedRegister type.  */
-  /* (which we are in this context, see "combine" above)   */
-  void operator()() {
+  /* Called by resource_type_list_impl::configure() on a combined */
+  /* SharedRegister type. (which we are in this context, see "combine" above)  */
+  void configure() {
     if((set_mask != 0) || (clear_mask != 0))
       R::set(set_mask, clear_mask);
+
+    // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register
+    // T::store((T::reset_value & ~combined_type<T>::clear_mask) | combined_type<T>::set_mask);
   }
 };
 
@@ -105,16 +115,15 @@ struct SharedRegister
 ////////////////////  UniqueResource  ////////////////////
 
 
-template<typename T>
-struct UniqueResource
-: Resource< UniqueResource<T> >
+template<typename T, typename R = T>
+struct UniqueResourceBase
+: Resource< T, R >
 {
-  using type = UniqueResource<T>;
-
   template<typename U>
   struct combine {
+    using type = void;
     static_assert(std::is_void<U>::value,  /* always assert. combining unique resources means that two same types exist */
-                  "ResourceList contains UniqueResource which are not unique. (see compile message \"filtered_list_impl<UniqueResource< XXX >, UniqueResource< XXX >, ... >::combined_type\" above.)");
+                  "ResourceList contains a resource derived from UniqueResource which is not unique. (see compile message \"filtered_list<MyResource< XXX >, MyResource< XXX >, ... >\" above.)");
   };
 
   template<typename Rl>
@@ -124,25 +133,27 @@ struct UniqueResource
     /* compiler messages than if we were just asserting for             */
     /* "Rl::resource_filtered_list<type>::size <= 1" (which is also     */
     /* correct).                                                        */
-    return !std::is_void<typename Rl::template combined_type<type>::type>::value;
+    return !std::is_void<typename Rl::template combined_type<T>::type >::value;
   }
 };
+
+template<typename T>
+struct UniqueResource
+: UniqueResourceBase< UniqueResource<T> >
+{ };
 
 
 ////////////////////  IsrResource  ////////////////////
 
+template<int irqn>
+struct IrqResourceGroup : ResourceGroup
+{ };
 
 template<int irqn, isr_t isr>
-struct IrqResource : Resource< IrqResource<irqn, nullptr>, IrqResource<irqn, isr> > {
-  using type = IrqResource<irqn, isr>;
-  using result_type = type;
+struct IrqResource
+: UniqueResourceBase< IrqResourceGroup<irqn>, IrqResource<irqn, isr> >
+{
   static constexpr isr_t value = isr;
-
-  template<typename U>
-  struct combine {
-    static_assert(std::is_void<U>::value,  /* always assert. IrqResource<T> must be unique. */
-                  "ResourceList contains multiple IrqResource with same type. (see compile message \"filtered_list_impl<IrqResource< XXX >, IrqResource< XXX >, ... >::combined_type\" above.)");
-  };
 };
 
 
@@ -158,7 +169,7 @@ struct filtered_list_impl<Head, Args...>  {
 };
 template<typename Head>
 struct filtered_list_impl<Head> {
-  using combined_type = typename Head::result_type;
+  using combined_type = typename Head::type;
 };
 template<>
 struct filtered_list_impl<> {
@@ -205,9 +216,9 @@ struct resource_type_list_impl<Head, Args...>  {
   };
 
   template<typename Rl>
-  static void execute_combined() {
-    typename Rl::template resource_filtered_list<Head>::combined_type()();
-    resource_type_list_impl<Args...>::template execute_combined<Rl>();
+  static void configure() {
+    typename Rl::template resource_filtered_list<Head>::combined_type().configure();
+    resource_type_list_impl<Args...>::template configure<Rl>();
   }
 
   template<typename Rl>
@@ -216,25 +227,12 @@ struct resource_type_list_impl<Head, Args...>  {
             resource_type_list_impl<Args...>::template assert_type<Rl>() );
   }
 };
-template<typename Head>
-struct resource_type_list_impl<Head> {
-  template<typename T>
-  using contains = std::is_same<Head, T>;
-
-  template<typename Rl> static void execute_combined() {
-    typename Rl::template resource_filtered_list<Head>::combined_type()();
-  }
-
-  template<typename Rl> static constexpr bool assert_type() {
-    return Head::template assert_type<Rl>();
-  }
-};
 template<>
 struct resource_type_list_impl<> {
   template<typename T>
   using contains = std::false_type;
 
-  template<typename Rl> static void execute_combined() { }
+  template<typename Rl> static void configure() { }
   template<typename Rl> static constexpr bool assert_type() { return true; }
 };
 
@@ -286,20 +284,24 @@ struct ResourceList {
   /* resource_type_list, containing all resource types once */
   using resource_resource_type_list = typename make_resource_type_list<resource_type_list<>, Args...>::type;
 
-  /* Combined resource result_type */
+  /* Combined resource type */
   template<typename T>
   using combined_type = typename resource_filtered_list<T>::combined_type;
 
   /* Returns Handler from ResourceList, or void if not found */
   template<int irqn>
   struct irq_resource {
-    typedef combined_type< IrqResource<irqn, nullptr> > type;
-    static constexpr isr_t value = combined_type< IrqResource<irqn, nullptr> >::value;
+    using irq_resource_group_type = IrqResourceGroup<irqn>;
+    typedef combined_type< IrqResourceGroup<irqn> > type;
+    static constexpr isr_t value = combined_type< IrqResourceGroup<irqn> >::value;
   };
 
-  /* Runs configure() on all resource types */
+  /* Instantiate and run configure() on all combined resource types.  */
+  /* NOTE: We instantiate here because for some reason calling a      */
+  /* static configure() function results code not being inlined.      */
+  /* TODO: check again, find out why this is so.                      */
   static void configure() {
-    resource_resource_type_list::template execute_combined<type>();
+    resource_resource_type_list::template configure<type>();
   }
 
   /* Compile-time consistency check of the resource list (calls static_assert() on errors) */
