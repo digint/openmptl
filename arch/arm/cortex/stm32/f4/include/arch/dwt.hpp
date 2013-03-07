@@ -21,6 +21,6 @@
 #ifndef DWT_HPP_INCLUDED
 #define DWT_HPP_INCLUDED
 
-#include "../../../common/arm-cortex/dwt.hpp"
+#include "../../../../common/dwt.hpp"
 
 #endif // DWT_HPP_INCLUDED
