@@ -55,8 +55,9 @@ public:
 class CycleCounter
 {
   using DWT = reg::DWT;
+  using value_type = decltype(Dwt::cycle_counter_load());
 
-  decltype(Dwt::cycle_counter_load()) value;
+  value_type value;
 
 public:
 
@@ -77,7 +78,7 @@ public:
     value = Dwt::cycle_counter_load() - value;
   }
 
-  decltype(value) get(void) {
+  value_type get(void) {
     return value;
   }
 };
