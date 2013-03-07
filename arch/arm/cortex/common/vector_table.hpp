@@ -23,85 +23,97 @@
 #define COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
-#include <resource_mpl.hpp>
+#include <resource.hpp>
 #include <type_traits>
 
 #ifndef CORE_SIMULATION
-static_assert(sizeof(isr_t)  == 4, "wrong size for irq function pointer");
-static_assert(alignof(isr_t) == 4, "wrong alignment for irq function pointer table");
+static_assert(sizeof(isr_t)  == 4, "wrong size for isr function pointer");
+static_assert(alignof(isr_t) == 4, "wrong alignment for isr function pointer table");
 #endif
 
-/**
- * VectorTableImpl: Provides a static vector table:
- *
- * - pointer to reset value of stack pointer
- * - pointer to 16 exception vector handler
- * - pointer to N irq channel handler
- *
- * Instantiating this class puts the table to the ".isr_vector" section.
- *
- */
-template<const uint32_t *stack_top, isr_t... isr_list>
-struct VectorTableImpl {
-  static constexpr std::size_t size = sizeof...(isr_list) + 1;
-
-  static isr_t vector_table[size] __attribute__ ((section(".isr_vector")));
-
-  /* Build the vector table by declaring a pointer to it */
-  isr_t *vector_table_p = vector_table;
-};
-
-template<const uint32_t *stack_top, isr_t... isr_list>
-isr_t VectorTableImpl<stack_top, isr_list...>::vector_table[size] = {
-  reinterpret_cast<isr_t>(stack_top),
-  isr_list...
-};
-
-
-template<typename resource_list, int N, const uint32_t *stack_top, isr_t default_isr, isr_t... isr_list>
-struct make_vector_table
+namespace mpl
 {
-  struct default_isr_resource {
-    static constexpr isr_t value = default_isr;
+  /**
+   * vector_table_impl: Provides a static vector table:
+   *
+   * - pointer to reset value of stack pointer
+   * - pointer to N handler (isr_list)
+   *
+   * Instantiating this class puts the table to the ".isr_vector" section.
+   *
+   */
+  template<const uint32_t *stack_top, isr_t... isr_list>
+  struct vector_table_impl {
+    static constexpr std::size_t size = sizeof...(isr_list) + 1;
+
+    static isr_t vector_table[size] __attribute__ ((section(".isr_vector")));
+
+    /* Build the vector table by declaring a pointer to it */
+    isr_t *vector_table_p = vector_table;
   };
 
-  static constexpr isr_t isr = CoreException::reserved_irqn(N-1) ? nullptr :
-    std::conditional<  /* handler from IrqResource<N-1> in ResourceList if present */
-    std::is_void<typename resource_list::template irq_resource<N-1>::type>::value,
-    default_isr_resource,
-    typename resource_list::template irq_resource<N-1>::type
-    >::type::value;
-
-  typedef typename make_vector_table<
-    resource_list,
-    N - 1,
-    stack_top,
-    default_isr,
-    isr,
+  template<const uint32_t *stack_top, isr_t... isr_list>
+  isr_t vector_table_impl<stack_top, isr_list...>::vector_table[size] = {
+    reinterpret_cast<isr_t>(stack_top),
     isr_list...
-    >::type type;
-};
+  };
 
-/* last irq number (N) is CoreException::Reset::irq_number */
-template<typename resource_list, const uint32_t *stack_top, isr_t default_isr, isr_t... isr_list>
-struct make_vector_table<resource_list, CoreException::Reset::irq_number, stack_top, default_isr, isr_list...> {
-  typedef VectorTableImpl<stack_top, isr_list...> type;
-};
+
+  template<unsigned int N, int irqn_offset, typename resource_list, isr_t default_isr, const uint32_t *stack_top, isr_t... isr_list>
+  struct make_vector_table
+  {
+    static constexpr int irqn = (N - 1) + irqn_offset;
+    struct default_irq_resource {
+      static constexpr isr_t value = default_isr;
+    };
+
+    static constexpr isr_t isr = CoreException::reserved_irqn(irqn) ? nullptr :
+      std::conditional<  /* handler from IrqResource<irqn> in ResourceList if present */
+      std::is_void<typename resource_list::template irq_resource<irqn>::type>::value,
+      default_irq_resource,
+      typename resource_list::template irq_resource<irqn>::type
+      >::type::value;
+
+    using type = typename make_vector_table<
+      N - 1,
+      irqn_offset,
+      resource_list,
+      default_isr,
+      stack_top,
+      isr,
+      isr_list...
+      >::type;
+  };
+
+  /* last irq number (N) is CoreException::Reset::irq_number */
+  template<int irqn_offset, typename resource_list, isr_t default_isr, const uint32_t *stack_top, isr_t... isr_list>
+  struct make_vector_table<0, irqn_offset, resource_list, default_isr, stack_top, isr_list...> {
+    using type = vector_table_impl<stack_top, isr_list...>;
+  };
+} // namespace mpl
 
 
 /**
  * VectorTable: Provides a static vector table.
  *
- * Instantiate this class somewhere in your starup code to puts the
+ * Instantiate this class somewhere in your startup code to put the
  * table to the ".isr_vector" section.
  */
 template<const uint32_t *stack_top, typename resource_list = ResourceList<>, isr_t default_isr = nullptr >
-struct VectorTable : make_vector_table<resource_list, Irq::numof_interrupt_channels, stack_top, default_isr>::type
+struct VectorTable
+: mpl::make_vector_table<
+  Irq::numof_interrupt_channels - CoreException::Reset::irq_number,  /* start index */
+  CoreException::Reset::irq_number,  /* irqn_offset (negative) */
+  resource_list,
+  default_isr,
+  stack_top
+  >::type
 {
-  typedef typename make_vector_table<resource_list, Irq::numof_interrupt_channels, stack_top, default_isr>::type type;
+  static constexpr std::size_t irq_channel_offset = -CoreException::Reset::irq_number + 1;
 
+  static_assert(CoreException::Reset::irq_number < 0, "CoreException::Reset::irq_number must be a negative value");
   static_assert(Irq::numof_interrupt_channels >= 0, "invalid Irq::numof_interrupt_channels");
-  static_assert(sizeof(type::vector_table) == sizeof(isr_t) * (1 + Irq::numof_interrupt_channels + -CoreException::Reset::irq_number),
+  static_assert(sizeof(VectorTable<stack_top, resource_list, default_isr>::vector_table) == sizeof(isr_t) * (1 + Irq::numof_interrupt_channels + -CoreException::Reset::irq_number),
                 "IRQ vector table size error");
 };
 
