@@ -20,7 +20,7 @@
 
 // #define CORE_SIMULATION
 
-#include <resource_mpl.hpp>
+#include <resource.hpp>
 #include <register.hpp>
 #include "unittest_static_assert.hpp"
 

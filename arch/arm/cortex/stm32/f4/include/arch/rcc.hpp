@@ -22,7 +22,7 @@
 #define RCC_HPP_INCLUDED
 
 #include <arch/reg/rcc.hpp>
-#include <resource_mpl.hpp>
+#include <resource.hpp>
 #include <freq.hpp>
 
 // TODO: access functions, change public to private

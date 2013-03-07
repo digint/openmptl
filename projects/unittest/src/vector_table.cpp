@@ -40,28 +40,31 @@ int main()
 {
   VectorTable<&stack_top, resource_list, default_isr> vector_table;
 
-  UNITTEST_STATIC_ASSERT( VectorTable<&stack_top, default_isr, resource_fail_list> vector_table_fail; )
+  UNITTEST_STATIC_ASSERT( VectorTable<&stack_top, resource_fail_list, default_isr> vector_table_fail; )
 
   resource_list::check();
+  resource_list::configure();
 
   isr_t *vt = vector_table.vector_table_p;
 
   assert((unsigned long)vt[0] == (unsigned long)&stack_top);
-  assert((unsigned long)vt[41] == (unsigned long)default_isr);
-  assert((unsigned long)vt[42 + Irq::numof_core_exceptions + 1] == (unsigned long)isr_42);
+  assert((unsigned long)vt[vector_table.irq_channel_offset + 41] == (unsigned long)default_isr);
+  assert((unsigned long)vt[vector_table.irq_channel_offset + 42] == (unsigned long)isr_42);
 
 
   std::cout << "vector table size = " << vector_table.size << " (" <<
     "1 stack_top_ptr, " <<
-    Irq::numof_core_exceptions << " core_exceptions, " <<
     Irq::numof_interrupt_channels << " irq_channels)" << std::endl;
 
   std::cout << std::endl;
   std::cout << "vector table dump" << std::endl;
-  std::cout << "-----------------" << std::endl;
+  std::cout << "----------------------" << std::endl;
 
-  for(unsigned i = 0; i < vector_table.size; i++)
-    std::cout << std::dec << std::setw(3) << i << ": 0x" << std::hex << (unsigned long)vt[i] << std::endl;
+  for(unsigned i = 0; i < vector_table.size; i++) {
+    std::cout << std::dec << std::setw(3) << i << " " <<
+      "(" << std::setw(3) << (int)i - (int)vector_table.irq_channel_offset << ")" <<
+      " :  0x" << std::hex << (unsigned long)vt[i] << std::endl;
+  }
 
   return 0;
 }
