@@ -21,20 +21,22 @@
 #ifndef TIME_HPP_INCLUDED
 #define TIME_HPP_INCLUDED
 
-#include "resources.hpp"
+#include <resource.hpp>
 #include <atomic>
 
 typedef unsigned int systick_t;
 
-class time
+class Time
 {
   static std::atomic<systick_t> systick_count;
   //static systick_t systick_count;
 
+  static void systick_isr(void);
+
 public:
 
   static void tick(void) {
-    time::systick_count.fetch_add(1, std::memory_order_relaxed);
+    Time::systick_count.fetch_add(1, std::memory_order_relaxed);
     //  time::systick_count++;
   }
 

@@ -19,24 +19,19 @@
  */
 
 
-#include <crt.hpp>
-#include <arch/nvic.hpp>
-#include <kernel.hpp>
+#include <arch/vector_table.hpp>
+#include "kernel.hpp"
 
 
 #ifndef CORE_SIMULATION
 
-/* Reset core exception: triggered on system startup (system entry point). */
-void CoreException::Reset::Handler(void) {
-  CRunTimeIrqWrap wrap;
+extern const uint32_t _stack_top;  /* provided by linker script */
 
-  Kernel::init();
-  Kernel::run();
-}
-
-/* Build the vector table */
-extern const uint32_t _stack_top;  // provided by linker script
-VectorTable<&_stack_top> vector_table;
+/* Build the vector table:
+ * - use irq handler from IsrResource<> in Kernel::resources
+ * - use Kernel::error_isr as default isr
+ */
+VectorTable<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
 
 
 #else // CORE_SIMULATION
@@ -50,7 +45,7 @@ int main(int argc, char *argv[])
             << "------------------" << std::endl
             << std::endl;
 
-  //  Core::Init();
+  Core::Init();
 
   Kernel::init();
   Kernel::run();

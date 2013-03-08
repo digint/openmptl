@@ -18,20 +18,17 @@
  * 
  */
 
-#include "time.hpp"
 #include "timepoint.hpp"
+#include "time.hpp"
 
-using namespace resources;
-
-template<>
-void systick::Irq::Handler(void) {
-  time::tick();
+void Time::systick_isr(void) {
+  Time::tick();
 }
 
 //systick_t time::systick_count;
-std::atomic<systick_t> time::systick_count;
+std::atomic<systick_t> Time::systick_count;
 
-void time::nanosleep(unsigned int ns) {
+void Time::nanosleep(unsigned int ns) {
   TimePoint end;
   end.set();
   end.add_ns(ns);

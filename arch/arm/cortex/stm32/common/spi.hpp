@@ -23,6 +23,7 @@
 
 #include <arch/rcc.hpp>
 #include <arch/reg/spi.hpp>
+#include <arch/core.hpp>
 
 namespace cSpi
 {

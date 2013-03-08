@@ -22,7 +22,7 @@
 #define FSM_SCREEN_HPP_INCLUDED
 
 #include <tinyfsm.hpp>
-#include "resources.hpp"
+#include "kernel.hpp"
 #include "events.hpp"
 #include "screenitem.hpp"
 
@@ -46,7 +46,7 @@ class Screen
 
 protected:
 
-  static resources::lcd_n3310 lcd;
+  static Kernel::lcd_n3310 lcd;
 
   static ItemList::iterator item_top;
   static ItemList * itemlist;

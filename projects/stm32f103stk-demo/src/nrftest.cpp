@@ -18,26 +18,27 @@
  * 
  */
 
+#include "kernel.hpp"
 #include "terminal_hooks.hpp"
-#include "resources.hpp"
 
 namespace terminal_hooks
 {
-  void NrfTest::run(Terminal & term) {
+  void NrfTest::run(poorman_ostream<char> & ostream) {
     unsigned char c;
     unsigned char nrf_buf[5];
 
-    using namespace resources;
+    using nrf = Kernel::nrf;
+
     nrf::configure();
 
     //        nrf::assign_addr();
 
     c = nrf::readRegister(STATUS_ADDR);
-    term << "status=0x" << c << term.newline;
+    ostream << "status=0x" << c << endl;
 
     nrf::writeRegister(CONFIG_REG_ADDR, 0x0B);
     c = nrf::readRegister(CONFIG_REG_ADDR);
-    term << "c=0x" << c << term.newline;
+    ostream << "c=0x" << c << endl;
     nrf_buf[0] = 5;
     nrf_buf[1] = 6;
     nrf_buf[2] = 7;
@@ -51,6 +52,6 @@ namespace terminal_hooks
     nrf_buf[3] = 0;
     nrf_buf[4] = 0;
     nrf::readAddressRegister(RX_ADDR_P0, nrf_buf);
-    term << "rx_addr_p0=0x" << nrf_buf[0] << nrf_buf[1] << nrf_buf[2] << nrf_buf[3] << nrf_buf[4] << term.newline;
+    ostream << "rx_addr_p0=0x" << nrf_buf[0] << nrf_buf[1] << nrf_buf[2] << nrf_buf[3] << nrf_buf[4] << endl;
   }
 }

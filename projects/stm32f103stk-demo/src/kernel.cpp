@@ -19,22 +19,20 @@
  */
 
 #include <kernel.hpp>
-#include "resources.hpp"
 
 #include "events.hpp"
 #include "fsmlist.hpp"
-
+#include "terminal_hooks.hpp"
 #include "screen.hpp"
-#include "terminal.hpp"
 #include "time.hpp"
 
 #include "printf.h"
-#include <arch/core_resource.hpp>
+#include <terminal.hpp>
+#include <resource.hpp>
 #include <arch/uart_transport.hpp>
 #include <arch/dwt.hpp>  // CycleCounter
 #include <atomic>
 
-using namespace resources;
 
 // Hint: template debugging:
 //template<typename T> struct incomplete;
@@ -54,8 +52,7 @@ static volatile unsigned int seconds;
 static volatile unsigned int usart_irq_count;
 static volatile unsigned int usart_irq_errors;
 
-template<>
-void rtc::GlobalIrq::Handler(void) {
+void Kernel::rtc_isr() {
   rtc::StaticIrqWrap wrap;  // clears second flag in constructor
 
   //  seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
@@ -63,28 +60,10 @@ void rtc::GlobalIrq::Handler(void) {
   led::toggle();
 }
 
-typedef RingBuffer<char, 512> ringbuffer_t;
-
-ringbuffer_t  usart_rx_fifo;
-ringbuffer_t  usart_tx_fifo;
-
-template<>
-void usart::GlobalIrq::Handler(void) {
-  UartIrqTransport<usart> transport;
-
-  usart_irq_count++;
-
-  if(transport.HasErrors()) {
-    usart_irq_errors++;
-  }
-
-  transport.ProcessIO(usart_rx_fifo, usart_tx_fifo);
-}
-
 void Kernel::init(void)
 {
-  //  resources::list::assert_unique();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
-  resources::list::set_shared_register();
+  // resources::check();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
+  resources::configure();
 
 #ifdef CORE_SIMULATION
   // set TXE and RXNE bits, SPI::sendByte loops on it
@@ -134,13 +113,13 @@ public:
   void set(T new_value) {
     if(current != new_value) {
       current = new_value;
-      set_time = time::get_systick();
+      set_time = Time::get_systick();
     }
   }
 
   bool get(T & _value) {
     bool changed = false;
-    if((value != current) && (time::get_systick() + wait_time > set_time)) {
+    if((value != current) && (Time::get_systick() + wait_time > set_time)) {
       value = current;
       changed = true;
     }
@@ -154,8 +133,7 @@ public:
 void Kernel::run(void)
 {
   CycleCounter cycle_counter;
-  FifoStream<ringbuffer_t, UsartStreamDevice<usart> > usart_tx_fifo_stream(usart_tx_fifo);
-  Terminal terminal(usart_rx_fifo, usart_tx_fifo_stream);
+  Terminal<uart_stream_device, terminal_hooks::commands> terminal;
   char joytext_buf[16] = "              ";
   const char * joypos_text = "center";
   Joystick::Position joypos = Joystick::Position::center;
@@ -174,7 +152,9 @@ void Kernel::run(void)
  
   Screen::assign(&ilist);
 
-  terminal << "\r\n\r\n\r\nWelcome to CppCore-demo terminal console\r\n" << flush;
+  terminal.open();
+  terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
+
   fsm_list::start();
 
   fsm_list::dispatch(JoystickUp());
@@ -216,7 +196,7 @@ void Kernel::run(void)
     // update screen rows
     rtc_sec = seconds;
     //    rtc_sec = seconds.load(std::memory_order_relaxed);
-    tick = time::get_systick();
+    tick = Time::get_systick();
     irq_count = usart_irq_count;
     eirq = usart_irq_errors;
     cycle = cycle_counter.get();

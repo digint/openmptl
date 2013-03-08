@@ -25,7 +25,7 @@
 #include "arch/spi.hpp"
 
 //#include <initializer_list>
-#include <algorithm>  // for_each
+//#include <algorithm>  // for_each
 
 
 // Commands

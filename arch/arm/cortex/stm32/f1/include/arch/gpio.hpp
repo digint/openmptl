@@ -112,10 +112,10 @@
 // required.  
 
 
-#include <arch/core.hpp>
-#include <arch/core_resource.hpp>
+#include <resource.hpp>
 #include <arch/rcc.hpp>
 #include <freq.hpp>
+#include <arch/reg/gpio.hpp>
 
 namespace cGpio
 {
@@ -181,8 +181,8 @@ protected:
 
 public:
 
-  typedef ResourceList< Rcc::gpio_clock_resources<port>,
-                        UniqueResource<GpioBase<port, pin_no> >
+  typedef ResourceList< Rcc::gpio_clock_resources<port>
+                        //!!!! TODO: fixme:  UniqueResource<GpioBase<port, pin_no> >
                         > resources;
 
 

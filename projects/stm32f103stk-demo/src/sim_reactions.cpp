@@ -19,7 +19,6 @@
  */
 
 #include <register.hpp>
-#include "resources.hpp"
 
 // example reaction. triggered as soon as SPI1_CR1 is touched.
 #ifdef CORE_SIMULATION

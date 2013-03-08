@@ -63,7 +63,7 @@ void Screen::update(void) {
   lcd.update();
 }
 
-resources::lcd_n3310 Screen::lcd;
+Kernel::lcd_n3310 Screen::lcd;
 
 ItemList * Screen::itemlist;
 ItemList::iterator Screen::item_top;

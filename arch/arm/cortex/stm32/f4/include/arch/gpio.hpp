@@ -21,6 +21,7 @@
 #ifndef GPIO_HPP_INCLUDED
 #define GPIO_HPP_INCLUDED
 
+#include <resource.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 
@@ -106,7 +107,7 @@ public:
 
   // TODO: make sure the registers are only set if they differ from reset value
   typedef ResourceList< Rcc::gpio_clock_resources<port>,
-                        UniqueResource< Gpio<port, pin_no> >,
+                        //!!!! TODO: fixme: UniqueResource< Gpio<port, pin_no> >,
                         SharedRegister< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double >,
                         SharedRegister< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        >,
                         SharedRegister< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double >,

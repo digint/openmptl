@@ -22,7 +22,7 @@
 #define RCC_HPP_INCLUDED
 
 #include <arch/reg/rcc.hpp>
-#include <arch/core_resource.hpp>
+#include <resource.hpp>
 #include <freq.hpp>
 
 

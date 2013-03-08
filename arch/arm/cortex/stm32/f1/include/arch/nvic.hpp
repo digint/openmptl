@@ -286,7 +286,4 @@ namespace Irq
 #endif // STM32F10X_CL
 } // namespace Irq
 
-
-#undef NVIC_NUMOF_INTERRUPTS
-
 #endif // NVIC_HPP_INCLUDED

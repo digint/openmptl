@@ -21,28 +21,27 @@
 #ifndef TERMINAL_HOOKS_HPP_INCLUDED
 #define TERMINAL_HOOKS_HPP_INCLUDED
 
-#include "terminal.hpp"
-
-#include <vector>
+#include <terminal.hpp>
+#include <arch/scb.hpp>
 
 namespace terminal_hooks
 {
-  struct Help
+  struct cpuid
   : public TerminalHook
   {
-    static constexpr const char * cmd      = "help";
-    static constexpr const char * cmd_desc = "display available commands";
-    void run(Terminal & term) {
-      term.help();
+    static constexpr const char * cmd  = "cpuid";
+    static constexpr const char * desc = "prints the SCB::CPUID register";
+    void run(poorman_ostream<char> & ostream) {
+      ostream << reg::SCB::CPUID::load() << endl;
     }
   };
 
   struct NrfTest
   : public TerminalHook
   {
-    static constexpr const char * cmd      = "nrf";
-    static constexpr const char * cmd_desc = "test the NRF24L01 chip (spi)";
-    void run(Terminal &);
+    static constexpr const char * cmd  = "nrf";
+    static constexpr const char * desc = "test the NRF24L01 chip (spi)";
+    void run(poorman_ostream<char> & ostream);
   };
 
 
@@ -50,6 +49,6 @@ namespace terminal_hooks
   // Terminal Commands
   //
 
-  typedef TerminalHookList< Help, NrfTest > commands;
+  typedef TerminalHookList< cpuid, NrfTest > commands;
 }
 #endif
