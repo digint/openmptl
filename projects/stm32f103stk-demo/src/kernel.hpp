@@ -57,7 +57,7 @@ class Kernel
   using usart = Usart<2, 115200>;
   // using usart = Usart<2, 2250000>; // works
 
-  using uart_stream_device = UartStreamDevice<usart>;
+  using uart_stream_device = UartStreamDevice<usart, true>; /* irq debug enabled */
   using uart_gpio_tx = GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull >;
   using uart_gpio_rx = GpioInput < 'A', 3,  cGpio::InputConfig::floating >;
 

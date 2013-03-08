@@ -52,10 +52,6 @@ static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'
 static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'>::CRH> >::set_mask == 0x00030383, "crh");
 #endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 
-static volatile unsigned int usart_irq_count;
-static volatile unsigned int usart_irq_errors;
-
-
 void Kernel::init(void)
 {
   // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
@@ -150,8 +146,8 @@ void Kernel::run(void)
     // update screen rows
     rtc_sec   = time::get_rtc_seconds();
     tick      = time::get_systick();
-    irq_count = usart_irq_count;
-    eirq      = usart_irq_errors;
+    irq_count = uart_stream_device::irq_count;
+    eirq      = uart_stream_device::irq_errors;
     cycle     = cycle_counter.get();
 
     // poll terminal

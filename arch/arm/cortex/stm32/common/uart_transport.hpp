@@ -67,7 +67,7 @@ public:
 };
 
 
-template<typename usart>
+template<typename usart, bool debug_irqs = false>
 struct UartStreamDevice
 {  // TODO: class
   typedef char char_type;
@@ -78,6 +78,9 @@ struct UartStreamDevice
 
   static fifo_type rx_fifo;
   static fifo_type tx_fifo;
+
+  static volatile unsigned int irq_count;
+  static volatile unsigned int irq_errors;
 
   static void flush() {
     usart::EnableTxInterrupt();
@@ -92,12 +95,14 @@ struct UartStreamDevice
 
   static void isr(void) {
       UartIrqTransport<usart> transport;
-#if 0
-      irq_count++;
-      if(transport.HasErrors()) {
-        irq_errors++;
+
+      if(debug_irqs) {
+        irq_count++;
+        if(transport.HasErrors()) {
+          irq_errors++;
+        }
       }
-#endif
+
       transport.ProcessIO(rx_fifo, tx_fifo);
   }
 
@@ -106,11 +111,16 @@ struct UartStreamDevice
                         > resources;
 };
 
-template<typename usart>
-RingBuffer<char, 512> UartStreamDevice<usart>::rx_fifo;
+template<typename usart, bool debug_irqs>
+volatile unsigned int UartStreamDevice<usart, debug_irqs>::irq_count;
+template<typename usart, bool debug_irqs>
+volatile unsigned int UartStreamDevice<usart, debug_irqs>::irq_errors;
 
-template<typename usart>
-RingBuffer<char, 512> UartStreamDevice<usart>::tx_fifo;
+template<typename usart, bool debug_irqs>
+RingBuffer<char, 512> UartStreamDevice<usart, debug_irqs>::rx_fifo;
+
+template<typename usart, bool debug_irqs>
+RingBuffer<char, 512> UartStreamDevice<usart, debug_irqs>::tx_fifo;
 
 
 
