@@ -113,6 +113,7 @@ void Kernel::run(void)
   fsm_list::start();
   while(1)
   {
+    cycle_counter.start();
     // poll joystick
     debouncer.set(joy::getPosition());
     if(debouncer.get(joypos)) {
@@ -139,19 +140,18 @@ void Kernel::run(void)
         break;
       }
     }
-    cycle_counter.start();
     sprintf(joytext_buf, " joy: %s %s", (joy::buttonPressed() ? "x" : "o"), joypos_text);
-    cycle_counter.stop();
+
+    // poll terminal
+    terminal.process_input();
 
     // update screen rows
     rtc_sec   = time::get_rtc_seconds();
     tick      = time::get_systick();
     irq_count = uart_stream_device::irq_count;
     eirq      = uart_stream_device::irq_errors;
+    cycle_counter.stop();
     cycle     = cycle_counter.get();
-
-    // poll terminal
-    terminal.process_input();
 
     // update screen
     lcd_n3310::configure();
