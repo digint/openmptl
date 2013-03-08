@@ -34,10 +34,6 @@
 #include <arch/dwt.hpp>  // CycleCounter
 #include <atomic>
 
-// Hint: template debugging:
-//template<typename T> struct incomplete;
-//incomplete<Core::SPI<1>::CR1::SPE::type> debug;
-
 
 #ifdef DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 /* Check the shared registers against fixed values.
@@ -53,10 +49,10 @@ static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'
 static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'>::CRH> >::set_mask == 0x00030383, "crh");
 #endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 
+
 void Kernel::init(void)
 {
-  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
-  //  resources::check();  /* check unique resources */
+  resources::check();      /* check unique resources */
   resources::configure();  /* configure resources (set all shared register) */
 
 #ifdef CORE_SIMULATION
@@ -69,10 +65,10 @@ void Kernel::init(void)
   led::init(); led::off();
 
   time::init();
-  time::run();
+  time::enable();
 
-  lcd_n3310::init();
-  lcd_n3310::set_contrast(0x45);
+  lcd::init();
+  lcd::set_contrast(0x45);
 
   nrf::init();
 
@@ -83,6 +79,7 @@ void Kernel::init(void)
   usart::GlobalIrq::enable();
   usart::enable_interrupt<true, false, true, false, false>();
 }
+
 
 void Kernel::run(void)
 {
@@ -153,8 +150,8 @@ void Kernel::run(void)
     cycle_counter.stop();
     cycle     = cycle_counter.get();
 
-    // update screen
-    lcd_n3310::configure();
+    /* update screen */
+    lcd::configure();
     Screen::update();
   }
 }

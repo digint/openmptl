@@ -54,7 +54,7 @@
 #define   RX_DR           0x40
 #define   TX_DS           0x20
 
-template<int spi_no,
+template<typename spi_type,
          typename nrf_ce,
          typename nrf_csn,  // nss
          typename nrf_irq
@@ -73,17 +73,21 @@ class Nrf24l01
 
 public:
 
-  typedef SpiMaster<spi_no,
-                    8_mhz,  // max frequency
-                    8,      // data_size
-                    cSpi::ClockPolarity::low
-                    > spi_master;
+  using spi = spi_type;
 
-  typedef ResourceList< typename spi_master::resources,
-                        typename nrf_ce::resources,
-                        typename nrf_csn::resources,
-                        typename nrf_irq::resources
-                        > resources;
+  using spi_master = SpiMaster<
+    spi,
+    8_mhz,  // max frequency
+    8,      // 8bit data
+    cSpi::ClockPolarity::low
+    >;
+
+  using resources = ResourceList<
+    typename spi_master::resources,
+    typename nrf_ce::resources,
+    typename nrf_csn::resources,
+    typename nrf_irq::resources
+    >;
 
 
   static constexpr unsigned numof_nops = 10;  // Tcwh: CSN Inactive time: min. 50ns   // TODO: measurements, nanosleep

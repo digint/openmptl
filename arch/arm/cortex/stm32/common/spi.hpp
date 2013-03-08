@@ -52,14 +52,16 @@ namespace cSpi
 }
 
 
-template<std::size_t spi_no>
-class Spi  // TODO: rename -> spi_resource (EVERYWHERE!)
+template<std::size_t _spi_no>
+class Spi
 {
-  using SPIx = reg::SPI<spi_no>;
+  using SPIx = reg::SPI<_spi_no>;
 
 public:
 
-  typedef Rcc::spi_clock_resources<spi_no> resources;
+  static constexpr std::size_t spi_no = _spi_no;
+
+  using resources = Rcc::spi_clock_resources<spi_no>;
 
   template<cSpi::MasterSelection master_selection = cSpi::MasterSelection::master,
            unsigned baud_rate_prescaler = 2,  // TODO: use baud-rate here, calculate correct presscaler below
@@ -159,7 +161,7 @@ public:
 
 
 
-template<unsigned spi_no,
+template<typename spi_type,
          freq_t max_frequency = 0, /* Hz, 0=maximum available */
          unsigned data_size = 8,
          cSpi::ClockPolarity clk_pol = cSpi::ClockPolarity::high,
@@ -167,27 +169,28 @@ template<unsigned spi_no,
          cSpi::DataDirection data_dir = cSpi::DataDirection::two_lines_full_duplex,
          cSpi::SoftwareSlaveManagement ssm = cSpi::SoftwareSlaveManagement::enabled
          >
-class SpiMaster : public Spi<spi_no> {
+class SpiMaster : public spi_type {
 
-  typedef Spi<spi_no> base;  // TODO: rename "spi"
+  using spi = spi_type;
 
 private:
 
-  // TODO: ugly hardcoded! get this out of the class!
-  typedef GpioOutput<'A', 5, cGpio::OutputConfig::alt_push_pull> spi_sck;
-  typedef GpioOutput<'A', 6, cGpio::OutputConfig::alt_push_pull> spi_miso;
-  typedef GpioOutput<'A', 7, cGpio::OutputConfig::alt_push_pull> spi_mosi;
+  // TODO: use some kind of map for the gpios
+  //  typedef GpioOutput<'A', 5, cGpio::OutputConfig::alt_push_pull> spi_sck;
+  //  typedef GpioOutput<'A', 6, cGpio::OutputConfig::alt_push_pull> spi_miso;
+  //  typedef GpioOutput<'A', 7, cGpio::OutputConfig::alt_push_pull> spi_mosi;
 
 public:
 
-  typedef ResourceList< typename base::resources,
-                        typename spi_sck::resources,
-                        typename spi_miso::resources,
-                        typename spi_mosi::resources
-                        > resources;
+  using resources = ResourceList<
+    // typename spi_sck::resources,
+    // typename spi_miso::resources,
+    // typename spi_mosi::resources,
+    typename spi::resources
+    >;
 
-  /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1) */
-  static constexpr unsigned freq = (spi_no == 1 ?
+  /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1 on all of stm32) */
+  static constexpr unsigned freq = (spi::spi_no == 1 ?
                                     Rcc::ClockFrequency<Core::clock_frequency>::pclk2 : 
                                     Rcc::ClockFrequency<Core::clock_frequency>::pclk1 );
 
@@ -203,28 +206,28 @@ public:
     256;
 
   static void configure(void) {
-    //    base::waitTransmitEmpty();
-    //    base::waitNotBusy();
-    base::disable();  // TODO: this is actually only needed for a "reconfigure()"
-    base::template configure<cSpi::MasterSelection::master, baud_rate_prescaler, data_size, clk_pol, clk_phase, data_dir, ssm>();
-    base::enable();   // TODO: this is actually only needed for a "reconfigure()"
+    // spi::wait_transmit_empty();
+    // spi::wait_not_busy();
+    spi::disable();  // TODO: this is actually only needed for a "reconfigure()"
+    spi::template configure<cSpi::MasterSelection::master, baud_rate_prescaler, data_size, clk_pol, clk_phase, data_dir, ssm>();
+    spi::enable();   // TODO: this is actually only needed for a "reconfigure()"
   }
 
   static void init(void) {
-    // Configure SPI1 pins: NSS, SCK, MISO and MOSI
-    spi_sck::init();
-    spi_miso::init();
-    spi_mosi::init();
-    base::reset_crc();
+    /* Configure SPI1 pins: NSS, SCK, MISO and MOSI */
+    // spi_sck::init();
+    // spi_miso::init();
+    // spi_mosi::init();
+    spi::reset_crc();
     configure();
-    //    base::enable();
+    // spi::enable();
   }
 
   static unsigned char send_byte(unsigned char data) {
-    base::wait_transmit_empty();
-    base::send(data);	
-    base::wait_receive_not_empty();
-    return base::receive();
+    spi::wait_transmit_empty();
+    spi::send(data);	
+    spi::wait_receive_not_empty();
+    return spi::receive();
   }
 };
 

@@ -79,7 +79,7 @@ class Usart
   static_assert((usart_no >= 1) && (usart_no <= 3), "Invalid USART number");
   static_assert((word_length == 8) || (word_length == 9), "Invalid word length");
 
-public:  
+public:
 
   using USARTx = reg::USART<usart_no>;
 
@@ -87,16 +87,17 @@ public:
   //  typedef GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull > gpio_tx;
   //  typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
 
-  typedef Irq::USART2   GlobalIrq; /**< USART2 global Interrupt */
+  using GlobalIrq = Irq::USART2; /**< USART2 global Interrupt */
 
 
   
   static_assert(usart_no != 1, "usart 1 is not yet supported, sorry...");
 
-  typedef ResourceList< //typename gpio_tx::resources,
-                        //typename gpio_rx::resources,
-                        Rcc::usart_clock_resources<usart_no>
-                        > resources;
+  using resources = ResourceList<
+    //typename gpio_tx::resources,
+    //typename gpio_rx::resources,
+    Rcc::usart_clock_resources<usart_no>
+    >;
 
   static void send(typename USARTx::DR::value_type data) {
     //    USARTx::DR::store(data & (uint32_t)0x01ff);

@@ -21,12 +21,10 @@
 #ifndef FSMLIST_HPP_INCLUDED
 #define FSMLIST_HPP_INCLUDED
 
+#include <tinyfsm.hpp>
+#include "kernel.hpp"
 #include "screen.hpp"
 
-#include <tinyfsm.hpp>
-
-
-struct Screen;
 
 typedef tinyfsm::FsmList<Screen> fsm_list;
 

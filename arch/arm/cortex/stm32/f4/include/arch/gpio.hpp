@@ -105,16 +105,17 @@ public:
 
   typedef Gpio<port, pin_no, moder_cnf, otype_cnf, speed, resistor_cnf, alt_func_num> type;
 
-  // TODO: make sure the registers are only set if they differ from reset value
-  typedef ResourceList< Rcc::gpio_clock_resources<port>,
-                        //!!!! TODO: fixme: UniqueResource< Gpio<port, pin_no> >,
-                        SharedRegister< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        >,
-                        SharedRegister< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double >,
-                        SharedRegister< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       >,
-                        SharedRegister< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       >
-                        > resources;
+  // TODO: make sure the registers are only set if they differ from reset value. does this make sense?
+  using resources = ResourceList<
+    Rcc::gpio_clock_resources<port>,
+    UniqueResource< Gpio<port, pin_no> >,
+    SharedRegister< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double >,
+    SharedRegister< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        >,
+    SharedRegister< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double >,
+    SharedRegister< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double >,
+    SharedRegister< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       >,
+    SharedRegister< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       >
+    >;
 
   static void init() {
   }

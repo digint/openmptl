@@ -52,7 +52,7 @@ public:
     rtc::set_prescaler(0x7FFF); // 1sec
   }
 
-  static void run(void) {
+  static void enable(void) {
     systick::enable_interrupt();
 
     rtc::enable_second_interrupt();

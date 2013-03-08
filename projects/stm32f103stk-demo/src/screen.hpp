@@ -46,7 +46,7 @@ class Screen
 
 protected:
 
-  static Kernel::lcd_n3310 lcd;
+  static Kernel::lcd lcd;
 
   static ItemList::iterator item_top;
   static ItemList * itemlist;

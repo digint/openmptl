@@ -29,6 +29,7 @@
 namespace text
 {
   static constexpr const char * term_cmd_notfound = ": command not found (type \"help\" for a list of available commands)";
+  static constexpr const char * term_cmd_list     = "List of commands:";
 }
 
 
@@ -128,7 +129,7 @@ struct TerminalHookList<>
   template<typename HL>
   static void execute(const char * cmd_buf, poorman_ostream<char> & ostream) {
     if(strcmp("help", cmd_buf) == 0) {
-      ostream << "List of commands:" << endl;
+      ostream << text::term_cmd_list << endl;
       HL::template list<HL>(ostream);
     }
     else {

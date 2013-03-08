@@ -160,14 +160,14 @@ protected:
   static constexpr uint32_t crx_shift = (pin_no % 8) << 2;
   static constexpr uint32_t crx_mask = 0x0F << crx_shift;
 
-  typedef reg::GPIO<port> GPIOx;
+  using GPIOx = reg::GPIO<port>;
 
 public:
 
-  typedef ResourceList< Rcc::gpio_clock_resources<port>
-                        //!!!! TODO: fixme:  UniqueResource<GpioBase<port, pin_no> >
-                        > resources;
-
+  using resources = ResourceList<
+    Rcc::gpio_clock_resources<port>,
+    UniqueResource<GpioBase<port, pin_no> >
+    >;
 
   static void set() {
     GPIOx::BSRR::store(pin_mask);
@@ -273,10 +273,11 @@ public:
   static constexpr uint32_t crh_mask  = pin_no >= 8 ? base::crx_mask : 0;
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
-  typedef ResourceList< typename base::resources,
-                        SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
-                        SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
-                        > resources;
+  using resources = ResourceList<
+    typename base::resources,
+    SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
+    SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
+    >;
 
   static void enable() {
     if(active_state == cGpio::ActiveState::low) {

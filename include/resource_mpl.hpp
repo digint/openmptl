@@ -25,10 +25,13 @@
 #include <cstdint>
 #include <isr.hpp>  // isr_t
 
+// Hint: template debugging:
+//template<typename T> struct incomplete;
+//incomplete<bad_type> debug;
+
 namespace mpl
 {
   ////////////////////  resource  ////////////////////
-
 
   /**
    * Template arguments:

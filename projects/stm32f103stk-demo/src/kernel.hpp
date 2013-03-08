@@ -54,29 +54,38 @@ class Kernel
   using nrf_csn   = GpioOutput<'A', 4, cGpio::OutputConfig::push_pull>;  //< spi enable (active low)
   using nrf_irq   = GpioInput <'C', 9, cGpio::InputConfig::pull_down>;   //< IRQ
 
-  using usart = Usart<2, 115200>;
-  // using usart = Usart<2, 2250000>; // works
+  using usart     = Usart<2, 115200>;  // tested up to 2250000 baud
 
   using uart_stream_device = UartStreamDevice<usart, true>; /* irq debug enabled */
   using uart_gpio_tx = GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull >;
   using uart_gpio_rx = GpioInput < 'A', 3,  cGpio::InputConfig::floating >;
 
+  using spi      = Spi<1>;
+  using spi_sck  = GpioOutput<'A', 5, cGpio::OutputConfig::alt_push_pull>;
+  using spi_miso = GpioOutput<'A', 6, cGpio::OutputConfig::alt_push_pull>;
+  using spi_mosi = GpioOutput<'A', 7, cGpio::OutputConfig::alt_push_pull>;
+
 public:
 
-  using lcd_n3310 = Lcd_Nokia3310<1, lcd_ds, lcd_reset, lcd_e>;
-  using nrf       = Nrf24l01<1, nrf_ce, nrf_csn, nrf_irq>;
-  using joy       = Joystick;
-  using led       = GpioLed<'C', 12>;
-  using time      = Time;
+  using lcd      = Lcd_Nokia3310<spi, lcd_ds, lcd_reset, lcd_e>;
+  using nrf      = Nrf24l01<spi, nrf_ce, nrf_csn, nrf_irq>;
+  using joy      = Joystick;
+  using led      = GpioLed<'C', 12>;
+  using time     = Time;
 
   using resources = ResourceList<
     IrqResource< CoreException::Reset::irq_number, reset_isr >,
 
     time::resources,
-    lcd_n3310::resources,
-    nrf::resources,
     joy::resources,
     led::resources,
+
+    spi_sck::resources,
+    spi_miso::resources,
+    spi_mosi::resources,
+    lcd::resources,
+    nrf::resources,
+
     uart_gpio_rx::resources,
     uart_gpio_tx::resources,
     uart_stream_device::resources

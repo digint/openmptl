@@ -31,7 +31,7 @@ namespace terminal_hooks
 
     nrf::configure();
 
-    //        nrf::assign_addr();
+    // nrf::assign_addr();
 
     c = nrf::read_register(STATUS_ADDR);
     ostream << "status=0x" << c << endl;

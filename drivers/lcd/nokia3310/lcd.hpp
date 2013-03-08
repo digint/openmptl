@@ -137,7 +137,7 @@ public:
 
 /////  NOKIA 3310  /////
 
-template<int spi_no,
+template<typename spi_type,
          typename lcd_ds,   //< data / command selection
          typename lcd_reset,
          typename lcd_e
@@ -156,17 +156,20 @@ class Lcd_Nokia3310 : public Lcd< 84, 48 >
 
 public:
 
-  typedef SpiMaster<spi_no,
-                    4_mhz,  // max_frequency = 4 MHz
-                    8,        // 8bit data
-                    cSpi::ClockPolarity::high,
-                    cSpi::ClockPhase::second_edge> spi_master;
-
-  typedef ResourceList< typename spi_master::resources,
-                        typename lcd_ds::resources,
-                        typename lcd_reset::resources,
-                        typename lcd_e::resources
-                        > resources;
+  using spi_master = SpiMaster<
+    spi_type,
+    4_mhz,    // max_frequency
+    8,        // 8bit data
+    cSpi::ClockPolarity::high,
+    cSpi::ClockPhase::second_edge
+    >;
+  
+  using resources = ResourceList<
+    typename spi_master::resources,
+    typename lcd_ds::resources,
+    typename lcd_reset::resources,
+    typename lcd_e::resources
+    >;
 
   static void configure(void) {
     spi_master::configure();

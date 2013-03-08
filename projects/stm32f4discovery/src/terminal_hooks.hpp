@@ -40,6 +40,6 @@ namespace terminal_hooks
   // Terminal Commands
   //
 
-  typedef TerminalHookList< cpuid > commands;
+  using commands = TerminalHookList< cpuid >;
 }
 #endif
