@@ -21,6 +21,8 @@
 #ifndef TIME_HPP_INCLUDED
 #define TIME_HPP_INCLUDED
 
+#include <arch/systick.hpp>
+#include <arch/rtc.hpp>
 #include <resource.hpp>
 #include <atomic>
 
@@ -31,13 +33,35 @@ class Time
   static std::atomic<systick_t> systick_count;
   //static systick_t systick_count;
 
+  //static std::atomic<unsigned int> seconds;
+  static volatile unsigned int seconds;
+
   static void systick_isr(void);
+  static void rtc_isr(void);
 
 public:
+  using rtc     = Rtc;
+  using systick = SysTick<100_hz, cSysTick::ClockSource::hclk>;
+  // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
 
-  static void tick(void) {
-    Time::systick_count.fetch_add(1, std::memory_order_relaxed);
-    //  time::systick_count++;
+  static void init(void) {
+    systick::Init();
+
+    rtc::Init();
+    // TODO: play around with prescaler (measurements!)
+    rtc::SetPrescaler(0x7FFF); // 1sec
+  }
+
+  static void run(void) {
+    systick::EnableInterrupt();
+
+    rtc::EnableSecondInterrupt();
+    rtc::GlobalIrq::Enable();
+  }
+
+  static unsigned int get_rtc_seconds(void) {
+    // return seconds.load(std::memory_order_relaxed);
+    return seconds;
   }
 
   static systick_t get_systick() {
@@ -47,6 +71,13 @@ public:
 
   //  static constexpr long long nop_s = 11999940; // nop's per second when using Core::nop(n) (-Os, 72Mhz)
   static void nanosleep(unsigned int ns);
+
+  using resources = ResourceList<
+    IrqResource< systick::Irq::irq_number,   systick_isr >,
+    IrqResource< rtc::GlobalIrq::irq_number, rtc_isr     >,
+    systick::resources,
+    rtc::resources
+  >;
 };
 
-#endif
+#endif // TIME_HPP_INCLUDED

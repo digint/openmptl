@@ -29,53 +29,50 @@
 #include "printf.h"
 #include <terminal.hpp>
 #include <resource.hpp>
+#include <debouncer.hpp>
 #include <arch/uart_transport.hpp>
 #include <arch/dwt.hpp>  // CycleCounter
 #include <atomic>
-
 
 // Hint: template debugging:
 //template<typename T> struct incomplete;
 //incomplete<Core::SPI<1>::CR1::SPE::type> debug;
 
-#if 0
-// If you don't believe in resources::list magic: compare them by hand
-static_assert(resources::list::value<SharedAPB1ENR<0> >() == 0x18020000, "apb1enr");
-static_assert(resources::list::value<SharedAPB2ENR<0> >() == 0x0000121c, "apb2enr");
 
-static_assert(resources::list::value<SharedCRL<'C', 0> >() == 0x34000000, "crl");
-static_assert(resources::list::value<SharedCRH<'C', 0> >() == 0x00030383, "crh");
-#endif
+#ifdef DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
+/* Check the shared registers against fixed values.
+ * You can always explicitely set the registers using this notation.
+ */
+#include <arch/reg/rcc.hpp>
+#include <arch/reg/gpio.hpp>
+static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::RCC::APB1ENR> >::set_mask == 0x18020000, "apb1enr");
+static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::RCC::APB2ENR> >::set_mask == 0x0000121c, "apb2enr");
 
-//static std::atomic<unsigned int> seconds;
-static volatile unsigned int seconds;
+static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'>::CRL> >::set_mask == 0x34000000, "crl");
+static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'>::CRH> >::set_mask == 0x00030383, "crh");
+#endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
+
 static volatile unsigned int usart_irq_count;
 static volatile unsigned int usart_irq_errors;
 
-void Kernel::rtc_isr() {
-  rtc::StaticIrqWrap wrap;  // clears second flag in constructor
-
-  //  seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
-  seconds++;
-  led::toggle();
-}
 
 void Kernel::init(void)
 {
-  // resources::check();  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
-  resources::configure();
+  // TODO: this fails because of multiple SpiMaster (lcd+nrf) use same GPIO's
+  //  resources::check();  /* check unique resources */
+  resources::configure();  /* configure resources (set all shared register) */
 
 #ifdef CORE_SIMULATION
-  // set TXE and RXNE bits, SPI::sendByte loops on it
+  // hack: set TXE and RXNE bits, SPI::sendByte loops on it
   Reg::SPI<1>::SR::set(0x0002 | 0x0001);
-
-  
   Reg::RCC::BDCR::set(0x00000002);
   Reg::RTC::CRL::set(0x0008);
 #endif
 
-  systick::Init();
   led::init(); led::off();
+
+  time::init();
+  time::run();
 
   lcd_n3310::init();
   lcd_n3310::setContrast(0x45);
@@ -83,52 +80,14 @@ void Kernel::init(void)
   nrf::init();
 
   joy::init();
-  rtc::Init();
 
-  systick::EnableInterrupt();
-
-  // TODO: play around with prescaler (measurements!)
-  rtc::SetPrescaler(0x7FFF); // 1sec
-  rtc::EnableSecondInterrupt();
-  rtc::GlobalIrq::Enable();
+  //  systick::EnableInterrupt();
 
   usart::init();
   usart::Enable();
   usart::GlobalIrq::Enable();
   usart::EnableInterrupt<true, false, true, false, false>();
-
 }
-
-template<typename T, unsigned wait_time = 10>
-class Debouncer
-{
-  T value;
-  T current;
-  unsigned set_time = 0;
-
-public:
-
-  Debouncer(T _value) : value(_value), current(_value) { };
-
-  void set(T new_value) {
-    if(current != new_value) {
-      current = new_value;
-      set_time = Time::get_systick();
-    }
-  }
-
-  bool get(T & _value) {
-    bool changed = false;
-    if((value != current) && (Time::get_systick() + wait_time > set_time)) {
-      value = current;
-      changed = true;
-    }
-
-    _value = value;
-    return changed;
-  }
-};
-
 
 void Kernel::run(void)
 {
@@ -137,7 +96,7 @@ void Kernel::run(void)
   char joytext_buf[16] = "              ";
   const char * joypos_text = "center";
   Joystick::Position joypos = Joystick::Position::center;
-  Debouncer<Joystick::Position, 10> debouncer(joypos);
+  Debouncer<Joystick::Position, time, 10> debouncer(joypos);
   
   ItemList ilist;
 
@@ -156,15 +115,10 @@ void Kernel::run(void)
   terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
 
   fsm_list::start();
-
-  fsm_list::dispatch(JoystickUp());
   while(1)
   {
     // poll joystick
     debouncer.set(joy::getPosition());
-
-    //    Stick().dispatch();
-
     if(debouncer.get(joypos)) {
       switch(joypos) {
       case Joystick::Position::up:
@@ -194,13 +148,11 @@ void Kernel::run(void)
     cycle_counter.stop();
 
     // update screen rows
-    rtc_sec = seconds;
-    //    rtc_sec = seconds.load(std::memory_order_relaxed);
-    tick = Time::get_systick();
+    rtc_sec   = time::get_rtc_seconds();
+    tick      = time::get_systick();
     irq_count = usart_irq_count;
-    eirq = usart_irq_errors;
-    cycle = cycle_counter.get();
-
+    eirq      = usart_irq_errors;
+    cycle     = cycle_counter.get();
 
     // poll terminal
     terminal.process_input();

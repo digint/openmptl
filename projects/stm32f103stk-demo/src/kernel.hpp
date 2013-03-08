@@ -23,12 +23,10 @@
 
 #include <crt.hpp>
 #include <resource.hpp>
-#include <arch/systick.hpp>
 #include <arch/gpio.hpp>
 #include <lcd/nokia3310/lcd.hpp>
 #include <rf/nrf24l01/nrf24l01.hpp>
 #include <joystick/stm32f103stk/joystick.hpp>
-#include <arch/rtc.hpp>
 #include <arch/usart.hpp>
 #include <arch/uart_transport.hpp>
 #include <arch/nvic.hpp>
@@ -48,8 +46,6 @@ class Kernel
   static void warn_isr(void)  { Kernel::led::on(); }
   static void error_isr(void) { while(1) { Kernel::led::on(); } }
 
-  static void rtc_isr(void);
-
   using lcd_ds    = GpioOutput<'B', 2,  cGpio::OutputConfig::push_pull>;  //< low=command, high=data
   using lcd_reset = GpioOutput<'C', 7,  cGpio::OutputConfig::push_pull>;  //< reset pin (active low)
   using lcd_e     = GpioOutput<'C', 10, cGpio::OutputConfig::push_pull>;  //< display controller spi enable (active low)
@@ -67,26 +63,19 @@ class Kernel
 
 public:
 
-  using systick = SysTick<100_hz, cSysTick::ClockSource::hclk>;
-  // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
-
   using lcd_n3310 = Lcd_Nokia3310<1, lcd_ds, lcd_reset, lcd_e>;
   using nrf       = Nrf24l01<1, nrf_ce, nrf_csn, nrf_irq>;
   using joy       = Joystick;
   using led       = GpioLed<'C', 12>;
-  using rtc       = Rtc;
+  using time      = Time;
 
   using resources = ResourceList<
     IrqResource< CoreException::Reset::irq_number, reset_isr >,
-    IrqResource< systick::Irq::irq_number, Time::systick_isr >,
-    IrqResource< rtc::GlobalIrq::irq_number, rtc_isr >,
-
+    Time::resources,
     lcd_n3310::resources,
     nrf::resources,
     joy::resources,
     led::resources,
-    rtc::resources,
-    systick::resources,
     uart_gpio_rx::resources,
     uart_gpio_tx::resources,
     uart_stream_device::resources

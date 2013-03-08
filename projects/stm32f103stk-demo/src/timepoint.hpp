@@ -22,26 +22,25 @@
 #define TIMEPOINT_HPP_INCLUDED
 
 #include "printf.h"
-#include "kernel.hpp"
 #include "time.hpp"
 
 class TimePoint
 {
 protected:
 
-  typedef decltype(Kernel::systick::GetCounter()) counter_type;
+  typedef decltype(Time::systick::GetCounter()) counter_type;
 
   systick_t     systick;
   counter_type  counter;     // note: counter decreases in time
 
 public:
 
-  static constexpr auto counter_base = Kernel::systick::reload_value;
-  static constexpr auto ps_per_tick  = Kernel::systick::ps_per_tick;
+  static constexpr auto counter_base = Time::systick::reload_value;
+  static constexpr auto ps_per_tick  = Time::systick::ps_per_tick;
 
   void set() volatile {
     systick = Time::get_systick();
-    counter = Kernel::systick::GetCounter();
+    counter = Time::systick::GetCounter();
   }
 
   systick_t    get_systick() const { return systick; }
@@ -49,7 +48,7 @@ public:
 
   /** add nanoseconds */
   void add_ns(unsigned int ns) {
-    counter_type counter_ticks = (ns * 1000) / Kernel::systick::ps_per_tick + 1; // always rounded up
+    counter_type counter_ticks = (ns * 1000) / Time::systick::ps_per_tick + 1; // always rounded up
     systick += counter_ticks / counter_base;
     counter_type wait_frac = counter_ticks % counter_base;
     if(wait_frac > counter) {
@@ -61,7 +60,7 @@ public:
 
   unsigned int get_ns(void) {
     unsigned int t = systick * counter_base - counter + counter_base;
-    t = t * 1000 / Kernel::systick::ps_per_tick;
+    t = t * 1000 / Time::systick::ps_per_tick;
     return t;
   };
 
@@ -121,4 +120,4 @@ public:
   }
 };
 
-#endif
+#endif // TIMEPOINT_HPP_INCLUDED

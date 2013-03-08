@@ -20,13 +20,24 @@
 
 #include "timepoint.hpp"
 #include "time.hpp"
-
-void Time::systick_isr(void) {
-  Time::tick();
-}
+#include "kernel.hpp"
 
 //systick_t time::systick_count;
 std::atomic<systick_t> Time::systick_count;
+volatile unsigned int Time::seconds;
+
+void Time::systick_isr(void) {
+  systick_count.fetch_add(1, std::memory_order_relaxed);
+  // time::systick_count++;
+}
+
+void Time::rtc_isr() {
+  rtc::StaticIrqWrap wrap;  // clears second flag in constructor
+
+  // seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
+  seconds++;
+  Kernel::led::toggle();
+}
 
 void Time::nanosleep(unsigned int ns) {
   TimePoint end;

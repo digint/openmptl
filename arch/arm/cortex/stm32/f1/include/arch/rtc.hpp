@@ -25,6 +25,7 @@
 #include <arch/pwr.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/rtc.hpp>
+#include <irq_wrap.hpp>
 
 
 class Rtc
