@@ -131,21 +131,26 @@ namespace mpl
   };
 
 
-  /* Creates a filtered_list<...>: list of resource class types,               */
-  /* providing combined_type (e.g. or'ed  register values for SharedRegister). */
   template<typename T, typename Filter, typename... Args>
-  struct make_filtered_list;
+  struct make_filtered_list_impl;
 
   template<typename T, typename Filter, typename Head, typename... Args>
-  struct make_filtered_list<T, Filter, Head, Args...> {
-    using type = typename make_filtered_list<typename Head::template append_filtered_list<T, Filter>, Filter, Args...>::type;
+  struct make_filtered_list_impl<T, Filter, Head, Args...> {
+    using type = typename make_filtered_list_impl<typename Head::template append_filtered_list<T, Filter>, Filter, Args...>::type;
   };
 
   template<typename T, typename Filter>
-  struct make_filtered_list<T, Filter> {
+  struct make_filtered_list_impl<T, Filter> {
     using type = T;
   };
 
+  /* Creates a filtered_list<...>: list of resource class types,               */
+  /* providing combined_type (e.g. or'ed  register values for SharedRegister). */
+  template<typename Filter, typename... Args>
+  struct make_filtered_list
+  : make_filtered_list_impl< mpl::filtered_list<>, Filter, Args... >
+  { };
+ 
 
   ////////////////////  resource_type_list  ////////////////////
 
@@ -191,19 +196,42 @@ namespace mpl
   };
 
 
-  /* Creates a resource_type_list<...>: list of unique resource types */
   template<typename T, typename... Args>
-  struct make_resource_type_list;
+  struct make_resource_type_list_impl;
 
   template<typename T, typename Head, typename... Args>
-  struct make_resource_type_list<T, Head, Args...> {
-    using type = typename make_resource_type_list<typename Head::template append_resource_type_list<T>, Args...>::type;
+  struct make_resource_type_list_impl<T, Head, Args...> {
+    using type = typename make_resource_type_list_impl<typename Head::template append_resource_type_list<T>, Args...>::type;
   };
 
   template<typename T>
-  struct make_resource_type_list<T> {
+  struct make_resource_type_list_impl<T> {
     using type = T;
   };
+
+  /* Creates a resource_type_list<...>: list of unique resource types */
+  template<typename... Args>
+  struct make_resource_type_list
+  : make_resource_type_list_impl< resource_type_list<>, Args... >
+  { };
+
+  ////////////////////  resource_list_impl  ////////////////////
+
+
+  template<typename... Args>
+  struct resource_list_impl
+  {
+    /* Append a ResourceList to a filtered_list. T Needed by             */
+    /* make_filtered_list_impl in order to unfold nested ResourceList's  */
+    template<typename T, typename Filter>
+    using append_filtered_list = typename make_filtered_list_impl<T, Filter, Args...>::type;
+
+    /* Append a ResourceList to a resource type list T. Needed by             */
+    /* make_resource_type_list_impl in order to unfold nested ResourceList's  */
+    template<typename T>
+    using append_resource_type_list = typename make_resource_type_list_impl<T, Args...>::type;
+  };
+
 } // namespace mpl
 
 

@@ -37,7 +37,6 @@ template<typename R, typename R::value_type _set_mask, typename R::value_type _c
 struct SharedRegister
 : mpl::resource< SharedRegisterGroup<R>, SharedRegister<R, _set_mask, _clear_mask> >
 {
-  //  using type = SharedRegister<R, _set_mask, _clear_mask>;
   using reg_type = R;
   using reg_value_type = typename R::value_type;
 
@@ -48,6 +47,7 @@ struct SharedRegister
   /* Returns SharedRegister with or'ed set_mask and or'ed clear_mask.  */
   template<typename U>
   struct combine {
+    // TODO: assert here if bits in A.set_mask match B.clear_mask (set_mask | U::clear_mask) and vice versa
     using type = SharedRegister<R, set_mask | U::set_mask, clear_mask | U::clear_mask>;
     static_assert(std::is_same<reg_type, typename U::reg_type>::value, "oops, combining values for different register...");
   };
@@ -93,25 +93,16 @@ struct IrqResource
 
 
 template<typename... Args>
-struct ResourceList {
+struct ResourceList : mpl::resource_list_impl<Args...>
+{
   using type = ResourceList<Args...>;
-
-  /* Append a ResourceList to a filtered_list. Needed by make_filtered_list in  */
-  /* order to create its list from nested ResourceList's                        */
-  template<typename T, typename Filter>
-  using append_filtered_list = typename mpl::make_filtered_list<T, Filter, Args...>::type;
-
-  /* Append a ResourceList to a filtered_list. Needed by make_resource_type_list in    */
-  /* order to create its list from nested ResourceList's                        */
-  template<typename T>
-  using append_resource_type_list = typename mpl::make_resource_type_list<T, Args...>::type;
 
   /* filtered_list, containing all resources of type T */
   template<typename T>
-  using resource_filtered_list = typename mpl::make_filtered_list<mpl::filtered_list<>, T, Args...>::type;
+  using resource_filtered_list = typename mpl::make_filtered_list<T, Args...>::type;
 
   /* resource_type_list, containing all resource types (unique) */
-  using resource_type_list = typename mpl::make_resource_type_list<mpl::resource_type_list<>, Args...>::type;
+  using resource_type_list = typename mpl::make_resource_type_list<Args...>::type;
 
   /* Combined resource type */
   template<typename T>
