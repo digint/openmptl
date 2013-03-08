@@ -60,53 +60,53 @@ public:
 
   typedef CoreException::SysTick Irq; /**< System Tick Interrupt */
 
-  static void SetReload(SCB::STRVR::value_type reload) {
+  static void set_reload(SCB::STRVR::value_type reload) {
 //    assert((reload >= 1) && (reload <= 0xFFFFFF));
     SCB::STRVR::store(reload);
   }
 
-  static void SetClockSource(void) {
+  static void set_clock_source(void) {
     if(clock_source == cSysTick::ClockSource::hclk) {
       SCB::STCSR::CLKSOURCE::set();
     } else { // hclk_div8
       SCB::STCSR::CLKSOURCE::clear();
     }
   }
-  static void EnableCounter(void) {
+  static void enable_counter(void) {
     SCB::STCSR::ENABLE::set();
   }
-  static void DisableCounter(void) {
+  static void disable_counter(void) {
     SCB::STCSR::ENABLE::clear();
   }
-  static void ClearCounter(void) {
+  static void clear_counter(void) {
     SCB::STCVR::store(0);
   }
-  static SCB::STCVR::value_type GetCounter(void) {
+  static SCB::STCVR::value_type get_counter(void) {
     return SCB::STCVR::load();
   }
 
-  static void EnableInterrupt(void) {
+  static void enable_interrupt(void) {
     SCB::STCSR::TICKINT::set();
   }
-  static void DisableInterrupt(void) {
+  static void disable_interrupt(void) {
     SCB::STCSR::TICKINT::clear();
   }
 
-  static bool GetCountFlag(void) {
+  static bool get_count_flag(void) {
     return SCB::STCSR::COUNTFLAG::test();
   }
-  static bool GetSkewFlag(void) {
+  static bool get_skew_flag(void) {
     return SCB::STCR::SKEW::test();
   }
-  static bool GetNoRefFlag(void) {
+  static bool get_no_ref_flag(void) {
     return SCB::STCR::NOREF::test();
   }
 
-  static void Init(void) {
-    ClearCounter();
-    SetReload(reload_value);
-    SetClockSource();
-    EnableCounter();
+  static void init(void) {
+    clear_counter();
+    set_reload(reload_value);
+    set_clock_source();
+    enable_counter();
   }
 
 };

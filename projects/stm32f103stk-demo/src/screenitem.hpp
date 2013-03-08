@@ -42,8 +42,8 @@ public:
     itemlist.push_back(*this);
   }
 
-  void setInverted(bool inv = true) { inverted = inv; }
-  bool getInverted(void) const { return inverted; }
+  void set_inverted(bool inv = true) { inverted = inv; }
+  bool get_inverted(void) const { return inverted; }
 
   virtual const char * c_str(void) const { return ""; }
 };

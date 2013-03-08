@@ -35,35 +35,35 @@ public:
 
   UartIrqTransport(void) : flags(SR::load()) { };
 
-  void ProcessIO(Fifo<char> &rx_fifo, Fifo<char> &tx_fifo) {
+  void process_io(Fifo<char> &rx_fifo, Fifo<char> &tx_fifo) {
     if(flags & SR::RXNE::value) {
       // usart::ClearFlag(UsartFlags::RXNE);
-      uint32_t data = usart::Receive();
+      uint32_t data = usart::receive();
       rx_fifo.push(data);
       // usart_rx++;
     }
     if(flags & SR::TXE::value) {
       char c;
       if(tx_fifo.pop(c)) {
-        usart::Send(c); /* implicitely clears TXE flag */
+        usart::send(c); /* implicitely clears TXE flag */
         // usart_tx++;
       }
       else {
-        usart::DisableTxInterrupt();
+        usart::disable_tx_interrupt();
       }
     }
   }
 
-  bool HasErrors(void) {
+  bool has_errors(void) {
     if(flags & (SR::ORE::value | SR::FE::value | SR::NE::value | SR::PE::value))
       return true;
     return false;
   }
 
-  bool OverrunError(void) { return (flags & SR::ORE::value) ? true : false; }
-  bool FramingError(void) { return (flags & SR::FE::value)  ? true : false; }
-  bool NoiseError(void)   { return (flags & SR::NE::value)  ? true : false; }
-  bool ParityError(void)  { return (flags & SR::PE::value)  ? true : false; }
+  bool overrun_error(void) { return (flags & SR::ORE::value) ? true : false; }
+  bool framing_error(void) { return (flags & SR::FE::value)  ? true : false; }
+  bool noise_error(void)   { return (flags & SR::NE::value)  ? true : false; }
+  bool parity_error(void)  { return (flags & SR::PE::value)  ? true : false; }
 };
 
 
@@ -83,14 +83,14 @@ struct UartStreamDevice
   static volatile unsigned int irq_errors;
 
   static void flush() {
-    usart::EnableTxInterrupt();
+    usart::enable_tx_interrupt();
   }
 
   static void open(void) {
     usart::init();
-    usart::Enable();
-    usart::GlobalIrq::Enable();
-    usart::template EnableInterrupt<true, false, true, false, false>();
+    usart::enable();
+    usart::GlobalIrq::enable();
+    usart::template enable_interrupt<true, false, true, false, false>();
   }
 
   static void isr(void) {
@@ -98,12 +98,12 @@ struct UartStreamDevice
 
       if(debug_irqs) {
         irq_count++;
-        if(transport.HasErrors()) {
+        if(transport.has_errors()) {
           irq_errors++;
         }
       }
 
-      transport.ProcessIO(rx_fifo, tx_fifo);
+      transport.process_io(rx_fifo, tx_fifo);
   }
 
   typedef ResourceList< typename usart::resources,

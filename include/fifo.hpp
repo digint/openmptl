@@ -218,9 +218,9 @@ public:
     return true;
   }
 
-  unsigned int getTotal(void) { return total; }
-  unsigned int getOverrun(void) { return overrun; }
-  unsigned int getUnderrun(void) { return underrun; }
+  unsigned int get_total(void) { return total; }
+  unsigned int get_overrun(void) { return overrun; }
+  unsigned int get_underrun(void) { return underrun; }
 };
 
 

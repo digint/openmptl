@@ -28,7 +28,7 @@ class TimePoint
 {
 protected:
 
-  typedef decltype(Time::systick::GetCounter()) counter_type;
+  typedef decltype(Time::systick::get_counter()) counter_type;
 
   systick_t     systick;
   counter_type  counter;     // note: counter decreases in time
@@ -40,7 +40,7 @@ public:
 
   void set() volatile {
     systick = Time::get_systick();
-    counter = Time::systick::GetCounter();
+    counter = Time::systick::get_counter();
   }
 
   systick_t    get_systick() const { return systick; }

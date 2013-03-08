@@ -49,8 +49,8 @@ void Kernel::init(void)
   led_red::init(); led_red::off();
   led_blue::init(); led_blue::off();
 
-  systick::Init();
-  systick::EnableInterrupt();
+  systick::init();
+  systick::enable_interrupt();
 }
 
 void Kernel::run(void)

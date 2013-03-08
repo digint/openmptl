@@ -29,7 +29,7 @@ public:
 
   using PWR = reg::PWR;
 
-  static void DisableBackupDomainWriteProtection(void) {
+  static void disable_backup_domain_write_protection(void) {
     PWR::CR::DBP::set();
   }
 };

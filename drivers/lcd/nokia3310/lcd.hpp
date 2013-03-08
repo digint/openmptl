@@ -91,28 +91,28 @@ public:
     }
   }
 
-  void drawChar(unsigned x, unsigned y, const unsigned char ch) {
+  void draw_char(unsigned x, unsigned y, const unsigned char ch) {
     if(x > columns) return; // TODO: exception
     if(y > rows) return;
 
     LcdFont<font_width>::copy_char(&lcdbuf[buf_index(x, y)], ch);
   }
 
-  void drawCharInverse(unsigned x, unsigned y, const unsigned char ch) {
+  void draw_char_inverse(unsigned x, unsigned y, const unsigned char ch) {
     if(x > columns) return; // TODO: exception
     if(y > rows) return;
 
     LcdFont<font_width>::copy_char_inv(&lcdbuf[buf_index(x, y)], ch);
   }
 
-  void printLine(unsigned row, const char *p, bool inv = false ) {
+  void print_line(unsigned row, const char *p, bool inv = false ) {
     unsigned x = 0;
     while(*p) {
       if(inv) {
-        drawCharInverse(x, row, (const unsigned char)(*p));
+        draw_char_inverse(x, row, (const unsigned char)(*p));
       }
       else {
-        drawChar(x, row, (const unsigned char)(*p));
+        draw_char(x, row, (const unsigned char)(*p));
       }
       x++;
       p++;
@@ -120,10 +120,10 @@ public:
   }
 
   //  void printLine(int row, const char *p ) { printLine(row, p, false); }
-  void printLineInv(unsigned row, const char *p ) { printLine(row, p, true); }
+  void print_line_inv(unsigned row, const char *p ) { print_line(row, p, true); }
 
 #if 0
-  void scrollUp(void) {
+  void scroll_up(void) {
     memmove(lcdbuf, &lcdbuf[buf_index(0, 1)], lcdbuf_size - columns);
     for(unsigned i = lcdbuf_size - columns; i < lcdbuf_size; i++)
       lcdbuf[i] = 0;
@@ -145,13 +145,13 @@ template<int spi_no,
 class Lcd_Nokia3310 : public Lcd< 84, 48 >
 {
 
-  static void sendChar(unsigned char data) {
+  static void send_char(unsigned char data) {
     lcd_ds::set(); /* select data */
     spi_master::sendByte(data);
   }
-  static void sendCommand(unsigned char data) {
+  static void send_command(unsigned char data) {
     lcd_ds::reset(); /* select command */
-    spi_master::sendByte(data);
+    spi_master::send_byte(data);
   }
 
 public:
@@ -184,22 +184,22 @@ public:
   void update(void) {  /* implement pure virtual function from class Lcd */
     enable();
     //  Set base address X=0 Y=0
-    sendCommand(0x80);
-    sendCommand(0x40);
+    send_command(0x80);
+    send_command(0x40);
 
     lcd_ds::set(); /* select data */
     //  Serialize the video buffer.
     for (unsigned i = 0; i < lcdbuf_size; i++) {
-      spi_master::sendByte(lcdbuf[i]);
+      spi_master::send_byte(lcdbuf[i]);
     }
     disable();
   }
 
-  static void setContrast(unsigned char value) {
+  static void set_contrast(unsigned char value) {
     enable();
-    sendCommand(0x21);          // LCD Extended Commands.
-    sendCommand(0x80 | value);  // Set LCD Vop (Contrast).
-    sendCommand(0x20);          // LCD Standard Commands, horizontal addressing mode.
+    send_command(0x21);          // LCD Extended Commands.
+    send_command(0x80 | value);  // Set LCD Vop (Contrast).
+    send_command(0x20);          // LCD Standard Commands, horizontal addressing mode.
     disable();
   }
 
@@ -222,13 +222,13 @@ public:
 
     // Send sequence of commands
     enable();
-    sendCommand(0x21);  // LCD Extended Commands.
-    sendCommand(0xC8);  // Set LCD Vop (Contrast).
-    sendCommand(0x06);  // Set Temp coefficent.
-    sendCommand(0x13);  // LCD bias mode 1:48.
-    sendCommand(0x20);  // LCD Standard Commands, Horizontal addressing mode.
-    sendCommand(0x08);  // LCD blank
-    sendCommand(0x0C);  // LCD in normal mode.
+    send_command(0x21);  // LCD Extended Commands.
+    send_command(0xC8);  // Set LCD Vop (Contrast).
+    send_command(0x06);  // Set Temp coefficent.
+    send_command(0x13);  // LCD bias mode 1:48.
+    send_command(0x20);  // LCD Standard Commands, Horizontal addressing mode.
+    send_command(0x08);  // LCD blank
+    send_command(0x0C);  // LCD in normal mode.
     disable();
 
     // Clear and Update

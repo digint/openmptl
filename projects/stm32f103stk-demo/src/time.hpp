@@ -45,18 +45,18 @@ public:
   // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
 
   static void init(void) {
-    systick::Init();
+    systick::init();
 
-    rtc::Init();
+    rtc::init();
     // TODO: play around with prescaler (measurements!)
-    rtc::SetPrescaler(0x7FFF); // 1sec
+    rtc::set_prescaler(0x7FFF); // 1sec
   }
 
   static void run(void) {
-    systick::EnableInterrupt();
+    systick::enable_interrupt();
 
-    rtc::EnableSecondInterrupt();
-    rtc::GlobalIrq::Enable();
+    rtc::enable_second_interrupt();
+    rtc::GlobalIrq::enable();
   }
 
   static unsigned int get_rtc_seconds(void) {

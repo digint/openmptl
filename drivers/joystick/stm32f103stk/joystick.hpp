@@ -28,7 +28,7 @@ class Joystick
   typedef GpioInput<'C', 6, cGpio::InputConfig::floating, cGpio::ActiveState::high> button;
   typedef Adc<1, cAdc::Mode::independent, cAdc::ScanMode::disabled, cAdc::ContinuousConvMode::single, cAdc::ExternalTrigConv::none, cAdc::DataAlign::right, 1> adc;
   
-  static int getValue(void) {
+  static int get_value(void) {
     adc::regular_channel_config<15, 1, cAdc::SampleTime::cycles_55_5>();
     adc::enable_software_start_conversion();
     adc::wait_EOC();
@@ -53,8 +53,8 @@ public:
     button::init();
   }
 
-  static Position getPosition(void) {
-    int value = getValue();
+  static Position get_position(void) {
+    int value = get_value();
 
     int up_value    =  960;
     int down_value  =  190;
@@ -70,7 +70,7 @@ public:
     return Position::center;
   }
 
-  static bool buttonPressed(void) {
+  static bool button_pressed(void) {
     return button::active();
   }
 };

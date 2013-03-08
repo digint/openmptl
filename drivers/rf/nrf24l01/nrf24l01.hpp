@@ -89,7 +89,7 @@ public:
   static constexpr unsigned numof_nops = 10;  // Tcwh: CSN Inactive time: min. 50ns   // TODO: measurements, nanosleep
 
   // TODO: assert 5 bit address
-  static unsigned char readRegister(unsigned char addr) {
+  static unsigned char read_register(unsigned char addr) {
     unsigned char ret;
     unsigned char command = addr;
 
@@ -100,58 +100,58 @@ public:
     enable();
     //  Tcc: CSN to SCK Setup: 2ns
 
-    spi_master::sendByte(command);
-    ret = spi_master::sendByte(NOP);
+    spi_master::send_byte(command);
+    ret = spi_master::send_byte(NOP);
     // Tcch: SCK to CSN Hold: 2ns
     disable();
     return ret;
   }
 
-  static void readAddressRegister(unsigned char addr, unsigned char *ret_addr) {
+  static void read_address_register(unsigned char addr, unsigned char *ret_addr) {
     unsigned char command = (0 << 5) | addr;
 
     Core::nop(numof_nops);
     enable();
 
-    spi_master::sendByte(command);
+    spi_master::send_byte(command);
     for (int i=0; i < 5; i++) {
-      ret_addr[i] = spi_master::sendByte(NOP);
+      ret_addr[i] = spi_master::send_byte(NOP);
     }
     disable();
   }
 
   //  static void writeAddressRegister(unsigned char addr, std::initializer_list<unsigned char> data) {
-  static void writeAddressRegister(unsigned char addr, const unsigned char data[] ) {
+  static void write_address_register(unsigned char addr, const unsigned char data[] ) {
     unsigned char command = (1 << 5) | addr;
 
     Core::nop(numof_nops);
     enable();
 
     if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
-      spi_master::sendByte(command);
+      spi_master::send_byte(command);
 
 #if 0 // this is how initializer_lists are handled
       std::for_each(data.begin(),
                     data.end(),
-                    [](unsigned char c){ spi_master::sendByte(c); } );
+                    [](unsigned char c){ spi_master::send_byte(c); } );
 #else
       for (int i = 0; i < 5; i++) {
-        spi_master::sendByte(data[i]);
+        spi_master::send_byte(data[i]);
       }
 #endif
     }
     disable();
   }
 
-  static unsigned char writeRegister(unsigned char addr, unsigned char data) {
+  static unsigned char write_register(unsigned char addr, unsigned char data) {
     unsigned char ret;
     unsigned char command = (1 << 5) | addr;
 
     Core::nop(numof_nops);
     enable();
 
-    ret = spi_master::sendByte(command);
-    spi_master::sendByte(data);
+    ret = spi_master::send_byte(command);
+    spi_master::send_byte(data);
     disable();
     return ret;
   }
@@ -181,35 +181,35 @@ public:
 
     // Write CONFIG register (addres - 0x00)
     //00001010 - CRC enable, power-up, RX
-    writeRegister(CONFIG_REG_ADDR, 0x0B);
+    write_register(CONFIG_REG_ADDR, 0x0B);
     // read
-    readRegister(CONFIG_REG_ADDR);
+    read_register(CONFIG_REG_ADDR);
 
     // Write RX_ADDR_P0 register -> Set receive address data Pipe0 -> address in RX_ADDRESS_P0 array
-    //???    writeAddressRegister(RX_ADDR_P0, rx_addr_p0);
-    writeAddressRegister(RX_ADDR_P0, rx_addr_p0);
+    //???    write_address_register(RX_ADDR_P0, rx_addr_p0);
+    write_address_register(RX_ADDR_P0, rx_addr_p0);
     // read
-    readAddressRegister(RX_ADDR_P0, buf);  // TODO: compare
+    read_address_register(RX_ADDR_P0, buf);  // TODO: compare
 
     // Write RX_ADDR_P1 register -> Set receive address data Pipe1 -> address in RX_ADDRESS_P1 array
-    writeAddressRegister(RX_ADDR_P1, rx_addr_p1);
+    write_address_register(RX_ADDR_P1, rx_addr_p1);
     // read
-    readAddressRegister(RX_ADDR_P1, buf);
+    read_address_register(RX_ADDR_P1, buf);
 
     // Write TX_ADDR register -> Transmit address. Used for a PTX device only. Address in TX_ADDRESS array
-    writeAddressRegister(TX_ADDR, tx_addr);
+    write_address_register(TX_ADDR, tx_addr);
     // read
-    readAddressRegister(TX_ADDR, buf);
+    read_address_register(TX_ADDR, buf);
 
     // Write RX_PW_P0 register -> Set number of bytes in RX payload in data pipe0 -> 1 byte
-    writeRegister(RX_PW_P0, 1);
+    write_register(RX_PW_P0, 1);
     // read
-    readRegister(RX_PW_P0);
+    read_register(RX_PW_P0);
 
     // Write RX_PW_P1 register -> Set number of bytes in RX payload in data pipe1 -> 1 byte
-    writeRegister(RX_PW_P1, 1);
+    write_register(RX_PW_P1, 1);
     // read
-    readRegister(RX_PW_P1);
+    read_register(RX_PW_P1);
 
   }
 #endif

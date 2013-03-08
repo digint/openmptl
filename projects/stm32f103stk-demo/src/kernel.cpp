@@ -42,6 +42,7 @@
 #ifdef DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 /* Check the shared registers against fixed values.
  * You can always explicitely set the registers using this notation.
+ * NOTE: combined_type<SharedRegisterGroup<X>> is of type SharedRegister<...>
  */
 #include <arch/reg/rcc.hpp>
 #include <arch/reg/gpio.hpp>
@@ -71,18 +72,16 @@ void Kernel::init(void)
   time::run();
 
   lcd_n3310::init();
-  lcd_n3310::setContrast(0x45);
+  lcd_n3310::set_contrast(0x45);
 
   nrf::init();
 
   joy::init();
 
-  //  systick::EnableInterrupt();
-
   usart::init();
-  usart::Enable();
-  usart::GlobalIrq::Enable();
-  usart::EnableInterrupt<true, false, true, false, false>();
+  usart::enable();
+  usart::GlobalIrq::enable();
+  usart::enable_interrupt<true, false, true, false, false>();
 }
 
 void Kernel::run(void)
@@ -93,29 +92,30 @@ void Kernel::run(void)
   const char * joypos_text = "center";
   Joystick::Position joypos = Joystick::Position::center;
   Debouncer<Joystick::Position, time, 10> debouncer(joypos);
-  
-  ItemList ilist;
 
-  TextRow    title0    (ilist, " CppCore demo ");
-  TextRow    title1    (ilist, "--------------");
-  TextRow    joytext   (ilist, joytext_buf);
-  DataRow    rtc_sec   (ilist, "rtc");
-  DataRowHex tick      (ilist, "tick");
-  DataRow    cycle     (ilist, "cyc");
-  DataRowHex irq_count (ilist, "#irq");
-  DataRowHex eirq      (ilist, "eirq");
- 
-  Screen::assign(&ilist);
+  /* define the screem item list */
+  ItemList item_list;
+  TextRow    title0    (item_list, " CppCore demo ");
+  TextRow    title1    (item_list, "--------------");
+  TextRow    joytext   (item_list, joytext_buf);
+  DataRow    rtc_sec   (item_list, "rtc");
+  DataRowHex tick      (item_list, "tick");
+  DataRow    cycle     (item_list, "cyc");
+  DataRowHex irq_count (item_list, "#irq");
+  DataRowHex eirq      (item_list, "eirq");
+  Screen::assign(&item_list);
 
+  /* open terminal and print welcome message */
   terminal.open();
   terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
 
+  /* start kernel loop */
   fsm_list::start();
   while(1)
   {
     cycle_counter.start();
-    // poll joystick
-    debouncer.set(joy::getPosition());
+    /* poll joystick */
+    debouncer.set(joy::get_position());
     if(debouncer.get(joypos)) {
       switch(joypos) {
       case Joystick::Position::up:
@@ -140,12 +140,12 @@ void Kernel::run(void)
         break;
       }
     }
-    sprintf(joytext_buf, " joy: %s %s", (joy::buttonPressed() ? "x" : "o"), joypos_text);
+    sprintf(joytext_buf, " joy: %s %s", (joy::button_pressed() ? "x" : "o"), joypos_text);
 
-    // poll terminal
+    /* poll terminal */
     terminal.process_input();
 
-    // update screen rows
+    /* update screen rows */
     rtc_sec   = time::get_rtc_seconds();
     tick      = time::get_systick();
     irq_count = uart_stream_device::irq_count;

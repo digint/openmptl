@@ -33,25 +33,25 @@ namespace terminal_hooks
 
     //        nrf::assign_addr();
 
-    c = nrf::readRegister(STATUS_ADDR);
+    c = nrf::read_register(STATUS_ADDR);
     ostream << "status=0x" << c << endl;
 
-    nrf::writeRegister(CONFIG_REG_ADDR, 0x0B);
-    c = nrf::readRegister(CONFIG_REG_ADDR);
+    nrf::write_register(CONFIG_REG_ADDR, 0x0B);
+    c = nrf::read_register(CONFIG_REG_ADDR);
     ostream << "c=0x" << c << endl;
     nrf_buf[0] = 5;
     nrf_buf[1] = 6;
     nrf_buf[2] = 7;
     nrf_buf[3] = 8;
     nrf_buf[4] = 9;
-    nrf::writeAddressRegister(RX_ADDR_P0, nrf_buf);
+    nrf::write_address_register(RX_ADDR_P0, nrf_buf);
 
     nrf_buf[0] = 0;
     nrf_buf[1] = 0;
     nrf_buf[2] = 0;
     nrf_buf[3] = 0;
     nrf_buf[4] = 0;
-    nrf::readAddressRegister(RX_ADDR_P0, nrf_buf);
+    nrf::read_address_register(RX_ADDR_P0, nrf_buf);
     ostream << "rx_addr_p0=0x" << nrf_buf[0] << nrf_buf[1] << nrf_buf[2] << nrf_buf[3] << nrf_buf[4] << endl;
   }
 }

@@ -55,7 +55,7 @@ void Screen::update(void) {
 
   unsigned i = 0;
   while((item != end) && (i < lcd.rows)) {
-    lcd.printLine(i, item->c_str(), item->getInverted());
+    lcd.print_line(i, item->c_str(), item->get_inverted());
     i++;
     item++;
   }

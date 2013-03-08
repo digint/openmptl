@@ -71,7 +71,8 @@ public:
 
   using resources = ResourceList<
     IrqResource< CoreException::Reset::irq_number, reset_isr >,
-    Time::resources,
+
+    time::resources,
     lcd_n3310::resources,
     nrf::resources,
     joy::resources,

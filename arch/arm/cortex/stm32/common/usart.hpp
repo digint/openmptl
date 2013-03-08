@@ -98,11 +98,11 @@ public:
                         Rcc::usart_clock_resources<usart_no>
                         > resources;
 
-  static void Send(typename USARTx::DR::value_type data) {
+  static void send(typename USARTx::DR::value_type data) {
     //    USARTx::DR::store(data & (uint32_t)0x01ff);
     USARTx::DR::store(data);
   }
-  static typename USARTx::DR::value_type Receive(void) {
+  static typename USARTx::DR::value_type receive(void) {
     /* This also clears the RXNE bit in the SR register. */
     /* When receiving the parity enabled, the value read in the MSB
        bit is the received parity bit. */
@@ -110,10 +110,10 @@ public:
     return USARTx::DR::load();
   }
 
-  static void Enable(void) {
+  static void enable(void) {
     USARTx::CR1::UE::set();
   }
-  static void Disable(void) {
+  static void disable(void) {
     USARTx::CR1::UE::clear();
   }
 
@@ -123,7 +123,7 @@ public:
             bool tc   = false,  /**< transmission complete interrupt           */
             bool idle = false   /**< idle interrupt                            */
             >
-  static void EnableInterrupt(void) {
+  static void enable_interrupt(void) {
     auto cr1 = USARTx::CR1::load();
     if(rxne) cr1 |= USARTx::CR1::RXNEIE::value;
     if(txe)  cr1 |= USARTx::CR1::TXEIE::value;
@@ -139,7 +139,7 @@ public:
             bool tc   = false,  /**< transmission complete interrupt           */
             bool idle = false   /**< idle interrupt                            */
             >
-  static void DisableInterrupt(void) {
+  static void disable_interrupt(void) {
     auto cr1 = USARTx::CR1::load();
     if(rxne) cr1 &= ~USARTx::CR1::RXNEIE::value;
     if(txe)  cr1 &= ~USARTx::CR1::TXEIE::value;
@@ -149,8 +149,8 @@ public:
     USARTx::CR1::store(cr1);
   }
 
-  static void EnableTxInterrupt(void)  { EnableInterrupt<false, true, false, false, false>(); }
-  static void DisableTxInterrupt(void) { DisableInterrupt<false, true, false, false, false>(); }
+  static void enable_tx_interrupt(void)  { enable_interrupt<false, true, false, false, false>(); }
+  static void disable_tx_interrupt(void) { disable_interrupt<false, true, false, false, false>(); }
 
 
   static void init(void) {

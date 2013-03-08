@@ -162,23 +162,6 @@ protected:
 
   typedef reg::GPIO<port> GPIOx;
 
-#if 0
-  // TODO: finish this. needs to go to something like "template<int port> GpioPort" in order to work correctly
-  struct SharedBSRR : SharedRegister {
-    template<typename result>
-    static void shoot(void) {
-      GPIOx::BSRR::set(result::value);
-    }
-  };
-  struct SharedBRR : SharedRegister {
-    template<typename result>
-    static void shoot(void) {
-      GPIOx::BRR::set(result::value);
-    }
-  };
-#endif
-
-
 public:
 
   typedef ResourceList< Rcc::gpio_clock_resources<port>
@@ -219,14 +202,14 @@ public:
   static void init() {
     if(cnf == cGpio::InputConfig::pull_up) {
       base::set(); // configure pull-up
-//      base::set_mode(0, 2); //  10 - Input with pull-up/pull-down
+      // base::set_mode(0, 2); //  10 - Input with pull-up/pull-down
     }
     else if(cnf == cGpio::InputConfig::pull_down) {
       base::reset(); // configure pull-down
-//      base::set_mode(0, 2); //  10 - Input with pull-up/pull-down
+      // base::set_mode(0, 2); //  10 - Input with pull-up/pull-down
     }
     else {
-//      base::set_mode(0, cnf);
+      // base::set_mode(0, cnf);
     }
   }
 
@@ -240,11 +223,11 @@ public:
   static constexpr uint32_t crh_mask  = pin_no >= 8 ? base::crx_mask : 0;
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
-  typedef ResourceList< typename base::resources,
-                        SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
-                        SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
-                        > resources;
-
+  using resources = ResourceList<
+    typename base::resources,
+    SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
+    SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
+    >;
 
   static bool active(void) {
     bool input = base::read_input_bit();

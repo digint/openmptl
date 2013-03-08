@@ -163,32 +163,32 @@ public:
 
   static constexpr int irq_number = irqn;
 
-  static void Enable(void) {
+  static void enable(void) {
     ISERx::store(irq_bit);
   }
-  static void Disable(void) {
+  static void disable(void) {
     ICERx::store(irq_bit);
   }
 
-  static bool IsPending(void) {
+  static bool is_pending(void) {
     return ISPRx::load() & irq_bit;
   }
-  static void SetPending(void) {
+  static void set_pending(void) {
     ISPRx::store(irq_bit);
   }
 
-  static void ClearPending(void) {
+  static void clear_pending(void) {
     ICPRx::store(irq_bit);
   }
-  static bool IsActive(void) {
+  static bool is_active(void) {
     return IABRx::load() & (irq_bit);
   }
 
-  static void SetPriority(uint32_t priority) {
+  static void set_priority(uint32_t priority) {
     IPRx::store((priority << (8 - InterruptControllerSetup::priority_bits)) & 0xff);
   }
 
-  static uint32_t GetPriority(void) {
+  static uint32_t get_priority(void) {
     return((uint32_t)(IPRx::load() >> (8 - InterruptControllerSetup::priority_bits)));
   }
 };

@@ -126,7 +126,7 @@ public:
   }
 
   // reset CRC Polynomial
-  static void resetCRC(void) {
+  static void reset_crc(void) {
     SPIx::CRCPR::reset();
   }
 
@@ -137,13 +137,13 @@ public:
     SPIx::CR1::SPE::clear();
   }
 
-  static void waitTransmitEmpty(void) {
+  static void wait_transmit_empty(void) {
     while(SPIx::SR::TXE::test() == 0);
   }
-  static void waitReceiveNotEmpty(void) {
+  static void wait_receive_not_empty(void) {
     while(SPIx::SR::RXNE::test() == 0);
   }
-  static void waitNotBusy(void) {
+  static void wait_not_busy(void) {
     while(SPIx::SR::BSY::test() == 1);
   }
 
@@ -215,15 +215,15 @@ public:
     spi_sck::init();
     spi_miso::init();
     spi_mosi::init();
-    base::resetCRC();
+    base::reset_crc();
     configure();
     //    base::enable();
   }
 
-  static unsigned char sendByte(unsigned char data) {
-    base::waitTransmitEmpty();
+  static unsigned char send_byte(unsigned char data) {
+    base::wait_transmit_empty();
     base::send(data);	
-    base::waitReceiveNotEmpty();
+    base::wait_receive_not_empty();
     return base::receive();
   }
 };

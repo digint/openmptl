@@ -33,24 +33,23 @@ class Rtc
   using RTC = reg::RTC;
 
 private:
-  static void EnterConfigMode(void) {
+  static void enter_config_mode(void) {
     RTC::CRL::CNF::set();
   }
-  static void ExitConfigMode(void) {
+  static void exit_config_mode(void) {
     RTC::CRL::CNF::set();
-    WaitConfigDone();
+    wait_config_done();
   }
-  static void WaitConfigDone(void) {
+  static void wait_config_done(void) {
     while(RTC::CRL::RTOFF::test() == 0);
   }
 
 public:
 
-  typedef Irq::RTC      GlobalIrq; /**< RTC global Interrupt                   */
-  typedef Irq::RTCAlarm AlarmIrq;  /**< RTC Alarm through EXTI Line Interrupt  */
+  using GlobalIrq = Irq::RTC;       /**< RTC global Interrupt                   */
+  using AlarmIrq  = Irq::RTCAlarm;  /**< RTC Alarm through EXTI Line Interrupt  */
 
-
-  static void WaitSync(void) {
+  static void wait_sync(void) {
     while(reg::RCC::BDCR::LSERDY::test() == 0);
 #if 1
     RTC::CRL::RSF::clear();
@@ -59,79 +58,79 @@ public:
   }
 
   // TODO: enable/disable more than one at once
-  static void EnableOverflowInterrupt(void) {
+  static void enable_overflo_winterrupt(void) {
     RTC::CRH::OWIE::set();
   }
-  static void EnableAlarmInterrupt(void) {
+  static void enable_alarm_interrupt(void) {
     RTC::CRH::ALRIE::set();
   }
-  static void EnableSecondInterrupt(void) {
+  static void enable_second_interrupt(void) {
     RTC::CRH::SECIE::set();
   }
 
-  static void DisableOverflowInterrupt(void) {
+  static void disableo_verflow_interrupt(void) {
     RTC::CRH::OWIE::clear();
   }
-  static void DisableAlarmInterrupt(void) {
+  static void disable_alarm_interrupt(void) {
     RTC::CRH::ALRIE::clear();
   }
-  static void DisableSecondInterrupt(void) {
+  static void disable_second_interrupt(void) {
     RTC::CRH::SECIE::clear();
   }
 
-  static void ClearOverflowFlag(void) {
+  static void clear_over_flow_flag(void) {
     RTC::CRL::OWF::clear();
   }
-  static void ClearAlarmFlag(void) {
+  static void clear_alarm_flag(void) {
     RTC::CRL::ALRF::clear();
   }
-  static void ClearSecondFlag(void) {
+  static void clear_second_flag(void) {
     RTC::CRL::SECF::clear();
   }
 
 
-  static void SetCounter(uint32_t value) { 
-    EnterConfigMode();
+  static void set_counter(uint32_t value) { 
+    enter_config_mode();
     RTC::CNTH::store(value >> 16);
     RTC::CNTL::store(value & 0xFFFF);
-    ExitConfigMode();
+    exit_config_mode();
   }
 
-  static void SetPrescaler(uint32_t value) {
+  static void set_prescaler(uint32_t value) {
     // TODO: assert(value <= 0xFFFFF);
     //TODO: set PRLH subbits
-    EnterConfigMode();
+    enter_config_mode();
     RTC::PRLH::store((value & 0xF0000) >> 16);
     RTC::PRLL::store(value & 0xFFFF);
-    ExitConfigMode();
+    exit_config_mode();
   }
 
-  static void SetAlarm(uint32_t value) {  
+  static void set_alarm(uint32_t value) {  
     //TODO: set ALRH subbits
-    EnterConfigMode();
+    enter_config_mode();
     RTC::ALRH::store(value >> 16);
     RTC::ALRL::store(value & 0xFFFF);
-    ExitConfigMode();
+    exit_config_mode();
   }
 
-  static uint32_t GetDivider(void) {
+  static uint32_t get_divider(void) {
     // TODO: better return type
     //    return (((uint32_t)RTC::DIVH::load() & (uint32_t)0x000F) << 16 ) | RTC::DIVL::load();
     return (RTC::DIVH::RTC_DIV::test() << 16 ) | RTC::DIVL::load();
   }
 
   struct StaticIrqWrap : public IrqWrap {
-    StaticIrqWrap() { ClearSecondFlag(); }
+    StaticIrqWrap() { clear_second_flag(); }
   };
   struct AlarmIrqWrap : public IrqWrap {
-    AlarmIrqWrap() { ClearAlarmFlag(); }
+    AlarmIrqWrap() { clear_alarm_flag(); }
   };
 
   typedef Rcc::rtc_clock_resources resources;
 
-  static void Init(void) {
+  static void init(void) {
     /* Disable backup domain write protection */
-    Pwr::DisableBackupDomainWriteProtection();
+    Pwr::disable_backup_domain_write_protection();
 
     /* Backup domain software reset */
     reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
@@ -150,11 +149,11 @@ public:
     /* RTC clock enable */
     reg::RCC::BDCR::RTCEN::set();
 
-    WaitSync();
+    wait_sync();
 
     // TODO: no hardcoded stuff!
     /* one second (dependent on clock frequency!) */
-    SetPrescaler(0x7FFF);
+    set_prescaler(0x7FFF);
   }
 };
 
