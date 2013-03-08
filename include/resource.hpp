@@ -75,6 +75,7 @@ struct UniqueResource
 
 ////////////////////  IrqResource  ////////////////////
 
+
 template<int irqn>
 struct IrqResourceGroup : mpl::resource_group
 { };
@@ -85,8 +86,6 @@ struct IrqResource
 {
   static constexpr isr_t value = isr;
 };
-
-
 
 
 ////////////////////  ResourceList  ////////////////////

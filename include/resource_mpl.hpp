@@ -62,10 +62,10 @@ namespace mpl
 
     template<typename U>
     struct combine {
-      /* combine asserts by default */
-      using type = void;
-      static_assert(std::is_void<U>::value,
-                    "ResourceList contains a resource group which does not implement the combine functor.");
+      /* always assert, this class must be implemented. */
+      using type = resource<void, void>;
+      static_assert(std::is_void<T>::value && std::is_void<R>::value,
+                    "ResourceList contains a resource which does not implement the combine functor.");
     };
   };
 
@@ -73,13 +73,20 @@ namespace mpl
   ////////////////////  unique_resource  ////////////////////
 
 
+  /* Note: This class is in capital letters so we can find it easily in the compile messages. */
+  template<typename T, typename R>
+  struct ASSERTION_RESOURCE_IS_NOT_UNIQUE {
+    /* always assert. combining unique resources means that two same types exist */
+    using type = resource<void, void>;
+    static_assert(std::is_void<T>::value && std::is_void<R>::value,
+                  "ResourceList contains a resource derived from unique_resource which is not unique. (see compile message \"struct mpl::ASSERTION_RESOURCE_IS_NOT_UNIQUE<MyResource< XXX >, MyResource< XXX >, ... >\" above.)");
+  };
+
   template<typename T, typename R = T>
   struct unique_resource : resource< T, R > {
     template<typename U>
     struct combine {
-      using type = void;
-      static_assert(std::is_void<U>::value,  /* always assert. combining unique resources means that two same types exist */
-                    "ResourceList contains a resource derived from unique_resource which is not unique. (see compile message \"mpl::filtered_list<MyResource< XXX >, MyResource< XXX >, ... >\" above.)");
+      using type = typename ASSERTION_RESOURCE_IS_NOT_UNIQUE<T, R>::type;
     };
 
     template<typename Rl>
@@ -120,7 +127,7 @@ namespace mpl
   template<>
   struct filtered_list_impl<> {
     /* combined_type is void for empty filtered list */
-    using combined_type = void ;
+    using combined_type = void;
   };
 
   template<typename... Args>
