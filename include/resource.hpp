@@ -47,9 +47,13 @@ struct SharedRegister
   /* Returns SharedRegister with or'ed set_mask and or'ed clear_mask.  */
   template<typename U>
   struct combine {
-    // TODO: assert here if bits in A.set_mask match B.clear_mask (set_mask | U::clear_mask) and vice versa
-    using type = SharedRegister<R, set_mask | U::set_mask, clear_mask | U::clear_mask>;
+    /* assert if we set a bit which was previously cleared (and vice versa) */
+    static_assert(!((U::set_mask & clear_mask) & (~set_mask)),    "set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour. (see compile message \"struct SharedRegister<reg, set_mask, clear_mask>::combine<SharedRegister<reg, set_mask, clear_mask> >\" above.)");
+    static_assert(!((set_mask & U::clear_mask) & (~U::set_mask)), "set/clear check failed: clearing a bit which was previously set leads to undefined behaviour. (see compile message \"struct SharedRegister<reg, set_mask, clear_mask>::combine<SharedRegister<reg, set_mask, clear_mask> >\" above.)");
+    /* assert types (this should never happen) */
     static_assert(std::is_same<reg_type, typename U::reg_type>::value, "oops, combining values for different register...");
+
+    using type = SharedRegister<R, set_mask | U::set_mask, clear_mask | U::clear_mask>;
   };
 
   /* Called by resource_type_list_impl::configure() on a combined */
@@ -58,7 +62,7 @@ struct SharedRegister
     if((set_mask != 0) || (clear_mask != 0))
       R::set(set_mask, clear_mask);
 
-    // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register
+    // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register:
     // T::store((T::reset_value & ~combined_type<T>::clear_mask) | combined_type<T>::set_mask);
   }
 };

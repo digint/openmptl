@@ -63,7 +63,7 @@ namespace mpl
     template<typename U>
     struct combine {
       /* always assert, this class must be implemented. */
-      using type = resource<void, void>;
+      using type = R;
       static_assert(std::is_void<T>::value && std::is_void<R>::value,
                     "ResourceList contains a resource which does not implement the combine functor.");
     };
@@ -77,7 +77,7 @@ namespace mpl
   template<typename T, typename R>
   struct ASSERTION_RESOURCE_IS_NOT_UNIQUE {
     /* always assert. combining unique resources means that two same types exist */
-    using type = resource<void, void>;
+    using type = R;
     static_assert(std::is_void<T>::value && std::is_void<R>::value,
                   "ResourceList contains a resource derived from unique_resource which is not unique. (see compile message \"struct mpl::ASSERTION_RESOURCE_IS_NOT_UNIQUE<MyResource< XXX >, MyResource< XXX >, ... >\" above.)");
   };

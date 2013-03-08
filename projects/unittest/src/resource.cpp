@@ -35,39 +35,43 @@ struct B : Register< uint32_t, 0x2000, Access::rw, 0x44444444 > {};
 struct C : Register< uint8_t,  0x3000, Access::rw, 0 > {};
 struct D : Register< uint32_t, 0x4000, Access::rw, 0x55555555 > {};
 
-typedef SharedRegister< A, 0x00000011, 0x000000ff > test0;
-typedef SharedRegister< A, 0x00001100, 0x0000ff00 > test1;
-typedef SharedRegister< B, 0x00110000, 0x00ff0000 > test2;
-typedef SharedRegister< A, 0x11000000, 0xff000000 > test3;
-typedef SharedRegister< C, 0x10,       0xff       > test4;
+typedef SharedRegister< A, 0x00000011, 0x000000ff > test_a_0;
+typedef SharedRegister< A, 0x00001100, 0x0000ff00 > test_a_1;
+typedef SharedRegister< B, 0x00110000, 0x00ff0000 > test_b;
+typedef SharedRegister< A, 0x11000000, 0xff000000 > test_a_2;
+typedef SharedRegister< C, 0x10,       0xff       > test_c;
 
-typedef UniqueResource< A > uniq0;
-typedef UniqueResource< B > uniq1;
-typedef UniqueResource< C > uniq2;
-typedef UniqueResource< D > uniq3;
+typedef SharedRegister< A, 0x00000000, 0x00000010 > anti_test_a_0; /* clears a bit which is set by test_a_0 */
+
+typedef UniqueResource< A > uniq_a;
+typedef UniqueResource< B > uniq_b;
+typedef UniqueResource< C > uniq_c;
+typedef UniqueResource< D > uniq_d;
 
 
 
-typedef ResourceList < uniq0,
-                       ResourceList<ResourceList<test0,
-                                                 test1,
-                                                 test2> >,
-                       test1,
-                       ResourceList<uniq1>,
-                       uniq2, uniq3,
-                       ResourceList<test2,
-                                    ResourceList<test3>,
-                                    test0>,
-                       test4 > list;
+typedef ResourceList < uniq_a,
+                       ResourceList<ResourceList<test_a_0,
+                                                 test_a_1,
+                                                 test_b> >,
+                       test_a_1,
+                       ResourceList<uniq_b>,
+                       uniq_c, uniq_d,
+                       ResourceList<test_b,
+                                    ResourceList<test_a_2>,
+                                    test_a_0>,
+                       test_c > list;
 
-typedef ResourceList < list, uniq2 > fail_list;
+typedef ResourceList < list, uniq_c > uniq_fail_list;
+typedef ResourceList < anti_test_a_0, list > bitmask_fail_list;
 
 
 int main()
 {
   /* check unique resources */
   list::check();
-  UNITTEST_STATIC_ASSERT( fail_list::check() );
+  UNITTEST_STATIC_ASSERT( uniq_fail_list::check() );
+  UNITTEST_STATIC_ASSERT( bitmask_fail_list::configure() );
 
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);
