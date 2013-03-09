@@ -23,7 +23,7 @@
 
 #include "../../../../common/nvic.hpp"
 
-namespace Irq
+namespace irq
 {
   typedef IrqChannel<0>   WWDG;                   /**< Window WatchDog Interrupt                   */
   typedef IrqChannel<1>   PVD;                    /**< PVD through EXTI Line detection Interrupt   */

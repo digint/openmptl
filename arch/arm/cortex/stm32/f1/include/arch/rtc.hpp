@@ -46,8 +46,8 @@ private:
 
 public:
 
-  using GlobalIrq = Irq::RTC;       /**< RTC global Interrupt                   */
-  using AlarmIrq  = Irq::RTCAlarm;  /**< RTC Alarm through EXTI Line Interrupt  */
+  using GlobalIrq = irq::RTC;       /**< RTC global Interrupt                   */
+  using AlarmIrq  = irq::RTCAlarm;  /**< RTC Alarm through EXTI Line Interrupt  */
 
   static void wait_sync(void) {
     while(reg::RCC::BDCR::LSERDY::test() == 0);

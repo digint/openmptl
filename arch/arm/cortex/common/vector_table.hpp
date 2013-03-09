@@ -102,7 +102,7 @@ namespace mpl
 template<const uint32_t *stack_top, typename resource_list = ResourceList<>, isr_t default_isr = nullptr >
 struct VectorTable
 : mpl::make_vector_table<
-  Irq::numof_interrupt_channels - CoreException::Reset::irq_number,  /* start index */
+  irq::numof_interrupt_channels - CoreException::Reset::irq_number,  /* start index */
   CoreException::Reset::irq_number,  /* irqn_offset (negative) */
   resource_list,
   default_isr,
@@ -112,8 +112,8 @@ struct VectorTable
   static constexpr std::size_t irq_channel_offset = -CoreException::Reset::irq_number + 1;
 
   static_assert(CoreException::Reset::irq_number < 0, "CoreException::Reset::irq_number must be a negative value");
-  static_assert(Irq::numof_interrupt_channels >= 0, "invalid Irq::numof_interrupt_channels");
-  static_assert(sizeof(VectorTable<stack_top, resource_list, default_isr>::vector_table) == sizeof(isr_t) * (1 + Irq::numof_interrupt_channels + -CoreException::Reset::irq_number),
+  static_assert(irq::numof_interrupt_channels >= 0, "invalid Irq::numof_interrupt_channels");
+  static_assert(sizeof(VectorTable<stack_top, resource_list, default_isr>::vector_table) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + -CoreException::Reset::irq_number),
                 "IRQ vector table size error");
 };
 
