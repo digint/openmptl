@@ -3,10 +3,10 @@ OUTPUT_ARCH(arm)
 
 MEMORY
 {
-    FLASH(rx) : ORIGIN = 0x08000000, LENGTH = 1024K
-    RAM(xrw)  : ORIGIN = 0x20000000, LENGTH =  128K
-    CCM(rwx)  : ORIGIN = 0x10000000, LENGTH =   64K   /* core coupled memory   */
-    NVRAM(wr) : ORIGIN = 0x40024000, LENGTH =    4k   /* battery backed memory (BKPSRAM) */
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 1024K
+    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH =  128K
+    CCM   (rwx) : ORIGIN = 0x10000000, LENGTH =   64K   /* core coupled memory   */
+    NVRAM (rw)  : ORIGIN = 0x40024000, LENGTH =    4k   /* battery backed memory (BKPSRAM) */
 }
 
 PROVIDE(_sram = ORIGIN(RAM));
@@ -82,6 +82,8 @@ SECTIONS
         *(.data)
         *(.data.*)
         . = ALIGN(4);
+	*(.ram_functions)
+        . = ALIGN(4);
         _edata = .;
     } >RAM
 
@@ -98,26 +100,21 @@ SECTIONS
         PROVIDE(end = .);
     } >RAM
 
-
-/* TODO: play around with CCM ram
     .ccm (NOLOAD) :
     {
-        .= ALIGN(4);
+        . = ALIGN(4);
         *(.ccm)
-        .= ALIGN(4);
+        *(.ccm.*)
     } >CCM
-*/
+
 
 /* TODO: play around with non-volatile ram
-
-    .nvram (NOLOAD) : ALIGN(4)
+    .nvram (NOLOAD) :
     {
-        _snvram = .;
+        . = ALIGN(4);
         *(.nvram)
         *(.nvram.*)
-        _esvram = .;
     } >NVRAM
-
 */
 
 /*
