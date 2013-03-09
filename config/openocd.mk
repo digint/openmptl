@@ -2,7 +2,7 @@ OPENOCD      = openocd
 
 oocd_gdb_port = 3333
 
-oocd_params          = -d1             # debug level (d0..d3)
+oocd_params          = -d1 # debug level (d0..d3)
 # oocd_params        += -c "fast enable"
 oocd_params         += $(OPENOCD_CONFIG)
 oocd_params         += -c init -c targets
@@ -11,7 +11,7 @@ oocd_params_program  = $(oocd_params)
 oocd_params_program += -c "reset halt"
 oocd_params_program += -c "flash write_image erase $(ELF)" -c "verify_image $(ELF)"
 oocd_params_program += -c "reset run"
-oocd_params_program += -c "shutdown"   # terminate OOCD after programming
+oocd_params_program += -c "shutdown" # terminate OOCD after programming
 
 oocd_params_reset    = $(oocd_params)
 oocd_params_reset   += -c "reset run"

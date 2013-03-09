@@ -18,6 +18,12 @@
  *
  */
 
+/*
+ * NOTE: In order to use global objects, you need to define:
+ *
+ *   void *__dso_handle;
+ */
+
 #ifndef CRT_HPP_INCLUDED
 #define CRT_HPP_INCLUDED
 

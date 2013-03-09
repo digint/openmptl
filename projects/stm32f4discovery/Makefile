@@ -157,7 +157,8 @@ CXXFLAGS    += -fshort-enums
 # CXXFLAGS  += -finline-limit=60    # number of pseudo-instructions, default is 600
 #! CXXFLAGS += -frepo     # Enable automatic template instantiation at link time
 # CXXFLAGS  += -fdump-class-hierarchy
-#CXXFLAGS    += -ffreestanding -nostdinc++
+#CXXFLAGS    += -ffreestanding
+#CXXFLAGS    += -nostdinc++
 
 CXXFLAGS    += -Wall -Wextra
 CXXFLAGS    += -Winline   # see non-inlined functions
