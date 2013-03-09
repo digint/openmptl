@@ -27,6 +27,7 @@
 static volatile int systick_count = 1000;
 static volatile int second = 0;
 
+
 void Kernel::systick_isr() {
   systick_count--;
   if(systick_count == 0) {
@@ -38,16 +39,13 @@ void Kernel::systick_isr() {
 
 void Kernel::init(void)
 {
-  /* check unique resources */
-  resources::check();
+  resources::check();      /* check unique resources */
+  resources::configure();  /* configure resources (set all shared register) */
 
-  /* configure resources (set all shared register) */
-  resources::configure();
-
-  led_green::init(); led_green::off();
-  led_orange::init(); led_orange::off();
-  led_red::init(); led_red::off();
-  led_blue::init(); led_blue::off();
+  led_green::off();
+  led_orange::off();
+  led_red::off();
+  led_blue::off();
 
   systick::init();
   systick::enable_interrupt();
