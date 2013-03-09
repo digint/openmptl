@@ -40,13 +40,11 @@ public:
       // usart::ClearFlag(UsartFlags::RXNE);
       uint32_t data = usart::receive();
       rx_fifo.push(data);
-      // usart_rx++;
     }
     if(flags & SR::TXE::value) {
       char c;
       if(tx_fifo.pop(c)) {
         usart::send(c); /* implicitely clears TXE flag */
-        // usart_tx++;
       }
       else {
         usart::disable_tx_interrupt();
@@ -70,9 +68,9 @@ public:
 template<typename usart, bool debug_irqs = false>
 struct UartStreamDevice
 {  // TODO: class
-  typedef char char_type;
+  using char_type = char;
 
-  typedef RingBuffer<char_type, 512> fifo_type;
+  using fifo_type = RingBuffer<char_type, 512>;  // TODO: no hardcoding
 
   static constexpr bool crlf = true;
 
@@ -94,21 +92,21 @@ struct UartStreamDevice
   }
 
   static void isr(void) {
-      UartIrqTransport<usart> transport;
+    UartIrqTransport<usart> transport;
 
-      if(debug_irqs) {
-        irq_count++;
-        if(transport.has_errors()) {
-          irq_errors++;
-        }
+    if(debug_irqs) {
+      irq_count++;
+      if(transport.has_errors()) {
+        irq_errors++;
       }
-
-      transport.process_io(rx_fifo, tx_fifo);
+    }
+    transport.process_io(rx_fifo, tx_fifo);
   }
 
-  typedef ResourceList< typename usart::resources,
-                        IrqResource< usart::GlobalIrq::irq_number, isr >
-                        > resources;
+  using resources = ResourceList<
+    typename usart::resources,
+    IrqResource< usart::GlobalIrq::irq_number, isr >
+    >;
 };
 
 template<typename usart, bool debug_irqs>

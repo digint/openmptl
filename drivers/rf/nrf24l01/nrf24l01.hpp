@@ -79,7 +79,7 @@ public:
     spi,
     8_mhz,  // max frequency
     8,      // 8bit data
-    cSpi::ClockPolarity::low
+    SpiClockPolarity::low
     >;
 
   using resources = ResourceList<

@@ -47,17 +47,29 @@ class Rcc {
 
 public:
 
-  static void EnableHSE(void) {
+  static void enable_hse(void) {
     RCC::CR::HSEON::set();
   }
-  static void WaitHSERDY() {
+  static void wait_hse_ready() {
     while(RCC::CR::HSERDY::test() == false);
   }
-  static void EnableHSI(void) {
+  static bool wait_hse_ready(unsigned timeout) {
+    while((RCC::CR::HSERDY::test() == false) && timeout) {
+      timeout--;
+    }
+    return timeout;
+  }
+  static void enable_hsi(void) {
     RCC::CR::HSION::set();
   }
-  static void WaitHSIRDY() {
+  static void wait_hsi_ready() {
     while(RCC::CR::HSIRDY::test() == false);
+  }
+  static bool wait_hsi_ready(unsigned timeout) {
+    while((RCC::CR::HSIRDY::test() == false) && timeout) {
+      timeout--;
+    }
+    return timeout;
   }
 
   /* Note: this is only valid for clocks setup by SetSysClock() function */
@@ -75,7 +87,7 @@ public:
   };
 
   template<freq_t freq>
-  static void SetSysClock(void) {
+  static void set_system_clock(void) {
     static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
 
     // auto cfgr = RCC::CFGR::load();
@@ -106,7 +118,7 @@ public:
     while(RCC::CFGR::SWS::PLL::test() == false);
   }
 
-  static void Init(void) {
+  static void init(void) {
     /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
     RCC::CR::HSION::set();
     RCC::CFGR::reset();

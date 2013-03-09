@@ -46,24 +46,24 @@ class Kernel
   static void warn_isr(void)  { Kernel::led::on(); }
   static void error_isr(void) { while(1) { Kernel::led::on(); } }
 
-  using lcd_ds    = GpioOutput<'B', 2,  cGpio::OutputConfig::push_pull>;  //< low=command, high=data
-  using lcd_reset = GpioOutput<'C', 7,  cGpio::OutputConfig::push_pull>;  //< reset pin (active low)
-  using lcd_e     = GpioOutput<'C', 10, cGpio::OutputConfig::push_pull>;  //< display controller spi enable (active low)
+  using lcd_ds    = GpioOutput<'B', 2,  GpioOutputConfig::push_pull>;  //< low=command, high=data
+  using lcd_reset = GpioOutput<'C', 7,  GpioOutputConfig::push_pull>;  //< reset pin (active low)
+  using lcd_e     = GpioOutput<'C', 10, GpioOutputConfig::push_pull>;  //< display controller spi enable (active low)
 
-  using nrf_ce    = GpioOutput<'C', 8, cGpio::OutputConfig::push_pull>;  //< chip enable
-  using nrf_csn   = GpioOutput<'A', 4, cGpio::OutputConfig::push_pull>;  //< spi enable (active low)
-  using nrf_irq   = GpioInput <'C', 9, cGpio::InputConfig::pull_down>;   //< IRQ
+  using nrf_ce    = GpioOutput<'C', 8, GpioOutputConfig::push_pull>;  //< chip enable
+  using nrf_csn   = GpioOutput<'A', 4, GpioOutputConfig::push_pull>;  //< spi enable (active low)
+  using nrf_irq   = GpioInput <'C', 9, GpioInputConfig::pull_down>;   //< IRQ
 
   using usart     = Usart<2, 115200>;  // tested up to 2250000 baud
 
   using uart_stream_device = UartStreamDevice<usart, true>; /* irq debug enabled */
-  using uart_gpio_tx = GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull >;
-  using uart_gpio_rx = GpioInput < 'A', 3,  cGpio::InputConfig::floating >;
+  using uart_gpio_tx = GpioOutput< 'A', 2,  GpioOutputConfig::alt_push_pull >;
+  using uart_gpio_rx = GpioInput < 'A', 3,  GpioInputConfig::floating >;
 
   using spi      = Spi<1>;
-  using spi_sck  = GpioOutput<'A', 5, cGpio::OutputConfig::alt_push_pull>;
-  using spi_miso = GpioOutput<'A', 6, cGpio::OutputConfig::alt_push_pull>;
-  using spi_mosi = GpioOutput<'A', 7, cGpio::OutputConfig::alt_push_pull>;
+  using spi_sck  = GpioOutput<'A', 5, GpioOutputConfig::alt_push_pull>;
+  using spi_miso = GpioOutput<'A', 6, GpioOutputConfig::alt_push_pull>;
+  using spi_mosi = GpioOutput<'A', 7, GpioOutputConfig::alt_push_pull>;
 
 public:
 

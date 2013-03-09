@@ -28,20 +28,20 @@
 
 // TODO: access functions, change public to private
 class Rcc {
-private:
-
-  static constexpr int hse_startup_timeout = 1500;
 
 public:
 
   using RCC = reg::RCC;
 
-  static void EnableHSE(void) {
+  static void enable_hse(void) {
     RCC::CR::HSEON::set();
   }
-  static bool WaitHSERDY() {
-    int timeout = hse_startup_timeout;
-    while(!(RCC::CR::HSERDY::test()) && timeout){
+
+  static void wait_hse_ready(void) {
+    while(RCC::CR::HSERDY::test() == false);
+  }
+  static bool wait_hse_ready(unsigned timeout) {
+    while((RCC::CR::HSERDY::test() == false) && timeout) {
       timeout--;
     }
     return timeout;
@@ -63,7 +63,7 @@ public:
    * @param  freq frequency (Hz) to be set
    */
   template<freq_t freq>
-  static void SetSysClock(void) {
+  static void set_system_clock(void) {
 
     static_assert(freq == 24_mhz ||
                   freq == 36_mhz ||
@@ -127,37 +127,37 @@ public:
   }
 
 
-  static void Init(void) {
+  static void init(void) {
     /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
     RCC::CR::HSION::set();
 
-    RCC::CFGR::clear(RCC::CFGR::SW::value |
-                     RCC::CFGR::SWS::value |
-                     RCC::CFGR::HPRE::value |
-                     RCC::CFGR::PPRE1::value | 
-                     RCC::CFGR::PPRE2::value | 
-                     RCC::CFGR::ADCPRE::value | 
-                     RCC::CFGR::MCO::value );
+    RCC::CFGR::clear<RCC::CFGR::SW,
+                     RCC::CFGR::SWS,
+                     RCC::CFGR::HPRE,
+                     RCC::CFGR::PPRE1, 
+                     RCC::CFGR::PPRE2, 
+                     RCC::CFGR::ADCPRE, 
+                     RCC::CFGR::MCO>();
 
-    RCC::CR::clear(RCC::CR::HSEON::value |
-                   RCC::CR::CSSON::value |
-                   RCC::CR::PLLON::value);
+    RCC::CR::clear<RCC::CR::HSEON,
+                   RCC::CR::CSSON,
+                   RCC::CR::PLLON>();
 
-    RCC::CR::clear(RCC::CR::HSEBYP::value);
+    RCC::CR::clear<RCC::CR::HSEBYP>();
 
-    RCC::CFGR::clear(RCC::CFGR::PLLSRC::value |
-                     RCC::CFGR::PLLXTPRE::value |
-                     RCC::CFGR::PLLMUL::value |
+    RCC::CFGR::clear<RCC::CFGR::PLLSRC,
+                     RCC::CFGR::PLLXTPRE,
+                     RCC::CFGR::PLLMUL,
 #ifdef STM32F10X_CL
-                     RCC::CFGR::OTGFSPRE::value
+                     RCC::CFGR::OTGFSPRE
 #else
-                     RCC::CFGR::USBPRE::value 
+                     RCC::CFGR::USBPRE
 #endif
-                     );
+                     >();
 
 #ifdef STM32F10X_CL
-    RCC::CR::clear(RCC::CR::PLL2ON::value |
-                   RCC::CR::PLL3ON::value);
+    RCC::CR::clear<RCC::CR::PLL2ON,
+                   RCC::CR::PLL3ON>();
 #endif
 
     /* Disable all interrupts and clear pending bits  */

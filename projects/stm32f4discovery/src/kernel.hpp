@@ -44,18 +44,18 @@ class Kernel
 
   static void systick_isr(void);
 
-  using systick = SysTick<1_khz, cSysTick::ClockSource::hclk>;
+  using systick = SysTick<1_khz, SysTickClockSource::hclk>;
 
   using uart_stream_device = UartStreamDevice< Usart<2, 115200> >;
-  using uart_gpio_tx = GpioOutputAF<'A', 2, 7, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 25_mhz>;
+  using uart_gpio_tx = GpioOutputAF<'A', 2, 7, GpioOutputType::push_pull, GpioResistorConfig::floating, 25_mhz>;
   using uart_gpio_rx = GpioInputAF <'A', 3, 7>;
 
 public:
 
-  using led_green  = GpioLed<'D', 12, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high>;
-  using led_orange = GpioLed<'D', 13, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high>;
-  using led_red    = GpioLed<'D', 14, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high>;
-  using led_blue   = GpioLed<'D', 15, cGpio::OutputType::push_pull, cGpio::ResistorConfig::floating, 50_mhz, cGpio::ActiveState::high>;
+  using led_green  = GpioLed<'D', 12, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
+  using led_orange = GpioLed<'D', 13, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
+  using led_red    = GpioLed<'D', 14, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
+  using led_blue   = GpioLed<'D', 15, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
 
   using graceful_irq_resources = ResourceList <
     IrqResource<CoreException::NMI         ::irq_number, null_isr>,

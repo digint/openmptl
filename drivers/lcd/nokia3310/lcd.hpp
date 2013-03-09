@@ -160,8 +160,8 @@ public:
     spi_type,
     4_mhz,    // max_frequency
     8,        // 8bit data
-    cSpi::ClockPolarity::high,
-    cSpi::ClockPhase::second_edge
+    SpiClockPolarity::high,
+    SpiClockPhase::second_edge
     >;
   
   using resources = ResourceList<

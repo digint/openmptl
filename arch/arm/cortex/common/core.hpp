@@ -56,8 +56,8 @@ struct Core : CoreStartup, CoreFunctions
   /* Initialize the hardware.
    * NOTE: This function is called BEFORE ANY static object constructors are called!
    */
-  static void Init(void) {
-    CoreStartup::InitClocks();
+  static void init(void) {
+    CoreStartup::init_clocks();
 
     // TODO: NVIC Priority Grouping MPL magic
   }

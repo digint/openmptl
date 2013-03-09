@@ -25,31 +25,28 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 
-namespace cGpio
-{
-  enum class ResistorConfig {
-    floating,       //< Floating input              
-    pull_up,        //< Input with pull-up
-    pull_down       //< Input with pull-down
-  };
+enum class GpioResistorConfig {
+  floating,       //< Floating input              
+  pull_up,        //< Input with pull-up
+  pull_down       //< Input with pull-down
+};
 
-  enum class OutputType {
-    push_pull,      //< General purpose output push-pull (e.g. LED's)
-    open_drain,     //< General purpose output open-drain            
-  };
+enum class GpioOutputType {
+  push_pull,      //< General purpose output push-pull (e.g. LED's)
+  open_drain,     //< General purpose output open-drain            
+};
 
-  enum class ActiveState {
-    low,            //< pin is low-active
-    high            //< pin is high-active
-  };
+enum class GpioActiveState {
+  low,            //< pin is low-active
+  high            //< pin is high-active
+};
 
-  enum class Mode {
-    input,
-    output,
-    alternate_function,
-    analog
-  };
-}
+enum class GpioMode {
+  input,
+  output,
+  alternate_function,
+  analog
+};
 
 
 ////////////////////  Gpio  ////////////////////
@@ -57,10 +54,10 @@ namespace cGpio
 
 template<char port,
          unsigned pin_no,
-         cGpio::Mode moder_cnf = cGpio::Mode::input,
-         cGpio::OutputType otype_cnf = cGpio::OutputType::push_pull,
+         GpioMode moder_cnf = GpioMode::input,
+         GpioOutputType otype_cnf = GpioOutputType::push_pull,
          freq_t speed = 2_mhz,
-         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
+         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
          unsigned alt_func_num = 0>
 class Gpio
 {
@@ -78,20 +75,20 @@ protected:
   static constexpr uint32_t pin_mask         = (uint32_t)0x1 << pin_no;
   static constexpr uint32_t pin_mask_double  = (uint32_t)0x3 << (pin_no * 2);
 
-  static constexpr uint32_t moder_value = (moder_cnf == cGpio::Mode::output ? 1 :
-                                           moder_cnf == cGpio::Mode::alternate_function ? 2 :
-                                           moder_cnf == cGpio::Mode::analog ? 3 :
+  static constexpr uint32_t moder_value = (moder_cnf == GpioMode::output ? 1 :
+                                           moder_cnf == GpioMode::alternate_function ? 2 :
+                                           moder_cnf == GpioMode::analog ? 3 :
                                            0) << (pin_no * 2);
 
-  static constexpr uint32_t otyper_value = (otype_cnf == cGpio::OutputType::open_drain) ? pin_mask : 0;
+  static constexpr uint32_t otyper_value = (otype_cnf == GpioOutputType::open_drain) ? pin_mask : 0;
 
   static constexpr uint32_t ospeedr_value =  (speed == 25_mhz  ? 1 :
                                               speed == 50_mhz  ? 2 :
                                               speed == 100_mhz ? 3 :
                                               0) << (pin_no * 2) ;
 
-  static constexpr uint32_t pupdr_value =  (resistor_cnf == cGpio::ResistorConfig::pull_up   ? 1 :
-                                            resistor_cnf == cGpio::ResistorConfig::pull_down ? 2 :
+  static constexpr uint32_t pupdr_value =  (resistor_cnf == GpioResistorConfig::pull_up   ? 1 :
+                                            resistor_cnf == GpioResistorConfig::pull_down ? 2 :
                                             0x00) << (pin_no * 2) ;
 
   static constexpr uint32_t afrl_value = pin_no <  8 ? alt_func_num << ((pin_no % 8) * 4) : 0;
@@ -142,13 +139,13 @@ public:
 
 template<char port,
          unsigned pin_no,
-         cGpio::ResistorConfig resistor_cnf,
-         cGpio::ActiveState active_state = cGpio::ActiveState::low>
+         GpioResistorConfig resistor_cnf,
+         GpioActiveState active_state = GpioActiveState::low>
 class GpioInput
 : public Gpio< port,
                pin_no,
-               cGpio::Mode::input,
-               cGpio::OutputType::push_pull,
+               GpioMode::input,
+               GpioOutputType::push_pull,
                2_mhz,
                resistor_cnf >
 {
@@ -156,7 +153,7 @@ class GpioInput
 public:
   static bool active(void) {
     bool input = type::read_input_bit();
-    return active_state == cGpio::ActiveState::low ? !input : input;
+    return active_state == GpioActiveState::low ? !input : input;
   }
 };
 
@@ -167,13 +164,13 @@ public:
 template<char port,
          unsigned pin_no,
          unsigned alt_func_num,
-         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating
+         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating
          >
 class GpioInputAF
 : public Gpio< port,
                pin_no,
-               cGpio::Mode::alternate_function,
-               cGpio::OutputType::push_pull,
+               GpioMode::alternate_function,
+               GpioOutputType::push_pull,
                2_mhz,
                resistor_cnf,
                alt_func_num >
@@ -185,14 +182,14 @@ class GpioInputAF
 
 template<char port,
          unsigned pin_no,
-         cGpio::OutputType otype_cnf,
-         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
+         GpioOutputType otype_cnf,
+         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
          freq_t speed = 50_mhz,
-         cGpio::ActiveState active_state = cGpio::ActiveState::low>
+         GpioActiveState active_state = GpioActiveState::low>
 class GpioOutput
 : public Gpio< port,
                pin_no,
-               cGpio::Mode::output,
+               GpioMode::output,
                otype_cnf,
                speed,
                resistor_cnf >
@@ -201,7 +198,7 @@ public:
   typedef GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;
 
   static void enable() {
-    if(active_state == cGpio::ActiveState::low) {
+    if(active_state == GpioActiveState::low) {
       type::reset();
     } else {
       type::set();
@@ -209,7 +206,7 @@ public:
   }
 
   static void disable() {
-    if(active_state == cGpio::ActiveState::low) {
+    if(active_state == GpioActiveState::low) {
       type::set();
     } else {
       type::reset();
@@ -218,7 +215,7 @@ public:
 
   static bool active() {
     bool input = type::read_input_bit();
-    return active_state == cGpio::ActiveState::low ? !input : input;
+    return active_state == GpioActiveState::low ? !input : input;
   }
 
   static void toggle() {
@@ -232,7 +229,7 @@ public:
 
   static bool latched() {
     bool output = type::read_output_bit();
-    return active_state == cGpio::ActiveState::low ? !output : output;
+    return active_state == GpioActiveState::low ? !output : output;
   }
 };
 
@@ -243,13 +240,13 @@ public:
 template<char port,
          unsigned pin_no,
          unsigned alt_func_num,
-         cGpio::OutputType otype_cnf = cGpio::OutputType::open_drain,
-         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
+         GpioOutputType otype_cnf = GpioOutputType::open_drain,
+         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
          freq_t speed = 50_mhz>
 class GpioOutputAF
 : public Gpio< port,
                pin_no,
-               cGpio::Mode::alternate_function,
+               GpioMode::alternate_function,
                otype_cnf,
                speed,
                resistor_cnf,
@@ -265,10 +262,10 @@ template<char port,
 class GpioAnalogIO
 : public Gpio< port,
                pin_no,
-               cGpio::Mode::analog,
-               cGpio::OutputType::push_pull,
+               GpioMode::analog,
+               GpioOutputType::push_pull,
                2_mhz,
-               cGpio::ResistorConfig::floating >
+               GpioResistorConfig::floating >
 {
   // TODO: get/set analog value
 };
@@ -279,10 +276,10 @@ class GpioAnalogIO
 
 template<char port,
          unsigned pin_no,
-         cGpio::OutputType otype_cnf = cGpio::OutputType::push_pull,
-         cGpio::ResistorConfig resistor_cnf = cGpio::ResistorConfig::floating,
+         GpioOutputType otype_cnf = GpioOutputType::push_pull,
+         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
          freq_t speed = 50_mhz,
-         cGpio::ActiveState active_state = cGpio::ActiveState::low>
+         GpioActiveState active_state = GpioActiveState::low>
 class GpioLed : public GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> {
 public:
   typedef GpioLed<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;

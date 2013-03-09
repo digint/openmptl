@@ -77,7 +77,7 @@ struct CRunTimeIrqWrap : public IrqWrap {
     CRunTime::init_bss_section();
 
     /* Init hardware BEFORE calling ctors, they might depend on it */
-    Core::Init();
+    Core::init();
 
     CRunTime::call_ctors();
   };

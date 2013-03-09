@@ -58,7 +58,7 @@ public:
   }
 
   // TODO: enable/disable more than one at once
-  static void enable_overflo_winterrupt(void) {
+  static void enable_overflow_interrupt(void) {
     RTC::CRH::OWIE::set();
   }
   static void enable_alarm_interrupt(void) {
@@ -68,7 +68,7 @@ public:
     RTC::CRH::SECIE::set();
   }
 
-  static void disableo_verflow_interrupt(void) {
+  static void disable_overflow_interrupt(void) {
     RTC::CRH::OWIE::clear();
   }
   static void disable_alarm_interrupt(void) {
@@ -78,7 +78,7 @@ public:
     RTC::CRH::SECIE::clear();
   }
 
-  static void clear_over_flow_flag(void) {
+  static void clear_overflow_flag(void) {
     RTC::CRL::OWF::clear();
   }
   static void clear_alarm_flag(void) {

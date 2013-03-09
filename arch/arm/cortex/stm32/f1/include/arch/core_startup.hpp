@@ -29,19 +29,21 @@ struct CoreStartup : CoreSetup {
   /* Make sure clock_frequency is set correctly in "core_setup.hpp" */
   static_assert(clock_frequency <= 72_mhz, "unsupported system clock frequency");
 
-  static void InitClocks(void) {
+  static constexpr int hse_startup_timeout = 1500;
+
+  static void init_clocks(void) {
     int success;
 
-    Rcc::EnableHSE();
-    success = Rcc::WaitHSERDY();
+    Rcc::enable_hse();
+    success = Rcc::wait_hse_ready(hse_startup_timeout);
 
     if(!success)
       Panic();
 
-    Flash::EnablePrefetchBuffer();
-    Flash::SetLatency<clock_frequency>();
+    Flash::enable_prefetch_buffer();
+    Flash::set_latency<clock_frequency>();
 
-    Rcc::SetSysClock<clock_frequency>();
+    Rcc::set_system_clock<clock_frequency>();
   }
 };
 

@@ -27,52 +27,49 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
 
-namespace cUsart
-{
-  enum class StopBits : uint32_t {
-    stop_bits_1   = 0,
-    stop_bits_0_5 = 1,
-    stop_bits_2   = 2,
-    stop_bits_1_5 = 3
-  };
+enum class UsartStopBits : uint32_t {
+  stop_bits_1   = 0,
+  stop_bits_0_5 = 1,
+  stop_bits_2   = 2,
+  stop_bits_1_5 = 3
+};
 
-  enum class Parity {
-    disabled,
-    even,
-    odd
-  };
+enum class UsartParity {
+  disabled,
+  even,
+  odd
+};
 
-  enum class FlowControl : uint32_t {
-    disabled = 0,
-    rts      = 1,
-    cts      = 2,
-    rts_cts  = 3
-  };
+enum class UsartFlowControl : uint32_t {
+  disabled = 0,
+  rts      = 1,
+  cts      = 2,
+  rts_cts  = 3
+};
 
-  enum class ClockPolarity {
-    low,
-    high
-  };
+enum class UsartClockPolarity {
+  low,
+  high
+};
 
-  enum class ClockPhase {
-    first,   /* The first clock transition is the first data capture edge.  */
-    second   /* The second clock transition is the first data capture edge. */
-  };
-}
+enum class UsartClockPhase {
+  first,   /* The first clock transition is the first data capture edge.  */
+  second   /* The second clock transition is the first data capture edge. */
+};
 
 
-template< std::size_t           usart_no,
-          unsigned              baud_rate    = 9600,
-          unsigned              word_length  = 8,   /* supported: 8 and 9 bits */
-          cUsart::Parity        parity       = cUsart::Parity::disabled,
-          cUsart::StopBits      stop_bits    = cUsart::StopBits::stop_bits_1,
-          cUsart::FlowControl   flow_control = cUsart::FlowControl::disabled,
-          bool                  enable_rx    = true,
-          bool                  enable_tx    = true,
-          bool                  clock_enable = false,
-          cUsart::ClockPolarity cpol         = cUsart::ClockPolarity::low,
-          cUsart::ClockPhase    cpha         = cUsart::ClockPhase::first,
-          bool                  lbcl         = false
+template< std::size_t        usart_no,
+          unsigned           baud_rate    = 9600,
+          unsigned           word_length  = 8,   /* supported: 8 and 9 bits */
+          UsartParity        parity       = UsartParity::disabled,
+          UsartStopBits      stop_bits    = UsartStopBits::stop_bits_1,
+          UsartFlowControl   flow_control = UsartFlowControl::disabled,
+          bool               enable_rx    = true,
+          bool               enable_tx    = true,
+          bool               clock_enable = false,
+          UsartClockPolarity cpol         = UsartClockPolarity::low,
+          UsartClockPhase    cpha         = UsartClockPhase::first,
+          bool               lbcl         = false
           >
 class Usart
 {
@@ -161,9 +158,9 @@ public:
     cr2 |= (uint32_t)stop_bits << 12;
     if(clock_enable)
       cr2 |= USARTx::CR2::CLKEN::value;
-    if(cpol == cUsart::ClockPolarity::high)
+    if(cpol == UsartClockPolarity::high)
       cr2 |= USARTx::CR2::CPOL::value;
-    if(cpha == cUsart::ClockPhase::second)
+    if(cpha == UsartClockPhase::second)
       cr2 |= USARTx::CR2::CPHA::value;
     if(lbcl)
       cr2 |= USARTx::CR2::LBCL::value;
@@ -174,9 +171,9 @@ public:
     cr1 &= ~(USARTx::CR1::M::value | USARTx::CR1::PCE::value | USARTx::CR1::PS::value | USARTx::CR1::TE::value | USARTx::CR1::RE::value);
     if(word_length == 9)
       cr1 |= USARTx::CR1::M::value;
-    if(parity == cUsart::Parity::even)
+    if(parity == UsartParity::even)
       cr1 |= USARTx::CR1::PCE::value;
-    if(parity == cUsart::Parity::odd)
+    if(parity == UsartParity::odd)
       cr1 |= USARTx::CR1::PCE::value | USARTx::CR1::PS::value;
     if(enable_tx)
       cr1 |= USARTx::CR1::TE::value;

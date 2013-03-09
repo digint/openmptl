@@ -25,31 +25,28 @@
 #include <arch/reg/spi.hpp>
 #include <arch/core.hpp>
 
-namespace cSpi
-{
-  enum class ClockPolarity {
-    low,
-    high
-  };
-  enum class MasterSelection {
-    master,
-    slave
-  };
-  enum class ClockPhase {
-    first_edge,
-    second_edge
-  };
-  enum class SoftwareSlaveManagement {
-    enabled,
-    disabled
-  };
-  enum class DataDirection {
-    two_lines_full_duplex,
-    two_lines_rx_only,
-    one_line_rx,
-    one_line_tx
-  };
-}
+enum class SpiClockPolarity {
+  low,
+  high
+};
+enum class SpiMasterSelection {
+  master,
+  slave
+};
+enum class SpiClockPhase {
+  first_edge,
+  second_edge
+};
+enum class SpiSoftwareSlaveManagement {
+  enabled,
+  disabled
+};
+enum class SpiDataDirection {
+  two_lines_full_duplex,
+  two_lines_rx_only,
+  one_line_rx,
+  one_line_tx
+};
 
 
 template<std::size_t _spi_no>
@@ -63,13 +60,13 @@ public:
 
   using resources = Rcc::spi_clock_resources<spi_no>;
 
-  template<cSpi::MasterSelection master_selection = cSpi::MasterSelection::master,
+  template<SpiMasterSelection master_selection = SpiMasterSelection::master,
            unsigned baud_rate_prescaler = 2,  // TODO: use baud-rate here, calculate correct presscaler below
            unsigned data_size = 8,
-           cSpi::ClockPolarity clk_pol = cSpi::ClockPolarity::high,
-           cSpi::ClockPhase clk_phase = cSpi::ClockPhase::first_edge,
-           cSpi::DataDirection data_dir = cSpi::DataDirection::two_lines_full_duplex,
-           cSpi::SoftwareSlaveManagement ssm = cSpi::SoftwareSlaveManagement::enabled
+           SpiClockPolarity clk_pol = SpiClockPolarity::high,
+           SpiClockPhase clk_phase = SpiClockPhase::first_edge,
+           SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
+           SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::enabled
            >
   static void configure(void) {  // TODO: this goes to spi_register::configure() (spi_resource inherits from spi_register)
     static_assert(baud_rate_prescaler == 2 ||
@@ -88,22 +85,22 @@ public:
     /* Clear BIDIMode, BIDIOE, RxONLY, SSM, SSI, LSBFirst, BR, MSTR, CPOL and CPHA bits */
     cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
 
-    if(data_dir == cSpi::DataDirection::two_lines_rx_only)
+    if(data_dir == SpiDataDirection::two_lines_rx_only)
       cr1 |= SPIx::CR1::RXONLY::value;
-    else if(data_dir == cSpi::DataDirection::one_line_rx)
+    else if(data_dir == SpiDataDirection::one_line_rx)
       cr1 |= SPIx::CR1::BIDIMODE::value;
-    else if(data_dir == cSpi::DataDirection::one_line_tx)
+    else if(data_dir == SpiDataDirection::one_line_tx)
       cr1 |= SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value;
 
-    if(master_selection == cSpi::MasterSelection::master)
+    if(master_selection == SpiMasterSelection::master)
       cr1 |= SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
     if(data_size == 16)
       cr1 |= SPIx::CR1::DFF::value; // Data Size 16bit
-    if(clk_pol == cSpi::ClockPolarity::high)
+    if(clk_pol == SpiClockPolarity::high)
       cr1 |= SPIx::CR1::CPOL::value; // Clock polarity = high
-    if(clk_phase == cSpi::ClockPhase::second_edge)
+    if(clk_phase == SpiClockPhase::second_edge)
       cr1 |= SPIx::CR1::CPHA::value; // Clock phase = edge
-    if(ssm == cSpi::SoftwareSlaveManagement::enabled)
+    if(ssm == SpiSoftwareSlaveManagement::enabled)
       cr1 |= SPIx::CR1::SSM::value;  // Software slave management
 
 #if 1
@@ -164,10 +161,10 @@ public:
 template<typename spi_type,
          freq_t max_frequency = 0, /* Hz, 0=maximum available */
          unsigned data_size = 8,
-         cSpi::ClockPolarity clk_pol = cSpi::ClockPolarity::high,
-         cSpi::ClockPhase clk_phase = cSpi::ClockPhase::first_edge,
-         cSpi::DataDirection data_dir = cSpi::DataDirection::two_lines_full_duplex,
-         cSpi::SoftwareSlaveManagement ssm = cSpi::SoftwareSlaveManagement::enabled
+         SpiClockPolarity clk_pol = SpiClockPolarity::high,
+         SpiClockPhase clk_phase = SpiClockPhase::first_edge,
+         SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
+         SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::enabled
          >
 class SpiMaster : public spi_type {
 
@@ -209,7 +206,7 @@ public:
     // spi::wait_transmit_empty();
     // spi::wait_not_busy();
     spi::disable();  // TODO: this is actually only needed for a "reconfigure()"
-    spi::template configure<cSpi::MasterSelection::master, baud_rate_prescaler, data_size, clk_pol, clk_phase, data_dir, ssm>();
+    spi::template configure<SpiMasterSelection::master, baud_rate_prescaler, data_size, clk_pol, clk_phase, data_dir, ssm>();
     spi::enable();   // TODO: this is actually only needed for a "reconfigure()"
   }
 

@@ -32,20 +32,20 @@ struct CoreStartup : CoreSetup {
   static_assert(system_voltage >= 1.8_volt && system_voltage <= 3.6_volt, "unsupported system voltage");
   static_assert(power_save == false || clock_frequency <= 144_mhz, "system clock frequency too high for power save feature");
 
-  static void InitClocks() {
-    Rcc::Init();
+  static void init_clocks() {
+    Rcc::init();
 
-    Rcc::EnableHSE();
-    Rcc::WaitHSERDY();
+    Rcc::enable_hse();
+    Rcc::wait_hse_ready();
 
-    //  Flash::EnablePrefetchBuffer();
-    Flash::EnableInstructionCache();
-    Flash::EnableDataCache();
-    Flash::SetLatency<clock_frequency, system_voltage>();
+    //  Flash::Enable_Prefetch_Buffer();
+    Flash::enable_instruction_cache();
+    Flash::enable_data_cache();
+    Flash::set_latency<clock_frequency, system_voltage>();
 
-    Pwr::SetPowerSave<power_save>();
+    Pwr::set_power_save<power_save>();
 
-    Rcc::SetSysClock<clock_frequency>();
+    Rcc::set_system_clock<clock_frequency>();
   }
 };
 

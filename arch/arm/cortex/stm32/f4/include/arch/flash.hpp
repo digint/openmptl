@@ -73,29 +73,29 @@ class Flash
 
 public:
 
-  static void EnablePrefetchBuffer(void) {
+  static void enable_prefetch_buffer(void) {
     FLASH::ACR::PRFTEN::set();
   }
-  static void DisablePrefetchBuffer(void) {
+  static void disable_prefetch_buffer(void) {
     FLASH::ACR::PRFTEN::clear();
   }
 
-  static void EnableInstructionCache(void) {
+  static void enable_instruction_cache(void) {
     FLASH::ACR::ICEN::set();
   }
-  static void DisableInstructionCache(void) {
+  static void disable_instruction_cache(void) {
     FLASH::ACR::ICEN::clear();
   }
 
-  static void EnableDataCache(void) {
+  static void enable_data_cache(void) {
     FLASH::ACR::DCEN::set();
   }
-  static void DisableDataCache(void) {
+  static void disable_data_cache(void) {
     FLASH::ACR::DCEN::clear();
   }
 
   template<freq_t freq, voltage_t voltage>
-  static void SetLatency(void) {
+  static void set_latency(void) {
     static_assert(latency<freq, voltage>::value <= 7, "invalid FLASH::ACR::LATENCY value");
     FLASH::ACR::LATENCY::shift_and_set(latency<freq, voltage>::value);
   }

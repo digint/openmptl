@@ -25,13 +25,13 @@
 
 class Joystick
 {
-  typedef GpioInput<'C', 6, cGpio::InputConfig::floating, cGpio::ActiveState::high> button;
-  typedef Adc<1, cAdc::Mode::independent, cAdc::ScanMode::disabled, cAdc::ContinuousConvMode::single, cAdc::ExternalTrigConv::none, cAdc::DataAlign::right, 1> adc;
+  typedef GpioInput<'C', 6, GpioInputConfig::floating, GpioActiveState::high> button;
+  typedef Adc<1, AdcMode::independent, AdcScanMode::disabled, AdcContinuousConvMode::single, AdcExternalTrigConv::none, AdcDataAlign::right, 1> adc;
   
   static int get_value(void) {
-    adc::regular_channel_config<15, 1, cAdc::SampleTime::cycles_55_5>();
+    adc::regular_channel_config<15, 1, AdcSampleTime::cycles_55_5>();
     adc::enable_software_start_conversion();
-    adc::wait_EOC();
+    adc::wait_eoc();
     return adc::get_conversion_value();
   }
 
@@ -45,7 +45,6 @@ public:
   enum class Position { center, up, down, left, right };
 
   static void init(void) {
-//    Core::RCC->APB2ENR |= Core::RCC->APB2ENR_ADC1EN | Core::RCC->APB2ENR_ADC2EN | Core::RCC->APB2ENR_IOPAEN;
     adc::deinit();
     adc::init();
     adc::enable();

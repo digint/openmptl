@@ -25,17 +25,14 @@
 #include <arch/nvic.hpp>
 #include <resource_mpl.hpp>
 
-namespace cSysTick
-{
-  enum class ClockSource {
-    hclk,       /**< AHB clock (HCLK)                      */
-    hclk_div8   /**< AHB clock (HCLK) divided by 8 (9MHz)  */
-  };
-}
+enum class SysTickClockSource {
+  hclk,       /**< AHB clock (HCLK)                      */
+  hclk_div8   /**< AHB clock (HCLK) divided by 8 (9MHz)  */
+};
 
 
 template<freq_t interrupt_rate,   //< interrupt rate in Hz
-         cSysTick::ClockSource clock_source = cSysTick::ClockSource::hclk_div8>
+         SysTickClockSource clock_source = SysTickClockSource::hclk_div8>
 class SysTick
 {
   using SCB = reg::SCB;
@@ -43,7 +40,7 @@ class SysTick
 public:
 
   static constexpr uint32_t counter_freq = Core::clock_frequency /
-                                           (clock_source == cSysTick::ClockSource::hclk_div8 ? 8 : 1);
+                                           (clock_source == SysTickClockSource::hclk_div8 ? 8 : 1);
 
   static constexpr uint32_t reload_value = counter_freq / interrupt_rate;
   static_assert((reload_value >= 1) && (reload_value <= 0x00FFFFFF), "illegal reload value");
@@ -66,7 +63,7 @@ public:
   }
 
   static void set_clock_source(void) {
-    if(clock_source == cSysTick::ClockSource::hclk) {
+    if(clock_source == SysTickClockSource::hclk) {
       SCB::STCSR::CLKSOURCE::set();
     } else { // hclk_div8
       SCB::STCSR::CLKSOURCE::clear();

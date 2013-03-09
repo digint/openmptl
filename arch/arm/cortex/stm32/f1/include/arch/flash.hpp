@@ -30,15 +30,15 @@ class Flash
 
 public:
 
-  static void EnablePrefetchBuffer(void) {
+  static void enable_prefetch_buffer(void) {
     FLASH::ACR::PRFTBE::set();
   }
-  static void DisablePrefetchBuffer(void) {
+  static void disable_prefetch_buffer(void) {
     FLASH::ACR::PRFTBE::clear();
   }
 
   template<freq_t freq>
-  static void SetLatency(void) {
+  static void set_latency(void) {
     switch(freq) {
     case 24_mhz:
       FLASH::ACR::LATENCY::shift_and_set(0);

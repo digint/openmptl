@@ -24,121 +24,118 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/adc.hpp>
 
-namespace cAdc
-{
-  /**
-   * CR1[19:16] DUALMOD: Dual mode selection.
-   * These bits are written by software to select the operating mode.
-   */
-  enum class Mode : uint32_t {
-    independent              = 0,  /**<  0000: Independent mode.                                           */
-    regr_injec_simult        = 1,  /**<  0001: Combined regular simultaneous + injected simultaneous mode  */
-    reg_simult_alter_trig    = 2,  /**<  0010: Combined regular simultaneous + alternate trigger mode      */
-    injec_simult_fast_interl = 3,  /**<  0011: Combined injected simultaneous + fast interleaved mode      */
-    injec_simult_slow_interl = 4,  /**<  0100: Combined injected simultaneous + slow Interleaved mode      */
-    injec_simult             = 5,  /**<  0101: Injected simultaneous mode only                             */
-    reg_simult               = 6,  /**<  0110: Regular simultaneous mode only                              */
-    fast_interl              = 7,  /**<  0111: Fast interleaved mode only                                  */
-    slow_interl              = 8,  /**<  1000: Slow interleaved mode only                                  */
-    alter_trig               = 9   /**<  1001: Alternate trigger mode only                                 */
-  };
+/**
+ * CR1[19:16] DUALMOD: Dual mode selection.
+ * These bits are written by software to select the operating mode.
+ */
+enum class AdcMode : uint32_t {
+  independent              = 0,  /**<  0000: Independent mode.                                           */
+  regr_injec_simult        = 1,  /**<  0001: Combined regular simultaneous + injected simultaneous mode  */
+  reg_simult_alter_trig    = 2,  /**<  0010: Combined regular simultaneous + alternate trigger mode      */
+  injec_simult_fast_interl = 3,  /**<  0011: Combined injected simultaneous + fast interleaved mode      */
+  injec_simult_slow_interl = 4,  /**<  0100: Combined injected simultaneous + slow Interleaved mode      */
+  injec_simult             = 5,  /**<  0101: Injected simultaneous mode only                             */
+  reg_simult               = 6,  /**<  0110: Regular simultaneous mode only                              */
+  fast_interl              = 7,  /**<  0111: Fast interleaved mode only                                  */
+  slow_interl              = 8,  /**<  1000: Slow interleaved mode only                                  */
+  alter_trig               = 9   /**<  1001: Alternate trigger mode only                                 */
+};
 
-  /**
-   * CR1[8] SCAN: Scan mode.
-   * This bit is set and cleared by software to enable/disable Scan
-   * mode. In Scan mode, the inputs selected through the ADC_SQRx or
-   * ADC_JSQRx registers are converted.
-   */
-  enum class ScanMode : uint32_t {
-    disabled = 0,  /**< 0: Scan mode disabled  */
-    enabled = 1    /**< 1: Scan mode enabled   */
-  };
+/**
+ * CR1[8] SCAN: Scan mode.
+ * This bit is set and cleared by software to enable/disable Scan
+ * mode. In Scan mode, the inputs selected through the ADC_SQRx or
+ * ADC_JSQRx registers are converted.
+ */
+enum class AdcScanMode : uint32_t {
+  disabled = 0,  /**< 0: Scan mode disabled  */
+  enabled = 1    /**< 1: Scan mode enabled   */
+};
 
-  /** 
-   * CR2[1] CONT: Continuous conversion.
-   * This bit is set and cleared by software. If set conversion takes place
-   * continuously till this bit is reset.
-   */
-  enum class ContinuousConvMode : uint32_t {
-    single     = 0,  /**< 0: Single conversion mode      */
-    continuous = 1   /**< 1: Continuous conversion mode  */
-  };
+/** 
+ * CR2[1] CONT: Continuous conversion.
+ * This bit is set and cleared by software. If set conversion takes place
+ * continuously till this bit is reset.
+ */
+enum class AdcContinuousConvMode : uint32_t {
+  single     = 0,  /**< 0: Single conversion mode      */
+  continuous = 1   /**< 1: Continuous conversion mode  */
+};
 
-  /**
-   * CR2[19:17] EXTSEL: External event select for regular group.
-   * These bits select the external event used to trigger the start of
-   * conversion of a regular group:
-   */
-  enum class ExternalTrigConv : uint32_t {
-    // For ADC1 and ADC2, the assigned triggers are:
-    T1_CC1    = 0,  /**< 000: Timer 1 CC1 event   */
-    T1_CC2    = 1,  /**< 001: Timer 1 CC2 event   */
-    T1_CC3    = 2,  /**< 010: Timer 1 CC3 event   */
-    T2_CC2    = 3,  /**< 011: Timer 2 CC2 event   */
-    T3_TRGO   = 4,  /**< 100: Timer 3 TRGO event  */
-    T4_CC4    = 5,  /**< 101: Timer 4 CC4 event   */
-    ext_IT11  = 6,  /**< 110: EXTI line11/TIM8_TRGO event (TIM8_TRGO is available only in high-density and XL-density devices) */
-    none      = 7   /**< 111: SWSTART             */
+/**
+ * CR2[19:17] EXTSEL: External event select for regular group.
+ * These bits select the external event used to trigger the start of
+ * conversion of a regular group:
+ */
+enum class AdcExternalTrigConv : uint32_t {
+  // For ADC1 and ADC2, the assigned triggers are:
+  T1_CC1    = 0,  /**< 000: Timer 1 CC1 event   */
+  T1_CC2    = 1,  /**< 001: Timer 1 CC2 event   */
+  T1_CC3    = 2,  /**< 010: Timer 1 CC3 event   */
+  T2_CC2    = 3,  /**< 011: Timer 2 CC2 event   */
+  T3_TRGO   = 4,  /**< 100: Timer 3 TRGO event  */
+  T4_CC4    = 5,  /**< 101: Timer 4 CC4 event   */
+  ext_IT11  = 6,  /**< 110: EXTI line11/TIM8_TRGO event (TIM8_TRGO is available only in high-density and XL-density devices) */
+  none      = 7   /**< 111: SWSTART             */
 #if 0 // TODO: special treatment for ADC3
-    // For ADC3, the assigned triggers are:
-    T3_CC1    = 0,  /**< 000: Timer 3 CC1 event   */
-    T2_CC3    = 1,  /**< 001: Timer 2 CC3 event   */
-    T1_CC3    = 2,  /**< 010: Timer 1 CC3 event   */
-    T8_CC1    = 3,  /**< 011: Timer 8 CC1 event   */
-    T8_TRGO   = 4,  /**< 100: Timer 8 TRGO event  */
-    T5_CC1    = 5,  /**< 101: Timer 5 CC1 event   */
-    T5_CC3    = 6,  /**< 110: Timer 5 CC3 event   */
-    none      = 7   /**< 111: SWSTART             */
+  // For ADC3, the assigned triggers are:
+  T3_CC1    = 0,  /**< 000: Timer 3 CC1 event   */
+  T2_CC3    = 1,  /**< 001: Timer 2 CC3 event   */
+  T1_CC3    = 2,  /**< 010: Timer 1 CC3 event   */
+  T8_CC1    = 3,  /**< 011: Timer 8 CC1 event   */
+  T8_TRGO   = 4,  /**< 100: Timer 8 TRGO event  */
+  T5_CC1    = 5,  /**< 101: Timer 5 CC1 event   */
+  T5_CC3    = 6,  /**< 110: Timer 5 CC3 event   */
+  none      = 7   /**< 111: SWSTART             */
 #endif
-  };
+};
 
-  /** CR2[11] ALIGN: Data alignment. */
-  enum class DataAlign : uint32_t {
-    right = 0,  /**< 0: Right Alignment  */
-    left  = 1   /**< 1: Left Alignment   */
-  };
+/** CR2[11] ALIGN: Data alignment. */
+enum class AdcDataAlign : uint32_t {
+  right = 0,  /**< 0: Right Alignment  */
+  left  = 1   /**< 1: Left Alignment   */
+};
 
-  /**
-   * Bit 20 EXTTRIG: External trigger conversion mode for regular channels.
-   * This bit is set and cleared by software to enable/disable the external
-   * trigger used to start conversion of a regular channel group.
-   */
-  // TODO
+/**
+ * Bit 20 EXTTRIG: External trigger conversion mode for regular channels.
+ * This bit is set and cleared by software to enable/disable the external
+ * trigger used to start conversion of a regular channel group.
+ */
+// TODO
 
-  /**
-   * Bits 14:12 JEXTSEL[2:0]: External event select for injected group.
-   * These bits select the external event used to trigger the start of
-   * conversion of an injected group.
-   */
-  // TODO
+/**
+ * Bits 14:12 JEXTSEL[2:0]: External event select for injected group.
+ * These bits select the external event used to trigger the start of
+ * conversion of an injected group.
+ */
+// TODO
 
 
-  /**
-   * SMPR1[2:0] SMPx: Channel x Sample time selection.
-   * These bits are written by software to select the sample time
-   * individually for each channel. During sample cycles channel selection
-   * bits must remain unchanged.
-   */
-  enum class SampleTime {
-    cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
-    cycles_7_5   = 1,   /**< 001:   7.5 cycles  */
-    cycles_13_5  = 2,   /**< 010:  13.5 cycles  */
-    cycles_28_5  = 3,   /**< 011:  28.5 cycles  */
-    cycles_41_5  = 4,   /**< 100:  41.5 cycles  */
-    cycles_55_5  = 5,   /**< 101:  55.5 cycles  */
-    cycles_71_5  = 6,   /**< 110:  71.5 cycles  */
-    cycles_239_5 = 7    /**< 111: 239.5 cycles  */
-  };
-}
+/**
+ * SMPR1[2:0] SMPx: Channel x Sample time selection.
+ * These bits are written by software to select the sample time
+ * individually for each channel. During sample cycles channel selection
+ * bits must remain unchanged.
+ */
+enum class AdcSampleTime {
+  cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
+  cycles_7_5   = 1,   /**< 001:   7.5 cycles  */
+  cycles_13_5  = 2,   /**< 010:  13.5 cycles  */
+  cycles_28_5  = 3,   /**< 011:  28.5 cycles  */
+  cycles_41_5  = 4,   /**< 100:  41.5 cycles  */
+  cycles_55_5  = 5,   /**< 101:  55.5 cycles  */
+  cycles_71_5  = 6,   /**< 110:  71.5 cycles  */
+  cycles_239_5 = 7    /**< 111: 239.5 cycles  */
+};
 
 
 // TODO: nice defaults
 template<std::size_t adc_no,
-         cAdc::Mode mode,
-         cAdc::ScanMode scan_mode,
-         cAdc::ContinuousConvMode cont_conv_mode,
-         cAdc::ExternalTrigConv ext_trig_conv,
-         cAdc::DataAlign data_align,
+         AdcMode mode,
+         AdcScanMode scan_mode,
+         AdcContinuousConvMode cont_conv_mode,
+         AdcExternalTrigConv ext_trig_conv,
+         AdcDataAlign data_align,
          unsigned numof_channel // Regular channel sequence length 1<=n<=16 (SQR1[23:20] L)
          >
 class Adc
@@ -200,7 +197,7 @@ public:
   }
 
   // TODO: injected, AnalogWatchdogSingle
-  template<unsigned channel, unsigned rank, cAdc::SampleTime sample_time>
+  template<unsigned channel, unsigned rank, AdcSampleTime sample_time>
   static void regular_channel_config(void) {
 
     static_assert((channel >= 0) && (channel <= 17), "Invalid channel");
@@ -245,7 +242,7 @@ public:
     ADCx::CR2::clear(ADCx::CR2::EXTTRIG::value | ADCx::CR2::SWSTART::value);
   }
 
-  static void wait_EOC(void) {
+  static void wait_eoc(void) {
     while(ADCx::SR::EOC::test() == 0);
   }
 

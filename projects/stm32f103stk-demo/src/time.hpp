@@ -41,7 +41,7 @@ class Time
 
 public:
   using rtc     = Rtc;
-  using systick = SysTick<100_hz, cSysTick::ClockSource::hclk>;
+  using systick = SysTick<100_hz, SysTickClockSource::hclk>;
   // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
 
   static void init(void) {

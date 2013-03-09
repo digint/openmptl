@@ -30,13 +30,13 @@ public:
 
   using PWR = reg::PWR;
 
-  static void DisableBackupDomainWriteProtection(void) {
+  static void disable_backup_domain_write_protection(void) {
     PWR::CR::DBP::set();
   }
 
   /* enable/disable high performance mode */
   template<bool enable>
-  static void SetPowerSave(void) {
+  static void set_power_save(void) {
     if(enable)
       PWR::CR::VOS::clear();
     else
