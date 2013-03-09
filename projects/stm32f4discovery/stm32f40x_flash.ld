@@ -71,7 +71,7 @@ SECTIONS
     __exidx_end = .;
 
     _etext = .;
-    
+
     .data : AT(_etext)
     {
         _data_lma = LOADADDR(.data);  /* load memory address */

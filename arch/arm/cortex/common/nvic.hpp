@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED
@@ -56,7 +56,7 @@ public:
 
     preempt_priority_bits = ((7 - group) > priority_bits) ? priority_bits : 7 - group;
     sub_priority_bits     = ((group + priority_bits) < 7) ? 0 : group - 7 + priority_bits;
- 
+
     return (
       ((preempt_priority & ((1 << (preempt_priority_bits)) - 1)) << sub_priority_bits) |
       ((sub_priority     & ((1 << (sub_priority_bits    )) - 1)))
@@ -72,7 +72,7 @@ public:
    * @param  pPreemptPriority   The preemptive priority value (starting from 0)
    * @param  pSubPriority       The sub priority value (starting from 0)
    *
-   * Decode an interrupt priority value with the given priority group to 
+   * Decode an interrupt priority value with the given priority group to
    * preemptive priority value and sub priority value.
    * In case of a conflict between priority grouping and available
    * priority bits (priority_bits) the samllest possible priority group is set.
@@ -86,7 +86,7 @@ public:
 
     preempt_priority_bits = ((7 - group) > priority_bits) ? priority_bits : 7 - group;
     sub_priority_bits     = ((group + priority_bits) < 7) ? 0 : group - 7 + priority_bits;
-  
+
     *preempt_priority = (priority >> sub_priority_bits) & ((1 << (preempt_priority_bits)) - 1);
     *sub_priority     = (priority                   ) & ((1 << (sub_priority_bits    )) - 1);
   }

@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef STM32_COMMON_SPI_HPP_INCLUDED
@@ -188,10 +188,10 @@ public:
 
   /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1 on all of stm32) */
   static constexpr unsigned freq = (spi::spi_no == 1 ?
-                                    Rcc::ClockFrequency<Core::clock_frequency>::pclk2 : 
+                                    Rcc::ClockFrequency<Core::clock_frequency>::pclk2 :
                                     Rcc::ClockFrequency<Core::clock_frequency>::pclk1 );
 
-  static constexpr unsigned baud_rate_prescaler = 
+  static constexpr unsigned baud_rate_prescaler =
     max_frequency == 0          ?   2 :
     max_frequency >= freq / 2   ?   2 :
     max_frequency >= freq / 4   ?   4 :
@@ -222,7 +222,7 @@ public:
 
   static unsigned char send_byte(unsigned char data) {
     spi::wait_transmit_empty();
-    spi::send(data);	
+    spi::send(data);
     spi::wait_receive_not_empty();
     return spi::receive();
   }

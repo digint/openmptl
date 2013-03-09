@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef RTC_HPP_INCLUDED
@@ -89,7 +89,7 @@ public:
   }
 
 
-  static void set_counter(uint32_t value) { 
+  static void set_counter(uint32_t value) {
     enter_config_mode();
     RTC::CNTH::store(value >> 16);
     RTC::CNTL::store(value & 0xFFFF);
@@ -105,7 +105,7 @@ public:
     exit_config_mode();
   }
 
-  static void set_alarm(uint32_t value) {  
+  static void set_alarm(uint32_t value) {
     //TODO: set ALRH subbits
     enter_config_mode();
     RTC::ALRH::store(value >> 16);

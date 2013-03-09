@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef STM32_COMMON_USART_HPP_INCLUDED
@@ -87,7 +87,7 @@ public:
   using GlobalIrq = Irq::USART2; /**< USART2 global Interrupt */
 
 
-  
+
   static_assert(usart_no != 1, "usart 1 is not yet supported, sorry...");
 
   using resources = ResourceList<
@@ -165,7 +165,7 @@ public:
     if(lbcl)
       cr2 |= USARTx::CR2::LBCL::value;
     USARTx::CR2::store(cr2);
-    
+
     /* USARTx CR1 config */
     auto cr1 = USARTx::CR1::load();
     cr1 &= ~(USARTx::CR1::M::value | USARTx::CR1::PCE::value | USARTx::CR1::PS::value | USARTx::CR1::TE::value | USARTx::CR1::RE::value);
@@ -188,7 +188,7 @@ public:
 
     /* calculate values for baud rate register */
     unsigned pclk = (usart_no == 1 ?
-                     Rcc::ClockFrequency<Core::clock_frequency>::pclk2 : 
+                     Rcc::ClockFrequency<Core::clock_frequency>::pclk2 :
                      Rcc::ClockFrequency<Core::clock_frequency>::pclk1 );
     unsigned div  = (pclk * 25) / (4 * baud_rate);
     unsigned mant = div / 100;

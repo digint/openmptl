@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef COMMON_ARM_CORTEX_SCB_HPP_INCLUDED
@@ -36,7 +36,7 @@ public:
    * @param  PriorityGroup is priority grouping field
    *
    * Set the priority grouping field using the required unlock sequence.
-   * The parameter priority_grouping is assigned to the field 
+   * The parameter priority_grouping is assigned to the field
    * SCB->AIRCR [10:8] PRIGROUP field. Only values from 0..7 are used.
    * In case of a conflict between priority grouping and available
    * priority bits (__NVIC_PRIO_BITS) the smallest possible priority group is set.
@@ -54,7 +54,7 @@ public:
   /**
    * @brief  Get the Priority Grouping from NVIC Interrupt Controller
    *
-   * @return priority grouping field 
+   * @return priority grouping field
    *
    * Get the priority grouping from NVIC Interrupt Controller.
    * priority grouping is SCB->AIRCR [10:8] PRIGROUP field.
@@ -70,8 +70,8 @@ public:
    * @param  IRQn      The number of the interrupt for set priority
    * @param  priority  The priority to set
    *
-   * Set the priority for the specified interrupt. The interrupt 
-   * number can be positive to specify an external (device specific) 
+   * Set the priority for the specified interrupt. The interrupt
+   * number can be positive to specify an external (device specific)
    * interrupt, or negative to specify an internal (core) interrupt.
    *
    * Note: The priority cannot be set for every core interrupt.
@@ -88,8 +88,8 @@ public:
    * @param  IRQn      The number of the interrupt for get priority
    * @return           The priority for the interrupt
    *
-   * Read the priority for the specified interrupt. The interrupt 
-   * number can be positive to specify an external (device specific) 
+   * Read the priority for the specified interrupt. The interrupt
+   * number can be positive to specify an external (device specific)
    * interrupt, or negative to specify an internal (core) interrupt.
    *
    * The returned priority value is automatically aligned to the implemented

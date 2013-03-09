@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef GPIO_HPP_INCLUDED
@@ -26,14 +26,14 @@
 #include <arch/reg/gpio.hpp>
 
 enum class GpioResistorConfig {
-  floating,       //< Floating input              
+  floating,       //< Floating input
   pull_up,        //< Input with pull-up
   pull_down       //< Input with pull-down
 };
 
 enum class GpioOutputType {
   push_pull,      //< General purpose output push-pull (e.g. LED's)
-  open_drain,     //< General purpose output open-drain            
+  open_drain,     //< General purpose output open-drain
 };
 
 enum class GpioActiveState {
@@ -66,9 +66,9 @@ class Gpio
 
   static_assert(alt_func_num < 16, "illegal alternate function number");
 
-  static_assert((speed == 2_mhz) || 
-                (speed == 25_mhz) || 
-                (speed == 50_mhz) || 
+  static_assert((speed == 2_mhz) ||
+                (speed == 25_mhz) ||
+                (speed == 50_mhz) ||
                 (speed == 100_mhz),
                 "Illegal frequency for GpioOutput speed (allowed: 2_mhz, 25_mhz, 50_mhz, 100_mhz)");
 protected:

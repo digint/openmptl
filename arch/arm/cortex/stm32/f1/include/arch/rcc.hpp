@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef RCC_HPP_INCLUDED
@@ -56,7 +56,7 @@ public:
   };
 
   /**
-   * @brief  Sets System clock frequency and configure HCLK, PCLK2 
+   * @brief  Sets System clock frequency and configure HCLK, PCLK2
    *         and PCLK1 prescalers.
    * @note   This function should be used only after reset.
    * @note   HSE must be enabled before this function is called.
@@ -134,9 +134,9 @@ public:
     RCC::CFGR::clear<RCC::CFGR::SW,
                      RCC::CFGR::SWS,
                      RCC::CFGR::HPRE,
-                     RCC::CFGR::PPRE1, 
-                     RCC::CFGR::PPRE2, 
-                     RCC::CFGR::ADCPRE, 
+                     RCC::CFGR::PPRE1,
+                     RCC::CFGR::PPRE2,
+                     RCC::CFGR::ADCPRE,
                      RCC::CFGR::MCO>();
 
     RCC::CR::clear<RCC::CR::HSEON,
@@ -227,6 +227,6 @@ template<> struct Rcc::adc_clock_resources<2> : ResourceList< SharedRegister<reg
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
 template<> struct Rcc::adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC3EN::value> > { };
 #endif
-  
+
 
 #endif // RCC_HPP_INCLUDED

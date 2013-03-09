@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <register.hpp>
@@ -49,7 +49,7 @@ void RegisterReaction<Reg::SPI<1>::CR1::value_type, Reg::SPI<1>::CR1::addr>::rea
 #if 1
   if(value & Reg::SPI<1>::CR1::SPE::value) {
     std::cout << "RegisterReaction: SPIx::CR1::SPE::value -> set(TXE | RXNE)" << std::endl;
-    Reg::SPI<1>::SR::set(Reg::SPI<1>::SR::TXE::value | 
+    Reg::SPI<1>::SR::set(Reg::SPI<1>::SR::TXE::value |
                           Reg::SPI<1>::SR::RXNE::value);
   }
 #endif

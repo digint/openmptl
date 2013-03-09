@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef GPIO_HPP_INCLUDED
@@ -82,34 +82,34 @@
 // The push-pull output actually uses two transistors. Each will be on to
 // drive the output to the appropriate level: the top transistor will be
 // on when the output has to be driven high and the bottom transistor
-// will turn on when the output has to go low. 
+// will turn on when the output has to go low.
 //
 // The open-drain output lacks the top transistor. When the output has to
 // go high you simply turn off the bottom transistor, but the line is now
-// pulled high only by the pullup resistor. 
+// pulled high only by the pullup resistor.
 //
 // Your micro allows you to select between the two types, which means
 // that by setting some bits in some register you actually enable/
 // disable the top transistor and enable/disable the pullup (if internal,
 // otherwise you just disable the top transistor and have to use an
-// external pullup) 
+// external pullup)
 //
 // The advantage of the push-pull output is the higher speed, because the
 // line is driven both ways. With the pullup the line can only rise as
 // fast as the RC time constant allows. The R is the pullup, the C is the
 // parasitic capacitance, including the pin capacitance and the board
-// capacitance. 
+// capacitance.
 // The push-pull can typically source more current. With the open-drain
 // the current is limited by the R and R cannot be made very small,
 // because the lower transistor has to sink that current when the output
-// is low; that means higher power consumption. 
+// is low; that means higher power consumption.
 //
 // However, the open-drain allows you to cshort several outputs together,
 // with a common pullup. This is called an wired-OR connection. Now you
 // can drive the output low with any of the IO pins. To drive it high all
 // ouputs have to be high. This is advantageous in some situations,
 // because it eliminates the external gates that would otherwise be
-// required.  
+// required.
 
 
 #include <resource.hpp>
@@ -118,17 +118,17 @@
 #include <arch/reg/gpio.hpp>
 
 enum class GpioInputConfig {
-  analog,         //< Analog input                
-  floating,       //< Floating input              
+  analog,         //< Analog input
+  floating,       //< Floating input
   pull_up,        //< Input with pull-up
   pull_down       //< Input with pull-down
 };
 
 enum class GpioOutputConfig {
   push_pull,      //< General purpose output push-pull (e.g. LED's)
-  open_drain,     //< General purpose output open-drain            
-  alt_push_pull,  //< Alternate function output push-pull          
-  alt_open_drain  //< Alternate function output open-drain         
+  open_drain,     //< General purpose output open-drain
+  alt_push_pull,  //< Alternate function output push-pull
+  alt_open_drain  //< Alternate function output open-drain
 };
 
 enum class GpioActiveState {
@@ -243,8 +243,8 @@ template<char port,
          GpioActiveState active_state = GpioActiveState::low>
 class GpioOutput : public GpioBase<port, pin_no> {
 
-  static_assert((speed == 2_mhz) || 
-                (speed == 10_mhz) || 
+  static_assert((speed == 2_mhz) ||
+                (speed == 10_mhz) ||
                 (speed == 50_mhz),
                 "Illegal frequency for GpioOutput speed (allowed: 2_mhz, 10_mhz, 50_mhz)");
 

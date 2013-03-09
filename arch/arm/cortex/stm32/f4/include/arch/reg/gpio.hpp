@@ -2,20 +2,20 @@
  * CppCore - C++ microprocessor core library
  *
  * Copyright 2012 Axel Burri <axel@tty0.ch>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef REG_GPIO_HPP_INCLUDED
@@ -46,7 +46,7 @@ namespace reg
     static constexpr uint32_t pupdr_reset   = ( reg_name == 'A' ? 0x64000000 :
                                                 reg_name == 'B' ? 0x00000100 :
                                                 0x00000000 );
-    
+
     typedef Register< uint32_t, reg_base + 0x00, Access::rw, moder_reset   > MODER;   /**< GPIO port mode register               */
     typedef Register< uint32_t, reg_base + 0x04, Access::rw                > OTYPER;  /**< GPIO port output type register        */
     typedef Register< uint32_t, reg_base + 0x08, Access::rw, ospeedr_reset > OSPEEDR; /**< GPIO port output speed register       */
