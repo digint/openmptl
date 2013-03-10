@@ -31,9 +31,17 @@ namespace terminal_hooks
   {
     static constexpr const char * cmd  = "cpuid";
     static constexpr const char * desc = "prints the SCB::CPUID register";
-    void run(poorman_ostream<char> & ostream) {
-      ostream << reg::SCB::CPUID::load() << endl;
+    void run(poorman_ostream<char> & cout) {
+      cout << reg::SCB::CPUID::load() << endl;
     }
+  };
+
+  struct syscalls_test
+  : public TerminalHook
+  {
+    static constexpr const char * cmd  = "heap";
+    static constexpr const char * desc = "allocate (leak) 1k on heap";
+    void run(poorman_ostream<char> &);
   };
 
   struct NrfTest
@@ -41,7 +49,7 @@ namespace terminal_hooks
   {
     static constexpr const char * cmd  = "nrf";
     static constexpr const char * desc = "test the NRF24L01 chip (spi)";
-    void run(poorman_ostream<char> & ostream);
+    void run(poorman_ostream<char> &);
   };
 
 
@@ -49,6 +57,6 @@ namespace terminal_hooks
   // Terminal Commands
   //
 
-  using commands = TerminalHookList< cpuid, NrfTest >;
+  using commands = TerminalHookList< cpuid, syscalls_test, NrfTest >;
 }
 #endif

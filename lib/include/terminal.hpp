@@ -48,18 +48,14 @@ class Terminal
   char_type cmd_buf[cmd_buf_size];
   unsigned cmd_index = 0;
 
-protected:
-
 public:
-
-  typedef typename stream_device_type::resources resources;
-
-  tx_stream_type tx_stream;  // TODO: private !!!!!!!!
+  tx_stream_type tx_stream;
 
   static constexpr const char * newline = "\r\n";
   static constexpr const char * prompt  = "# ";
 
-  //  Terminal(Fifo<char_type> &_rx_fifo, poorman_ostream<char_type> &_tx_stream) : rx_fifo(_rx_fifo), tx_stream(_tx_stream) { }
+  using resources = typename stream_device_type::resources;
+
   Terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
   void open() {
@@ -88,7 +84,7 @@ public:
         cmd_buf[cmd_index++] = c;
       }
     }
-    if(flush_tx) // prevent unnecessary usart interrupts
+    if(flush_tx)
       tx_stream.flush();
   }
 };

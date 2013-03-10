@@ -23,7 +23,7 @@
 
 namespace terminal_hooks
 {
-  void NrfTest::run(poorman_ostream<char> & ostream) {
+  void NrfTest::run(poorman_ostream<char> & cout) {
     unsigned char c;
     unsigned char nrf_buf[5];
 
@@ -34,11 +34,11 @@ namespace terminal_hooks
     // nrf::assign_addr();
 
     c = nrf::read_register(STATUS_ADDR);
-    ostream << "status=0x" << c << endl;
+    cout << "status=0x" << c << endl;
 
     nrf::write_register(CONFIG_REG_ADDR, 0x0B);
     c = nrf::read_register(CONFIG_REG_ADDR);
-    ostream << "c=0x" << c << endl;
+    cout << "c=0x" << c << endl;
     nrf_buf[0] = 5;
     nrf_buf[1] = 6;
     nrf_buf[2] = 7;
@@ -52,6 +52,6 @@ namespace terminal_hooks
     nrf_buf[3] = 0;
     nrf_buf[4] = 0;
     nrf::read_address_register(RX_ADDR_P0, nrf_buf);
-    ostream << "rx_addr_p0=0x" << nrf_buf[0] << nrf_buf[1] << nrf_buf[2] << nrf_buf[3] << nrf_buf[4] << endl;
+    cout << "rx_addr_p0=0x" << nrf_buf[0] << nrf_buf[1] << nrf_buf[2] << nrf_buf[3] << nrf_buf[4] << endl;
   }
 }
