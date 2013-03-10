@@ -42,6 +42,7 @@ class Kernel
   static void warn_isr(void)  { Kernel::led_orange::on(); }
   static void error_isr(void) { while(1) { Kernel::led_red::on(); } }
 
+  /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
   static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));
 
   using systick = SysTick<1_khz, SysTickClockSource::hclk>;
