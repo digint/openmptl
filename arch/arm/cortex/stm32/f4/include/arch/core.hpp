@@ -42,8 +42,6 @@ struct Core : public CoreFunctions
 
 
   static void init_clocks() {
-    Rcc::init();
-
     Rcc::enable_hse();
     Rcc::wait_hse_ready();
 

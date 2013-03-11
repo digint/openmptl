@@ -25,13 +25,31 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
-
-// TODO: access functions, change public to private
 class Rcc {
 
-public:
-
   using RCC = reg::RCC;
+
+public:
+  /*
+   * Clock resource declaration (enable peripheral clocks)
+   */
+  template<char>        struct gpio_clock_resources;
+  template<std::size_t> struct spi_clock_resources;
+  template<std::size_t> struct usart_clock_resources;
+  template<std::size_t> struct adc_clock_resources;
+
+  using rtc_clock_resources = ResourceList<
+    SharedRegister< RCC::APB1ENR,
+                    ( RCC::APB1ENR::PWREN::value |
+                      RCC::APB1ENR::BKPEN::value ) > >;
+
+  /* Note: this is only valid for clocks setup by set_system_clock() function */
+  template<freq_t freq>
+  struct ClockFrequency {
+    static constexpr freq_t hclk  = freq;
+    static constexpr freq_t pclk1 = freq <= 36_mhz ? freq : freq / 2;
+    static constexpr freq_t pclk2 = freq;
+  };
 
   static void enable_hse(void) {
     RCC::CR::HSEON::set();
@@ -47,21 +65,6 @@ public:
     return timeout;
   }
 
-  /* Note: this is only valid for clocks setup by SetSysClock() function */
-  template<freq_t freq>
-  struct ClockFrequency {
-    static constexpr freq_t hclk  = freq;
-    static constexpr freq_t pclk1 = freq <= 36_mhz ? freq : freq / 2;
-    static constexpr freq_t pclk2 = freq;
-  };
-
-  /**
-   * @brief  Sets System clock frequency and configure HCLK, PCLK2
-   *         and PCLK1 prescalers.
-   * @note   This function should be used only after reset.
-   * @note   HSE must be enabled before this function is called.
-   * @param  freq frequency (Hz) to be set
-   */
   template<freq_t freq>
   static void set_system_clock(void) {
 
@@ -125,71 +128,6 @@ public:
     /* Wait for PLL to be used */
     while(RCC::CFGR::SWS::PLL::test() == false);
   }
-
-
-  static void init(void) {
-    /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
-    RCC::CR::HSION::set();
-
-    RCC::CFGR::clear<RCC::CFGR::SW,
-                     RCC::CFGR::SWS,
-                     RCC::CFGR::HPRE,
-                     RCC::CFGR::PPRE1,
-                     RCC::CFGR::PPRE2,
-                     RCC::CFGR::ADCPRE,
-                     RCC::CFGR::MCO>();
-
-    RCC::CR::clear<RCC::CR::HSEON,
-                   RCC::CR::CSSON,
-                   RCC::CR::PLLON>();
-
-    RCC::CR::clear<RCC::CR::HSEBYP>();
-
-    RCC::CFGR::clear<RCC::CFGR::PLLSRC,
-                     RCC::CFGR::PLLXTPRE,
-                     RCC::CFGR::PLLMUL,
-#ifdef STM32F10X_CL
-                     RCC::CFGR::OTGFSPRE
-#else
-                     RCC::CFGR::USBPRE
-#endif
-                     >();
-
-#ifdef STM32F10X_CL
-    RCC::CR::clear<RCC::CR::PLL2ON,
-                   RCC::CR::PLL3ON>();
-#endif
-
-    /* Disable all interrupts and clear pending bits  */
-    RCC::CIR::store(RCC::CIR::LSIRDYC::value |
-                    RCC::CIR::LSERDYC::value |
-                    RCC::CIR::HSIRDYC::value |
-                    RCC::CIR::HSERDYC::value |
-                    RCC::CIR::PLLRDYC::value |
-#ifdef STM32F10X_CL
-                    RCC::CIR::PLL2RDYC::value |
-                    RCC::CIR::PLL3RDYC::value |
-#endif
-                    RCC::CIR::CSSC::value);
-
-#ifdef STM32F10X_CL
-    RCC::CFGR2::reset();
-#endif
-  }
-
-
-  /*
-   * Clock resource declaration (enable peripheral clocks)
-   */
-  template<char>        struct gpio_clock_resources;
-  template<std::size_t> struct spi_clock_resources;
-  template<std::size_t> struct usart_clock_resources;
-  template<std::size_t> struct adc_clock_resources;
-
-  using rtc_clock_resources = ResourceList<
-    SharedRegister< RCC::APB1ENR,
-                    ( RCC::APB1ENR::PWREN::value |
-                      RCC::APB1ENR::BKPEN::value ) > >;
 };
 
 

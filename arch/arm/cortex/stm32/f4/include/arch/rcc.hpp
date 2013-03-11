@@ -25,7 +25,6 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
-// TODO: access functions, change public to private
 class Rcc {
 
   using RCC = reg::RCC;
@@ -46,6 +45,23 @@ class Rcc {
   };
 
 public:
+  /* Clock resource declarations (enable peripheral clocks) */
+  template<char>        struct gpio_clock_resources;
+  template<std::size_t> struct usart_clock_resources;
+
+  template<freq_t freq>
+  struct ClockFrequency {
+    static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
+
+    /* Note: this is only valid for clocks setup by set_system_clock() function */
+    static constexpr freq_t hclk  = freq;
+    static constexpr freq_t pclk1 = ( freq == 120_mhz ? 30_mhz :
+                                      freq == 168_mhz ? 42_mhz :
+                                      0 );
+    static constexpr freq_t pclk2 = ( freq == 120_mhz ? 60_mhz :
+                                      freq == 168_mhz ? 84_mhz :
+                                      0 );
+  };
 
   static void enable_hse(void) {
     RCC::CR::HSEON::set();
@@ -72,20 +88,6 @@ public:
     return timeout;
   }
 
-  /* Note: this is only valid for clocks setup by set_system_clock() function */
-  template<freq_t freq>
-  struct ClockFrequency {
-    static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
-
-    static constexpr freq_t hclk  = freq;
-    static constexpr freq_t pclk1 = ( freq == 120_mhz ? 30_mhz :
-                                      freq == 168_mhz ? 42_mhz :
-                                      0 );
-    static constexpr freq_t pclk2 = ( freq == 120_mhz ? 60_mhz :
-                                      freq == 168_mhz ? 84_mhz :
-                                      0 );
-  };
-
   template<freq_t freq>
   static void set_system_clock(void) {
     static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
@@ -105,34 +107,11 @@ public:
       break;
     }
 
-    /* Enable PLL */
     RCC::CR::PLLON::set();
-
-    /* Wait till PLL is ready */
     while(RCC::CR::PLLRDY::test() == 0);
-
-    /* Select PLL as system clock source */
     RCC::CFGR::SW::PLL::set();
-
-    /* Wait for PLL to be used */
     while(RCC::CFGR::SWS::PLL::test() == false);
   }
-
-  static void init(void) {
-    /* Reset the RCC clock configuration to the default reset state (for debug purpose) */
-    RCC::CR::HSION::set();
-    RCC::CFGR::reset();
-    RCC::CR::clear< RCC::CR::HSEON, RCC::CR::CSSON, RCC::CR::PLLON >();
-    RCC::PLLCFGR::reset();
-    RCC::CR::HSEBYP::clear();
-    RCC::CIR::reset();
-  }
-
-  /*
-   * Clock resource declaration (enable peripheral clocks)
-   */
-  template<char>        struct gpio_clock_resources;
-  template<std::size_t> struct usart_clock_resources;
 };
 
 
