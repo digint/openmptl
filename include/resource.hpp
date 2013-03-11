@@ -84,9 +84,9 @@ template<int irqn>
 struct IrqResourceGroup : mpl::resource_group
 { };
 
-template<int irqn, isr_t isr>
+template<typename irq_type, isr_t isr>
 struct IrqResource
-: mpl::unique_resource< IrqResourceGroup<irqn>, IrqResource<irqn, isr> >
+: mpl::unique_resource< IrqResourceGroup<irq_type::irqn>, IrqResource<irq_type, isr> >
 {
   static constexpr isr_t value = isr;
 };

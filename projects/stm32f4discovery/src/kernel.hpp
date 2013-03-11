@@ -30,7 +30,7 @@
 
 class Kernel
 {
-  /* Reset core exception: triggered on system startup (system entry point). */
+  /* Reset exception: triggered on system startup (system entry point). */
   static void reset_isr(void) __attribute__ ((naked)) {
     CRunTimeIrqWrap<core> crt;  /* clear data, init bss, initialize cpu clocks, call constructors */
 
@@ -53,11 +53,11 @@ class Kernel
   using uart_gpio_rx = GpioInputAF <'A', 3, 7>;
 
   using graceful_irq_resources = ResourceList <
-    IrqResource<CoreException::NMI         ::irq_number, null_isr>,
-    IrqResource<CoreException::SVCall      ::irq_number, null_isr>,
-    IrqResource<CoreException::DebugMonitor::irq_number, null_isr>,
-    IrqResource<CoreException::PendSV      ::irq_number, null_isr>
-    // IrqResource<CoreException::SysTick     ::irq_number, null_isr>
+    IrqResource< typename irq::NMI         , null_isr >,
+    IrqResource< typename irq::SVCall      , null_isr >,
+    IrqResource< typename irq::DebugMonitor, null_isr >,
+    IrqResource< typename irq::PendSV      , null_isr >
+    // IrqResource< typename irq::SysTick     , null_isr >
     >;
 
 public:
@@ -68,8 +68,8 @@ public:
   using led_blue   = GpioLed<'D', 15>;
 
   using resources = ResourceList<
-    IrqResource< CoreException::Reset::irq_number, reset_isr >,
-    IrqResource< systick::Irq::irq_number, systick_isr >,
+    IrqResource< typename irq::Reset, reset_isr   >,
+    IrqResource< typename systick::Irq,         systick_isr >,
     graceful_irq_resources,
 
     systick::resources,

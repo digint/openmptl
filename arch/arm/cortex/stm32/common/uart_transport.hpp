@@ -105,7 +105,7 @@ struct UartStreamDevice
 
   using resources = ResourceList<
     typename usart::resources,
-    IrqResource< usart::GlobalIrq::irq_number, isr >
+    IrqResource< typename usart::GlobalIrq, isr >
     >;
 };
 

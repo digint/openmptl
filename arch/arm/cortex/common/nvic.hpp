@@ -27,17 +27,25 @@
 #include <type_traits>
 
 
+////////////////////  IrqBase  ////////////////////
+
+
+template<int _irqn>
+struct IrqBase {
+  static constexpr int irqn = _irqn;
+};
+
+
 ////////////////////  CoreException  ////////////////////
 
 
 template<int irqn>
-class CoreExceptionImpl {
+class CoreException : public IrqBase<irqn> {
   static_assert(irqn < 0 && irqn > -16, "illegal core exception interrupt number");
 
-public:
-  static constexpr int irq_number = irqn;
-
 #if 0
+public:
+
   static constexpr bool priority_available = irqn > -13;
 
   static typename std::enable_if<priority_available>::type set_priority(uint32_t priority) {
@@ -50,21 +58,21 @@ public:
 #endif
 };
 
-namespace CoreException
+namespace irq
 {
-  /* fixed core exceptions */
-  typedef CoreExceptionImpl<-15>  Reset;       // TODO: priority is fixed to -3
-  typedef CoreExceptionImpl<-14>  NMI;         // TODO: priority is fixed to -2
-  typedef CoreExceptionImpl<-13>  HardFault;   // TODO: priority is fixed to -1
+  /* Fixed core exceptions */
+  typedef CoreException<-15>  Reset;       // NOTE: priority is fixed to -3
+  typedef CoreException<-14>  NMI;         // NOTE: priority is fixed to -2
+  typedef CoreException<-13>  HardFault;   // NOTE: priority is fixed to -1
 
-  /* settable core exceptions */
-  typedef CoreExceptionImpl<-12>  MemoryManagement;
-  typedef CoreExceptionImpl<-11>  BusFault;
-  typedef CoreExceptionImpl<-10>  UsageFault;
-  typedef CoreExceptionImpl<-5>   SVCall;
-  typedef CoreExceptionImpl<-4>   DebugMonitor;
-  typedef CoreExceptionImpl<-2>   PendSV;
-  typedef CoreExceptionImpl<-1>   SysTick;
+  /* Settable core exceptions */
+  typedef CoreException<-12>  MemoryManagement;
+  typedef CoreException<-11>  BusFault;
+  typedef CoreException<-10>  UsageFault;
+  typedef CoreException<-5>   SVCall;
+  typedef CoreException<-4>   DebugMonitor;
+  typedef CoreException<-2>   PendSV;
+  typedef CoreException<-1>   SysTick;
 
   static constexpr bool reserved_irqn(int irqn) {
     return ((irqn == -3) ||
@@ -76,11 +84,12 @@ namespace CoreException
 }
 
 
-////////////////////  Irq  ////////////////////
+////////////////////  IrqChannel  ////////////////////
 
 
-template<unsigned int irqn>
-class IrqChannel {
+template<int irqn>
+class IrqChannel : public IrqBase<irqn> {
+  static_assert(irqn >= 0, "illegal irq channel interrupt number");
 
   static constexpr std::size_t  reg_index = (uint32_t)irqn >> 5;
   static constexpr std::size_t  irq_bit = 1 << ((uint32_t)irqn & 0x1F);
@@ -94,8 +103,6 @@ class IrqChannel {
   using IPRx  = NVIC::IPR<irqn>;
 
 public:
-
-  static constexpr int irq_number = irqn;
 
   static void enable(void) {
     ISERx::store(irq_bit);

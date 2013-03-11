@@ -30,7 +30,7 @@ static void default_isr(void) { isr_test = 0; }
 static void isr_42(void) { isr_test = 42; }
 
 /* Handler for irq number = 42 */
-typedef IrqResource< 42, isr_42 > irq42;
+typedef IrqResource< IrqBase<42>, isr_42 > irq42;
 
 
 typedef ResourceList < irq42 > resource_list;
@@ -54,7 +54,7 @@ int main()
 
   std::cout << "vector table size = " << vector_table.size << " (" <<
     "1 stack_top_ptr, " <<
-    Irq::numof_interrupt_channels << " irq_channels)" << std::endl;
+    irq::numof_interrupt_channels << " irq_channels)" << std::endl;
 
   std::cout << std::endl;
   std::cout << "vector table dump" << std::endl;

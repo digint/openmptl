@@ -79,7 +79,7 @@ public:
   using time     = Time<systick>;
 
   using resources = ResourceList<
-    IrqResource< CoreException::Reset::irq_number, reset_isr >,
+    IrqResource< typename irq::Reset, reset_isr >,
 
     time::resources,
     joy::resources,

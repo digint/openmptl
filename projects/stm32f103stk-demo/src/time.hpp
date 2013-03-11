@@ -56,8 +56,8 @@ public:
   using systick = _systick;
 
   using resources = ResourceList<
-    IrqResource< systick::Irq::irq_number,   systick_isr >,
-    IrqResource< rtc::GlobalIrq::irq_number, rtc_isr     >,
+    IrqResource< typename systick::Irq,   systick_isr >,
+    IrqResource< typename rtc::GlobalIrq, rtc_isr     >,
     typename systick::resources,
     rtc::resources
   >;
