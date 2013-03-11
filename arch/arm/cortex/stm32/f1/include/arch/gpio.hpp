@@ -321,7 +321,7 @@ template<char port,
          int pin_no,
          GpioOutputConfig cnf = GpioOutputConfig::push_pull,
          freq_t speed = 50_mhz,
-         GpioActiveState active_state = GpioActiveState::low>
+         GpioActiveState active_state = GpioActiveState::high>
 class GpioLed : public GpioOutput<port, pin_no, cnf, speed, active_state> {
 
   typedef GpioOutput<port, pin_no, cnf, speed, active_state> base;

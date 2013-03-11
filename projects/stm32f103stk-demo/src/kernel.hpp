@@ -70,7 +70,7 @@ public:
   using lcd      = Lcd_Nokia3310<spi, lcd_ds, lcd_reset, lcd_e>;
   using nrf      = Nrf24l01<spi, nrf_ce, nrf_csn, nrf_irq>;
   using joy      = Joystick;
-  using led      = GpioLed<'C', 12>;
+  using led      = GpioLed<'C', 12, GpioOutputConfig::push_pull, 50_mhz, GpioActiveState::low>;
   using time     = Time;
 
   using resources = ResourceList<

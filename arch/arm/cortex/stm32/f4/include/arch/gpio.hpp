@@ -279,7 +279,7 @@ template<char port,
          GpioOutputType otype_cnf = GpioOutputType::push_pull,
          GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
          freq_t speed = 50_mhz,
-         GpioActiveState active_state = GpioActiveState::low>
+         GpioActiveState active_state = GpioActiveState::high>
 class GpioLed : public GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> {
 public:
   typedef GpioLed<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;

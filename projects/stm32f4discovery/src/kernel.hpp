@@ -53,10 +53,10 @@ class Kernel
 
 public:
 
-  using led_green  = GpioLed<'D', 12, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
-  using led_orange = GpioLed<'D', 13, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
-  using led_red    = GpioLed<'D', 14, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
-  using led_blue   = GpioLed<'D', 15, GpioOutputType::push_pull, GpioResistorConfig::floating, 50_mhz, GpioActiveState::high>;
+  using led_green  = GpioLed<'D', 12>;
+  using led_orange = GpioLed<'D', 13>;
+  using led_red    = GpioLed<'D', 14>;
+  using led_blue   = GpioLed<'D', 15>;
 
   using graceful_irq_resources = ResourceList <
     IrqResource<CoreException::NMI         ::irq_number, null_isr>,
