@@ -22,82 +22,16 @@
 #define COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED
 
 #include <arch/scb.hpp>
-#include <core_setup.hpp>
 #include "reg/nvic.hpp"
 #include <isr.hpp>
 #include <type_traits>
-
-
-////////////////////  NvicPriority  ////////////////////
-
-
-template<int irqn>
-class NvicPriority : public InterruptControllerSetup {
-public:
-  /**
-   * @brief  Encode the priority for an interrupt
-   *
-   * @param  PriorityGroup    The used priority group
-   * @param  PreemptPriority  The preemptive priority value (starting from 0)
-   * @param  SubPriority      The sub priority value (starting from 0)
-   * @return                  The encoded priority for the interrupt
-   *
-   * Encode the priority for an interrupt with the given priority group,
-   * preemptive priority value and sub priority value.
-   * In case of a conflict between priority grouping and available
-   * priority bits (priority_bits) the samllest possible priority group is set.
-   *
-   * The returned priority value can be used for NVIC_SetPriority(...) function
-   */
-  static inline uint32_t EncodePriority (uint32_t group, uint32_t preempt_priority, uint32_t sub_priority) {
-//TODO      assert(group == (group & 0x07));
-    uint32_t preempt_priority_bits;
-    uint32_t sub_priority_bits;
-
-    preempt_priority_bits = ((7 - group) > priority_bits) ? priority_bits : 7 - group;
-    sub_priority_bits     = ((group + priority_bits) < 7) ? 0 : group - 7 + priority_bits;
-
-    return (
-      ((preempt_priority & ((1 << (preempt_priority_bits)) - 1)) << sub_priority_bits) |
-      ((sub_priority     & ((1 << (sub_priority_bits    )) - 1)))
-      );
-  }
-
-
-  /**
-   * @brief  Decode the priority of an interrupt
-   *
-   * @param  Priority           The priority for the interrupt
-   * @param  PriorityGroup      The used priority group
-   * @param  pPreemptPriority   The preemptive priority value (starting from 0)
-   * @param  pSubPriority       The sub priority value (starting from 0)
-   *
-   * Decode an interrupt priority value with the given priority group to
-   * preemptive priority value and sub priority value.
-   * In case of a conflict between priority grouping and available
-   * priority bits (priority_bits) the samllest possible priority group is set.
-   *
-   * The priority value can be retrieved with NVIC_GetPriority(...) function
-   */
-  static inline void DecodePriority (uint32_t priority, uint32_t group, uint32_t* preempt_priority, uint32_t* sub_priority) {
-//TODO      assert(group == (group & 0x07));
-    uint32_t preempt_priority_bits;
-    uint32_t sub_priority_bits;
-
-    preempt_priority_bits = ((7 - group) > priority_bits) ? priority_bits : 7 - group;
-    sub_priority_bits     = ((group + priority_bits) < 7) ? 0 : group - 7 + priority_bits;
-
-    *preempt_priority = (priority >> sub_priority_bits) & ((1 << (preempt_priority_bits)) - 1);
-    *sub_priority     = (priority                   ) & ((1 << (sub_priority_bits    )) - 1);
-  }
-};
 
 
 ////////////////////  CoreException  ////////////////////
 
 
 template<int irqn>
-class CoreExceptionImpl : public NvicPriority<irqn> {
+class CoreExceptionImpl {
   static_assert(irqn < 0 && irqn > -16, "illegal core exception interrupt number");
 
 public:
@@ -106,11 +40,11 @@ public:
 #if 0
   static constexpr bool priority_available = irqn > -13;
 
-  static typename std::enable_if<priority_available>::type SetPriority(uint32_t priority) {
+  static typename std::enable_if<priority_available>::type set_priority(uint32_t priority) {
     Scb::SetPriority<irqn>(priority);
   }
 
-  static typename std::enable_if<priority_available, uint32_t>::type GetPriority(void) {
+  static typename std::enable_if<priority_available, uint32_t>::type get_priority(void) {
     return Scb::GetPriority<irqn>();
   }
 #endif
@@ -146,7 +80,7 @@ namespace CoreException
 
 
 template<unsigned int irqn>
-class IrqChannel : public NvicPriority<irqn> {
+class IrqChannel {
 
   static constexpr std::size_t  reg_index = (uint32_t)irqn >> 5;
   static constexpr std::size_t  irq_bit = 1 << ((uint32_t)irqn & 0x1F);
@@ -184,13 +118,15 @@ public:
     return IABRx::load() & (irq_bit);
   }
 
+#if 0
   static void set_priority(uint32_t priority) {
-    IPRx::store((priority << (8 - InterruptControllerSetup::priority_bits)) & 0xff);
+    IPRx::store((priority << (8 - priority_bits)) & 0xff);
   }
 
   static uint32_t get_priority(void) {
-    return((uint32_t)(IPRx::load() >> (8 - InterruptControllerSetup::priority_bits)));
+    return((uint32_t)(IPRx::load() >> (8 - priority_bits)));
   }
+#endif
 };
 
 #endif // COMMON_ARM_CORTEX_NVIC_HPP_INCLUDED

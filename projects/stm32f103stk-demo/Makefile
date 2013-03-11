@@ -29,7 +29,7 @@ TINYFSM_TOP  = ../../../tinyfsm
 CROSS        = arm-none-eabi-
 #CROSS       = /opt/toolchain/x86_64-pc-linux-gnu-gcc-4.7.0/bin/x86_64-pc-linux-gnu-
 
-CPPCORE_ARCH  = arm/cortex/stm32/f1
+CPPCORE_ARCH = arm/cortex/stm32/f1
 
 CPUFLAGS     = -mcpu=cortex-m3 -mthumb
 
@@ -55,13 +55,7 @@ ELF          = $(PROJECT).elf
 MAP          = $(PROJECT).map
 LSS          = $(PROJECT).lss
 
-SRC_DIRS      = src
-
-# needed to find setup.hpp
-INCLUDE      = -I $(SRC_DIRS)
-INCLUDE     += -I $(TINYFSM_TOP)/include
-
-
+SRC_DIRS     = src
 SRCS         = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 SRCS        += $(wildcard $(addsuffix /*.c, $(SRC_DIRS)))
 SRCS        += $(wildcard $(addsuffix /*.S, $(SRC_DIRS)))
@@ -69,7 +63,6 @@ SRCS        += $(wildcard $(addsuffix /*.S, $(SRC_DIRS)))
 vpath %.cpp $(SRC_DIRS)
 vpath %.c   $(SRC_DIRS)
 vpath %.S   $(SRC_DIRS)
-
 
 
 #------------------------------------------------------------------------------
@@ -92,6 +85,13 @@ INCLUDE     += $(CPPCORE_INCLUDE)
 DRIVERS_SRC_DIRS = $(wildcard $(CPPCORE_DRIVERS_DIR)/*/*)
 SRCS            += $(wildcard $(addsuffix /*.cpp, $(DRIVERS_SRC_DIRS)))
 vpath %.cpp $(DRIVERS_SRC_DIRS)
+
+
+#------------------------------------------------------------------------------
+# tinyfsm includes
+#
+INCLUDE     += -I $(TINYFSM_TOP)/include
+
 
 #------------------------------------------------------------------------------
 # boost includes
@@ -116,7 +116,6 @@ OBJS        := $(OBJS:.c=.o)
 OBJS        := $(OBJS:.S=.o)
 #OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
-
 
 
 #------------------------------------------------------------------------------
@@ -161,7 +160,8 @@ CXXFLAGS    += -fshort-enums
 # CXXFLAGS  += -finline-limit=60    # number of pseudo-instructions, default is 600
 #! CXXFLAGS += -frepo     # Enable automatic template instantiation at link time
 # CXXFLAGS  += -fdump-class-hierarchy
-#CXXFLAGS    += -ffreestanding -nostdinc++
+#CXXFLAGS    += -ffreestanding
+#CXXFLAGS    += -nostdinc++
 
 CXXFLAGS    += -Wall -Wextra
 CXXFLAGS    += -Winline   # see non-inlined functions

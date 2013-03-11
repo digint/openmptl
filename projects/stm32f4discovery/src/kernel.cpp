@@ -18,7 +18,7 @@
  *
  */
 
-#include <kernel.hpp>
+#include "kernel.hpp"
 #include <arch/core.hpp>
 #include <arch/uart_transport.hpp>
 

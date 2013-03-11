@@ -219,9 +219,9 @@ public:
 
     // Toggle display reset pin.
     lcd_reset::enable();
-    Core::nop(10000);
+    CoreFunctions::nop(10000);
     lcd_reset::disable();
-    Core::nop(10000);
+    CoreFunctions::nop(10000);
 
     // Send sequence of commands
     enable();

@@ -72,7 +72,7 @@ public:
     return timeout;
   }
 
-  /* Note: this is only valid for clocks setup by SetSysClock() function */
+  /* Note: this is only valid for clocks setup by set_system_clock() function */
   template<freq_t freq>
   struct ClockFrequency {
     static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");

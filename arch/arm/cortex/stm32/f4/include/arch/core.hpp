@@ -23,4 +23,48 @@
 
 #include "../../../../common/core.hpp"
 
+#include <arch/rcc.hpp>
+#include <arch/flash.hpp>
+#include <arch/pwr.hpp>
+
+template<freq_t    _clock_frequency = 168_mhz,
+         voltage_t _system_voltage  = 3.3_volt,
+         bool      _power_save      = false >
+struct Core : public CoreFunctions
+{
+  static_assert(_clock_frequency <= 168_mhz, "unsupported system clock frequency");
+  static_assert(_system_voltage >= 1.8_volt && _system_voltage <= 3.6_volt, "unsupported system voltage");
+  static_assert(_power_save == false || _clock_frequency <= 144_mhz, "system clock frequency too high for power save feature");
+
+  static constexpr freq_t    clock_frequency = _clock_frequency;
+  static constexpr voltage_t system_voltage  = _system_voltage;
+  static constexpr bool      power_save      = _power_save;
+
+
+  static void init_clocks() {
+    Rcc::init();
+
+    Rcc::enable_hse();
+    Rcc::wait_hse_ready();
+
+    //  Flash::enable_prefetch_buffer();
+    Flash::enable_instruction_cache();
+    Flash::enable_data_cache();
+    Flash::set_latency<clock_frequency, system_voltage>();
+
+    Pwr::set_power_save<power_save>();
+
+    Rcc::set_system_clock<clock_frequency>();
+  }
+
+  /* Initialize the hardware.
+   * NOTE: This function is called BEFORE ANY static object constructors are called!
+   */
+  static void init(void) {
+    init_clocks();
+
+    // TODO: NVIC Priority Grouping MPL magic
+  }
+};
+
 #endif // CORE_HPP_INCLUDED

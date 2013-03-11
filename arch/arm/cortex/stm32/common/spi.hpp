@@ -49,12 +49,14 @@ enum class SpiDataDirection {
 };
 
 
-template<std::size_t _spi_no>
+template<typename    _core,
+         std::size_t _spi_no>
 class Spi
 {
   using SPIx = reg::SPI<_spi_no>;
 
 public:
+  using core = _core;
 
   static constexpr std::size_t spi_no = _spi_no;
 
@@ -170,14 +172,14 @@ class SpiMaster : public spi_type {
 
   using spi = spi_type;
 
-private:
-
   // TODO: use some kind of map for the gpios
   //  typedef GpioOutput<'A', 5, cGpio::OutputConfig::alt_push_pull> spi_sck;
   //  typedef GpioOutput<'A', 6, cGpio::OutputConfig::alt_push_pull> spi_miso;
   //  typedef GpioOutput<'A', 7, cGpio::OutputConfig::alt_push_pull> spi_mosi;
 
 public:
+
+  using core = typename spi_type::core;
 
   using resources = ResourceList<
     // typename spi_sck::resources,
@@ -188,8 +190,8 @@ public:
 
   /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1 on all of stm32) */
   static constexpr unsigned freq = (spi::spi_no == 1 ?
-                                    Rcc::ClockFrequency<Core::clock_frequency>::pclk2 :
-                                    Rcc::ClockFrequency<Core::clock_frequency>::pclk1 );
+                                    Rcc::ClockFrequency<core::clock_frequency>::pclk2 :
+                                    Rcc::ClockFrequency<core::clock_frequency>::pclk1 );
 
   static constexpr unsigned baud_rate_prescaler =
     max_frequency == 0          ?   2 :

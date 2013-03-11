@@ -19,7 +19,7 @@
  */
 
 #include <arch/vector_table.hpp>
-#include <kernel.hpp>
+#include "kernel.hpp"
 
 #ifndef CORE_SIMULATION
 

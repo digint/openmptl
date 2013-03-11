@@ -99,7 +99,7 @@ public:
 
     // Tcwh: CSN Inactive time: min. 50ns
     // NOTE: this goes before ALL enable(). Time between calls to disable() -> enable().
-    Core::nop(numof_nops);
+    CoreFunctions::nop(numof_nops);
 
     enable();
     //  Tcc: CSN to SCK Setup: 2ns
@@ -114,7 +114,7 @@ public:
   static void read_address_register(unsigned char addr, unsigned char *ret_addr) {
     unsigned char command = (0 << 5) | addr;
 
-    Core::nop(numof_nops);
+    CoreFunctions::nop(numof_nops);
     enable();
 
     spi_master::send_byte(command);
@@ -128,7 +128,7 @@ public:
   static void write_address_register(unsigned char addr, const unsigned char data[] ) {
     unsigned char command = (1 << 5) | addr;
 
-    Core::nop(numof_nops);
+    CoreFunctions::nop(numof_nops);
     enable();
 
     if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
@@ -151,7 +151,7 @@ public:
     unsigned char ret;
     unsigned char command = (1 << 5) | addr;
 
-    Core::nop(numof_nops);
+    CoreFunctions::nop(numof_nops);
     enable();
 
     ret = spi_master::send_byte(command);

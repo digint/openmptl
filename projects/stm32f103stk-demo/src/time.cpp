@@ -23,23 +23,23 @@
 #include "kernel.hpp"
 
 //systick_t time::systick_count;
-std::atomic<systick_t> Time::systick_count;
-volatile unsigned int Time::seconds;
+std::atomic<systick_t> SystemTime::systick_count;
+volatile unsigned int SystemTime::seconds;
 
-void Time::systick_isr(void) {
+void SystemTime::systick_isr(void) {
   systick_count.fetch_add(1, std::memory_order_relaxed);
   // time::systick_count++;
 }
 
-void Time::rtc_isr() {
-  rtc::StaticIrqWrap wrap;  // clears second flag in constructor
+void SystemTime::rtc_isr() {
+  Kernel::time::rtc::StaticIrqWrap wrap;  // clears second flag in constructor
 
   // seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
   seconds++;
   Kernel::led::toggle();
 }
 
-void Time::nanosleep(unsigned int ns) {
+void SystemTime::nanosleep(unsigned int ns) {
   TimePoint end;
   end.set();
   end.add_ns(ns);

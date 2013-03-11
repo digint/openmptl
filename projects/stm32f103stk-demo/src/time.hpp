@@ -28,7 +28,7 @@
 
 typedef unsigned int systick_t;
 
-class Time
+class SystemTime
 {
   static std::atomic<systick_t> systick_count;
   //static systick_t systick_count;
@@ -36,17 +36,34 @@ class Time
   //static std::atomic<unsigned int> seconds;
   static volatile unsigned int seconds;
 
+protected:
   static void systick_isr(void);
   static void rtc_isr(void);
 
 public:
+  //  static constexpr long long nop_s = 11999940; // nop's per second when using Core::nop(n) (-Os, 72Mhz)
+  static void nanosleep(unsigned int ns);
+
+};
+
+
+template<typename _systick>
+class Time : public SystemTime
+{
+
+public:
   using rtc     = Rtc;
-  using systick = SysTick<100_hz, SysTickClockSource::hclk>;
-  // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
+  using systick = _systick;
+
+  using resources = ResourceList<
+    IrqResource< systick::Irq::irq_number,   systick_isr >,
+    IrqResource< rtc::GlobalIrq::irq_number, rtc_isr     >,
+    typename systick::resources,
+    rtc::resources
+  >;
 
   static void init(void) {
     systick::init();
-
     rtc::init();
     // TODO: play around with prescaler (measurements!)
     rtc::set_prescaler(0x7FFF); // 1sec
@@ -54,7 +71,6 @@ public:
 
   static void enable(void) {
     systick::enable_interrupt();
-
     rtc::enable_second_interrupt();
     rtc::GlobalIrq::enable();
   }
@@ -68,16 +84,6 @@ public:
     return systick_count.load(std::memory_order_relaxed);
     //return systick_count;
   }
-
-  //  static constexpr long long nop_s = 11999940; // nop's per second when using Core::nop(n) (-Os, 72Mhz)
-  static void nanosleep(unsigned int ns);
-
-  using resources = ResourceList<
-    IrqResource< systick::Irq::irq_number,   systick_isr >,
-    IrqResource< rtc::GlobalIrq::irq_number, rtc_isr     >,
-    systick::resources,
-    rtc::resources
-  >;
 };
 
 #endif // TIME_HPP_INCLUDED

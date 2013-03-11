@@ -33,9 +33,6 @@ CPPCORE_ARCH = arm/cortex/stm32/f4
 
 CPUFLAGS     = -mcpu=cortex-m4 -mthumb
 
-FLAGS        = -DSTM32F10X_MD
-#FLAGS       += -DCORE_SIMULATION
-
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER    = -Os
 
@@ -55,13 +52,7 @@ ELF          = $(PROJECT).elf
 MAP          = $(PROJECT).map
 LSS          = $(PROJECT).lss
 
-SRC_DIRS      = src
-
-# needed to find setup.hpp
-INCLUDE      = -I $(SRC_DIRS)
-INCLUDE     += -I $(TINYFSM_TOP)/include
-
-
+SRC_DIRS     = src
 SRCS         = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 SRCS        += $(wildcard $(addsuffix /*.c, $(SRC_DIRS)))
 SRCS        += $(wildcard $(addsuffix /*.S, $(SRC_DIRS)))
@@ -69,7 +60,6 @@ SRCS        += $(wildcard $(addsuffix /*.S, $(SRC_DIRS)))
 vpath %.cpp $(SRC_DIRS)
 vpath %.c   $(SRC_DIRS)
 vpath %.S   $(SRC_DIRS)
-
 
 
 #------------------------------------------------------------------------------
@@ -83,10 +73,16 @@ include $(CPPCORE_TOP)/config/system.mk
 # cppcore includes
 #
 include $(CPPCORE_TOP)/config/cppcore.mk
-#SRCS        += $(CPPCORE_SRC)
 INCLUDE     += $(CPPCORE_INCLUDE)
 
+#SRCS        += $(CPPCORE_SRC)
 #vpath %.cpp $(CPPCORE_SRC_DIRS)
+
+
+#------------------------------------------------------------------------------
+# tinyfsm includes
+#
+#INCLUDE     += -I $(TINYFSM_TOP)/include
 
 
 #------------------------------------------------------------------------------
@@ -112,7 +108,6 @@ OBJS        := $(OBJS:.c=.o)
 OBJS        := $(OBJS:.S=.o)
 #OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
-
 
 
 #------------------------------------------------------------------------------

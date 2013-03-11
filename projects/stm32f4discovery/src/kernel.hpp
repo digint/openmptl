@@ -32,7 +32,7 @@ class Kernel
 {
   /* Reset core exception: triggered on system startup (system entry point). */
   static void reset_isr(void) __attribute__ ((naked)) {
-    CRunTimeIrqWrap crt;  /* clear data, init bss, initialize cpu clocks, call constructors */
+    CRunTimeIrqWrap<core> crt;  /* clear data, init bss, initialize cpu clocks, call constructors */
 
     Kernel::init();
     Kernel::run();
@@ -45,18 +45,12 @@ class Kernel
   /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
   static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));
 
-  using systick = SysTick<1_khz, SysTickClockSource::hclk>;
+  using core       = Core< 168_mhz, 3.3_volt, false >;
+  using systick    = SysTick<core, 1_khz, SysTickClockSource::hclk>;
 
-  using uart_stream_device = UartStreamDevice< Usart<2, 115200> >;
+  using uart_stream_device = UartStreamDevice< Usart<core, 2, 115200> >;
   using uart_gpio_tx = GpioOutputAF<'A', 2, 7, GpioOutputType::push_pull, GpioResistorConfig::floating, 25_mhz>;
   using uart_gpio_rx = GpioInputAF <'A', 3, 7>;
-
-public:
-
-  using led_green  = GpioLed<'D', 12>;
-  using led_orange = GpioLed<'D', 13>;
-  using led_red    = GpioLed<'D', 14>;
-  using led_blue   = GpioLed<'D', 15>;
 
   using graceful_irq_resources = ResourceList <
     IrqResource<CoreException::NMI         ::irq_number, null_isr>,
@@ -65,6 +59,13 @@ public:
     IrqResource<CoreException::PendSV      ::irq_number, null_isr>
     // IrqResource<CoreException::SysTick     ::irq_number, null_isr>
     >;
+
+public:
+
+  using led_green  = GpioLed<'D', 12>;
+  using led_orange = GpioLed<'D', 13>;
+  using led_red    = GpioLed<'D', 14>;
+  using led_blue   = GpioLed<'D', 15>;
 
   using resources = ResourceList<
     IrqResource< CoreException::Reset::irq_number, reset_isr >,

@@ -58,7 +58,8 @@ enum class UsartClockPhase {
 };
 
 
-template< std::size_t        usart_no,
+template< typename           core,
+          std::size_t        usart_no,
           unsigned           baud_rate    = 9600,
           unsigned           word_length  = 8,   /* supported: 8 and 9 bits */
           UsartParity        parity       = UsartParity::disabled,
@@ -188,8 +189,8 @@ public:
 
     /* calculate values for baud rate register */
     unsigned pclk = (usart_no == 1 ?
-                     Rcc::ClockFrequency<Core::clock_frequency>::pclk2 :
-                     Rcc::ClockFrequency<Core::clock_frequency>::pclk1 );
+                     Rcc::ClockFrequency<core::clock_frequency>::pclk2 :
+                     Rcc::ClockFrequency<core::clock_frequency>::pclk1 );
     unsigned div  = (pclk * 25) / (4 * baud_rate);
     unsigned mant = div / 100;
     unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;

@@ -21,46 +21,24 @@
 #ifndef COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 
-#include <arch/core_startup.hpp>
-
-
-////////////////////  CoreFunctions  ////////////////////
-
-
 struct CoreFunctions
 {
-  static inline void enable_irq()        { __asm volatile ("cpsie i"); }  /**< global interrupt enable   */
-  static inline void disable_irq()       { __asm volatile ("cpsid i"); }  /**< global interrupt disable  */
+  static void enable_irq()        { __asm volatile ("cpsie i"); }  /**< global interrupt enable   */
+  static void disable_irq()       { __asm volatile ("cpsid i"); }  /**< global interrupt disable  */
 
-  static inline void enable_fault_irq()  { __asm volatile ("cpsie f"); }
-  static inline void disable_fault_irq() { __asm volatile ("cpsid f"); }
+  static void enable_fault_irq()  { __asm volatile ("cpsie f"); }
+  static void disable_fault_irq() { __asm volatile ("cpsid f"); }
 
-  static inline void nop()               { __asm volatile ("nop"); }
-  static inline void wfi()               { __asm volatile ("wfi"); }
-  static inline void wfe()               { __asm volatile ("wfe"); }
-  static inline void sev()               { __asm volatile ("sev"); }
-  static inline void isb()               { __asm volatile ("isb"); }
-  static inline void dsb()               { __asm volatile ("dsb"); }
-  static inline void dmb()               { __asm volatile ("dmb"); }
-  static inline void clrex()             { __asm volatile ("clrex"); }
+  static void nop()               { __asm volatile ("nop"); }
+  static void wfi()               { __asm volatile ("wfi"); }
+  static void wfe()               { __asm volatile ("wfe"); }
+  static void sev()               { __asm volatile ("sev"); }
+  static void isb()               { __asm volatile ("isb"); }
+  static void dsb()               { __asm volatile ("dsb"); }
+  static void dmb()               { __asm volatile ("dmb"); }
+  static void clrex()             { __asm volatile ("clrex"); }
 
-  static void nop(unsigned value)        { while(value--) nop(); }
-};
-
-
-////////////////////  Core  ////////////////////
-
-
-struct Core : CoreStartup, CoreFunctions
-{
-  /* Initialize the hardware.
-   * NOTE: This function is called BEFORE ANY static object constructors are called!
-   */
-  static void init(void) {
-    CoreStartup::init_clocks();
-
-    // TODO: NVIC Priority Grouping MPL magic
-  }
+  static void nop(unsigned value) { while(value--) nop(); }
 
 #if 0
   struct CriticalSection

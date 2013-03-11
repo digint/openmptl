@@ -76,6 +76,7 @@ struct CRunTime {
 /* Instantiate CRunTimeIrqWrap in your system entry point in order to
  * initialize data and bss sections, and to initialize the core.
  */
+template<typename core>
 struct CRunTimeIrqWrap : public IrqWrap {
 #ifndef CORE_SIMULATION
   CRunTimeIrqWrap() {
@@ -83,7 +84,7 @@ struct CRunTimeIrqWrap : public IrqWrap {
     CRunTime::init_bss_section();
 
     /* Init hardware BEFORE calling ctors, they might depend on it */
-    Core::init();
+    core::init();
 
     CRunTime::call_ctors();
   };

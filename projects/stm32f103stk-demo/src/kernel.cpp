@@ -18,7 +18,7 @@
  *
  */
 
-#include <kernel.hpp>
+#include "kernel.hpp"
 
 #include "events.hpp"
 #include "fsmlist.hpp"
