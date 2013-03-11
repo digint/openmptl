@@ -245,7 +245,7 @@ namespace reg {
     typedef          Register< uint32_t, 0xE000E014, Access::rw >   STRVR; /**< SysTick Reload Value Register        */
     typedef          Register< uint32_t, 0xE000E018, Access::rw >   STCVR; /**< SysTick Current Value Register   */
     typedef __STCR < Register< uint32_t, 0xE000E01C, Access::ro > > STCR;
-    typedef __CPUID< Register< uint32_t, 0xE000ED00, Access::ro, 0x412FC231 > > CPUID;
+    typedef __CPUID< Register< uint32_t, 0xE000ED00, Access::ro > > CPUID;
     typedef __ICSR < Register< uint32_t, 0xE000ED04, Access::rw > > ICSR;
     typedef __VTOR < Register< uint32_t, 0xE000ED08, Access::rw > > VTOR;
     typedef __AIRCR< Register< uint32_t, 0xE000ED0C, Access::rw > > AIRCR;
