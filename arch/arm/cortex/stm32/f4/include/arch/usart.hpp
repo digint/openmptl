@@ -21,7 +21,35 @@
 #ifndef USART_HPP_INCLUDED
 #define USART_HPP_INCLUDED
 
+#include <arch/gpio.hpp>
 #include "../../../common/usart.hpp"
+
+// TODO: provide a matrix for the gpio port/pin_no
+
+template< typename usart,
+          char port,
+          unsigned pin_no >
+class UsartGpioRx
+: public GpioInputAF< port,
+                      pin_no,
+                      usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+                      GpioResistorConfig::floating
+                    >
+{ };
+
+
+template< typename usart,
+          char port,
+          unsigned pin_no >
+class UsartGpioTx
+: public GpioOutputAF< port,
+                       pin_no,
+                       usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+                       GpioOutputType::push_pull,
+                       GpioResistorConfig::floating,
+                       50_mhz
+                     >
+{ };
 
 #endif // USART_HPP_INCLUDED
 

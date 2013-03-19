@@ -23,4 +23,15 @@
 
 #include "../../../common/spi.hpp"
 
+// TODO: provide a matrix for the gpio port/pin_no
+
+template< char port,
+          unsigned pin_no >
+class SpiGpio
+: public GpioOutput< port,
+                     pin_no,
+                     GpioOutputConfig::alt_push_pull
+                     >
+{ };
+
 #endif // SPI_HPP_INCLUDED

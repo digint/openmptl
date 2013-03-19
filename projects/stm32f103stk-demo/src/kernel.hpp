@@ -60,20 +60,19 @@ class Kernel
   using nrf_irq   = GpioInput <'C', 9, GpioInputConfig::pull_down>;   //< IRQ
 
   using usart     = Usart<rcc, 2, 115200>;  // tested up to 2250000 baud
-
+  using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
+  using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
   using uart_stream_device = UartStreamDevice<usart, true>; /* irq debug enabled */
-  using uart_gpio_tx = GpioOutput< 'A', 2,  GpioOutputConfig::alt_push_pull >;
-  using uart_gpio_rx = GpioInput < 'A', 3,  GpioInputConfig::floating >;
 
   using spi      = Spi<rcc, 1>;
-  using spi_sck  = GpioOutput<'A', 5, GpioOutputConfig::alt_push_pull>;
-  using spi_miso = GpioOutput<'A', 6, GpioOutputConfig::alt_push_pull>;
-  using spi_mosi = GpioOutput<'A', 7, GpioOutputConfig::alt_push_pull>;
+  using spi_sck  = SpiGpio< 'A', 5 >;
+  using spi_miso = SpiGpio< 'A', 6 >;
+  using spi_mosi = SpiGpio< 'A', 7 >;
 
 public:
 
   using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
-  // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
+  // using systick = SysTick<rcc, 100_hz, cSysTick::ClockSource::hclk_div8>;
 
   using lcd      = Lcd_Nokia3310<spi, lcd_ds, lcd_reset, lcd_e>;
   using nrf      = Nrf24l01<spi, nrf_ce, nrf_csn, nrf_irq>;
@@ -94,8 +93,8 @@ public:
     lcd::resources,
     nrf::resources,
 
-    uart_gpio_rx::resources,
-    uart_gpio_tx::resources,
+    usart_gpio_rx::resources,
+    usart_gpio_tx::resources,
     uart_stream_device::resources
   >;
 

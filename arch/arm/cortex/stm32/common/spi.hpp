@@ -172,21 +172,11 @@ class SpiMaster : public spi_type {
 
   using spi = spi_type;
 
-  // TODO: use some kind of map for the gpios
-  //  typedef GpioOutput<'A', 5, cGpio::OutputConfig::alt_push_pull> spi_sck;
-  //  typedef GpioOutput<'A', 6, cGpio::OutputConfig::alt_push_pull> spi_miso;
-  //  typedef GpioOutput<'A', 7, cGpio::OutputConfig::alt_push_pull> spi_mosi;
-
 public:
 
   using rcc = typename spi_type::rcc;
 
-  using resources = ResourceList<
-    // typename spi_sck::resources,
-    // typename spi_miso::resources,
-    // typename spi_mosi::resources,
-    typename spi::resources
-    >;
+  using resources = typename spi::resources;
 
   /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1 on all of stm32) */
   static constexpr unsigned freq = (spi::spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );

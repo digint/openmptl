@@ -59,7 +59,7 @@ enum class UsartClockPhase {
 
 
 template< typename           rcc,
-          std::size_t        usart_no,
+          unsigned           _usart_no,
           unsigned           baud_rate    = 9600,
           unsigned           word_length  = 8,   /* supported: 8 and 9 bits */
           UsartParity        parity       = UsartParity::disabled,
@@ -74,28 +74,19 @@ template< typename           rcc,
           >
 class Usart
 {
-  static_assert((usart_no >= 1) && (usart_no <= 3), "Invalid USART number");
+  static_assert((_usart_no >= 1) && (_usart_no <= 3), "Invalid USART number");
   static_assert((word_length == 8) || (word_length == 9), "Invalid word length");
 
+  static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
+
 public:
+  static constexpr unsigned usart_no = _usart_no;
 
   using USARTx = reg::USART<usart_no>;
 
-  // TODO: use some kind of map for the gpios
-  //  typedef GpioOutput< 'A', 2,  cGpio::OutputConfig::alt_push_pull > gpio_tx;
-  //  typedef GpioInput < 'A', 3,  cGpio::InputConfig::floating >       gpio_rx;
-
   using GlobalIrq = irq::USART2; /**< USART2 global Interrupt */
 
-
-
-  static_assert(usart_no != 1, "usart 1 is not yet supported, sorry...");
-
-  using resources = ResourceList<
-    //typename gpio_tx::resources,
-    //typename gpio_rx::resources,
-    Rcc_usart_clock_resources<usart_no>
-    >;
+  using resources = Rcc_usart_clock_resources<usart_no>;
 
   static void send(typename USARTx::DR::value_type data) {
     //    USARTx::DR::store(data & (uint32_t)0x01ff);
@@ -188,9 +179,7 @@ public:
       ((uint32_t)flow_control << 8);
 
     /* calculate values for baud rate register */
-    unsigned pclk = (usart_no == 1 ?
-                     rcc::pclk2_freq :
-                     rcc::pclk1_freq );
+    unsigned pclk = (usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
     unsigned div  = (pclk * 25) / (4 * baud_rate);
     unsigned mant = div / 100;
     unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;

@@ -23,5 +23,26 @@
 
 #include "../../../common/usart.hpp"
 
+// TODO: provide a matrix for the gpio port/pin_no
+
+template< char port,
+          unsigned pin_no >
+class UsartGpioRx
+: public GpioInput< port,
+                    pin_no,
+                    GpioInputConfig::floating
+                    >
+{ };
+
+
+template< char port,
+          unsigned pin_no >
+class UsartGpioTx
+: public GpioOutput< port,
+                     pin_no,
+                     GpioOutputConfig::alt_push_pull
+                     >
+{ };
+
 #endif // USART_HPP_INCLUDED
 

@@ -55,9 +55,11 @@ class Kernel
 
   using systick    = SysTick<rcc, 1_khz, SysTickClockSource::hclk>;
 
-  using uart_stream_device = UartStreamDevice< Usart<rcc, 2, 115200> >;
-  using uart_gpio_tx = GpioOutputAF<'A', 2, 7, GpioOutputType::push_pull, GpioResistorConfig::floating, 25_mhz>;
-  using uart_gpio_rx = GpioInputAF <'A', 3, 7>;
+  using usart = Usart<rcc, 2, 115200>;
+  using usart_gpio_tx = UsartGpioTx< usart, 'A', 2 >;
+  using usart_gpio_rx = UsartGpioRx< usart, 'A', 3 >;
+
+  using uart_stream_device = UartStreamDevice< usart >;
 
   using graceful_irq_resources = ResourceList <
     IrqResource< typename irq::NMI         , null_isr >,
@@ -84,9 +86,10 @@ public:
     led_orange::resources,
     led_red::resources,
     led_blue::resources,
-    uart_stream_device::resources,
-    uart_gpio_rx::resources,
-    uart_gpio_tx::resources >;
+    usart_gpio_rx::resources,
+    usart_gpio_tx::resources,
+    uart_stream_device::resources
+    >;
 
   static void init(void);
   static void run(void) __attribute__ ((noreturn));
