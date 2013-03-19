@@ -202,9 +202,6 @@ public:
 
   static void init(void) {
     /* Configure SPI1 pins: NSS, SCK, MISO and MOSI */
-    // spi_sck::init();
-    // spi_miso::init();
-    // spi_mosi::init();
     spi::reset_crc();
     configure();
     // spi::enable();
