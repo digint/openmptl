@@ -23,7 +23,8 @@
 
 #include <arch/core.hpp>
 #include <arch/nvic.hpp>
-#include <resource_mpl.hpp>
+#include <resource.hpp>
+#include <freq.hpp>
 
 enum class SysTickClockSource {
   hclk,       /**< AHB clock (HCLK)                      */
@@ -31,7 +32,7 @@ enum class SysTickClockSource {
 };
 
 
-template<typename core,
+template<typename rcc,
          freq_t interrupt_rate,   //< interrupt rate in Hz
          SysTickClockSource clock_source = SysTickClockSource::hclk_div8>
 class SysTick
@@ -40,7 +41,7 @@ class SysTick
 
 public:
 
-  static constexpr uint32_t counter_freq = core::clock_frequency /
+  static constexpr uint32_t counter_freq = rcc::hclk_freq /
                                            (clock_source == SysTickClockSource::hclk_div8 ? 8 : 1);
 
   static constexpr uint32_t reload_value = counter_freq / interrupt_rate;
@@ -52,7 +53,6 @@ public:
    * max: 24MHz, hclk/8: 333'333
    */
   static constexpr uint32_t ps_per_tick  = (1000 * 1000 * 1000) / (counter_freq / 1000);
-
 
   typedef ResourceList<> resources;
 

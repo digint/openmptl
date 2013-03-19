@@ -23,7 +23,9 @@
 
 #include <arch/reg/flash.hpp>
 
-
+template<typename rcc,
+         bool prefetch_buffer = true
+         >
 class Flash
 {
   using FLASH = reg::FLASH;
@@ -37,9 +39,8 @@ public:
     FLASH::ACR::PRFTBE::clear();
   }
 
-  template<freq_t freq>
   static void set_latency(void) {
-    switch(freq) {
+    switch(rcc::hclk_freq) {
     case 24_mhz:
       FLASH::ACR::LATENCY::shift_and_set(0);
       break;
@@ -52,6 +53,13 @@ public:
       FLASH::ACR::LATENCY::shift_and_set(2);
       break;
     }
+  }
+
+  static void init(void) {
+    if(prefetch_buffer)
+      enable_prefetch_buffer();
+
+    set_latency();
   }
 };
 

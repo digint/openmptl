@@ -146,7 +146,7 @@ class Adc
   static_assert((numof_channel >= 1) && (numof_channel <= 16), "Invalid ADC channel sequence length");
 
 public:
-  typedef Rcc::adc_clock_resources<adc_no> resources;
+  typedef Rcc_adc_clock_resources<adc_no> resources;
 
   using ADCx = reg::ADC<adc_no>;
 

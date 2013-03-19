@@ -27,7 +27,7 @@ CPPCORE_TOP  = ../..
 TINYFSM_TOP  = ../../../tinyfsm
 
 CROSS        = arm-none-eabi-
-#CROSS       = /opt/toolchain/x86_64-pc-linux-gnu-gcc-4.7.0/bin/x86_64-pc-linux-gnu-
+#CROSS       = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
 
 CPPCORE_ARCH = arm/cortex/stm32/f1
 

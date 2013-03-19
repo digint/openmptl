@@ -178,7 +178,7 @@ namespace reg
     static_assert(offset + width <= sizeof(value_type) * 8, "invalid width/offset");
 
     /** create mask bits (e.g. width(3) = 0b111 = 7) */
-    static constexpr value_type bitmask = ((1 << width) - 1) << offset;
+    static constexpr value_type bitmask = ((1 << width) - 1) << offset;  // TODO: define set_mask, clear_mask here (use e.g. in usart.hpp->disable_interrupt)
     static constexpr value_type value   = bitmask;
 
     static value_type test()           { return R::load() & bitmask;  }

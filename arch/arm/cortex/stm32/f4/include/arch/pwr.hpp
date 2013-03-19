@@ -22,25 +22,34 @@
 #define PWR_HPP_INCLUDED
 
 #include <arch/reg/pwr.hpp>
+#include <voltage.hpp>
 
-
+template<typename  rcc,
+         voltage_t _system_voltage = 3.3_volt,
+         bool      power_save = false>
 class Pwr
 {
-public:
+  static_assert(_system_voltage >= 1.8_volt && _system_voltage <= 3.6_volt, "unsupported system voltage");
+  static_assert(power_save == false || rcc::hclk_freq <= 144_mhz, "system clock frequency too high for power save feature");
 
   using PWR = reg::PWR;
+
+public:
+
+  static constexpr voltage_t system_voltage = _system_voltage;
 
   static void disable_backup_domain_write_protection(void) {
     PWR::CR::DBP::set();
   }
 
   /* enable/disable high performance mode */
-  template<bool enable>
-  static void set_power_save(void) {
-    if(enable)
-      PWR::CR::VOS::clear();
-    else
-      PWR::CR::VOS::set();
+  static void enable_power_save(void) {
+    PWR::CR::VOS::clear();
+  }
+
+  static void init(void) {
+    if(power_save)
+      enable_power_save();
   }
 };
 

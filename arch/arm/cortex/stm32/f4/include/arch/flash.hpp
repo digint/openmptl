@@ -25,52 +25,58 @@
 #include <freq.hpp>
 #include <voltage.hpp>
 
-
+template<typename rcc,
+         typename pwr,
+         bool prefetch_buffer = false,
+         bool instruction_cache = true,
+         bool data_cache = true
+         >
 class Flash
 {
+  static_assert((pwr::system_voltage >= 2.1_volt) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
+
   using FLASH = reg::FLASH;
 
-  template<freq_t freq, voltage_t voltage>
-  struct latency {
-    static_assert(freq <= 168_mhz, "unsupported system clock frequency");
-    static_assert(voltage >= 1.8_volt && voltage <= 3.6_volt, "unsupported system voltage");
+    static_assert(rcc::hclk_freq <= 168_mhz, "unsupported system clock frequency");
 
-    static constexpr FLASH::ACR::LATENCY::value_type value =
-      (voltage <= 2.1_volt) ? ((freq <= 20_mhz)  ?  0  :
-                               (freq <= 40_mhz)  ?  1  :
-                               (freq <= 60_mhz)  ?  2  :
-                               (freq <= 80_mhz)  ?  3  :
-                               (freq <= 100_mhz) ?  4  :
-                               (freq <= 120_mhz) ?  5  :
-                               (freq <= 140_mhz) ?  6  :
-                               (freq <= 160_mhz) ?  7  :
-                               -1 ) :
-      (voltage <= 2.4_volt) ? ((freq <= 22_mhz)  ?  0  :
-                               (freq <= 44_mhz)  ?  1  :
-                               (freq <= 66_mhz)  ?  2  :
-                               (freq <= 88_mhz)  ?  3  :
-                               (freq <= 110_mhz) ?  4  :
-                               (freq <= 132_mhz) ?  5  :
-                               (freq <= 154_mhz) ?  6  :
-                               (freq <= 168_mhz) ?  7  :
-                               -1 ) :
-      (voltage <= 2.7_volt) ? ((freq <= 24_mhz)  ?  0  :
-                               (freq <= 48_mhz)  ?  1  :
-                               (freq <= 72_mhz)  ?  2  :
-                               (freq <= 96_mhz)  ?  3  :
-                               (freq <= 120_mhz) ?  4  :
-                               (freq <= 144_mhz) ?  5  :
-                               (freq <= 168_mhz) ?  6  :
-                               -1 ) :
-      (voltage <= 3.6_volt) ? ((freq <= 30_mhz)  ?  0  :
-                               (freq <= 60_mhz)  ?  1  :
-                               (freq <= 90_mhz)  ?  2  :
-                               (freq <= 120_mhz) ?  3  :
-                               (freq <= 150_mhz) ?  4  :
-                               (freq <= 168_mhz) ?  5  :
-                               -1 ) : -1;
-  };
-
+    static constexpr FLASH::ACR::LATENCY::value_type latency =
+      (pwr::system_voltage <= 2.1_volt) ? 
+          ((rcc::hclk_freq <= 20_mhz)  ?  0  :
+           (rcc::hclk_freq <= 40_mhz)  ?  1  :
+           (rcc::hclk_freq <= 60_mhz)  ?  2  :
+           (rcc::hclk_freq <= 80_mhz)  ?  3  :
+           (rcc::hclk_freq <= 100_mhz) ?  4  :
+           (rcc::hclk_freq <= 120_mhz) ?  5  :
+           (rcc::hclk_freq <= 140_mhz) ?  6  :
+           (rcc::hclk_freq <= 160_mhz) ?  7  :
+           -1 ) :
+      (pwr::system_voltage <= 2.4_volt) ?
+          ((rcc::hclk_freq <= 22_mhz)  ?  0  :
+           (rcc::hclk_freq <= 44_mhz)  ?  1  :
+           (rcc::hclk_freq <= 66_mhz)  ?  2  :
+           (rcc::hclk_freq <= 88_mhz)  ?  3  :
+           (rcc::hclk_freq <= 110_mhz) ?  4  :
+           (rcc::hclk_freq <= 132_mhz) ?  5  :
+           (rcc::hclk_freq <= 154_mhz) ?  6  :
+           (rcc::hclk_freq <= 168_mhz) ?  7  :
+           -1 ) :
+      (pwr::system_voltage <= 2.7_volt) ?
+          ((rcc::hclk_freq <= 24_mhz)  ?  0  :
+           (rcc::hclk_freq <= 48_mhz)  ?  1  :
+           (rcc::hclk_freq <= 72_mhz)  ?  2  :
+           (rcc::hclk_freq <= 96_mhz)  ?  3  :
+           (rcc::hclk_freq <= 120_mhz) ?  4  :
+           (rcc::hclk_freq <= 144_mhz) ?  5  :
+           (rcc::hclk_freq <= 168_mhz) ?  6  :
+           -1 ) :
+      (pwr::system_voltage <= 3.6_volt) ?
+          ((rcc::hclk_freq <= 30_mhz)  ?  0  :
+           (rcc::hclk_freq <= 60_mhz)  ?  1  :
+           (rcc::hclk_freq <= 90_mhz)  ?  2  :
+           (rcc::hclk_freq <= 120_mhz) ?  3  :
+           (rcc::hclk_freq <= 150_mhz) ?  4  :
+           (rcc::hclk_freq <= 168_mhz) ?  5  :
+           -1 ) : -1;
 public:
 
   static void enable_prefetch_buffer(void) {
@@ -94,10 +100,22 @@ public:
     FLASH::ACR::DCEN::clear();
   }
 
-  template<freq_t freq, voltage_t voltage>
   static void set_latency(void) {
-    static_assert(latency<freq, voltage>::value <= 7, "invalid FLASH::ACR::LATENCY value");
-    FLASH::ACR::LATENCY::shift_and_set(latency<freq, voltage>::value);
+    static_assert(latency <= 7, "invalid FLASH::ACR::LATENCY value");
+    FLASH::ACR::LATENCY::shift_and_set(latency);
+  }
+
+  static void init(void) {
+    auto acr = FLASH::ACR::load();
+    if(prefetch_buffer)
+      acr |= FLASH::ACR::PRFTEN::value;
+    if(instruction_cache)
+      acr |= FLASH::ACR::ICEN::value;
+    if(data_cache)
+      acr |= FLASH::ACR::DCEN::value;
+    FLASH::ACR::store(acr);
+
+    set_latency();
   }
 };
 

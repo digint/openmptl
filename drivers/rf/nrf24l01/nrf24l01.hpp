@@ -71,6 +71,14 @@ class Nrf24l01
     nrf_csn::disable();
   }
 
+  static constexpr unsigned numof_nops = 10;  // Tcwh: CSN Inactive time: min. 50ns   // TODO: measurements, nanosleep
+
+  // Tcwh: CSN Inactive time: min. 50ns
+  // NOTE: this goes before ALL enable(). Time between calls to disable() -> enable().
+  static void wait_tcwh(void) {
+    Core::nop(numof_nops);
+  }
+
 public:
 
   using spi = spi_type;
@@ -89,18 +97,12 @@ public:
     typename nrf_irq::resources
     >;
 
-
-  static constexpr unsigned numof_nops = 10;  // Tcwh: CSN Inactive time: min. 50ns   // TODO: measurements, nanosleep
-
   // TODO: assert 5 bit address
   static unsigned char read_register(unsigned char addr) {
     unsigned char ret;
     unsigned char command = addr;
 
-    // Tcwh: CSN Inactive time: min. 50ns
-    // NOTE: this goes before ALL enable(). Time between calls to disable() -> enable().
-    CoreFunctions::nop(numof_nops);
-
+    wait_tcwh();
     enable();
     //  Tcc: CSN to SCK Setup: 2ns
 
@@ -114,7 +116,7 @@ public:
   static void read_address_register(unsigned char addr, unsigned char *ret_addr) {
     unsigned char command = (0 << 5) | addr;
 
-    CoreFunctions::nop(numof_nops);
+    wait_tcwh();
     enable();
 
     spi_master::send_byte(command);
@@ -128,7 +130,7 @@ public:
   static void write_address_register(unsigned char addr, const unsigned char data[] ) {
     unsigned char command = (1 << 5) | addr;
 
-    CoreFunctions::nop(numof_nops);
+    wait_tcwh();
     enable();
 
     if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
@@ -151,7 +153,7 @@ public:
     unsigned char ret;
     unsigned char command = (1 << 5) | addr;
 
-    CoreFunctions::nop(numof_nops);
+    wait_tcwh();
     enable();
 
     ret = spi_master::send_byte(command);

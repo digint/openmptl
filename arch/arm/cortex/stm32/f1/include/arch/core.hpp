@@ -23,33 +23,21 @@
 
 #include "../../../../common/core.hpp"
 
-#include <arch/rcc.hpp>
-#include <arch/flash.hpp>
+#include <crt.hpp>
 
-template<freq_t _clock_frequency = 72_mhz>
-struct Core : public CoreFunctions
+struct Core : public CoreAsm
 {
-  static_assert(_clock_frequency <= 72_mhz, "unsupported system clock frequency");
+  template<typename rcc,
+           typename flash>
+  static void startup(void) {
+    crt::init_data_section();
+    crt::init_bss_section();
 
-  static constexpr freq_t clock_frequency = _clock_frequency;
+    rcc::init();
+    flash::init();
+    rcc::set_system_clock();
 
-  static void init_clocks(void) {
-    Rcc::enable_hse();
-    Rcc::wait_hse_ready();
-
-    Flash::enable_prefetch_buffer();
-    Flash::set_latency<clock_frequency>();
-
-    Rcc::set_system_clock<clock_frequency>();
-  }
-
-  /* Initialize the hardware.
-   * NOTE: This function is called BEFORE ANY static object constructors are called!
-   */
-  static void init(void) {
-    init_clocks();
-
-    // TODO: NVIC Priority Grouping MPL magic
+    crt::call_ctors();
   }
 };
 

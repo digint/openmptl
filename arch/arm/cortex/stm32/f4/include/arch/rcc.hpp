@@ -25,7 +25,9 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
+template<freq_t cpu_clock_freq = 168_mhz>
 class Rcc {
+  static_assert(cpu_clock_freq == 168_mhz || cpu_clock_freq == 120_mhz, "unsupported cpu clock frequency");
 
   using RCC = reg::RCC;
 
@@ -45,23 +47,17 @@ class Rcc {
   };
 
 public:
-  /* Clock resource declarations (enable peripheral clocks) */
-  template<char>        struct gpio_clock_resources;
-  template<std::size_t> struct usart_clock_resources;
 
-  template<freq_t freq>
-  struct ClockFrequency {
-    static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
+  //  static constexpr freq_t cpu_clock_freq = _clock_freq;
 
-    /* Note: this is only valid for clocks setup by set_system_clock() function */
-    static constexpr freq_t hclk  = freq;
-    static constexpr freq_t pclk1 = ( freq == 120_mhz ? 30_mhz :
-                                      freq == 168_mhz ? 42_mhz :
-                                      0 );
-    static constexpr freq_t pclk2 = ( freq == 120_mhz ? 60_mhz :
-                                      freq == 168_mhz ? 84_mhz :
-                                      0 );
-  };
+  /* Note: this is only valid for clocks setup by set_system_clock() function */
+  static constexpr freq_t hclk_freq  = cpu_clock_freq;
+  static constexpr freq_t pclk1_freq = ( hclk_freq == 120_mhz ? 30_mhz :
+                                         hclk_freq == 168_mhz ? 42_mhz :
+                                         0 );
+  static constexpr freq_t pclk2_freq = ( hclk_freq == 120_mhz ? 60_mhz :
+                                         hclk_freq == 168_mhz ? 84_mhz :
+                                         0 );
 
   static void enable_hse(void) {
     RCC::CR::HSEON::set();
@@ -88,17 +84,14 @@ public:
     return timeout;
   }
 
-  template<freq_t freq>
   static void set_system_clock(void) {
-    static_assert(freq == 168_mhz || freq == 120_mhz, "unsupported system clock frequency");
-
     // auto cfgr = RCC::CFGR::load();
     auto cfgr = RCC::CFGR::reset_value;
     cfgr &= ~(RCC::CFGR::HPRE::value       | RCC::CFGR::PPRE1::value       | RCC::CFGR::PPRE2::value);
     cfgr |=   RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE1::DIV4::value | RCC::CFGR::PPRE2::DIV2::value;
     RCC::CFGR::store(cfgr);
 
-    switch(freq) {
+    switch(hclk_freq) {
     case 120_mhz:
       RCC::PLLCFGR::store(pllcfgr_hse<8, 240, 2, 5>::value);
       break;
@@ -112,28 +105,37 @@ public:
     RCC::CFGR::SW::PLL::set();
     while(RCC::CFGR::SWS::PLL::test() == false);
   }
+
+  static void init(void) {
+    enable_hse();
+    wait_hse_ready();
+  }
 };
 
+/* Clock resource declarations (enable peripheral clocks) */
+template<char>        struct Rcc_gpio_clock_resources;
+template<std::size_t> struct Rcc_usart_clock_resources;
 
+#if 1
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct Rcc::gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOAEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOBEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOCEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIODEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOEEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOFEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOGEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'H'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOHEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'I'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOIEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOAEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOBEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOCEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIODEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOEEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOFEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOGEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'H'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOHEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'I'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOIEN::value> > { };
 
-template<> struct Rcc::usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
-template<> struct Rcc::usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
-template<> struct Rcc::usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
-//template<> struct Rcc::usart_clock_resources<4> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART4EN::value> > { };
-//template<> struct Rcc::usart_clock_resources<5> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART5EN::value> > { };
-template<> struct Rcc::usart_clock_resources<6> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART6EN::value> > { };
-
+template<> struct Rcc_usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
+template<> struct Rcc_usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
+template<> struct Rcc_usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
+//template<> struct Rcc_usart_clock_resources<4> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART4EN::value> > { };
+//template<> struct Rcc_usart_clock_resources<5> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART5EN::value> > { };
+template<> struct Rcc_usart_clock_resources<6> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART6EN::value> > { };
+#endif
 
 #endif // RCC_HPP_INCLUDED

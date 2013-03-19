@@ -126,7 +126,7 @@ public:
     AlarmIrqWrap() { clear_alarm_flag(); }
   };
 
-  typedef Rcc::rtc_clock_resources resources;
+  typedef Rcc_rtc_clock_resources resources;
 
   static void init(void) {
     /* Disable backup domain write protection */

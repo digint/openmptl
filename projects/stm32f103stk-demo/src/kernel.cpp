@@ -57,9 +57,9 @@ void Kernel::init(void)
 
 #ifdef CORE_SIMULATION
   // hack: set TXE and RXNE bits, SPI::sendByte loops on it
-  Reg::SPI<1>::SR::set(0x0002 | 0x0001);
-  Reg::RCC::BDCR::set(0x00000002);
-  Reg::RTC::CRL::set(0x0008);
+  reg::SPI<1>::SR::set(0x0002 | 0x0001);
+  reg::RCC::BDCR::set(0x00000002);
+  reg::RTC::CRL::set(0x0008);
 #endif
 
   led::init(); led::off();

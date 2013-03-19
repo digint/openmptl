@@ -49,18 +49,18 @@ enum class SpiDataDirection {
 };
 
 
-template<typename    _core,
+template<typename    rcc_type,
          std::size_t _spi_no>
 class Spi
 {
   using SPIx = reg::SPI<_spi_no>;
 
 public:
-  using core = _core;
+  using rcc = rcc_type;
 
   static constexpr std::size_t spi_no = _spi_no;
 
-  using resources = Rcc::spi_clock_resources<spi_no>;
+  using resources = Rcc_spi_clock_resources<spi_no>;
 
   template<SpiMasterSelection master_selection = SpiMasterSelection::master,
            unsigned baud_rate_prescaler = 2,  // TODO: use baud-rate here, calculate correct presscaler below
@@ -179,7 +179,7 @@ class SpiMaster : public spi_type {
 
 public:
 
-  using core = typename spi_type::core;
+  using rcc = typename spi_type::rcc;
 
   using resources = ResourceList<
     // typename spi_sck::resources,
@@ -189,9 +189,7 @@ public:
     >;
 
   /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1 on all of stm32) */
-  static constexpr unsigned freq = (spi::spi_no == 1 ?
-                                    Rcc::ClockFrequency<core::clock_frequency>::pclk2 :
-                                    Rcc::ClockFrequency<core::clock_frequency>::pclk1 );
+  static constexpr unsigned freq = (spi::spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
 
   static constexpr unsigned baud_rate_prescaler =
     max_frequency == 0          ?   2 :

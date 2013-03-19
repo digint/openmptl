@@ -21,22 +21,27 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
-#include <crt.hpp>
 #include <resource.hpp>
-#include <arch/gpio.hpp>
 #include <lcd/nokia3310/lcd.hpp>
 #include <rf/nrf24l01/nrf24l01.hpp>
 #include <joystick/stm32f103stk/joystick.hpp>
+#include <arch/core.hpp>
+#include <arch/rcc.hpp>
+#include <arch/flash.hpp>
 #include <arch/usart.hpp>
 #include <arch/uart_transport.hpp>
+#include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
 #include "time.hpp"
 
 class Kernel
 {
+  using rcc   = Rcc<72_mhz>;
+  using flash = Flash<rcc>;
+
   /* Reset core exception: triggered on system startup (system entry point). */
   static void reset_isr(void) __attribute__ ((naked)) {
-    CRunTimeIrqWrap<core> crt;  /* clear data, init bss, initialize cpu clocks, call constructors */
+    Core::startup<rcc, flash>();
 
     Kernel::init();
     Kernel::run();
@@ -46,8 +51,6 @@ class Kernel
   static void warn_isr(void)  { Kernel::led::on(); }
   static void error_isr(void) { while(1) { Kernel::led::on(); } }
 
-  using core = Core<72_mhz>;
-
   using lcd_ds    = GpioOutput<'B', 2,  GpioOutputConfig::push_pull>;  //< low=command, high=data
   using lcd_reset = GpioOutput<'C', 7,  GpioOutputConfig::push_pull>;  //< reset pin (active low)
   using lcd_e     = GpioOutput<'C', 10, GpioOutputConfig::push_pull>;  //< display controller spi enable (active low)
@@ -56,20 +59,20 @@ class Kernel
   using nrf_csn   = GpioOutput<'A', 4, GpioOutputConfig::push_pull>;  //< spi enable (active low)
   using nrf_irq   = GpioInput <'C', 9, GpioInputConfig::pull_down>;   //< IRQ
 
-  using usart     = Usart<core, 2, 115200>;  // tested up to 2250000 baud
+  using usart     = Usart<rcc, 2, 115200>;  // tested up to 2250000 baud
 
   using uart_stream_device = UartStreamDevice<usart, true>; /* irq debug enabled */
   using uart_gpio_tx = GpioOutput< 'A', 2,  GpioOutputConfig::alt_push_pull >;
   using uart_gpio_rx = GpioInput < 'A', 3,  GpioInputConfig::floating >;
 
-  using spi      = Spi<core, 1>;
+  using spi      = Spi<rcc, 1>;
   using spi_sck  = GpioOutput<'A', 5, GpioOutputConfig::alt_push_pull>;
   using spi_miso = GpioOutput<'A', 6, GpioOutputConfig::alt_push_pull>;
   using spi_mosi = GpioOutput<'A', 7, GpioOutputConfig::alt_push_pull>;
 
 public:
 
-  using systick = SysTick<core, 100_hz, SysTickClockSource::hclk>;
+  using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
   // using systick = SysTick<100_hz, cSysTick::ClockSource::hclk_div8>;
 
   using lcd      = Lcd_Nokia3310<spi, lcd_ds, lcd_reset, lcd_e>;

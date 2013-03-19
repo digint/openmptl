@@ -42,57 +42,34 @@ extern void (*__init_array_end   []) (void);
 extern void (*__fini_array_start []) (void);
 extern void (*__fini_array_end   []) (void);
 
-
-struct CRunTime {
-  static void init_data_section(void) {
+namespace crt
+{
+  static inline void init_data_section(void) {
     uint32_t *src = &_data_lma;
     uint32_t *dst = &_sdata;
     while(dst < &_edata)
       *(dst++) = *(src++);
   }
 
-  static void init_bss_section(void) {
+  static inline void init_bss_section(void) {
     uint32_t *dst = &_sbss;
     while(dst < &_ebss)
       *(dst++) = 0;
   }
 
-  static void call_ctors(void) {
+  static inline void call_ctors(void) {
     uintptr_t n = __init_array_end - __init_array_start;
     uintptr_t i = 0;
     while(i < n)
       __init_array_start[i++]();
   }
 
-  static void call_dtors(void) {
+  static inline void call_dtors(void) {
     uintptr_t n = __fini_array_end - __fini_array_start;
     uintptr_t i = 0;
     while(i < n)
       __fini_array_start[i++]();
   }
-};
-
-
-/* Instantiate CRunTimeIrqWrap in your system entry point in order to
- * initialize data and bss sections, and to initialize the core.
- */
-template<typename core>
-struct CRunTimeIrqWrap : public IrqWrap {
-#ifndef CORE_SIMULATION
-  CRunTimeIrqWrap() {
-    CRunTime::init_data_section();
-    CRunTime::init_bss_section();
-
-    /* Init hardware BEFORE calling ctors, they might depend on it */
-    core::init();
-
-    CRunTime::call_ctors();
-  };
-
-  ~CRunTimeIrqWrap() {
-    CRunTime::call_dtors();
-  };
-#endif // CORE_SIMULATION
-};
+} // namespace crt
 
 #endif // CRT_HPP_INCLUDED

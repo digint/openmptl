@@ -21,7 +21,7 @@
 #ifndef COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 #define COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
 
-struct CoreFunctions
+struct CoreAsm
 {
   static void enable_irq()        { __asm volatile ("cpsie i"); }  /**< global interrupt enable   */
   static void disable_irq()       { __asm volatile ("cpsid i"); }  /**< global interrupt disable  */
@@ -39,14 +39,6 @@ struct CoreFunctions
   static void clrex()             { __asm volatile ("clrex"); }
 
   static void nop(unsigned value) { while(value--) nop(); }
-
-#if 0
-  struct CriticalSection
-  {
-    CriticalSection () { disable_irq(); }
-    ~CriticalSection() { enable_irq(); }
-  };
-#endif
 };
 
 #endif // COMMON_ARM_CORTEX_CORE_HPP_INCLUDED

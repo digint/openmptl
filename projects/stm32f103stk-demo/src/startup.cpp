@@ -18,10 +18,8 @@
  *
  */
 
-
 #include <arch/vector_table.hpp>
 #include "kernel.hpp"
-
 
 #ifndef CORE_SIMULATION
 
@@ -44,8 +42,6 @@ int main(int argc, char *argv[])
   std::cout << "cppcore simulation" << std::endl
             << "------------------" << std::endl
             << std::endl;
-
-  Core::Init();
 
   Kernel::init();
   Kernel::run();

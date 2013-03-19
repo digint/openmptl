@@ -162,7 +162,7 @@ protected:
 public:
 
   using resources = ResourceList<
-    Rcc::gpio_clock_resources<port>,
+    Rcc_gpio_clock_resources<port>,
     UniqueResource<GpioBase<port, pin_no> >
     >;
 

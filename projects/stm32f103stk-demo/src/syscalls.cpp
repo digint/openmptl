@@ -20,6 +20,10 @@
 
 #include "kernel.hpp"
 #include "terminal_hooks.hpp"
+
+
+#ifndef CORE_SIMULATION
+
 #include "printf.h"
 
 #include <unistd.h>
@@ -113,3 +117,11 @@ void terminal_hooks::syscalls_test::run(poorman_ostream<char> & cout) {
   a = new A();
   cout << "heap_ptr: new=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
 }
+
+#else
+
+void terminal_hooks::syscalls_test::run(poorman_ostream<char> & cout) {
+  cout << "core_simulation: empty syscalls test" << endl;
+}
+
+#endif // CORE_SIMULATION

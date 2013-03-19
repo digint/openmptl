@@ -22,17 +22,24 @@
 #define KERNEL_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
+#include <arch/rcc.hpp>
+#include <arch/pwr.hpp>
+#include <arch/flash.hpp>
 #include <arch/systick.hpp>
 #include <arch/gpio.hpp>
 #include <arch/uart_transport.hpp>
-#include <crt.hpp>
+#include <arch/core.hpp>
 #include <resource_mpl.hpp>
 
 class Kernel
 {
+  using rcc   = Rcc<168_mhz>;
+  using pwr   = Pwr<rcc, 3.3_volt, false>;
+  using flash = Flash<rcc, pwr>;
+
   /* Reset exception: triggered on system startup (system entry point). */
   static void reset_isr(void) __attribute__ ((naked)) {
-    CRunTimeIrqWrap<core> crt;  /* clear data, init bss, initialize cpu clocks, call constructors */
+    Core::startup<rcc, flash, pwr>();
 
     Kernel::init();
     Kernel::run();
@@ -45,10 +52,10 @@ class Kernel
   /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
   static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));
 
-  using core       = Core< 168_mhz, 3.3_volt, false >;
-  using systick    = SysTick<core, 1_khz, SysTickClockSource::hclk>;
 
-  using uart_stream_device = UartStreamDevice< Usart<core, 2, 115200> >;
+  using systick    = SysTick<rcc, 1_khz, SysTickClockSource::hclk>;
+
+  using uart_stream_device = UartStreamDevice< Usart<rcc, 2, 115200> >;
   using uart_gpio_tx = GpioOutputAF<'A', 2, 7, GpioOutputType::push_pull, GpioResistorConfig::floating, 25_mhz>;
   using uart_gpio_rx = GpioInputAF <'A', 3, 7>;
 
@@ -68,8 +75,8 @@ public:
   using led_blue   = GpioLed<'D', 15>;
 
   using resources = ResourceList<
-    IrqResource< typename irq::Reset, reset_isr   >,
-    IrqResource< typename systick::Irq,         systick_isr >,
+    IrqResource< typename irq::Reset,   reset_isr   >,
+    IrqResource< typename systick::Irq, systick_isr >,
     graceful_irq_resources,
 
     systick::resources,

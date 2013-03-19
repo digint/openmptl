@@ -25,31 +25,23 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
+template<freq_t cpu_clock_freq = 72_mhz>
 class Rcc {
+  static_assert(cpu_clock_freq == 24_mhz ||
+                cpu_clock_freq == 36_mhz ||
+                cpu_clock_freq == 48_mhz ||
+                cpu_clock_freq == 56_mhz ||
+                cpu_clock_freq == 72_mhz,
+                "unsupported system clock frequency");
 
   using RCC = reg::RCC;
 
 public:
-  /*
-   * Clock resource declaration (enable peripheral clocks)
-   */
-  template<char>        struct gpio_clock_resources;
-  template<std::size_t> struct spi_clock_resources;
-  template<std::size_t> struct usart_clock_resources;
-  template<std::size_t> struct adc_clock_resources;
-
-  using rtc_clock_resources = ResourceList<
-    SharedRegister< RCC::APB1ENR,
-                    ( RCC::APB1ENR::PWREN::value |
-                      RCC::APB1ENR::BKPEN::value ) > >;
 
   /* Note: this is only valid for clocks setup by set_system_clock() function */
-  template<freq_t freq>
-  struct ClockFrequency {
-    static constexpr freq_t hclk  = freq;
-    static constexpr freq_t pclk1 = freq <= 36_mhz ? freq : freq / 2;
-    static constexpr freq_t pclk2 = freq;
-  };
+  static constexpr freq_t hclk_freq  = cpu_clock_freq;
+  static constexpr freq_t pclk1_freq = cpu_clock_freq <= 36_mhz ? cpu_clock_freq : cpu_clock_freq / 2;
+  static constexpr freq_t pclk2_freq = cpu_clock_freq;
 
   static void enable_hse(void) {
     RCC::CR::HSEON::set();
@@ -65,19 +57,10 @@ public:
     return timeout;
   }
 
-  template<freq_t freq>
   static void set_system_clock(void) {
-
-    static_assert(freq == 24_mhz ||
-                  freq == 36_mhz ||
-                  freq == 48_mhz ||
-                  freq == 56_mhz ||
-                  freq == 72_mhz,
-                  "unsupported system clock frequency");
-
     auto cfgr = RCC::CFGR::load();
 
-    switch(freq) {
+    switch(cpu_clock_freq) {
     case 24_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 6 = 24 MHz               */
@@ -116,54 +99,64 @@ public:
     }
     RCC::CFGR::store(cfgr);
 
-    /* Enable PLL */
     RCC::CR::PLLON::set();
-
-    /* Wait till PLL is ready */
     while(RCC::CR::PLLRDY::test() == 0);
-
-    /* Select PLL as system clock source */
     RCC::CFGR::SW::PLL::set();
-
-    /* Wait for PLL to be used */
     while(RCC::CFGR::SWS::PLL::test() == false);
+  }
+
+  static void init(void) {
+    enable_hse();
+    wait_hse_ready();
   }
 };
 
+/*
+ * Clock resource declaration (enable peripheral clocks)
+ */
+template<char>        struct Rcc_gpio_clock_resources;
+template<std::size_t> struct Rcc_spi_clock_resources;
+template<std::size_t> struct Rcc_usart_clock_resources;
+template<std::size_t> struct Rcc_adc_clock_resources;
+
+using Rcc_rtc_clock_resources = ResourceList<
+  SharedRegister< reg::RCC::APB1ENR,
+                  ( reg::RCC::APB1ENR::PWREN::value |
+                    reg::RCC::APB1ENR::BKPEN::value ) > >;
 
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct Rcc::gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPAEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPBEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPCEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPDEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPEEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPAEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPBEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPCEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPDEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPEEN::value> > { };
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-template<> struct Rcc::gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPFEN::value> > { };
-template<> struct Rcc::gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPGEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPFEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPGEN::value> > { };
 #endif
 
-template<> struct Rcc::spi_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::SPI1EN::value> > { };
+template<> struct Rcc_spi_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::SPI1EN::value> > { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-template<> struct Rcc::spi_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI2EN::value> > { };
+template<> struct Rcc_spi_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI2EN::value> > { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_CL)
-template<> struct Rcc::spi_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI3EN::value> > { };
+template<> struct Rcc_spi_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI3EN::value> > { };
 #endif
 
-template<> struct Rcc::usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
-template<> struct Rcc::usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
+template<> struct Rcc_usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
+template<> struct Rcc_usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-template<> struct Rcc::usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
+template<> struct Rcc_usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
 #endif
 
-template<> struct Rcc::adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC1EN::value> > { };
+template<> struct Rcc_adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC1EN::value> > { };
 #if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL)
-template<> struct Rcc::adc_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC2EN::value> > { };
+template<> struct Rcc_adc_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC2EN::value> > { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-template<> struct Rcc::adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC3EN::value> > { };
+template<> struct Rcc_adc_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC3EN::value> > { };
 #endif
 
 

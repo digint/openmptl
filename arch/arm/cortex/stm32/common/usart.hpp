@@ -58,7 +58,7 @@ enum class UsartClockPhase {
 };
 
 
-template< typename           core,
+template< typename           rcc,
           std::size_t        usart_no,
           unsigned           baud_rate    = 9600,
           unsigned           word_length  = 8,   /* supported: 8 and 9 bits */
@@ -94,7 +94,7 @@ public:
   using resources = ResourceList<
     //typename gpio_tx::resources,
     //typename gpio_rx::resources,
-    Rcc::usart_clock_resources<usart_no>
+    Rcc_usart_clock_resources<usart_no>
     >;
 
   static void send(typename USARTx::DR::value_type data) {
@@ -189,8 +189,8 @@ public:
 
     /* calculate values for baud rate register */
     unsigned pclk = (usart_no == 1 ?
-                     Rcc::ClockFrequency<core::clock_frequency>::pclk2 :
-                     Rcc::ClockFrequency<core::clock_frequency>::pclk1 );
+                     rcc::pclk2_freq :
+                     rcc::pclk1_freq );
     unsigned div  = (pclk * 25) / (4 * baud_rate);
     unsigned mant = div / 100;
     unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
