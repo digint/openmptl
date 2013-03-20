@@ -26,6 +26,8 @@
 #include <arch/nvic.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
+#include <type_traits>
+
 
 enum class UsartStopBits : uint32_t {
   stop_bits_1   = 0,
@@ -79,14 +81,12 @@ class Usart
 
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 
+  using USARTx = reg::USART<_usart_no>;
+
 public:
   static constexpr unsigned usart_no = _usart_no;
-
-  using USARTx = reg::USART<usart_no>;
-
-  using GlobalIrq = irq::USART2; /**< USART2 global Interrupt */
-
   using resources = Rcc_usart_clock_resources<usart_no>;
+  using Irq = irq::USART<usart_no>;
 
   static void send(typename USARTx::DR::value_type data) {
     //    USARTx::DR::store(data & (uint32_t)0x01ff);
@@ -179,14 +179,13 @@ public:
       ((uint32_t)flow_control << 8);
 
     /* calculate values for baud rate register */
-    unsigned pclk = (usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-    unsigned div  = (pclk * 25) / (4 * baud_rate);
-    unsigned mant = div / 100;
-    unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
+    constexpr unsigned pclk = (usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+    constexpr unsigned div  = (pclk * 25) / (4 * baud_rate);
+    constexpr unsigned mant = div / 100;
+    constexpr unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
 
     USARTx::BRR::store((mant << 4) | (fraq & 0x0f));
   }
-
 };
 
 #endif // STM32_COMMON_USART_HPP_INCLUDED

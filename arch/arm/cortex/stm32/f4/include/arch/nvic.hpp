@@ -108,6 +108,18 @@ namespace irq
   typedef IrqChannel<80>  HASH_RNG;            /**< Hash and Rng global interrupt                                            */
   typedef IrqChannel<81>  FPU;                 /**<  FPU global interrupt                                                    */
 
+
+  template<unsigned usart_no> class USART;
+  template<> class USART<1> : public USART1 { };
+  template<> class USART<2> : public USART2 { };
+  template<> class USART<3> : public USART3 { };
+  template<> class USART<6> : public USART6 { };
+
+  template<unsigned usart_no> class SPI;
+  template<> class SPI<1> : public SPI1 { };
+  template<> class SPI<2> : public SPI2 { };
+  template<> class SPI<3> : public SPI3 { };
+
   static constexpr int numof_interrupt_channels = 82;
 } // namespace Irq
 

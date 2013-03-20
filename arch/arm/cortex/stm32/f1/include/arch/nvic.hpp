@@ -284,6 +284,17 @@ namespace irq
   typedef IrqChannel<67>  OTG_FS;                 /**< USB OTG FS global Interrupt                                  */
   static constexpr int numof_interrupt_channels = 68;
 #endif // STM32F10X_CL
+
+
+  template<unsigned usart_no> class USART;
+  template<> class USART<1> : public USART1 { };
+  template<> class USART<2> : public USART2 { };
+  template<> class USART<3> : public USART3 { };
+
+  template<unsigned usart_no> class SPI;
+  template<> class SPI<1> : public SPI1 { };
+  template<> class SPI<2> : public SPI2 { };
+  //  template<> class SPI<3> : public SPI3 { };
 } // namespace Irq
 
 #endif // NVIC_HPP_INCLUDED

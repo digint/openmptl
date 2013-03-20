@@ -76,7 +76,7 @@ void Kernel::init(void)
 
   usart::init();
   usart::enable();
-  usart::GlobalIrq::enable();
+  usart::Irq::enable();
   usart::enable_interrupt<true, false, true, false, false>();
 }
 

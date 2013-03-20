@@ -22,8 +22,8 @@
 #define STM32_COMMON_SPI_HPP_INCLUDED
 
 #include <arch/rcc.hpp>
+#include <arch/nvic.hpp>
 #include <arch/reg/spi.hpp>
-#include <arch/core.hpp>
 
 enum class SpiClockPolarity {
   low,
@@ -59,8 +59,8 @@ public:
   using rcc = rcc_type;
 
   static constexpr std::size_t spi_no = _spi_no;
-
   using resources = Rcc_spi_clock_resources<spi_no>;
+  using Irq = irq::SPI<spi_no>;
 
   template<SpiMasterSelection master_selection = SpiMasterSelection::master,
            unsigned baud_rate_prescaler = 2,  // TODO: use baud-rate here, calculate correct presscaler below

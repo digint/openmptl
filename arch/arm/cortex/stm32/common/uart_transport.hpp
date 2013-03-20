@@ -87,7 +87,7 @@ struct UartStreamDevice
   static void open(void) {
     usart::init();
     usart::enable();
-    usart::GlobalIrq::enable();
+    usart::Irq::enable();
     usart::template enable_interrupt<true, false, true, false, false>();
   }
 
@@ -105,7 +105,7 @@ struct UartStreamDevice
 
   using resources = ResourceList<
     typename usart::resources,
-    IrqResource< typename usart::GlobalIrq, isr >
+    IrqResource< typename usart::Irq, isr >
     >;
 };
 

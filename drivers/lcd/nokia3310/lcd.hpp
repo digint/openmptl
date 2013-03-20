@@ -23,6 +23,7 @@
 
 #include "arch/gpio.hpp"
 #include "arch/spi.hpp"
+#include <arch/core.hpp>
 
 
 
