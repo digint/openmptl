@@ -43,10 +43,7 @@ int main(int argc, char *argv[])
             << "------------------" << std::endl
             << std::endl;
 
-  Core::Init();
-
-  Kernel::init();
-  Kernel::run();
+  Kernel::reset_isr();
 }
 
 #endif // CORE_SIMULATION

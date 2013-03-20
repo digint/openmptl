@@ -31,27 +31,11 @@
 #include <arch/core.hpp>
 #include <resource_mpl.hpp>
 
-class Kernel
+struct Kernel
 {
   using rcc   = Rcc<168_mhz>;
   using pwr   = Pwr<rcc, 3.3_volt, false>;
   using flash = Flash<rcc, pwr>;
-
-  /* Reset exception: triggered on system startup (system entry point). */
-  static void reset_isr(void) __attribute__ ((naked)) {
-    Core::startup<rcc, flash, pwr>();
-
-    Kernel::init();
-    Kernel::run();
-  };
-
-  static void null_isr(void)  { }
-  static void warn_isr(void)  { Kernel::led_orange::on(); }
-  static void error_isr(void) { while(1) { Kernel::led_red::on(); } }
-
-  /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
-  static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));
-
 
   using systick    = SysTick<rcc, 1_khz, SysTickClockSource::hclk>;
 
@@ -61,25 +45,36 @@ class Kernel
 
   using uart_stream_device = UartStreamDevice< usart >;
 
-  using graceful_irq_resources = ResourceList <
-    IrqResource< typename irq::NMI         , null_isr >,
-    IrqResource< typename irq::SVCall      , null_isr >,
-    IrqResource< typename irq::DebugMonitor, null_isr >,
-    IrqResource< typename irq::PendSV      , null_isr >
-    // IrqResource< typename irq::SysTick     , null_isr >
-    >;
-
-public:
-
   using led_green  = GpioLed<'D', 12>;
   using led_orange = GpioLed<'D', 13>;
   using led_red    = GpioLed<'D', 14>;
   using led_blue   = GpioLed<'D', 15>;
 
+  /* Reset exception: triggered on system startup (system entry point). */
+  static void reset_isr(void) __attribute__ ((naked)) {
+    Core::startup<rcc, flash, pwr>();
+
+    Kernel::init();
+    Kernel::run();
+  };
+
+  /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
+  static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));
+
+  static void null_isr(void)  { }
+  static void warn_isr(void)  { Kernel::led_orange::on(); }
+  static void error_isr(void) { while(1) { Kernel::led_red::on(); } }
+
+  static void init(void);
+  static void run(void) __attribute__ ((noreturn));
+
   using resources = ResourceList<
-    IrqResource< typename irq::Reset,   reset_isr   >,
-    IrqResource< typename systick::Irq, systick_isr >,
-    graceful_irq_resources,
+    IrqResource< typename irq::Reset       , reset_isr   >,
+    IrqResource< typename systick::Irq     , systick_isr >,
+    IrqResource< typename irq::NMI         , null_isr    >,
+    IrqResource< typename irq::SVCall      , null_isr    >,
+    IrqResource< typename irq::DebugMonitor, null_isr    >,
+    IrqResource< typename irq::PendSV      , null_isr    >,
 
     systick::resources,
     led_green::resources,
@@ -90,9 +85,6 @@ public:
     usart_gpio_tx::resources,
     uart_stream_device::resources
     >;
-
-  static void init(void);
-  static void run(void) __attribute__ ((noreturn));
 };
 
 #endif // KERNEL_HPP_INCLUDED

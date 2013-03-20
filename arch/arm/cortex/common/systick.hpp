@@ -41,6 +41,8 @@ class SysTick
 
 public:
 
+  static constexpr freq_t freq = interrupt_rate;
+
   static constexpr uint32_t counter_freq = rcc::hclk_freq /
                                            (clock_source == SysTickClockSource::hclk_div8 ? 8 : 1);
 

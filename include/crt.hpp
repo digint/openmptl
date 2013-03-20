@@ -19,7 +19,7 @@
  */
 
 /*
- * NOTE: In order to use global objects, you need to define:
+ * NOTE: In order to use global objects, you need to define (somewhere in your code):
  *
  *   void *__dso_handle;
  */
@@ -27,8 +27,9 @@
 #ifndef CRT_HPP_INCLUDED
 #define CRT_HPP_INCLUDED
 
+#ifndef CORE_SIMULATION
+
 #include <arch/core.hpp>
-#include <irq_wrap.hpp>
 #include <cstdint>
 
 /* Make sure your linker script provides these: */
@@ -71,5 +72,17 @@ namespace crt
       __fini_array_start[i++]();
   }
 } // namespace crt
+
+#else // CORE_SIMULATION
+
+namespace crt
+{
+  static inline void init_data_section(void) { }
+  static inline void init_bss_section(void) { }
+  static inline void call_ctors(void) { }
+  static inline void call_dtors(void) { }
+} // namespace crt
+
+#endif //CORE_SIMULATION
 
 #endif // CRT_HPP_INCLUDED
