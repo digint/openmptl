@@ -134,11 +134,11 @@ public:
     reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
     reg::RCC::BDCR::BDRST::clear();  // TODO: rcc.hpp
 
-    /* External Low Speed oscillator enable */
+    /* External low speed oscillator enable */
     reg::RCC::BDCR::LSEON::clear();  // TODO: rcc.hpp
     reg::RCC::BDCR::LSEON::set();  // TODO: rcc.hpp
 
-    /* Internal Low Speed oscillator disable */
+    /* Internal low speed oscillator disable */
     reg::RCC::CSR::LSION::clear();
 
     /* LSE oscillator clock used as RTC clock */

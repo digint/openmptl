@@ -207,7 +207,7 @@ public:
     // spi::enable();
   }
 
-  static unsigned char send_byte(unsigned char data) {
+  static unsigned char send_byte_blocking(unsigned char data) {
     spi::wait_transmit_empty();
     spi::send(data);
     spi::wait_receive_not_empty();

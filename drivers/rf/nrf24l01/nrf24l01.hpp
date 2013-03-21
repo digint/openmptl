@@ -106,8 +106,8 @@ public:
     enable();
     //  Tcc: CSN to SCK Setup: 2ns
 
-    spi_master::send_byte(command);
-    ret = spi_master::send_byte(NOP);
+    spi_master::send_byte_blocking(command);
+    ret = spi_master::send_byte_blocking(NOP);
     // Tcch: SCK to CSN Hold: 2ns
     disable();
     return ret;
@@ -119,9 +119,9 @@ public:
     wait_tcwh();
     enable();
 
-    spi_master::send_byte(command);
+    spi_master::send_byte_blocking(command);
     for (int i=0; i < 5; i++) {
-      ret_addr[i] = spi_master::send_byte(NOP);
+      ret_addr[i] = spi_master::send_byte_blocking(NOP);
     }
     disable();
   }
@@ -134,15 +134,15 @@ public:
     enable();
 
     if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
-      spi_master::send_byte(command);
+      spi_master::send_byte_blocking(command);
 
 #if 0 // this is how initializer_lists are handled
       std::for_each(data.begin(),
                     data.end(),
-                    [](unsigned char c){ spi_master::send_byte(c); } );
+                    [](unsigned char c){ spi_master::send_byte_blocking(c); } );
 #else
       for (int i = 0; i < 5; i++) {
-        spi_master::send_byte(data[i]);
+        spi_master::send_byte_blocking(data[i]);
       }
 #endif
     }
@@ -156,8 +156,8 @@ public:
     wait_tcwh();
     enable();
 
-    ret = spi_master::send_byte(command);
-    spi_master::send_byte(data);
+    ret = spi_master::send_byte_blocking(command);
+    spi_master::send_byte_blocking(data);
     disable();
     return ret;
   }

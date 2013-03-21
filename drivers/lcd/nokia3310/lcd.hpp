@@ -146,11 +146,11 @@ class Lcd_Nokia3310 : public Lcd< 84, 48 >
 
   static void send_char(unsigned char data) {
     lcd_ds::set(); /* select data */
-    spi_master::sendByte(data);
+    spi_master::send_byte_blocking(data);
   }
   static void send_command(unsigned char data) {
     lcd_ds::reset(); /* select command */
-    spi_master::send_byte(data);
+    spi_master::send_byte_blocking(data);
   }
 
 public:
@@ -192,7 +192,7 @@ public:
     lcd_ds::set(); /* select data */
     //  Serialize the video buffer.
     for (unsigned i = 0; i < lcdbuf_size; i++) {
-      spi_master::send_byte(lcdbuf[i]);
+      spi_master::send_byte_blocking(lcdbuf[i]);
     }
     disable();
   }
