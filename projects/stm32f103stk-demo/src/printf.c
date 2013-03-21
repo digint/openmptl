@@ -19,6 +19,8 @@
 
 */
 
+#ifndef CORE_SIMULATION
+
 #include "printf.h"
 
 typedef void (*putcf) (void*,char);
@@ -231,3 +233,5 @@ void tfp_sprintf(char* s, const char *fmt, ...)
   putcp(&s,0);
   va_end(va);
 }
+
+#endif // CORE_SIMULATION

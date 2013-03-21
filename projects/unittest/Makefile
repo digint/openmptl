@@ -31,7 +31,8 @@ CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
 # needed by some unittests
 CPPCORE_ARCH = arm/cortex/stm32/f4
 
-FLAGS        = -DCORE_SIMULATION
+FLAGS       += -DCORE_SIMULATION
+FLAGS       += -DDEBUG_REGISTER
 
 
 #------------------------------------------------------------------------------

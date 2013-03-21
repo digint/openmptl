@@ -63,4 +63,3 @@ namespace reg {
 } // namespace reg
 
 #endif // CORE_SIMULATION
-

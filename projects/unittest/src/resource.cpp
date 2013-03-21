@@ -65,6 +65,7 @@ typedef ResourceList < uniq_a,
 typedef ResourceList < list, uniq_c > uniq_fail_list;
 typedef ResourceList < anti_test_a_0, list > bitmask_fail_list;
 
+void reg::RegisterReaction::react() { }
 
 int main()
 {

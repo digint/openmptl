@@ -21,45 +21,58 @@
 #ifdef CORE_SIMULATION
 
 #include <register.hpp>
-#include <arch/reg/spi.hpp>
+#include <arch/rcc.hpp>
+#include <arch/rtc.hpp>
+#include <thread>
+#include <chrono>
+#include <ratio>
+#include "kernel.hpp"
 
 namespace reg {
+  void RegisterReaction::react() {
+    switch(addr) {
+    case RCC::CR::addr:
+      if(bits_set<RCC::CR::HSEON>()) {
+        RCC::CR::HSERDY::set();
+      }
+      if(bits_set<RCC::CR::PLLON>()) {
+        RCC::CR::PLLRDY::set();
+      }
+      break;
 
-// example reaction. triggered as soon as SPI1_CR1 is touched.
-template<>
-void RegisterReaction<reg::SPI<1>::CR1::value_type, reg::SPI<1>::CR1::addr>::react(reg::SPI<1>::CR1::value_type const value) {
+    case RCC::CFGR::addr:
+      if(bits_set<RCC::CFGR::SW::PLL>()) {
+        RCC::CFGR::SWS::PLL::set();
+      }
+      break;
 
-  std::cout << __PRETTY_FUNCTION__ << std::endl;  // NOTE: this is gcc specific
+    case RCC::BDCR::addr:
+      if(bits_set<reg::RCC::BDCR::RTCEN>()) {
+        reg::RCC::BDCR::LSERDY::set();
+        reg::RTC::CRL::RSF::set();
+      }
+      break;
 
-  //  assert(value != 0x0040, "gna");
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX value= " << std::hex << reg::SPI<1>::CR1::SPE::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX test= " << std::hex << reg::SPI<1>::CR1::SPE::test() << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX shift= " << std::hex << reg::SPI<1>::CR1::SPE::test_and_shift() << std::endl;
+    case RTC::CRL::addr:
+      if(bits_cleared<RTC::CRL::RSF>()) {
+        RTC::CRL::RSF::set();
+      }
+      break;
 
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX value= " << std::hex << reg::SPI<1>::CR1::BR::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX test= " << std::hex << reg::SPI<1>::CR1::BR::test() << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX shift= " << std::hex << reg::SPI<1>::CR1::BR::test_and_shift() << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit0= " << std::hex << reg::SPI<1>::CR1::BR::bit<0>::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit1= " << std::hex << reg::SPI<1>::CR1::BR::bit<1>::value << std::endl;
-  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit2= " << std::hex << reg::SPI<1>::CR1::BR::bit<2>::value << std::endl;
+    case ADC<1>::CR2::addr:
+      if(bits_set<ADC<1>::CR2::SWSTART>()) {
+        ADC<1>::SR::EOC::set(); // end of conversion
+      }
+      break;
 
-  std::cout << "CAST value= " << std::hex << reg::SPI<1>::CR1::SPE() << std::endl;
-
-  std::cout << "prescaler<>= " << std::hex << reg::SPI<1>::CR1::BR::Prescaler<256>::value << std::endl;
-
-  reg::SPI<1>::CR1::BR::Prescaler<256>::set();
-
-  //  std::cout << "XXXXXXXXXXXXXXXXXXXXX bit2= " << std::hex << reg::SPI<1>::CR1::BR::bit<3>::value << std::endl;
-#if 1
-  if(value & reg::SPI<1>::CR1::SPE::value) {
-    std::cout << "RegisterReaction: SPIx::CR1::SPE::value -> set(TXE | RXNE)" << std::endl;
-    reg::SPI<1>::SR::set(reg::SPI<1>::SR::TXE::value |
-                          reg::SPI<1>::SR::RXNE::value);
+    case SPI<1>::CR1::addr:
+      if(bits_set<SPI<1>::CR1::SPE>()) {  // spi enable
+        reg::SPI<1>::SR::TXE::set();
+        reg::SPI<1>::SR::RXNE::set();
+      }
+      break;
+    };
   }
-#endif
-}
-
 } // namespace reg
 
 #endif // CORE_SIMULATION
-

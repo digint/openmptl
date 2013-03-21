@@ -26,15 +26,18 @@ PROJECT      = cppcore
 CPPCORE_TOP  = ../..
 TINYFSM_TOP  = ../../../tinyfsm
 
-CROSS        = arm-none-eabi-
-#CROSS       = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
-
 CPPCORE_ARCH = arm/cortex/stm32/f1
 
-CPUFLAGS     = -mcpu=cortex-m3 -mthumb
+ifdef SIMULATION
+  CROSS      = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
+  FLAGS     += -DCORE_SIMULATION
+#  FLAGS     += -DDEBUG_REGISTER
+else
+  CROSS      = arm-none-eabi-
+  CPUFLAGS   = -mcpu=cortex-m3 -mthumb
+endif
 
-FLAGS        = -DSTM32F10X_MD
-#FLAGS       += -DCORE_SIMULATION
+FLAGS       += -DSTM32F10X_MD
 
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER    = -Os
@@ -151,15 +154,15 @@ CXXFLAGS     = $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
 CXXFLAGS    += -g
-#CXXFLAGS    += -fomit-frame-pointer
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
-#CXXFLAGS    += -fno-elide-constructors
 CXXFLAGS    += -funsigned-bitfields
 CXXFLAGS    += -fshort-enums
-# CXXFLAGS  += -finline-limit=60    # number of pseudo-instructions, default is 600
-#! CXXFLAGS += -frepo     # Enable automatic template instantiation at link time
-# CXXFLAGS  += -fdump-class-hierarchy
+#CXXFLAGS    += -fomit-frame-pointer
+#CXXFLAGS    += -fno-elide-constructors
+#CXXFLAGS    += -finline-limit=60    # number of pseudo-instructions, default is 600
+#CXXFLAGS    += -frepo     # Enable automatic template instantiation at link time
+#CXXFLAGS    += -fdump-class-hierarchy
 #CXXFLAGS    += -ffreestanding
 #CXXFLAGS    += -nostdinc++
 
@@ -178,13 +181,17 @@ CXXFLAGS    += -pedantic
 ASFLAGS      = $(FLAGS)
 
 LD_FLAGS     = $(CPUFLAGS)
-LD_FLAGS    += -nostartfiles
-LD_FLAGS    += -Wl,-Map="$(MAP)",--cref
 LD_FLAGS    += -fno-exceptions
 LD_FLAGS    += -fno-rtti
 #! LD_FLAGS += -frepo     # Enable automatic template instantiation at link time
-LD_FLAGS    += -Wl,--gc-sections
-LD_FLAGS    += -T$(LD_SCRIPT)
+ifdef SIMULATION
+  LD_FLAGS    += -pthread
+else
+  LD_FLAGS  += -nostartfiles
+  LD_FLAGS  += -Wl,-Map="$(MAP)",--cref
+  LD_FLAGS  += -Wl,--gc-sections
+  LD_FLAGS  += -T$(LD_SCRIPT)
+endif
 
 
 .PHONY: all clean

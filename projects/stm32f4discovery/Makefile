@@ -31,6 +31,7 @@ CPPCORE_ARCH = arm/cortex/stm32/f4
 ifdef SIMULATION
   CROSS      = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
   FLAGS     += -DCORE_SIMULATION
+  FLAGS     += -DDEBUG_REGISTER
 else
   CROSS      = arm-none-eabi-
   CPUFLAGS   = -mcpu=cortex-m4 -mthumb
@@ -147,15 +148,15 @@ CXXFLAGS     = $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
 CXXFLAGS    += -g
-#CXXFLAGS    += -fomit-frame-pointer
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
-#CXXFLAGS    += -fno-elide-constructors
 CXXFLAGS    += -funsigned-bitfields
 CXXFLAGS    += -fshort-enums
-# CXXFLAGS  += -finline-limit=60    # number of pseudo-instructions, default is 600
-#! CXXFLAGS += -frepo     # Enable automatic template instantiation at link time
-# CXXFLAGS  += -fdump-class-hierarchy
+#CXXFLAGS    += -fomit-frame-pointer
+#CXXFLAGS    += -fno-elide-constructors
+#CXXFLAGS    += -finline-limit=60    # number of pseudo-instructions, default is 600
+#CXXFLAGS    += -frepo     # Enable automatic template instantiation at link time
+#CXXFLAGS    += -fdump-class-hierarchy
 #CXXFLAGS    += -ffreestanding
 #CXXFLAGS    += -nostdinc++
 
@@ -163,8 +164,8 @@ CXXFLAGS    += -Wall -Wextra
 CXXFLAGS    += -Winline   # see non-inlined functions
 CXXFLAGS    += -Wpointer-arith
 CXXFLAGS    += -Wredundant-decls
-CXXFLAGS    += -Wctor-dtor-privacy  # boost/intrusive/list.hpp does not satisfy these
-CXXFLAGS    += -Wshadow             # boost/intrusive/list.hpp does not satisfy these
+CXXFLAGS    += -Wctor-dtor-privacy
+CXXFLAGS    += -Wshadow
 CXXFLAGS    += -Wcast-qual
 CXXFLAGS    += -Wcast-align
 CXXFLAGS    += -pedantic

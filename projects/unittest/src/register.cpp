@@ -66,6 +66,8 @@ public:
   };
 };
 
+void reg::RegisterReaction::react() { }
+
 int main()
 {
   /* Register */

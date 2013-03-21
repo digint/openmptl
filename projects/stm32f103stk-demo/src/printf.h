@@ -95,6 +95,10 @@ regs Kusti, 23.10.2004
  extern "C" {
 #endif 
 
+#ifdef CORE_SIMULATION
+#include <stdio.h>
+#else
+
 #include <stdarg.h>
 
 void init_printf(void* putp,void (*putf) (void*,char));
@@ -106,6 +110,8 @@ void tfp_format(void* putp,void (*putf) (void*,char), const char *fmt, va_list v
 
 #define printf tfp_printf 
 #define sprintf tfp_sprintf 
+
+#endif // CORE_SIMULATION
 
 #ifdef __cplusplus
 }

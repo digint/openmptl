@@ -55,13 +55,6 @@ void Kernel::init(void)
   resources::check();      /* check unique resources */
   resources::configure();  /* configure resources (set all shared register) */
 
-#ifdef CORE_SIMULATION
-  // hack: set TXE and RXNE bits, SPI::sendByte loops on it
-  reg::SPI<1>::SR::set(0x0002 | 0x0001);
-  reg::RCC::BDCR::set(0x00000002);
-  reg::RTC::CRL::set(0x0008);
-#endif
-
   led::init(); led::off();
 
   time::init();

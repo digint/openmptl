@@ -22,7 +22,7 @@
 #define REGISTER_STORAGE_HPP_INCLUDED
 
 #ifdef CORE_SIMULATION
-#include <arch/reg/addr_map.hpp>
+#include <arch/reg/address_map.hpp>
 #include <iostream>
 #include <iomanip>
 #include <typeinfo>
@@ -135,18 +135,21 @@ namespace reg {
 
     static T load() {
       static_assert(access != Access::wo, "read access to a write-only register");
+#ifdef DEBUG_REGISTER
       if(!reaction_running)
         print_mod_line("load", reg_value);
+#endif
       return reg_value;
     }
 
     static void store(T const value) {
       static_assert(access != Access::ro, "write access to a read-only register");
+#ifdef DEBUG_REGISTER
       if(reaction_running)
         print_mod_line("react", reg_value, value);
       else
         print_mod_line("store", reg_value, value);
-
+#endif
       RegisterReaction reaction(addr, reg_value, value);
       reg_value = value;
       reaction.react();
