@@ -62,9 +62,5 @@ void Kernel::run(void)
   {
     /* poll terminal */
     terminal.process_input();
-#if 0
-    Core::nop(10000000);
-    led_orange::toggle();
-#endif
   }
 }

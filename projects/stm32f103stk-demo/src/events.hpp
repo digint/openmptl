@@ -22,21 +22,12 @@
 #define EVENTS_HPP_INCLUDED
 
 #include <tinyfsm.hpp>
-#include <joystick/stm32f103stk/joystick.hpp>
 
-// #include "fsmlist.hpp"  // used for BoundEvent
-
-struct Stick
-: public tinyfsm::Event
-{
-  Joystick::Position pos;
-};
-
-struct JoystickButton : public tinyfsm::Event { };
-struct JoystickUp     : public tinyfsm::Event { };
-struct JoystickDown   : public tinyfsm::Event { };
-struct JoystickLeft   : public tinyfsm::Event { };
-struct JoystickRight  : public tinyfsm::Event { };
-struct JoystickCenter : public tinyfsm::Event { };
+struct EvJoystickButton : public tinyfsm::Event { };
+struct EvJoystickUp     : public tinyfsm::Event { };
+struct EvJoystickDown   : public tinyfsm::Event { };
+struct EvJoystickLeft   : public tinyfsm::Event { };
+struct EvJoystickRight  : public tinyfsm::Event { };
+struct EvJoystickCenter : public tinyfsm::Event { };
 
 #endif

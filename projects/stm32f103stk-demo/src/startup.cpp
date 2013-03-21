@@ -18,10 +18,20 @@
  *
  */
 
-#include <arch/vector_table.hpp>
+#include <arch/core.hpp>
 #include "kernel.hpp"
 
+/* Reset exception: triggered on system startup (system entry point). */
+void Kernel::reset_isr(void) {
+  Core::startup<rcc, flash>();
+
+  Kernel::init();
+  Kernel::run();
+}
+
 #ifndef CORE_SIMULATION
+
+#include <arch/vector_table.hpp>
 
 extern const uint32_t _stack_top;  /* provided by linker script */
 
@@ -43,8 +53,7 @@ int main(int argc, char *argv[])
             << "------------------" << std::endl
             << std::endl;
 
-  Kernel::init();
-  Kernel::run();
+  Kernel::reset_isr();
 }
 
 #endif // CORE_SIMULATION

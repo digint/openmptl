@@ -30,14 +30,14 @@
 class Main
 : public Screen
 {
-  virtual void react(JoystickUp const &) {
-    if(item_top != itemlist->begin()) {
+  virtual void react(EvJoystickUp const &) {
+    if(item_top != item_list->begin()) {
       item_top--;
       update();
     }
   }
 
-  virtual void react(JoystickDown const &) {
+  virtual void react(EvJoystickDown const &) {
     item_top++;
     update();
   }
@@ -50,8 +50,8 @@ class Main
 
 void Screen::update(void) {
   lcd.clear();
-  ItemList::iterator item(item_top);
-  ItemList::iterator end(itemlist->end());
+  ScreenItemList::iterator item(item_top);
+  ScreenItemList::iterator end(item_list->end());
 
   unsigned i = 0;
   while((item != end) && (i < lcd.rows)) {
@@ -65,8 +65,8 @@ void Screen::update(void) {
 
 Kernel::lcd Screen::lcd;
 
-ItemList * Screen::itemlist;
-ItemList::iterator Screen::item_top;
+ScreenItemList * Screen::item_list;
+ScreenItemList::iterator Screen::item_top;
 
 
 // ----------------------------------------------------------------------------

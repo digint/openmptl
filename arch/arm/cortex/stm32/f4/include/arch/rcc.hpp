@@ -116,26 +116,22 @@ public:
 template<char>        struct Rcc_gpio_clock_resources;
 template<std::size_t> struct Rcc_usart_clock_resources;
 
-#if 1
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct Rcc_gpio_clock_resources<'A'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOAEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'B'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOBEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'C'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOCEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'D'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIODEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'E'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOEEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'F'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOFEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'G'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOGEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'H'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOHEN::value> > { };
-template<> struct Rcc_gpio_clock_resources<'I'> : ResourceList< SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOIEN::value> > { };
+template<> struct Rcc_gpio_clock_resources<'A'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOAEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'B'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOBEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'C'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOCEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'D'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIODEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'E'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOEEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'F'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOFEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'G'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOGEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'H'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOHEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'I'> : SharedRegister<reg::RCC::AHB1ENR, reg::RCC::AHB1ENR::GPIOIEN::value> { };
 
-template<> struct Rcc_usart_clock_resources<1> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> > { };
-template<> struct Rcc_usart_clock_resources<2> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> > { };
-template<> struct Rcc_usart_clock_resources<3> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> > { };
-//template<> struct Rcc_usart_clock_resources<4> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART4EN::value> > { };
-//template<> struct Rcc_usart_clock_resources<5> : ResourceList< SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::UART5EN::value> > { };
-template<> struct Rcc_usart_clock_resources<6> : ResourceList< SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART6EN::value> > { };
-#endif
+template<> struct Rcc_usart_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> { };
+template<> struct Rcc_usart_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> { };
+template<> struct Rcc_usart_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> { };
+template<> struct Rcc_usart_clock_resources<6> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART6EN::value> { };
 
 #endif // RCC_HPP_INCLUDED

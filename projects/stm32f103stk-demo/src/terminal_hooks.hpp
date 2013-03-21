@@ -26,7 +26,7 @@
 
 namespace terminal_hooks
 {
-  struct cpuid
+  struct Cpuid
   : public TerminalHook
   {
     static constexpr const char * cmd  = "cpuid";
@@ -36,7 +36,7 @@ namespace terminal_hooks
     }
   };
 
-  struct syscalls_test
+  struct SyscallsTest
   : public TerminalHook
   {
     static constexpr const char * cmd  = "heap";
@@ -57,6 +57,6 @@ namespace terminal_hooks
   // Terminal Commands
   //
 
-  using commands = TerminalHookList< cpuid, syscalls_test, NrfTest >;
+  using commands = TerminalHookList< Cpuid, SyscallsTest, NrfTest >;
 }
 #endif

@@ -25,7 +25,6 @@
 #include <lcd/nokia3310/lcd.hpp>
 #include <rf/nrf24l01/nrf24l01.hpp>
 #include <joystick/stm32f103stk/joystick.hpp>
-#include <arch/core.hpp>
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
 #include <arch/usart.hpp>
@@ -34,51 +33,46 @@
 #include <arch/nvic.hpp>
 #include "time.hpp"
 
-class Kernel
+struct Kernel
 {
-  using rcc   = Rcc<72_mhz>;
-  using flash = Flash<rcc>;
+  using rcc   = Rcc< 72_mhz >;
+  using flash = Flash< rcc >;
+
+  using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
+
+  using usart         = Usart< rcc, 2, 115200 >;  // tested up to 2250000 baud
+  using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
+  using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
+  using uart_stream_device = UartStreamDevice< usart, true >; /* irq debug enabled */
+
+  using spi       = Spi< rcc, 1 >;
+  using spi_sck   = SpiGpio< 'A', 5 >;
+  using spi_miso  = SpiGpio< 'A', 6 >;
+  using spi_mosi  = SpiGpio< 'A', 7 >;
+
+  using lcd_ds    = GpioOutput< 'B', 2,  GpioOutputConfig::push_pull >;  //< low=command, high=data
+  using lcd_reset = GpioOutput< 'C', 7,  GpioOutputConfig::push_pull >;  //< reset pin (active low)
+  using lcd_e     = GpioOutput< 'C', 10, GpioOutputConfig::push_pull >;  //< display controller spi enable (active low)
+  using lcd       = Lcd_Nokia3310< spi, lcd_ds, lcd_reset, lcd_e >;
+
+  using nrf_ce    = GpioOutput< 'C', 8, GpioOutputConfig::push_pull >;  //< chip enable
+  using nrf_csn   = GpioOutput< 'A', 4, GpioOutputConfig::push_pull >;  //< spi enable (active low)
+  using nrf_irq   = GpioInput < 'C', 9, GpioInputConfig::pull_down >;   //< IRQ
+  using nrf       = Nrf24l01< spi, nrf_ce, nrf_csn, nrf_irq >;
+
+  using joy       = Joystick;
+  using led       = GpioLed< 'C', 12, GpioOutputConfig::push_pull, 50_mhz, GpioActiveState::low >;
+  using time      = Time< systick >;
 
   /* Reset core exception: triggered on system startup (system entry point). */
-  static void reset_isr(void) __attribute__ ((naked)) {
-    Core::startup<rcc, flash>();
-
-    Kernel::init();
-    Kernel::run();
-  };
+  static void reset_isr(void) __attribute__ ((naked));
 
   static void null_isr(void)  { }
   static void warn_isr(void)  { Kernel::led::on(); }
   static void error_isr(void) { while(1) { Kernel::led::on(); } }
 
-  using lcd_ds    = GpioOutput<'B', 2,  GpioOutputConfig::push_pull>;  //< low=command, high=data
-  using lcd_reset = GpioOutput<'C', 7,  GpioOutputConfig::push_pull>;  //< reset pin (active low)
-  using lcd_e     = GpioOutput<'C', 10, GpioOutputConfig::push_pull>;  //< display controller spi enable (active low)
-
-  using nrf_ce    = GpioOutput<'C', 8, GpioOutputConfig::push_pull>;  //< chip enable
-  using nrf_csn   = GpioOutput<'A', 4, GpioOutputConfig::push_pull>;  //< spi enable (active low)
-  using nrf_irq   = GpioInput <'C', 9, GpioInputConfig::pull_down>;   //< IRQ
-
-  using usart     = Usart<rcc, 2, 115200>;  // tested up to 2250000 baud
-  using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
-  using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
-  using uart_stream_device = UartStreamDevice<usart, true>; /* irq debug enabled */
-
-  using spi      = Spi<rcc, 1>;
-  using spi_sck  = SpiGpio< 'A', 5 >;
-  using spi_miso = SpiGpio< 'A', 6 >;
-  using spi_mosi = SpiGpio< 'A', 7 >;
-
-public:
-
-  using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
-  // using systick = SysTick<rcc, 100_hz, cSysTick::ClockSource::hclk_div8>;
-
-  using lcd      = Lcd_Nokia3310<spi, lcd_ds, lcd_reset, lcd_e>;
-  using nrf      = Nrf24l01<spi, nrf_ce, nrf_csn, nrf_irq>;
-  using joy      = Joystick;
-  using led      = GpioLed<'C', 12, GpioOutputConfig::push_pull, 50_mhz, GpioActiveState::low>;
-  using time     = Time<systick>;
+  static void init(void);
+  static void run(void) __attribute__ ((noreturn));
 
   using resources = ResourceList<
     IrqResource< typename irq::Reset, reset_isr >,
@@ -90,6 +84,7 @@ public:
     spi_sck::resources,
     spi_miso::resources,
     spi_mosi::resources,
+    spi::resources,
     lcd::resources,
     nrf::resources,
 
@@ -97,9 +92,6 @@ public:
     usart_gpio_tx::resources,
     uart_stream_device::resources
   >;
-
-  static void init(void);
-  static void run(void) __attribute__ ((noreturn));
 };
 
 #endif // KERNEL_HPP_INCLUDED

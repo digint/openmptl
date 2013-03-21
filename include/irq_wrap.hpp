@@ -22,23 +22,14 @@
 #ifndef IRQ_WRAP_HPP_INCLUDED
 #define IRQ_WRAP_HPP_INCLUDED
 
-
-struct IrqWrap { // TODO: rename IsrWrap
+struct IsrWrap { // TODO: rename IsrWrap
 // TODO: check virtual declaration
-  IrqWrap() { }
-  ~IrqWrap() { }
+  IsrWrap() { }
+  ~IsrWrap() { }
 };
 
-struct DefaultIrqWrap : public IrqWrap {
-  ~DefaultIrqWrap () { while(1); }
+struct DefaultIsrWrap : public IsrWrap {
+  ~DefaultIsrWrap () { while(1); }
 };
-
-#if 0
-struct CountedIrqWrap {
-  static int count;
-  CountedIrqWrap() { counter++; }
-};
-#endif
-
 
 #endif //IRQ_WRAP_HPP_INCLUDED

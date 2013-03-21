@@ -32,7 +32,7 @@ void SystemTime::systick_isr(void) {
 }
 
 void SystemTime::rtc_isr() {
-  Kernel::time::rtc::StaticIrqWrap wrap;  // clears second flag in constructor
+  Kernel::time::rtc::StaticIsrWrap wrap;  // clears second flag in constructor
 
   // seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
   seconds++;

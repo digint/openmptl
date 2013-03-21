@@ -27,7 +27,7 @@
 // TODO: provide a matrix for the gpio port/pin_no
 
 template< typename usart,
-          char port,
+          char     port,
           unsigned pin_no >
 class UsartGpioRx
 : public GpioInputAF< port,
@@ -39,7 +39,7 @@ class UsartGpioRx
 
 
 template< typename usart,
-          char port,
+          char     port,
           unsigned pin_no >
 class UsartGpioTx
 : public GpioOutputAF< port,

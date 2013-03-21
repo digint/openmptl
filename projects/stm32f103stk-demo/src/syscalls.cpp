@@ -111,7 +111,7 @@ struct A {
 
 A *a;
 
-void terminal_hooks::syscalls_test::run(poorman_ostream<char> & cout) {
+void terminal_hooks::SyscallsTest::run(poorman_ostream<char> & cout) {
   cout << "new A(): size=" << sizeof(A) << endl;
   cout << "heap_ptr: old=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
   a = new A();
@@ -120,7 +120,7 @@ void terminal_hooks::syscalls_test::run(poorman_ostream<char> & cout) {
 
 #else
 
-void terminal_hooks::syscalls_test::run(poorman_ostream<char> & cout) {
+void terminal_hooks::SyscallsTest::run(poorman_ostream<char> & cout) {
   cout << "core_simulation: empty syscalls test" << endl;
 }
 

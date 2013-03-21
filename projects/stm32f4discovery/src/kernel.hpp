@@ -27,36 +27,31 @@
 #include <arch/flash.hpp>
 #include <arch/systick.hpp>
 #include <arch/gpio.hpp>
+#include <arch/usart.hpp>
 #include <arch/uart_transport.hpp>
-#include <arch/core.hpp>
-#include <resource_mpl.hpp>
+#include <resource.hpp>
 
 struct Kernel
 {
-  using rcc   = Rcc<168_mhz>;
-  using pwr   = Pwr<rcc, 3.3_volt, false>;
-  using flash = Flash<rcc, pwr>;
+  using rcc     = Rcc< 168_mhz >;
+  using pwr     = Pwr< rcc, 3.3_volt, false >;
+  using flash   = Flash< rcc, pwr >;
 
-  using systick    = SysTick<rcc, 1_khz, SysTickClockSource::hclk>;
+  using systick = SysTick< rcc, 1_khz, SysTickClockSource::hclk >;
 
-  using usart = Usart<rcc, 2, 115200>;
+  using usart         = Usart< rcc, 2, 115200 >;
   using usart_gpio_tx = UsartGpioTx< usart, 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< usart, 'A', 3 >;
 
   using uart_stream_device = UartStreamDevice< usart >;
 
-  using led_green  = GpioLed<'D', 12>;
-  using led_orange = GpioLed<'D', 13>;
-  using led_red    = GpioLed<'D', 14>;
-  using led_blue   = GpioLed<'D', 15>;
+  using led_green  = GpioLed< 'D', 12 >;
+  using led_orange = GpioLed< 'D', 13 >;
+  using led_red    = GpioLed< 'D', 14 >;
+  using led_blue   = GpioLed< 'D', 15 >;
 
   /* Reset exception: triggered on system startup (system entry point). */
-  static void reset_isr(void) __attribute__ ((naked)) {
-    Core::startup<rcc, flash, pwr>();
-
-    Kernel::init();
-    Kernel::run();
-  };
+  static void reset_isr(void) __attribute__ ((naked));
 
   /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
   static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));

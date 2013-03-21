@@ -23,12 +23,12 @@
 
 #include <boost/intrusive/list.hpp>
 
-
 class ScreenItem;
 
-typedef boost::intrusive::list<ScreenItem,
-                               boost::intrusive::link_mode<boost::intrusive::link_mode_type::normal_link>
-                               > ItemList;
+using ScreenItemList = boost::intrusive::list<
+  ScreenItem,
+  boost::intrusive::link_mode<boost::intrusive::link_mode_type::normal_link>
+  >;
 
 class ScreenItem
 : public boost::intrusive::list_base_hook<> /* doubly linked list */
@@ -38,8 +38,8 @@ class ScreenItem
 public:
   boost::intrusive::list_member_hook<> member_hook_;
 
-  ScreenItem(ItemList & itemlist, bool _inverted = false) : inverted(_inverted) {
-    itemlist.push_back(*this);
+  ScreenItem(ScreenItemList & item_list, bool _inverted = false) : inverted(_inverted) {
+    item_list.push_back(*this);
   }
 
   void set_inverted(bool inv = true) { inverted = inv; }
@@ -55,11 +55,11 @@ class TextRow
 
 public:
 
-  TextRow(ItemList & itemlist, bool _inverted = false)
-    : ScreenItem(itemlist, _inverted) { }
+  TextRow(ScreenItemList & item_list, bool _inverted = false)
+    : ScreenItem(item_list, _inverted) { }
 
-  TextRow(ItemList & itemlist, const char * _text, bool _inverted = false)
-    : ScreenItem(itemlist, _inverted), text(_text) { }
+  TextRow(ScreenItemList & item_list, const char * _text, bool _inverted = false)
+    : ScreenItem(item_list, _inverted), text(_text) { }
 
   virtual const char * c_str(void) const { return text; }
 };
@@ -75,7 +75,7 @@ protected:
   static char buf[]; /* static! NEVER use DataRows non-linear */
 
 public:
-  DataRow(ItemList & itemlist, const char * _name, bool _inverted = false) : ScreenItem(itemlist, _inverted), name(_name) { }
+  DataRow(ScreenItemList & item_list, const char * _name, bool _inverted = false) : ScreenItem(item_list, _inverted), name(_name) { }
   virtual const char * c_str(void) const;
   void set(uint32_t _value) { value = _value; }
   void operator=(uint32_t _value)  { set(_value); }
@@ -86,7 +86,7 @@ class DataRowHex
 : public DataRow
 {
 public:
-  DataRowHex(ItemList & itemlist, const char * _name, bool _inverted = false) : DataRow(itemlist, _name, _inverted) { }
+  DataRowHex(ScreenItemList & item_list, const char * _name, bool _inverted = false) : DataRow(item_list, _name, _inverted) { }
   virtual const char * c_str(void) const;
   void operator=(uint32_t _value)  { set(_value); }
 };

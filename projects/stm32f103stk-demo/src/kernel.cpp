@@ -91,7 +91,7 @@ void Kernel::run(void)
   Debouncer<Joystick::Position, time, 10> debouncer(joypos);
 
   /* define the screem item list */
-  ItemList item_list;
+  ScreenItemList item_list;
   TextRow    title0    (item_list, " CppCore demo ");
   TextRow    title1    (item_list, "--------------");
   TextRow    joytext   (item_list, joytext_buf);
@@ -116,23 +116,23 @@ void Kernel::run(void)
     if(debouncer.get(joypos)) {
       switch(joypos) {
       case Joystick::Position::up:
-        send_event(JoystickUp());
+        send_event(EvJoystickUp());
         joypos_text = "up";
         break;
       case Joystick::Position::down:
-        send_event(JoystickDown());
+        send_event(EvJoystickDown());
         joypos_text = "down";
         break;
       case Joystick::Position::left:
-        send_event(JoystickLeft());
+        send_event(EvJoystickLeft());
         joypos_text = "left";
         break;
       case Joystick::Position::right:
-        send_event(JoystickRight());
+        send_event(EvJoystickRight());
         joypos_text = "right";
         break;
       case Joystick::Position::center:
-        send_event(JoystickCenter());
+        send_event(EvJoystickCenter());
         joypos_text = "center";
         break;
       }

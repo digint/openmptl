@@ -78,8 +78,6 @@ int main()
   assert(C::load() == 0);
   assert(D::load() == 0x55555555);
 
-  //  SharedRegisterFunc<A>::configure<list>();
-
   /* set all shared register from list */
   list::configure();
 

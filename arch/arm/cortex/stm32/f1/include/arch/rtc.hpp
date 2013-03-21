@@ -51,10 +51,8 @@ public:
 
   static void wait_sync(void) {
     while(reg::RCC::BDCR::LSERDY::test() == 0);
-#if 1
     RTC::CRL::RSF::clear();
     while(RTC::CRL::RSF::test() == 0);
-#endif
   }
 
   // TODO: enable/disable more than one at once
@@ -119,11 +117,11 @@ public:
     return (RTC::DIVH::RTC_DIV::test() << 16 ) | RTC::DIVL::load();
   }
 
-  struct StaticIrqWrap : public IrqWrap {
-    StaticIrqWrap() { clear_second_flag(); }
+  struct StaticIsrWrap : public IsrWrap {
+    StaticIsrWrap() { clear_second_flag(); }
   };
-  struct AlarmIrqWrap : public IrqWrap {
-    AlarmIrqWrap() { clear_alarm_flag(); }
+  struct AlarmIsrWrap : public IsrWrap {
+    AlarmIsrWrap() { clear_alarm_flag(); }
   };
 
   typedef Rcc_rtc_clock_resources resources;

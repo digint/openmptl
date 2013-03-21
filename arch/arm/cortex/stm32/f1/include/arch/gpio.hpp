@@ -213,6 +213,7 @@ public:
     >;
 
   static void init() {
+    // TODO: check if this is correct
     if(cnf == GpioInputConfig::pull_up) {
       base::set(); // configure pull-up
       // base::set_mode(0, 2); //  10 - Input with pull-up/pull-down

@@ -24,10 +24,7 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/adc.hpp>
 
-/**
- * CR1[19:16] DUALMOD: Dual mode selection.
- * These bits are written by software to select the operating mode.
- */
+/** Dual mode selection. */
 enum class AdcMode : uint32_t {
   independent              = 0,  /**<  0000: Independent mode.                                           */
   regr_injec_simult        = 1,  /**<  0001: Combined regular simultaneous + injected simultaneous mode  */
@@ -42,9 +39,7 @@ enum class AdcMode : uint32_t {
 };
 
 /**
- * CR1[8] SCAN: Scan mode.
- * This bit is set and cleared by software to enable/disable Scan
- * mode. In Scan mode, the inputs selected through the ADC_SQRx or
+ * In Scan mode, the inputs selected through the ADC_SQRx or
  * ADC_JSQRx registers are converted.
  */
 enum class AdcScanMode : uint32_t {
@@ -53,9 +48,8 @@ enum class AdcScanMode : uint32_t {
 };
 
 /**
- * CR2[1] CONT: Continuous conversion.
- * This bit is set and cleared by software. If set conversion takes place
- * continuously till this bit is reset.
+ * Continuous conversion.
+ * If set conversion takes place continuously.
  */
 enum class AdcContinuousConvMode : uint32_t {
   single     = 0,  /**< 0: Single conversion mode      */
@@ -63,8 +57,8 @@ enum class AdcContinuousConvMode : uint32_t {
 };
 
 /**
- * CR2[19:17] EXTSEL: External event select for regular group.
- * These bits select the external event used to trigger the start of
+ * External event select for regular group.
+ * Select the external event used to trigger the start of
  * conversion of a regular group:
  */
 enum class AdcExternalTrigConv : uint32_t {
@@ -90,32 +84,27 @@ enum class AdcExternalTrigConv : uint32_t {
 #endif
 };
 
-/** CR2[11] ALIGN: Data alignment. */
+/** Data alignment */
 enum class AdcDataAlign : uint32_t {
   right = 0,  /**< 0: Right Alignment  */
   left  = 1   /**< 1: Left Alignment   */
 };
 
 /**
- * Bit 20 EXTTRIG: External trigger conversion mode for regular channels.
- * This bit is set and cleared by software to enable/disable the external
- * trigger used to start conversion of a regular channel group.
+ * External trigger conversion mode for regular channels.
  */
 // TODO
 
 /**
- * Bits 14:12 JEXTSEL[2:0]: External event select for injected group.
- * These bits select the external event used to trigger the start of
+ * External event select for injected group.
+ * Select the external event used to trigger the start of
  * conversion of an injected group.
  */
 // TODO
 
 
 /**
- * SMPR1[2:0] SMPx: Channel x Sample time selection.
- * These bits are written by software to select the sample time
- * individually for each channel. During sample cycles channel selection
- * bits must remain unchanged.
+ * Channel x Sample time selection.
  */
 enum class AdcSampleTime {
   cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
@@ -130,7 +119,7 @@ enum class AdcSampleTime {
 
 
 // TODO: nice defaults
-template<std::size_t adc_no,
+template<unsigned adc_no,
          AdcMode mode,
          AdcScanMode scan_mode,
          AdcContinuousConvMode cont_conv_mode,
@@ -172,15 +161,11 @@ public:
   static void deinit(void) {
     switch(adc_no) {
     case 1:
-      // Enable ADC1 reset state
       reg::RCC::APB2RSTR::ADC1RST::set();
-      // Release ADC1 from reset state
       reg::RCC::APB2RSTR::ADC1RST::clear();
       break;
     case 2:
-      // Enable ADC2 reset state
       reg::RCC::APB2RSTR::ADC2RST::set();
-      // Release ADC2 from reset state
       reg::RCC::APB2RSTR::ADC2RST::clear();
     }
   }

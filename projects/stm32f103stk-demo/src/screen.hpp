@@ -38,8 +38,8 @@ class Screen
 
   void react(tinyfsm::Event const &) { };    /* default reaction (unhandled events) */
 
-  virtual void react(JoystickUp   const &);
-  virtual void react(JoystickDown const &);
+  virtual void react(EvJoystickUp   const &);
+  virtual void react(EvJoystickDown const &);
 
   void entry(void) { };
   void exit(void)  { };
@@ -48,13 +48,13 @@ protected:
 
   static Kernel::lcd lcd;
 
-  static ItemList::iterator item_top;
-  static ItemList * itemlist;
+  static ScreenItemList::iterator item_top;
+  static ScreenItemList * item_list;
 
 public:
 
-  static void assign(ItemList * list) {
-    itemlist = list;
+  static void assign(ScreenItemList * list) {
+    item_list = list;
     item_top = list->begin();
   }
 

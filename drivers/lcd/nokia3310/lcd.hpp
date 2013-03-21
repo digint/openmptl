@@ -25,8 +25,6 @@
 #include "arch/spi.hpp"
 #include <arch/core.hpp>
 
-
-
 /* NOTE: font_width is the font INCLUDING character separator (e.g. use 6 for 8x5 font) */
 template<unsigned font_width>
 class LcdFont
@@ -67,7 +65,7 @@ template< unsigned res_x,
           unsigned res_y,
           unsigned font_width = 6 /* NOTE: actual font width is 8x5, one bit is for character separator */
           >
-class Lcd : protected LcdFont<font_width>
+class Lcd
 {
 protected:
   static constexpr unsigned lcdbuf_size = ((res_x * res_y) / 8); /* 1 bit per pixel */
