@@ -87,7 +87,11 @@ public:
     spi,
     8_mhz,  // max frequency
     8,      // 8bit data
-    SpiClockPolarity::low
+    SpiClockPolarity::low,
+    SpiClockPhase::first_edge,
+    SpiDataDirection::two_lines_full_duplex,
+    SpiSoftwareSlaveManagement::enabled, // TODO: we could enable it here!
+    SpiFrameFormat::msb_first
     >;
 
   using resources = ResourceList<
@@ -106,8 +110,8 @@ public:
     enable();
     //  Tcc: CSN to SCK Setup: 2ns
 
-    spi_master::send_byte_blocking(command);
-    ret = spi_master::send_byte_blocking(NOP);
+    spi_master::send_blocking(command);
+    ret = spi_master::send_blocking(NOP);
     // Tcch: SCK to CSN Hold: 2ns
     disable();
     return ret;
@@ -119,9 +123,9 @@ public:
     wait_tcwh();
     enable();
 
-    spi_master::send_byte_blocking(command);
+    spi_master::send_blocking(command);
     for (int i=0; i < 5; i++) {
-      ret_addr[i] = spi_master::send_byte_blocking(NOP);
+      ret_addr[i] = spi_master::send_blocking(NOP);
     }
     disable();
   }
@@ -134,15 +138,15 @@ public:
     enable();
 
     if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
-      spi_master::send_byte_blocking(command);
+      spi_master::send_blocking(command);
 
 #if 0 // this is how initializer_lists are handled
       std::for_each(data.begin(),
                     data.end(),
-                    [](unsigned char c){ spi_master::send_byte_blocking(c); } );
+                    [](unsigned char c){ spi_master::send_blocking(c); } );
 #else
       for (int i = 0; i < 5; i++) {
-        spi_master::send_byte_blocking(data[i]);
+        spi_master::send_blocking(data[i]);
       }
 #endif
     }
@@ -156,8 +160,8 @@ public:
     wait_tcwh();
     enable();
 
-    ret = spi_master::send_byte_blocking(command);
-    spi_master::send_byte_blocking(data);
+    ret = spi_master::send_blocking(command);
+    spi_master::send_blocking(data);
     disable();
     return ret;
   }

@@ -143,26 +143,28 @@ template<typename spi_type,
          >
 class Lcd_Nokia3310 : public Lcd< 84, 48 >
 {
-
-  static void send_char(unsigned char data) {
-    lcd_ds::set(); /* select data */
-    spi_master::send_byte_blocking(data);
-  }
-  static void send_command(unsigned char data) {
-    lcd_ds::reset(); /* select command */
-    spi_master::send_byte_blocking(data);
-  }
-
-public:
-
   using spi_master = SpiMaster<
     spi_type,
     4_mhz,    // max_frequency
     8,        // 8bit data
     SpiClockPolarity::high,
-    SpiClockPhase::second_edge
+    SpiClockPhase::second_edge,
+    SpiDataDirection::two_lines_full_duplex,
+    SpiSoftwareSlaveManagement::enabled,
+    SpiFrameFormat::msb_first
     >;
-  
+
+  static void send_char(unsigned char data) {
+    lcd_ds::set(); /* select data */
+    spi_master::send_blocking(data);
+  }
+  static void send_command(unsigned char data) {
+    lcd_ds::reset(); /* select command */
+    spi_master::send_blocking(data);
+  }
+
+public:
+
   using resources = ResourceList<
     typename spi_master::resources,
     typename lcd_ds::resources,
@@ -192,7 +194,7 @@ public:
     lcd_ds::set(); /* select data */
     //  Serialize the video buffer.
     for (unsigned i = 0; i < lcdbuf_size; i++) {
-      spi_master::send_byte_blocking(lcdbuf[i]);
+      spi_master::send_blocking(lcdbuf[i]);
     }
     disable();
   }

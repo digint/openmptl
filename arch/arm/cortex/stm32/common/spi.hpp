@@ -47,6 +47,10 @@ enum class SpiDataDirection {
   one_line_rx,
   one_line_tx
 };
+enum class SpiFrameFormat {
+  msb_first,
+  lsb_first
+};
 
 
 template<typename    rcc_type,
@@ -54,38 +58,25 @@ template<typename    rcc_type,
 class Spi
 {
   using SPIx = reg::SPI<_spi_no>;
-
-public:
   using rcc = rcc_type;
 
-  static constexpr std::size_t spi_no = _spi_no;
-  using resources = Rcc_spi_clock_resources<spi_no>;
-  using Irq = irq::SPI<spi_no>;
+protected:
 
-  template<SpiMasterSelection master_selection = SpiMasterSelection::master,
-           unsigned baud_rate_prescaler = 2,  // TODO: use baud-rate here, calculate correct presscaler below
+  static typename SPIx::CR1::value_type
+  cr1_bits(bool enable,
+           SpiMasterSelection master_selection = SpiMasterSelection::slave,
+           freq_t max_frequency = 0,   /* Hz, 0=maximum available */
            unsigned data_size = 8,
-           SpiClockPolarity clk_pol = SpiClockPolarity::high,
+           SpiClockPolarity clk_pol = SpiClockPolarity::low,
            SpiClockPhase clk_phase = SpiClockPhase::first_edge,
            SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
-           SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::enabled
-           >
-  static void configure(void) {  // TODO: this goes to spi_register::configure() (spi_resource inherits from spi_register)
-    static_assert(baud_rate_prescaler == 2 ||
-                  baud_rate_prescaler == 4 ||
-                  baud_rate_prescaler == 8 ||
-                  baud_rate_prescaler == 16 ||
-                  baud_rate_prescaler == 32 ||
-                  baud_rate_prescaler == 64 ||
-                  baud_rate_prescaler == 128 ||
-                  baud_rate_prescaler == 256
-                  , "Invalid baud rate prescaler");
-    static_assert(data_size == 8 || data_size == 16, "Invalid data size");
+           SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::disabled,
+           SpiFrameFormat frame_format = SpiFrameFormat::msb_first)
+  {
+    typename SPIx::CR1::value_type cr1 = 0;
 
-    auto cr1 = SPIx::CR1::load(); // TODO: check if we set all bits here. if yes, no load is required.
-
-    /* Clear BIDIMode, BIDIOE, RxONLY, SSM, SSI, LSBFirst, BR, MSTR, CPOL and CPHA bits */
-    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
+    if(enable)
+      cr1 |= SPIx::CR1::SPE::value;
 
     if(data_dir == SpiDataDirection::two_lines_rx_only)
       cr1 |= SPIx::CR1::RXONLY::value;
@@ -97,33 +88,48 @@ public:
     if(master_selection == SpiMasterSelection::master)
       cr1 |= SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
     if(data_size == 16)
-      cr1 |= SPIx::CR1::DFF::value; // Data Size 16bit
+      cr1 |= SPIx::CR1::DFF::value;
     if(clk_pol == SpiClockPolarity::high)
-      cr1 |= SPIx::CR1::CPOL::value; // Clock polarity = high
+      cr1 |= SPIx::CR1::CPOL::value;
     if(clk_phase == SpiClockPhase::second_edge)
-      cr1 |= SPIx::CR1::CPHA::value; // Clock phase = edge
+      cr1 |= SPIx::CR1::CPHA::value;
     if(ssm == SpiSoftwareSlaveManagement::enabled)
-      cr1 |= SPIx::CR1::SSM::value;  // Software slave management
-
-#if 1
-    cr1 |= SPIx::CR1::BR::template Prescaler<baud_rate_prescaler>::value;
-    // TODO: find out why the code gets smaller when using this with -Os:
-    // cr1 |= SPIx::CR1::BR::_prescaler_value(baud_rate_prescaler);
-#else
-    switch(baud_rate_prescaler) {
-    case 2:   cr1 |= 0x0000; break;
-    case 4:   cr1 |= 0x0008; break;
-    case 8:   cr1 |= 0x0010; break;
-    case 16:  cr1 |= 0x0018; break;
-    case 32:  cr1 |= 0x0020; break;
-    case 64:  cr1 |= 0x0028; break;
-    case 128: cr1 |= 0x0030; break;
-    case 256: cr1 |= 0x0038; break;
+      cr1 |= SPIx::CR1::SSM::value;
+    if(frame_format == SpiFrameFormat::lsb_first)
+      cr1 |= SPIx::CR1::LSBFIRST::value;
+      
+    switch(baud_rate_prescaler(max_frequency)) {
+    case 2:   cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value; break;
+    case 4:   cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 1 >::value; break;
+    case 8:   cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 2 >::value; break;
+    case 16:  cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 3 >::value; break;
+    case 32:  cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 4 >::value; break;
+    case 64:  cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 5 >::value; break;
+    case 128: cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 6 >::value; break;
+    case 256: cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 7 >::value; break;
     }
-#endif
-    cr1 |= 0; // First Bit MSB
 
-    SPIx::CR1::store(cr1);
+    return cr1;
+  }
+
+public:
+
+  static constexpr std::size_t spi_no = _spi_no;
+  using resources = Rcc_spi_clock_resources<spi_no>;
+  using Irq = irq::SPI<spi_no>;
+
+  static constexpr unsigned freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+
+  static unsigned baud_rate_prescaler(freq_t max_frequency) {
+    return ( max_frequency == 0          ?   2 :
+             max_frequency >= freq / 2   ?   2 :
+             max_frequency >= freq / 4   ?   4 :
+             max_frequency >= freq / 8   ?   8 :
+             max_frequency >= freq / 16  ?  16 :
+             max_frequency >= freq / 32  ?  32 :
+             max_frequency >= freq / 64  ?  64 :
+             max_frequency >= freq / 128 ? 128 :
+             256 );
   }
 
   // reset CRC Polynomial
@@ -145,59 +151,57 @@ public:
     while(SPIx::SR::RXNE::test() == 0);
   }
   static void wait_not_busy(void) {
-    while(SPIx::SR::BSY::test() == 1);
+    while(SPIx::SR::BSY::test());
   }
 
   static void send(uint16_t data) {
     SPIx::DR::store(data);
   }
 
-  // TODO: return value depends on the data frame format (DFF) bit in CR1 (8bit or 16bit)
+  // NOTE: return value depends on the data frame format (DFF) bit in CR1 (8bit or 16bit)
   static uint16_t receive(void) {
     return SPIx::DR::load();
+  }
+
+  // TODO: rename writeread_blocking()
+  static unsigned char send_blocking(uint16_t data) {
+    wait_transmit_empty();
+    send(data);
+    wait_receive_not_empty();
+    return receive();
   }
 };
 
 
 
-template<typename spi_type,
+template<typename spi,
          freq_t max_frequency = 0, /* Hz, 0=maximum available */
          unsigned data_size = 8,
-         SpiClockPolarity clk_pol = SpiClockPolarity::high,
+         SpiClockPolarity clk_pol = SpiClockPolarity::low,
          SpiClockPhase clk_phase = SpiClockPhase::first_edge,
          SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
-         SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::enabled
+         SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::disabled,
+         SpiFrameFormat frame_format = SpiFrameFormat::msb_first
          >
-class SpiMaster : public spi_type {
+class SpiMaster : public spi {
 
-  using spi = spi_type;
+  static_assert(data_size == 8 || data_size == 16, "Invalid data size");
 
 public:
 
-  using rcc = typename spi_type::rcc;
-
   using resources = typename spi::resources;
 
-  /* TODO: check if these calculations are correct (not sure if we use pclk2 for SPI1 on all of stm32) */
-  static constexpr unsigned freq = (spi::spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-
-  static constexpr unsigned baud_rate_prescaler =
-    max_frequency == 0          ?   2 :
-    max_frequency >= freq / 2   ?   2 :
-    max_frequency >= freq / 4   ?   4 :
-    max_frequency >= freq / 8   ?   8 :
-    max_frequency >= freq / 16  ?  16 :
-    max_frequency >= freq / 32  ?  32 :
-    max_frequency >= freq / 64  ?  64 :
-    max_frequency >= freq / 128 ? 128 :
-    256;
-
+  /**
+   * Implicitely enables SPI.
+   * NOTE: make sure no communication is ongoing when calling this function
+   */
   static void configure(void) {
     // spi::wait_transmit_empty();
     // spi::wait_not_busy();
-    spi::disable();  // TODO: this is actually only needed for a "reconfigure()"
-    spi::template configure<SpiMasterSelection::master, baud_rate_prescaler, data_size, clk_pol, clk_phase, data_dir, ssm>();
-    spi::enable();   // TODO: this is actually only needed for a "reconfigure()"
+    //    spi::disable();  // TODO: this is actually only needed for a "reconfigure()"
+    spi::SPIx::CR1::set(spi::cr1_bits(true, SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm));
+    //    spi::configure(SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm);
+    //    spi::enable();   // TODO: this is actually only needed for a "reconfigure()"
   }
 
   static void init(void) {
@@ -205,13 +209,6 @@ public:
     spi::reset_crc();
     configure();
     // spi::enable();
-  }
-
-  static unsigned char send_byte_blocking(unsigned char data) {
-    spi::wait_transmit_empty();
-    spi::send(data);
-    spi::wait_receive_not_empty();
-    return spi::receive();
   }
 };
 

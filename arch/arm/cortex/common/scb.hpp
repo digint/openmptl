@@ -52,7 +52,6 @@ public:
   template<int irqn>
   static uint32_t get_priority(void) {
     static_assert(irqn < 0 && irqn > -13, "illegal core exception interrupt number");
-    // TODO: core_reg magic
     return((uint32_t)(SCB::SHPR<((uint32_t)irqn & 0xf)-4>::load() >> (8 - priority_bits)));
   }
 };
