@@ -50,17 +50,21 @@ typedef UniqueResource< D > uniq_d;
 
 
 
-typedef ResourceList < uniq_a,
+typedef ResourceList < void,
+                       uniq_a,
                        ResourceList<ResourceList<test_a_0,
                                                  test_a_1,
                                                  test_b> >,
                        test_a_1,
                        ResourceList<uniq_b>,
                        uniq_c, uniq_d,
+                       void,
+                       ResourceList<void>,
                        ResourceList<test_b,
                                     ResourceList<test_a_2>,
+                                    void,
                                     test_a_0>,
-                       test_c > list;
+                       test_c, void > list;
 
 typedef ResourceList < list, uniq_c > uniq_fail_list;
 typedef ResourceList < anti_test_a_0, list > bitmask_fail_list;

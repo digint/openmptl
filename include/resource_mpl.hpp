@@ -144,6 +144,12 @@ namespace mpl
   template<typename T, typename Filter, typename... Args>
   struct make_filtered_list_impl;
 
+  template<typename T, typename Filter, typename... Args>
+  struct make_filtered_list_impl<T, Filter, void, Args...> {
+    /* Ignore void resource */
+    using type = typename make_filtered_list_impl<T, Filter, Args...>::type;
+  };
+
   template<typename T, typename Filter, typename Head, typename... Args>
   struct make_filtered_list_impl<T, Filter, Head, Args...> {
     using type = typename make_filtered_list_impl<typename Head::template append_filtered_list<T, Filter>, Filter, Args...>::type;
@@ -208,6 +214,12 @@ namespace mpl
 
   template<typename T, typename... Args>
   struct make_resource_type_list_impl;
+
+  template<typename T, typename... Args>
+  struct make_resource_type_list_impl<T, void, Args...> {
+    /* Ignore void resource */
+    using type = typename make_resource_type_list_impl<T, Args...>::type;
+  };
 
   template<typename T, typename Head, typename... Args>
   struct make_resource_type_list_impl<T, Head, Args...> {

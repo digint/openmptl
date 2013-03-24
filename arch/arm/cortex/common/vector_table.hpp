@@ -99,7 +99,7 @@ namespace mpl
  * Instantiate this class somewhere in your startup code to put the
  * table to the ".isr_vector" section.
  */
-template<const uint32_t *stack_top, typename resource_list = ResourceList<>, isr_t default_isr = nullptr >
+template<const uint32_t *stack_top, typename resource_list, isr_t default_isr = nullptr >
 struct VectorTable
 : mpl::make_vector_table<
   irq::numof_interrupt_channels - irq::Reset::irqn,  /* start index */
