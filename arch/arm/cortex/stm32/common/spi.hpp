@@ -60,23 +60,39 @@ class Spi
   using SPIx = reg::SPI<_spi_no>;
   using rcc = rcc_type;
 
-protected:
+public:
 
-  static typename SPIx::CR1::value_type
-  cr1_bits(bool enable,
-           SpiMasterSelection master_selection = SpiMasterSelection::slave,
-           freq_t max_frequency = 0,   /* Hz, 0=maximum available */
-           unsigned data_size = 8,
-           SpiClockPolarity clk_pol = SpiClockPolarity::low,
-           SpiClockPhase clk_phase = SpiClockPhase::first_edge,
-           SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
-           SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::disabled,
-           SpiFrameFormat frame_format = SpiFrameFormat::msb_first)
+  static constexpr std::size_t spi_no = _spi_no;
+  using resources = Rcc_spi_clock_resources<spi_no>;
+  using Irq = irq::SPI<spi_no>;
+
+  static constexpr unsigned freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+
+  static unsigned baud_rate_prescaler(freq_t max_frequency) {
+    return ( max_frequency == 0          ?   2 :
+             max_frequency >= freq / 2   ?   2 :
+             max_frequency >= freq / 4   ?   4 :
+             max_frequency >= freq / 8   ?   8 :
+             max_frequency >= freq / 16  ?  16 :
+             max_frequency >= freq / 32  ?  32 :
+             max_frequency >= freq / 64  ?  64 :
+             max_frequency >= freq / 128 ? 128 :
+             256 );
+  }
+
+  static void configure(SpiMasterSelection master_selection = SpiMasterSelection::slave,
+                        freq_t max_frequency = 0,   /* Hz, 0=maximum available */
+                        unsigned data_size = 8,
+                        SpiClockPolarity clk_pol = SpiClockPolarity::low,
+                        SpiClockPhase clk_phase = SpiClockPhase::first_edge,
+                        SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
+                        SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::disabled,
+                        SpiFrameFormat frame_format = SpiFrameFormat::msb_first)
   {
-    typename SPIx::CR1::value_type cr1 = 0;
+    auto cr1 = SPIx::CR1::load();
 
-    if(enable)
-      cr1 |= SPIx::CR1::SPE::value;
+    /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
+    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
 
     if(data_dir == SpiDataDirection::two_lines_rx_only)
       cr1 |= SPIx::CR1::RXONLY::value;
@@ -86,7 +102,9 @@ protected:
       cr1 |= SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value;
 
     if(master_selection == SpiMasterSelection::master)
-      cr1 |= SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
+      cr1 |= SPIx::CR1::MSTR::value | 
+        //        (ssm == SpiSoftwareSlaveManagement::enabled ? SPIx::CR1::SSI::value : 0); // SPI Master: Master Selection / Internal slave select
+        SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
     if(data_size == 16)
       cr1 |= SPIx::CR1::DFF::value;
     if(clk_pol == SpiClockPolarity::high)
@@ -109,27 +127,7 @@ protected:
     case 256: cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 7 >::value; break;
     }
 
-    return cr1;
-  }
-
-public:
-
-  static constexpr std::size_t spi_no = _spi_no;
-  using resources = Rcc_spi_clock_resources<spi_no>;
-  using Irq = irq::SPI<spi_no>;
-
-  static constexpr unsigned freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-
-  static unsigned baud_rate_prescaler(freq_t max_frequency) {
-    return ( max_frequency == 0          ?   2 :
-             max_frequency >= freq / 2   ?   2 :
-             max_frequency >= freq / 4   ?   4 :
-             max_frequency >= freq / 8   ?   8 :
-             max_frequency >= freq / 16  ?  16 :
-             max_frequency >= freq / 32  ?  32 :
-             max_frequency >= freq / 64  ?  64 :
-             max_frequency >= freq / 128 ? 128 :
-             256 );
+    SPIx::CR1::store(cr1);
   }
 
   // reset CRC Polynomial
@@ -158,13 +156,22 @@ public:
     SPIx::DR::store(data);
   }
 
+  static void send_blocking(uint16_t data) {
+    wait_transmit_empty();
+    send(data);
+  }
+
   // NOTE: return value depends on the data frame format (DFF) bit in CR1 (8bit or 16bit)
   static uint16_t receive(void) {
     return SPIx::DR::load();
   }
 
-  // TODO: rename writeread_blocking()
-  static unsigned char send_blocking(uint16_t data) {
+  static uint16_t receive_blocking(void) {
+    wait_receive_not_empty();
+    return receive();
+  }
+
+  static unsigned char writeread_blocking(uint16_t data) {
     wait_transmit_empty();
     send(data);
     wait_receive_not_empty();
@@ -192,23 +199,19 @@ public:
   using resources = typename spi::resources;
 
   /**
-   * Implicitely enables SPI.
-   * NOTE: make sure no communication is ongoing when calling this function
+   * Reconfigure and enable SPI.
+   * NOTE: make sure no communication is ongoing when calling this function.
    */
   static void configure(void) {
-    // spi::wait_transmit_empty();
-    // spi::wait_not_busy();
-    //    spi::disable();  // TODO: this is actually only needed for a "reconfigure()"
-    spi::SPIx::CR1::set(spi::cr1_bits(true, SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm));
-    //    spi::configure(SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm);
-    //    spi::enable();   // TODO: this is actually only needed for a "reconfigure()"
+    spi::disable();
+    spi::configure(SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm);
+    spi::enable();
   }
 
   static void init(void) {
     /* Configure SPI1 pins: NSS, SCK, MISO and MOSI */
     spi::reset_crc();
     configure();
-    // spi::enable();
   }
 };
 
