@@ -79,6 +79,8 @@ private:
 
 public:
 
+  using font = LcdFont<font_width>;
+
   static constexpr unsigned resolution_x = res_x;
   static constexpr unsigned resolution_y = res_y;
   static constexpr unsigned rows = res_y / 8;
@@ -91,17 +93,21 @@ public:
   }
 
   void draw_char(unsigned x, unsigned y, const unsigned char ch) {
-    if(x > columns) return; // TODO: exception
-    if(y > rows) return;
+    if(x > columns)
+      return;
+    if(y > rows)
+      return;
 
-    LcdFont<font_width>::copy_char(&lcdbuf[buf_index(x, y)], ch);
+    font::copy_char(&lcdbuf[buf_index(x, y)], ch);
   }
 
   void draw_char_inverse(unsigned x, unsigned y, const unsigned char ch) {
-    if(x > columns) return; // TODO: exception
-    if(y > rows) return;
+    if(x > columns)
+      return;
+    if(y > rows)
+      return;
 
-    LcdFont<font_width>::copy_char_inv(&lcdbuf[buf_index(x, y)], ch);
+    font::copy_char_inv(&lcdbuf[buf_index(x, y)], ch);
   }
 
   void print_line(unsigned row, const char *p, bool inv = false ) {
@@ -118,7 +124,6 @@ public:
     }
   }
 
-  //  void printLine(int row, const char *p ) { printLine(row, p, false); }
   void print_line_inv(unsigned row, const char *p ) { print_line(row, p, true); }
 
 #if 0
@@ -129,7 +134,7 @@ public:
   }
 #endif
 
-  virtual void update(void) = 0; /* pure virtual function */
+  virtual void update(void) = 0;
 };
 
 
@@ -149,17 +154,22 @@ class Lcd_Nokia3310 : public Lcd< 84, 48 >
     8,        // 8bit data
     SpiClockPolarity::high,
     SpiClockPhase::second_edge,
-    SpiDataDirection::two_lines_full_duplex,
+    SpiDataDirection::one_line_tx,
     SpiSoftwareSlaveManagement::enabled,
     SpiFrameFormat::msb_first
     >;
 
-  static void send_char(unsigned char data) {
+  static void select_data() {
+    spi_master::wait_not_busy();
     lcd_ds::set(); /* select data */
-    spi_master::send_blocking(data);
   }
-  static void send_command(unsigned char data) {
+
+  static void select_command() {
+    spi_master::wait_not_busy();
     lcd_ds::reset(); /* select command */
+  }
+
+  static void send_byte(unsigned char data) {
     spi_master::send_blocking(data);
   }
 
@@ -176,68 +186,82 @@ public:
     spi_master::configure();
   }
 
-  // Enable slave select
-  static void enable(void) {
+  static void enable_slave_select(void) {
     lcd_e::enable();
   }
-  // Disable slave select
-  static void disable(void) {
+  static void disable_slave_select(void) {
+    spi_master::wait_not_busy();
     lcd_e::disable();
   }
 
-  void update(void) {  /* implement pure virtual function from class Lcd */
-    enable();
-    //  Set base address X=0 Y=0
-    send_command(0x80);
-    send_command(0x40);
+  void update(void) {
+    enable_slave_select();
 
-    lcd_ds::set(); /* select data */
-    //  Serialize the video buffer.
+    /*  Set base address X=0 Y=0 */
+    select_command();
+    send_byte(0x80);  // set X address of RAM
+    send_byte(0x40);  // set Y address of RAM
+    // send_byte(0x08 | 0x5);   // display control: inverse video mode
+
+    /* Serialize the video buffer */
+    select_data();
     for (unsigned i = 0; i < lcdbuf_size; i++) {
-      spi_master::send_blocking(lcdbuf[i]);
+      send_byte(lcdbuf[i]);
     }
-    disable();
+    disable_slave_select();
   }
 
+  /* 127 <= value <= 0 */
   static void set_contrast(unsigned char value) {
-    enable();
-    send_command(0x21);          // LCD Extended Commands.
-    send_command(0x80 | value);  // Set LCD Vop (Contrast).
-    send_command(0x20);          // LCD Standard Commands, horizontal addressing mode.
-    disable();
+    enable_slave_select();
+    select_command();
+    send_byte(0x20 | 0x1);    // function set: use extended instruction set
+    send_byte(0x80 | value);  // set Vop (contrast)
+    send_byte(0x20 | 0x0);    // function set: use basic instruction set, horizontal addressing
+    disable_slave_select();
   }
 
-  static void init(void) {
+  static void init(unsigned char contrast, unsigned char temp_coeff, unsigned char bias)
+  {
+    contrast   &= 0x7f;
+    temp_coeff &= 0x03;
+    bias       &= 0x07;
+
     spi_master::init();
 
     lcd_ds::init();
-    lcd_ds::set();    // D/C high
+    lcd_ds::set();
 
     lcd_reset::init();
     lcd_e::init();
     lcd_e::disable();
     lcd_reset::disable();
 
-    // Toggle display reset pin.
+    /* toggle display reset pin */
     lcd_reset::enable();
     Core::nop(10000);
     lcd_reset::disable();
     Core::nop(10000);
 
-    // Send sequence of commands
-    enable();
-    send_command(0x21);  // LCD Extended Commands.
-    send_command(0xC8);  // Set LCD Vop (Contrast).
-    send_command(0x06);  // Set Temp coefficent.
-    send_command(0x13);  // LCD bias mode 1:48.
-    send_command(0x20);  // LCD Standard Commands, Horizontal addressing mode.
-    send_command(0x08);  // LCD blank
-    send_command(0x0C);  // LCD in normal mode.
-    disable();
+    /* command sequence (init) */
+    enable_slave_select();
+    select_command();
+    send_byte(0x20 | 0x1);        // function set: use extended instruction set
+    send_byte(0x80 | contrast);   // set Vop (contrast)
+    send_byte(0x04 | temp_coeff); // set temperature coefficent
+    send_byte(0x10 | bias);       // set bias system (BSx)
+    send_byte(0x20 | 0x0);        // function set: use basic instruction set, horizontal addressing
+    send_byte(0x08 | 0x0);        // display control: display blank
+    send_byte(0x08 | 0x4);        // display control: normal mode
+    disable_slave_select();
+  }
 
-    // Clear and Update
-    //    clear();
-    //    update();
+  static constexpr unsigned char default_contrast   = 0x45;
+  static constexpr unsigned char default_temp_coeff = 0x2;
+  static constexpr unsigned char default_bias       = 0x3;  // 1:48
+
+  static void init(void) {
+    init(default_contrast, default_temp_coeff, default_bias);
   }
 };
 
