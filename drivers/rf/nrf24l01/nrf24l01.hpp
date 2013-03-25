@@ -24,10 +24,6 @@
 #include "arch/gpio.hpp"
 #include "arch/spi.hpp"
 
-//#include <initializer_list>
-//#include <algorithm>  // for_each
-
-
 // Commands
 #define   NOP             0xff
 #define   R_RX_PAYLOAD    0x61
@@ -61,22 +57,30 @@ template<typename spi_type,
          >
 class Nrf24l01
 {
-
-  // Enable slave select
-  static void enable(void) {
-    nrf_csn::enable();
-  }
-  // Disable slave select
-  static void disable(void) {
-    nrf_csn::disable();
-  }
-
-  static constexpr unsigned numof_nops = 10;  // Tcwh: CSN Inactive time: min. 50ns   // TODO: measurements, nanosleep
-
-  // Tcwh: CSN Inactive time: min. 50ns
-  // NOTE: this goes before ALL enable(). Time between calls to disable() -> enable().
+  /* Tcwh: CSN Inactive time: min. 50ns */
+  /* Time between calls of disable() -> enable() */
   static void wait_tcwh(void) {
-    Core::nop(numof_nops);
+    // Core::nop(10);
+  }
+
+  /*  Tcc: CSN to SCK Setup: 2ns */
+  static void wait_tcc(void) {
+    // Core::nop(2);
+  }
+
+  /* Tcch: SCK to CSN Hold: 2ns */
+  static void wait_tcch(void) {
+    // Core::nop(2);
+  }
+
+  static void enable_slave_select(void) {
+    wait_tcwh();
+    nrf_csn::enable();
+    wait_tcc();
+  }
+  static void disable_slave_select(void) {
+    wait_tcch();
+    nrf_csn::disable();
   }
 
 public:
@@ -90,7 +94,7 @@ public:
     SpiClockPolarity::low,
     SpiClockPhase::first_edge,
     SpiDataDirection::two_lines_full_duplex,
-    SpiSoftwareSlaveManagement::enabled, // TODO: we could enable it here!
+    SpiSoftwareSlaveManagement::enabled,
     SpiFrameFormat::msb_first
     >;
 
@@ -101,74 +105,55 @@ public:
     typename nrf_irq::resources
     >;
 
-  // TODO: assert 5 bit address
+  /* NOTE: 5 bit address */
   static unsigned char read_register(unsigned char addr) {
     unsigned char ret;
     unsigned char command = addr;
 
-    wait_tcwh();
-    enable();
-    //  Tcc: CSN to SCK Setup: 2ns
-
-    spi_master::send_blocking(command);
-    ret = spi_master::send_blocking(NOP);
-    // Tcch: SCK to CSN Hold: 2ns
-    disable();
+    enable_slave_select();
+    spi_master::writeread_blocking(command);
+    ret = spi_master::writeread_blocking(NOP);
+    disable_slave_select();
     return ret;
   }
 
   static void read_address_register(unsigned char addr, unsigned char *ret_addr) {
     unsigned char command = (0 << 5) | addr;
 
-    wait_tcwh();
-    enable();
-
-    spi_master::send_blocking(command);
+    enable_slave_select();
+    spi_master::writeread_blocking(command);
     for (int i=0; i < 5; i++) {
-      ret_addr[i] = spi_master::send_blocking(NOP);
+      ret_addr[i] = spi_master::writeread_blocking(NOP);
     }
-    disable();
+    disable_slave_select();
   }
 
-  //  static void writeAddressRegister(unsigned char addr, std::initializer_list<unsigned char> data) {
   static void write_address_register(unsigned char addr, const unsigned char data[] ) {
     unsigned char command = (1 << 5) | addr;
 
-    wait_tcwh();
-    enable();
-
+    enable_slave_select();
     if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
-      spi_master::send_blocking(command);
-
-#if 0 // this is how initializer_lists are handled
-      std::for_each(data.begin(),
-                    data.end(),
-                    [](unsigned char c){ spi_master::send_blocking(c); } );
-#else
+      spi_master::writeread_blocking(command);
       for (int i = 0; i < 5; i++) {
-        spi_master::send_blocking(data[i]);
+        spi_master::writeread_blocking(data[i]);
       }
-#endif
     }
-    disable();
+    disable_slave_select();
   }
 
   static unsigned char write_register(unsigned char addr, unsigned char data) {
     unsigned char ret;
     unsigned char command = (1 << 5) | addr;
 
-    wait_tcwh();
-    enable();
-
-    ret = spi_master::send_blocking(command);
-    spi_master::send_blocking(data);
-    disable();
+    enable_slave_select();
+    ret = spi_master::writeread_blocking(command);
+    spi_master::writeread_blocking(data);
+    disable_slave_select();
     return ret;
   }
 
 
   static void init(void) {
-
     spi_master::init();
 
     nrf_csn::init();
@@ -176,8 +161,6 @@ public:
     nrf_irq::init();
 
     nrf_csn::disable();
-
-    // TODO: maybe move this to separate commands (enable/disable)
     nrf_ce::enable();
   }
 
