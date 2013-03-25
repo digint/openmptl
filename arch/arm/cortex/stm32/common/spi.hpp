@@ -53,8 +53,8 @@ enum class SpiFrameFormat {
 };
 
 
-template<typename    rcc_type,
-         std::size_t _spi_no>
+template<typename  rcc_type,
+         unsigned _spi_no>
 class Spi
 {
   using SPIx = reg::SPI<_spi_no>;
@@ -62,7 +62,7 @@ class Spi
 
 public:
 
-  static constexpr std::size_t spi_no = _spi_no;
+  static constexpr unsigned spi_no = _spi_no;
   using resources = Rcc_spi_clock_resources<spi_no>;
   using Irq = irq::SPI<spi_no>;
 

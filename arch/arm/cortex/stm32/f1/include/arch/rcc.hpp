@@ -114,10 +114,10 @@ public:
 /*
  * Clock resource declaration (enable peripheral clocks)
  */
-template<char>        struct Rcc_gpio_clock_resources;
-template<std::size_t> struct Rcc_spi_clock_resources;
-template<std::size_t> struct Rcc_usart_clock_resources;
-template<std::size_t> struct Rcc_adc_clock_resources;
+template<char>     struct Rcc_gpio_clock_resources;
+template<unsigned> struct Rcc_spi_clock_resources;
+template<unsigned> struct Rcc_usart_clock_resources;
+template<unsigned> struct Rcc_adc_clock_resources;
 
 using Rcc_rtc_clock_resources = SharedRegister<
   reg::RCC::APB1ENR,

@@ -43,7 +43,7 @@ class Terminal
   typedef typename stream_device_type::fifo_type::char_type char_type;
   typedef FifoStream< typename stream_device_type::fifo_type, stream_device_type > tx_stream_type;
 
-  static constexpr std::size_t cmd_buf_size = 80;
+  static constexpr std::size_t cmd_buf_size = 80;  // TODO: no hardcoding!
 
   char_type cmd_buf[cmd_buf_size];
   unsigned cmd_index = 0;
@@ -150,7 +150,7 @@ struct TerminalHookList<T, Args...> {
     }
   }
 
-  /** maximum length of all commands (minimum 8) */
+  /** maximum length of all commands (minimum 8, for formatting help text) */
   static constexpr unsigned cmd_maxlen = mpl::max<8, strlen(T::cmd), strlen(Args::cmd)...>::value;
 
   template<typename HL>

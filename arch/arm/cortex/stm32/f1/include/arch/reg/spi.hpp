@@ -25,7 +25,7 @@
 
 namespace reg
 {
-  template<std::size_t spi_no>
+  template<unsigned spi_no>
   class SPI
   {
     /* See available template specialisations below if the compiler asserts here! */

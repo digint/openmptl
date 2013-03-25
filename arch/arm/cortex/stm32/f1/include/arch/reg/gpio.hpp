@@ -33,7 +33,7 @@ namespace reg
   {
     static_assert((reg_name >= 'A') && (reg_name <= 'G'), "invalid index for register");
 
-    static constexpr std::size_t gpio_no   = reg_name - 'A';
+    static constexpr unsigned    gpio_no   = reg_name - 'A';
     static constexpr reg_addr_t  reg_base = 0x40010800 + gpio_no * 0x0400;
 
     typedef Register< uint32_t, reg_base + 0x00, Access::rw, 0x44444444 > CRL;            /**< Port configuration register low    */

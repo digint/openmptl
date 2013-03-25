@@ -109,7 +109,8 @@ struct VectorTable
   stack_top
   >::type
 {
-  static constexpr std::size_t irq_channel_offset = -irq::Reset::irqn + 1;
+  /** offset of IrqChannel<0> in vector_table[] */
+  static constexpr int irq_channel_offset = -irq::Reset::irqn + 1;
 
   static_assert(irq::Reset::irqn < 0, "irq::Reset::irqn must be a negative value");
   static_assert(irq::numof_interrupt_channels >= 0, "invalid Irq::numof_interrupt_channels");

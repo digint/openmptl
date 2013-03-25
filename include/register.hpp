@@ -163,16 +163,16 @@ namespace reg
   ////////////////////  RegisterBits  ////////////////////
 
 
-  template< typename R,             /* Register type */
-            std::size_t _offset,    /* bit offset */
-            std::size_t width = 1   /* width of sub-register (numof bits) */
+  template< typename R,          /* Register type */
+            unsigned _offset,    /* bit offset */
+            unsigned width = 1   /* width of sub-register (numof bits) */
             >
   struct RegisterBits
   {
     typedef R reg_type;
     typedef typename R::value_type value_type;
 
-    static constexpr std::size_t offset = _offset;
+    static constexpr unsigned   offset  = _offset;
     static constexpr value_type bitmask = ((1 << width) - 1) << offset;  /* (e.g. width(3) = 0b111 = 7) */
     static constexpr value_type value   = bitmask;
 
@@ -198,7 +198,7 @@ namespace reg
       return (_value << offset);
     }
 
-    template<std::size_t bit_no>
+    template<unsigned bit_no>
     struct bit : RegisterBits< R, offset + bit_no, 1 > {
       static_assert(bit_no < width, "invalid bit_no");
     };

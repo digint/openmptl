@@ -38,35 +38,35 @@ namespace reg {
     //       Check if access is better using 32bit or 8bit pointer
 
     /** Interrupt Set-Enable Registers */
-    template<std::size_t reg_index>
+    template<unsigned reg_index>
     struct ISER
     : Register<uint32_t, 0xE000E100 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Set-Enable Registers */
-    template<std::size_t reg_index>
+    template<unsigned reg_index>
     struct ICER : Register<uint32_t, 0xE000E180 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Set-Pending Registers */
-    template<std::size_t reg_index>
+    template<unsigned reg_index>
     struct ISPR : Register<uint32_t, 0xE000E200 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Clear-Pending Registers */
-    template<std::size_t reg_index>
+    template<unsigned reg_index>
     struct ICPR : Register<uint32_t, 0xE000E280 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Active Bit Register */
-    template<std::size_t reg_index>
+    template<unsigned reg_index>
     struct IABR : Register<uint32_t, 0xE000E300 + 4 * reg_index, Access::ro >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
    /** Interrupt Priority Register */
-    template<std::size_t index>
-    struct IPR  : Register<uint32_t, 0xE000E400 + 4 * index, Access::rw >
-    { static_assert(index < 60, "invalid index for register"); };
+    template<unsigned reg_index>
+    struct IPR  : Register<uint32_t, 0xE000E400 + 4 * reg_index, Access::rw >
+    { static_assert(reg_index < 60, "invalid index for register"); };
   };
 }
 

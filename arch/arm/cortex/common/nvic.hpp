@@ -91,8 +91,8 @@ template<int irqn>
 class IrqChannel : public IrqBase<irqn> {
   static_assert(irqn >= 0, "illegal irq channel interrupt number");
 
-  static constexpr std::size_t  reg_index = (uint32_t)irqn >> 5;
-  static constexpr std::size_t  irq_bit = 1 << ((uint32_t)irqn & 0x1F);
+  static constexpr unsigned reg_index = (uint32_t)irqn >> 5;
+  static constexpr unsigned irq_bit = 1 << ((uint32_t)irqn & 0x1F);
 
   using NVIC  = reg::NVIC;
   using ISERx = NVIC::ISER<reg_index>;

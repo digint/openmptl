@@ -28,7 +28,7 @@ namespace reg
   /**
    * Analog-to-digital converter (ADC)
    */
-  template<std::size_t adc_no>
+  template<unsigned adc_no>
   class ADC
   {
     static_assert((adc_no >= 1) && (adc_no <= 3), "invalid index for register");
@@ -263,9 +263,9 @@ namespace reg
     typedef __SMPR1< Register< uint32_t, reg_base + 0x0c, Access::rw > > SMPR1;
     typedef __SMPR2< Register< uint32_t, reg_base + 0x10, Access::rw > > SMPR2;
 
-    template<std::size_t jofr_no>
+    template<unsigned jofr_no>
     struct JOFR
-    : __JOFR<Register< uint32_t, reg_base + 0x14 + (jofr_no - 1) * 4, Access::rw >>
+    : __JOFR<Register< uint32_t, reg_base + 0x14 + (jofr_no - 1) * 4, Access::rw > >
     { static_assert((jofr_no >= 1) && (jofr_no <= 4), "invalid index for register"); };
 
     typedef __HTR  < Register< uint32_t, reg_base + 0x24, Access::rw, 0x00000FFF > > HTR;
@@ -275,9 +275,9 @@ namespace reg
     typedef __SQR3 < Register< uint32_t, reg_base + 0x34, Access::rw             > > SQR3;
     typedef __JSQR < Register< uint32_t, reg_base + 0x38, Access::rw             > > JSQR;
 
-    template<std::size_t jdr_no>
+    template<unsigned jdr_no>
     struct JDR
-    : __JDR<Register< uint32_t, reg_base + 0x3c + (jdr_no - 1) * 4, Access::ro >>
+    : __JDR<Register< uint32_t, reg_base + 0x3c + (jdr_no - 1) * 4, Access::ro > >
     { static_assert((jdr_no >= 1) && (jdr_no <= 4), "invalid index for register"); };
 
     typedef __DR   < Register< uint32_t, reg_base + 0x4c, Access::ro > > DR;

@@ -25,7 +25,7 @@
 
 namespace reg
 {
-  template<std::size_t usart_no>
+  template<unsigned usart_no>
   class USART
   {
     /* See available template specialisations below if the compiler asserts here! */

@@ -113,8 +113,8 @@ public:
 };
 
 /* Clock resource declarations (enable peripheral clocks) */
-template<char>        struct Rcc_gpio_clock_resources;
-template<std::size_t> struct Rcc_usart_clock_resources;
+template<char>     struct Rcc_gpio_clock_resources;
+template<unsigned> struct Rcc_usart_clock_resources;
 
 /*
  * Clock resource specialisation (enable peripheral clocks)

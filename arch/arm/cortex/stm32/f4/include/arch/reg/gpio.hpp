@@ -33,8 +33,8 @@ namespace reg
   {
     static_assert((reg_name >= 'A') && (reg_name <= 'I'), "Invalid index for GPIO register");
 
-    static constexpr std::size_t gpio_no  = reg_name - 'A';
-    static constexpr reg_addr_t  reg_base = 0x40020000 + (gpio_no * 0x0400);
+    static constexpr unsigned   gpio_no  = reg_name - 'A';
+    static constexpr reg_addr_t reg_base = 0x40020000 + (gpio_no * 0x0400);
 
     static constexpr uint32_t moder_reset   = ( reg_name == 'A' ? 0xA8000000 :
                                                 reg_name == 'B' ? 0x00000280 :

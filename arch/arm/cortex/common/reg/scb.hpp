@@ -252,10 +252,10 @@ namespace reg {
     typedef __SCR  < Register< uint32_t, 0xE000ED10, Access::rw > > SCR;
     typedef __CCR  < Register< uint32_t, 0xE000ED14, Access::rw, 0x00000200 > > CCR; // TODO: 16-bit
 
-    template<std::size_t index>
+    template<unsigned reg_index>
     struct SHPR
-    : __SHPR < Register< uint32_t, 0xE000ED18 + 4 * index, Access::rw > >
-    { static_assert(index < 3, "invalid index for register"); };
+    : __SHPR < Register< uint32_t, 0xE000ED18 + 4 * reg_index, Access::rw > >
+    { static_assert(reg_index < 3, "invalid index for register"); };
 
     typedef __SHCSR< Register< uint32_t, 0xE000ED24, Access::rw > > SHCSR;
     typedef __CFSR < Register< uint32_t, 0xE000ED28, Access::rw > > CFSR;
