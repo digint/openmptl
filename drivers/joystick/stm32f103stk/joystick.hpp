@@ -45,8 +45,8 @@ public:
   enum class Position { center, up, down, left, right };
 
   static void init(void) {
-    adc::deinit();
-    adc::init();
+    adc::reset();
+    adc::configure();
     adc::enable();
   }
 

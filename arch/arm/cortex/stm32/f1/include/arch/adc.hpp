@@ -134,12 +134,12 @@ class Adc
   static_assert((adc_no >= 1) && (adc_no <= 2), "Invalid ADC number");
   static_assert((numof_channel >= 1) && (numof_channel <= 16), "Invalid ADC channel sequence length");
 
+  using ADCx = reg::ADC<adc_no>;
+
 public:
   typedef Rcc_adc_clock_resources<adc_no> resources;
 
-  using ADCx = reg::ADC<adc_no>;
-
-  static void init(void) {
+  static void configure(void) {
     // ADCx CR1 config
     ADCx::CR1::template set<typename ADCx::CR1::DUALMOD,
                             typename ADCx::CR1::SCAN>
@@ -158,7 +158,7 @@ public:
     ADCx::SQR1::L::shift_and_set((uint32_t)numof_channel - 1);
   }
 
-  static void deinit(void) {
+  static void reset(void) {
     switch(adc_no) {
     case 1:
       reg::RCC::APB2RSTR::ADC1RST::set();
