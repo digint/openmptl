@@ -27,13 +27,13 @@
 #include <freq.hpp>
 
 enum class SysTickClockSource {
-  hclk,       /**< AHB clock (HCLK)                      */
-  hclk_div8   /**< AHB clock (HCLK) divided by 8 (9MHz)  */
+  hclk,       /**< AHB clock (HCLK)               */
+  hclk_div8   /**< AHB clock (HCLK) divided by 8  */
 };
 
 
 template<typename rcc,
-         freq_t interrupt_rate,   //< interrupt rate in Hz
+         freq_t   _freq,   //< clock frequency in Hz
          SysTickClockSource clock_source = SysTickClockSource::hclk_div8>
 class SysTick
 {
@@ -41,12 +41,11 @@ class SysTick
 
 public:
 
-  static constexpr freq_t freq = interrupt_rate;
+  static constexpr freq_t freq = _freq;
+  static constexpr freq_t counter_freq = rcc::hclk_freq /
+    (clock_source == SysTickClockSource::hclk_div8 ? 8 : 1);
 
-  static constexpr uint32_t counter_freq = rcc::hclk_freq /
-                                           (clock_source == SysTickClockSource::hclk_div8 ? 8 : 1);
-
-  static constexpr uint32_t reload_value = counter_freq / interrupt_rate;
+  static constexpr uint32_t reload_value = counter_freq / freq;
   static_assert((reload_value >= 1) && (reload_value <= 0x00FFFFFF), "illegal reload value");
 
   /** picoseconds per counter tick
@@ -61,15 +60,15 @@ public:
   typedef irq::SysTick Irq; /**< System Tick Interrupt */
 
   static void set_reload(SCB::STRVR::value_type reload) {
-//    assert((reload >= 1) && (reload <= 0xFFFFFF));
+    // assert((reload >= 1) && (reload <= 0xFFFFFF));
     SCB::STRVR::store(reload);
   }
 
   static void set_clock_source(void) {
     if(clock_source == SysTickClockSource::hclk) {
-      SCB::STCSR::CLKSOURCE::set();
-    } else { // hclk_div8
-      SCB::STCSR::CLKSOURCE::clear();
+      SCB::STCSR::CLKSOURCE::set();   // hclk
+    } else {
+      SCB::STCSR::CLKSOURCE::clear(); // hclk_div8
     }
   }
   static void enable_counter(void) {
@@ -112,5 +111,3 @@ public:
 };
 
 #endif // COMMON_ARM_CORTEX_SYSTICK_HPP_INCLUDED
-
-
