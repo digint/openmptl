@@ -61,8 +61,8 @@ template<char port,
          unsigned alt_func_num = 0>
 class Gpio
 {
-  static_assert((port >= 'A') && (port <= 'I'), "Invalid GPIO port");
-  static_assert(pin_no < 16, "Invalid GPIO pin-no");
+  static_assert((port >= 'A') && (port <= 'I'), "invalid GPIO port");
+  static_assert(pin_no < 16, "invalid GPIO pin-no");
 
   static_assert(alt_func_num < 16, "illegal alternate function number");
 

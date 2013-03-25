@@ -143,13 +143,13 @@ enum class GpioActiveState {
 template<char port, int pin_no>
 class GpioBase
 {
-  static_assert(port >= 'A', "Invalid GPIO port");
+  static_assert(port >= 'A', "invalid GPIO port");
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-  static_assert(port <= 'G', "Invalid GPIO port");
+  static_assert(port <= 'G', "invalid GPIO port");
 #else
-  static_assert(port <= 'E', "Invalid GPIO port");
+  static_assert(port <= 'E', "invalid GPIO port");
 #endif
-  static_assert((pin_no >= 0) && (pin_no < 16), "Invalid GPIO pin-no");
+  static_assert((pin_no >= 0) && (pin_no < 16), "invalid GPIO pin-no");
 
 protected:
 

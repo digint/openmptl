@@ -130,9 +130,9 @@ template<unsigned adc_no,
 class Adc
 {
 // TODO: support ADC3
-//  static_assert((adc_no >= 1) && (adc_no <= 3), "Invalid ADC number");
-  static_assert((adc_no >= 1) && (adc_no <= 2), "Invalid ADC number");
-  static_assert((numof_channel >= 1) && (numof_channel <= 16), "Invalid ADC channel sequence length");
+//  static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
+  static_assert((adc_no >= 1) && (adc_no <= 2), "invalid ADC number");
+  static_assert((numof_channel >= 1) && (numof_channel <= 16), "invalid ADC channel sequence length");
 
   using ADCx = reg::ADC<adc_no>;
 
@@ -185,8 +185,8 @@ public:
   template<unsigned channel, unsigned rank, AdcSampleTime sample_time>
   static void regular_channel_config(void) {
 
-    static_assert((channel >= 0) && (channel <= 17), "Invalid channel");
-    static_assert((rank >= 1) && (rank <= 16), "Invalid rank");
+    static_assert(channel <= 17, "invalid channel");
+    static_assert((rank >= 1) && (rank <= 16), "invalid rank");
 
     if(channel > 9) {
       unsigned shift = 3 * (channel - 10);

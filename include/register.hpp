@@ -121,8 +121,8 @@ namespace reg
             T          _reset_value = 0 >
   struct Register : public RegisterStorage<T, _addr, _access, _reset_value>
   {
-    static_assert(std::is_integral<T>::value, "T must be an integral type");
-    static_assert(std::is_unsigned<T>::value, "T must be an unsigned type");
+    static_assert(std::is_integral<T>::value, "T is not an integral type");
+    static_assert(std::is_unsigned<T>::value, "T is not an unsigned type");
 
     typedef Register<T, _addr, _access, _reset_value> type;
 

@@ -76,8 +76,8 @@ template< typename           rcc,
           >
 class Usart
 {
-  static_assert((_usart_no >= 1) && (_usart_no <= 3), "Invalid USART number");
-  static_assert((word_length == 8) || (word_length == 9), "Invalid word length");
+  static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
+  static_assert((word_length == 8) || (word_length == 9), "invalid word length");
 
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 

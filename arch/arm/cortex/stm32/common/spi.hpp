@@ -191,7 +191,7 @@ template<typename spi,
          >
 class SpiMaster : public spi {
 
-  static_assert(data_size == 8 || data_size == 16, "Invalid data size");
+  static_assert(data_size == 8 || data_size == 16, "invalid data size");
 
 public:
 

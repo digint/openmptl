@@ -31,7 +31,7 @@ namespace reg
   template<char reg_name>
   struct GPIO
   {
-    static_assert((reg_name >= 'A') && (reg_name <= 'I'), "Invalid index for GPIO register");
+    static_assert((reg_name >= 'A') && (reg_name <= 'I'), "invalid index for GPIO register");
 
     static constexpr unsigned   gpio_no  = reg_name - 'A';
     static constexpr reg_addr_t reg_base = 0x40020000 + (gpio_no * 0x0400);

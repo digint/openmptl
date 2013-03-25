@@ -33,10 +33,10 @@ class Rcc {
 
   template<int m, int n, int p, int q>
   struct pllcfgr_hse {
-    static_assert(m >= 2 && m <= 63,                    "Invalid PLLM value");
-    static_assert(n >= 2 && n <= 432,                   "Invalid PLLN value");
-    static_assert(p == 2 || p == 4 || p == 6 || p == 8, "Invalid PLLP value");
-    static_assert(q >= 2 && q <= 15,                    "Invalid PLLQ value");
+    static_assert(m >= 2 && m <= 63,                    "invalid PLLM value");
+    static_assert(n >= 2 && n <= 432,                   "invalid PLLN value");
+    static_assert(p == 2 || p == 4 || p == 6 || p == 8, "invalid PLLP value");
+    static_assert(q >= 2 && q <= 15,                    "invalid PLLQ value");
 
     static constexpr RCC::PLLCFGR::value_type value =
       RCC::PLLCFGR::PLLM::shifted_value(m)           |
