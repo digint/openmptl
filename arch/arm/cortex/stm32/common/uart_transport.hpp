@@ -66,9 +66,9 @@ public:
 
 
 template<typename usart,
-         unsigned fifo_size = 256,
-         bool _crlf = true,
-         bool debug_irqs = false>
+         unsigned fifo_size  = 256,
+         bool     _crlf      = true,
+         bool     debug_irqs = false>
 class UartStreamDevice
 {
   using char_type = char;

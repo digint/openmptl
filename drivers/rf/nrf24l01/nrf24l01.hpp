@@ -187,8 +187,6 @@ public:
 
 
   static void init(void) {
-    spi_master::init();
-
     nrf_csn::init();
     nrf_ce::init();
     nrf_irq::init();
@@ -197,8 +195,8 @@ public:
     nrf_ce::enable();
   }
 
-  static void configure() {
-    spi_master::configure();
+  static void enable() {
+    spi_master::reconfigure();
   }
 };
 

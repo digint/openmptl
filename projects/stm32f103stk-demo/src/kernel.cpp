@@ -138,7 +138,7 @@ void Kernel::run(void)
     cycle     = cycle_counter.get();
 
     /* update screen */
-    lcd::configure();
+    lcd::enable();
     Screen::update();
   }
 }

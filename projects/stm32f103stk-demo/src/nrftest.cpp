@@ -28,7 +28,7 @@ namespace terminal_hooks
 
     using nrf = Kernel::nrf;
 
-    nrf::configure();
+    nrf::enable();
 
     c = nrf::read_register(NrfRegister::status);
     cout << "status=0x" << c << endl;

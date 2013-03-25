@@ -80,14 +80,14 @@ public:
              256 );
   }
 
-  static void configure(SpiMasterSelection master_selection = SpiMasterSelection::slave,
-                        freq_t max_frequency = 0,   /* Hz, 0=maximum available */
-                        unsigned data_size = 8,
-                        SpiClockPolarity clk_pol = SpiClockPolarity::low,
-                        SpiClockPhase clk_phase = SpiClockPhase::first_edge,
-                        SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
-                        SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::disabled,
-                        SpiFrameFormat frame_format = SpiFrameFormat::msb_first)
+  static void configure(SpiMasterSelection         master_selection,
+                        freq_t                     max_frequency,   /* Hz, 0=maximum available */
+                        unsigned                   data_size,
+                        SpiClockPolarity           clk_pol,
+                        SpiClockPhase              clk_phase,
+                        SpiDataDirection           data_dir,
+                        SpiSoftwareSlaveManagement ssm,
+                        SpiFrameFormat             frame_format)
   {
     auto cr1 = SPIx::CR1::load();
 
@@ -130,7 +130,6 @@ public:
     SPIx::CR1::store(cr1);
   }
 
-  // reset CRC Polynomial
   static void reset_crc(void) {
     SPIx::CRCPR::reset();
   }
@@ -199,19 +198,21 @@ public:
   using resources = typename spi::resources;
 
   /**
-   * Reconfigure and enable SPI.
+   * Configure SPI.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   static void configure(void) {
-    spi::disable();
-    spi::configure(SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm);
-    spi::enable();
+    spi::configure(SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm, frame_format);
   }
 
-  static void init(void) {
-    /* Configure SPI1 pins: NSS, SCK, MISO and MOSI */
-    spi::reset_crc();
+  /**
+   * Reconfigure and enable SPI.
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
+  static void reconfigure(void) {
+    spi::disable();
     configure();
+    spi::enable();
   }
 };
 

@@ -159,6 +159,14 @@ class Lcd_Nokia3310 : public Lcd< 84, 48 >
     SpiFrameFormat::msb_first
     >;
 
+  static void enable_slave_select(void) {
+    lcd_e::enable();
+  }
+  static void disable_slave_select(void) {
+    spi_master::wait_not_busy();
+    lcd_e::disable();
+  }
+
   static void select_data() {
     spi_master::wait_not_busy();
     lcd_ds::set(); /* select data */
@@ -182,16 +190,8 @@ public:
     typename lcd_e::resources
     >;
 
-  static void configure(void) {
-    spi_master::configure();
-  }
-
-  static void enable_slave_select(void) {
-    lcd_e::enable();
-  }
-  static void disable_slave_select(void) {
-    spi_master::wait_not_busy();
-    lcd_e::disable();
+  static void enable(void) {
+    spi_master::reconfigure();
   }
 
   void update(void) {
@@ -227,8 +227,6 @@ public:
     temp_coeff &= 0x03;
     bias       &= 0x07;
 
-    spi_master::init();
-
     lcd_ds::init();
     lcd_ds::set();
 
@@ -242,6 +240,8 @@ public:
     Core::nop(10000);
     lcd_reset::disable();
     Core::nop(10000);
+
+    enable();
 
     /* command sequence (init) */
     enable_slave_select();
