@@ -227,11 +227,7 @@ public:
     temp_coeff &= 0x03;
     bias       &= 0x07;
 
-    lcd_ds::init();
     lcd_ds::set();
-
-    lcd_reset::init();
-    lcd_e::init();
     lcd_e::disable();
     lcd_reset::disable();
 

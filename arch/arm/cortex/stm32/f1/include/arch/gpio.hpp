@@ -212,21 +212,6 @@ public:
     SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
     >;
 
-  static void init() {
-    // TODO: check if this is correct
-    if(cnf == GpioInputConfig::pull_up) {
-      base::set(); // configure pull-up
-      // base::set_mode(0, 2); //  10 - Input with pull-up/pull-down
-    }
-    else if(cnf == GpioInputConfig::pull_down) {
-      base::reset(); // configure pull-down
-      // base::set_mode(0, 2); //  10 - Input with pull-up/pull-down
-    }
-    else {
-      // base::set_mode(0, cnf);
-    }
-  }
-
   static bool active(void) {
     bool input = base::read_input_bit();
     return active_state == GpioActiveState::low ? !input : input;
@@ -273,10 +258,6 @@ public:
     SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
     SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
     >;
-
-  static void init() {
-    // base::set_mode(mode, cnf);
-  }
 
   static void enable() {
     if(active_state == GpioActiveState::low) {

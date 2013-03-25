@@ -55,7 +55,7 @@ void Kernel::init(void)
   resources::check();      /* check unique resources */
   resources::configure();  /* configure resources (set all shared register) */
 
-  led::init(); led::off();
+  led::off();
 
   time::init();
   time::enable();

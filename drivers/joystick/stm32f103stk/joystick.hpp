@@ -48,8 +48,6 @@ public:
     adc::deinit();
     adc::init();
     adc::enable();
-
-    button::init();
   }
 
   static Position get_position(void) {

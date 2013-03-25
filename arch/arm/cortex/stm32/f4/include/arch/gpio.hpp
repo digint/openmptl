@@ -115,9 +115,6 @@ public:
     SharedRegister< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       >
     >;
 
-  static void init() {
-  }
-
   static void set() {
     GPIOx::BSRR::store(pin_mask);
   }

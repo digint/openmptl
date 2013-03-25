@@ -25,12 +25,13 @@
 #include "arch/spi.hpp"
 
 enum class NrfCommand : uint8_t {
-  nop          = 0xff,
   r_rx_payload = 0x61,
   w_tx_payload = 0xa0,
   flush_tx     = 0xe1,
   flush_rx     = 0xe2,
-  reuse_tx_pl  = 0xe3
+  reuse_tx_pl  = 0xe3,
+  activate     = 0x50,
+  nop          = 0xff
 };
 
 enum class NrfRegister : uint8_t {
@@ -43,7 +44,7 @@ enum class NrfRegister : uint8_t {
   rf_setup     = 0x06,
   status       = 0x07,
   observe_tx   = 0x08, 
-  rpd          = 0x09,
+  cd           = 0x09,
   rx_addr_p0   = 0x0a,
   rx_addr_p1   = 0x0b,
   rx_addr_p2   = 0x0c,
@@ -187,10 +188,6 @@ public:
 
 
   static void init(void) {
-    nrf_csn::init();
-    nrf_ce::init();
-    nrf_irq::init();
-
     nrf_csn::disable();
     nrf_ce::enable();
   }
