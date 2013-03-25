@@ -43,7 +43,7 @@ struct Kernel
   using usart_gpio_tx = UsartGpioTx< usart, 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< usart, 'A', 3 >;
 
-  using uart_stream_device = UartStreamDevice< usart >;
+  using uart_stream_device = UartStreamDevice< usart, 512 >;
 
   using led_green  = GpioLed< 'D', 12 >;
   using led_orange = GpioLed< 'D', 13 >;

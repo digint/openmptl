@@ -40,7 +40,7 @@ namespace text
 template<typename stream_device_type, typename cmd_hooks>
 class Terminal
 {
-  typedef typename stream_device_type::char_type char_type;
+  typedef typename stream_device_type::fifo_type::char_type char_type;
   typedef FifoStream< typename stream_device_type::fifo_type, stream_device_type > tx_stream_type;
 
   static constexpr std::size_t cmd_buf_size = 80;
