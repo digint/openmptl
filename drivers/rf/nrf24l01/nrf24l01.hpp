@@ -24,31 +24,33 @@
 #include "arch/gpio.hpp"
 #include "arch/spi.hpp"
 
-// Commands
-#define   NOP             0xff
-#define   R_RX_PAYLOAD    0x61
-#define   W_TX_PAYLOAD    0xA0
-#define   FLUSH_TX        0xE1
-#define   FLUSH_RX        0xE2
-#define   REUSE_TX_PL     0xE3
+enum class NrfCommand : uint8_t {
+  nop             = 0xff,
+  r_rx_payload    = 0x61,
+  w_tx_payload    = 0xa0,
+  flush_tx        = 0xe1,
+  flush_rx        = 0xe2,
+  reuse_tx_pl     = 0xe3
+};
 
-// Register
-#define   RX_ADDR_P0      0x0A
-#define   RX_ADDR_P1      0x0B
-#define   TX_ADDR         0x10
-#define   RX_PW_P0        0x11
-#define   RX_PW_P1        0x12
-#define   FIFO_STATUS     0x17
+enum class NrfRegister : uint8_t {
+  rx_addr_p0      = 0x0a,
+  rx_addr_p1      = 0x0b,
+  tx_addr         = 0x10,
+  rx_pw_p0        = 0x11,
+  rx_pw_p1        = 0x12,
+  fifo_status     = 0x17,
 
-#define   MAX_RT          0x10
+  max_rt          = 0x10,
 
-#define   CONFIG_REG_ADDR 0x00
-#define   STATUS_ADDR     0x07
+  config_reg_addr = 0x00,
+  status_addr     = 0x07,
 
-#define   FLUSH_TX        0xE1
-#define   TX_FULL         0x01
-#define   RX_DR           0x40
-#define   TX_DS           0x20
+  flush_tx        = 0xe1,
+  tx_full         = 0x01,
+  rx_dr           = 0x40,
+  tx_ds           = 0x20
+};
 
 template<typename spi_type,
          typename nrf_ce,
@@ -63,7 +65,7 @@ class Nrf24l01
     // Core::nop(10);
   }
 
-  /*  Tcc: CSN to SCK Setup: 2ns */
+  /* Tcc: CSN to SCK Setup: 2ns */
   static void wait_tcc(void) {
     // Core::nop(2);
   }
@@ -83,6 +85,20 @@ class Nrf24l01
     nrf_csn::disable();
   }
 
+  static uint8_t writeread(uint8_t data) {
+    return spi_master::writeread_blocking(data);
+  }
+
+  static uint8_t writeread(NrfCommand cmd) {
+    return writeread(static_cast<uint8_t>(cmd));
+  }
+
+  static uint8_t read_cmd(NrfRegister reg) {
+    return static_cast<uint8_t>(reg)  & 0x1f;
+  }
+  static uint8_t write_cmd(NrfRegister reg) {
+    return (1 << 5) | (static_cast<uint8_t>(reg) & 0x1f);
+  }
 public:
 
   using spi = spi_type;
@@ -105,49 +121,45 @@ public:
     typename nrf_irq::resources
     >;
 
-  /* NOTE: 5 bit address */
-  static unsigned char read_register(unsigned char addr) {
-    unsigned char ret;
-    unsigned char command = addr;
+  static uint8_t read_register(NrfRegister reg) {
+    uint8_t ret;
 
     enable_slave_select();
-    spi_master::writeread_blocking(command);
-    ret = spi_master::writeread_blocking(NOP);
+    writeread(read_cmd(reg));
+    ret = writeread(NrfCommand::nop);
     disable_slave_select();
     return ret;
   }
 
-  static void read_address_register(unsigned char addr, unsigned char *ret_addr) {
-    unsigned char command = (0 << 5) | addr;
-
+  static void read_address_register(NrfRegister reg, uint8_t *ret_addr) {
     enable_slave_select();
-    spi_master::writeread_blocking(command);
+    writeread(read_cmd(reg));
     for (int i=0; i < 5; i++) {
-      ret_addr[i] = spi_master::writeread_blocking(NOP);
+      ret_addr[i] = writeread(NrfCommand::nop);
     }
     disable_slave_select();
   }
 
-  static void write_address_register(unsigned char addr, const unsigned char data[] ) {
-    unsigned char command = (1 << 5) | addr;
-
-    enable_slave_select();
-    if (addr == RX_ADDR_P0 || addr == RX_ADDR_P1 || addr == TX_ADDR) {
-      spi_master::writeread_blocking(command);
+  static void write_address_register(NrfRegister reg, const uint8_t data[] ) {
+    if(reg == NrfRegister::rx_addr_p0 ||
+       reg == NrfRegister::rx_addr_p1 ||
+       reg == NrfRegister::tx_addr)
+    {
+      enable_slave_select();
+      writeread(write_cmd(reg));
       for (int i = 0; i < 5; i++) {
-        spi_master::writeread_blocking(data[i]);
+        writeread(data[i]);
       }
+      disable_slave_select();
     }
-    disable_slave_select();
   }
 
-  static unsigned char write_register(unsigned char addr, unsigned char data) {
-    unsigned char ret;
-    unsigned char command = (1 << 5) | addr;
+  static uint8_t write_register(NrfRegister reg, uint8_t data) {
+    uint8_t ret;
 
     enable_slave_select();
-    ret = spi_master::writeread_blocking(command);
-    spi_master::writeread_blocking(data);
+    ret = writeread(write_cmd(reg));
+    writeread(data);
     disable_slave_select();
     return ret;
   }
@@ -169,8 +181,8 @@ public:
   }
 
 #if 0
-  static void assign_addr(const unsigned char * rx_addr_p0, const unsigned char * rx_addr_p1, const unsigned char * tx_addr) {
-    unsigned char buf[5];
+  static void assign_addr(const uint8_t * rx_addr_p0, const uint8_t * rx_addr_p1, const uint8_t * tx_addr) {
+    uint8_t buf[5];
 
     // Write CONFIG register (addres - 0x00)
     //00001010 - CRC enable, power-up, RX
