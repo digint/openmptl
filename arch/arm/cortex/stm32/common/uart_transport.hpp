@@ -85,10 +85,10 @@ struct UartStreamDevice
   }
 
   static void open(void) {
-    usart::init();
+    usart::configure();
     usart::enable();
     usart::Irq::enable();
-    usart::template enable_interrupt<true, false, true, false, false>();
+    usart::enable_interrupt(true, false, true, false, false);
   }
 
   static void isr(void) {

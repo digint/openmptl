@@ -89,14 +89,13 @@ public:
   using Irq = irq::USART<usart_no>;
 
   static void send(typename USARTx::DR::value_type data) {
-    //    USARTx::DR::store(data & (uint32_t)0x01ff);
+    // USARTx::DR::store(data & (uint32_t)0x01ff);
     USARTx::DR::store(data);
   }
   static typename USARTx::DR::value_type receive(void) {
     /* This also clears the RXNE bit in the SR register.             */
     /* When receiving the parity enabled, the value read in the MSB  */
     /* bit is the received parity bit.                               */
-    //    return USARTx::DR::DR_::test();
     return USARTx::DR::load();
   }
 
@@ -107,13 +106,12 @@ public:
     USARTx::CR1::UE::clear();
   }
 
-  template< bool rxne = true,   /**< read data register not empty interrupt    */
-            bool txe  = true,   /**< transmitter data register empty interrupt */
-            bool pe   = true,   /**< parity error interrupt                    */
-            bool tc   = false,  /**< transmission complete interrupt           */
-            bool idle = false   /**< idle interrupt                            */
-            >
-  static void enable_interrupt(void) {
+  static void enable_interrupt(bool rxne,           /**< read data register not empty interrupt    */
+                               bool txe  = false,   /**< transmitter data register empty interrupt */
+                               bool pe   = false,   /**< parity error interrupt                    */
+                               bool tc   = false,   /**< transmission complete interrupt           */
+                               bool idle = false)   /**< idle interrupt                            */
+  {
     auto cr1 = USARTx::CR1::load();
     if(rxne) cr1 |= USARTx::CR1::RXNEIE::value;
     if(txe)  cr1 |= USARTx::CR1::TXEIE::value;
@@ -123,13 +121,12 @@ public:
     USARTx::CR1::store(cr1);
   }
 
-  template< bool rxne = true,   /**< read data register not empty interrupt    */
-            bool txe  = true,   /**< transmitter data register empty interrupt */
-            bool pe   = true,   /**< parity error interrupt                    */
-            bool tc   = false,  /**< transmission complete interrupt           */
-            bool idle = false   /**< idle interrupt                            */
-            >
-  static void disable_interrupt(void) {
+  static void disable_interrupt(bool rxne,          /**< read data register not empty interrupt    */
+                                bool txe  = false,  /**< transmitter data register empty interrupt */
+                                bool pe   = false,  /**< parity error interrupt                    */
+                                bool tc   = false,  /**< transmission complete interrupt           */
+                                bool idle = false)  /**< idle interrupt                            */
+  {
     auto cr1 = USARTx::CR1::load();
     if(rxne) cr1 &= ~USARTx::CR1::RXNEIE::value;
     if(txe)  cr1 &= ~USARTx::CR1::TXEIE::value;
@@ -139,25 +136,11 @@ public:
     USARTx::CR1::store(cr1);
   }
 
-  static void enable_tx_interrupt(void)  { enable_interrupt<false, true, false, false, false>(); }
-  static void disable_tx_interrupt(void) { disable_interrupt<false, true, false, false, false>(); }
+  static void enable_tx_interrupt(void)  { USARTx::CR1::TXEIE::set(); }
+  static void disable_tx_interrupt(void) { USARTx::CR1::TXEIE::clear(); }
 
 
-  static void init(void) {
-    /* USARTx CR2 config */
-    auto cr2 = USARTx::CR2::load();
-    cr2 &= ~(USARTx::CR2::STOP::value | USARTx::CR2::CLKEN::value | USARTx::CR2::CPOL::value | USARTx::CR2::CPHA::value | USARTx::CR2::LBCL::value);
-    cr2 |= (uint32_t)stop_bits << 12;
-    if(clock_enable)
-      cr2 |= USARTx::CR2::CLKEN::value;
-    if(cpol == UsartClockPolarity::high)
-      cr2 |= USARTx::CR2::CPOL::value;
-    if(cpha == UsartClockPhase::second)
-      cr2 |= USARTx::CR2::CPHA::value;
-    if(lbcl)
-      cr2 |= USARTx::CR2::LBCL::value;
-    USARTx::CR2::store(cr2);
-
+  static void configure(void) {
     /* USARTx CR1 config */
     auto cr1 = USARTx::CR1::load();
     cr1 &= ~(USARTx::CR1::M::value | USARTx::CR1::PCE::value | USARTx::CR1::PS::value | USARTx::CR1::TE::value | USARTx::CR1::RE::value);
@@ -172,6 +155,20 @@ public:
     if(enable_rx)
       cr1 |= USARTx::CR1::RE::value;
     USARTx::CR1::store(cr1);
+
+    /* USARTx CR2 config */
+    auto cr2 = USARTx::CR2::load();
+    cr2 &= ~(USARTx::CR2::STOP::value | USARTx::CR2::CLKEN::value | USARTx::CR2::CPOL::value | USARTx::CR2::CPHA::value | USARTx::CR2::LBCL::value);
+    cr2 |= (uint32_t)stop_bits << 12;
+    if(clock_enable)
+      cr2 |= USARTx::CR2::CLKEN::value;
+    if(cpol == UsartClockPolarity::high)
+      cr2 |= USARTx::CR2::CPOL::value;
+    if(cpha == UsartClockPhase::second)
+      cr2 |= USARTx::CR2::CPHA::value;
+    if(lbcl)
+      cr2 |= USARTx::CR2::LBCL::value;
+    USARTx::CR2::store(cr2);
 
     /* USARTx CR3 config */
     USARTx::CR3::template set<typename USARTx::CR3::CTSE,

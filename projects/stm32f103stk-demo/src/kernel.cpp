@@ -61,16 +61,10 @@ void Kernel::init(void)
   time::enable();
 
   lcd::init();
-  // lcd::set_contrast(0x45);
-
   nrf::init();
-
   joy::init();
 
-  usart::init();
-  usart::enable();
-  usart::Irq::enable();
-  usart::enable_interrupt<true, false, true, false, false>();
+  // lcd::set_contrast(0x45);
 }
 
 
