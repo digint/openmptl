@@ -29,7 +29,6 @@ class Joystick
   typedef Adc<1, AdcMode::independent, AdcScanMode::disabled, AdcContinuousConvMode::single, AdcExternalTrigConv::none, AdcDataAlign::right, 1> adc;
   
   static int get_value(void) {
-    adc::regular_channel_config<15, 1, AdcSampleTime::cycles_55_5>();
     adc::enable_software_start_conversion();
     adc::wait_eoc();
     return adc::get_conversion_value();
@@ -47,6 +46,7 @@ public:
   static void init(void) {
     adc::reset();
     adc::configure();
+    adc::regular_channel_config<15, 1, AdcSampleTime::cycles_55_5>();
     adc::enable();
   }
 
