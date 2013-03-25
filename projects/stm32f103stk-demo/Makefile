@@ -38,6 +38,7 @@ else
 endif
 
 FLAGS       += -DSTM32F10X_MD
+# FLAGS       += -DHEAP_FIXED_SIZE=8129
 
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER    = -Os

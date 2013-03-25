@@ -36,7 +36,7 @@ namespace terminal_hooks
     }
   };
 
-  struct SyscallsTest
+  struct HeapEater
   : public TerminalHook
   {
     static constexpr const char * cmd  = "heap";
@@ -57,6 +57,6 @@ namespace terminal_hooks
   // Terminal Commands
   //
 
-  using commands = TerminalHookList< Cpuid, SyscallsTest, NrfTest >;
+  using commands = TerminalHookList< Cpuid, HeapEater, NrfTest >;
 }
 #endif

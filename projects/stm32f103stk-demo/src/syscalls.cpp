@@ -18,12 +18,9 @@
  *
  */
 
-#include "kernel.hpp"
-#include "terminal_hooks.hpp"
-
-
 #ifndef CORE_SIMULATION
 
+#include "kernel.hpp"
 #include "printf.h"
 
 #include <unistd.h>
@@ -78,19 +75,21 @@ void _exit(int status)
   Kernel::lcd lcd;
   char buf[16];
 
-  lcd.configure();
+  lcd.enable();
   lcd.clear();
   lcd.print_line(0, "oops...");
-  lcd.print_line(1, "out of memory");
+  lcd.print_line_inv(1, "OUT OF MEMORY");
   sprintf(buf, "stat: %08x", status);
   lcd.print_line(2, buf);
-  sprintf(buf, "heap: %08x", heap_ptr);
+  sprintf(buf, "err#: %08u", errno);
   lcd.print_line(3, buf);
-  sprintf(buf, "hend: %08x", heap_end);
+  sprintf(buf, "heap: %08x", heap_ptr);
   lcd.print_line(4, buf);
+  sprintf(buf, "hend: %08x", heap_end);
+  lcd.print_line(5, buf);
   lcd.update();
 
-  while (1);
+  while(1);
 }
 
 int _getpid(int n)
@@ -102,26 +101,5 @@ int _getpid(int n)
 #ifdef __cplusplus
 }
 #endif
-
-
-struct A {
-  char buf[1024];
-  A() { for(int i = 0; i < 1024; i++) buf[i] = 42; };
-};
-
-A *a;
-
-void terminal_hooks::SyscallsTest::run(poorman_ostream<char> & cout) {
-  cout << "new A(): size=" << sizeof(A) << endl;
-  cout << "heap_ptr: old=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
-  a = new A();
-  cout << "heap_ptr: new=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
-}
-
-#else
-
-void terminal_hooks::SyscallsTest::run(poorman_ostream<char> & cout) {
-  cout << "core_simulation: empty syscalls test" << endl;
-}
 
 #endif // CORE_SIMULATION
