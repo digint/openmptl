@@ -25,33 +25,23 @@ namespace terminal_hooks
 {
   void NrfTest::run(poorman_ostream<char> & cout) {
     unsigned char c;
-    unsigned char nrf_buf[5];
 
     using nrf = Kernel::nrf;
 
     nrf::configure();
 
-    // nrf::assign_addr();
-
-    c = nrf::read_register(STATUS_ADDR);
+    c = nrf::read_register(NrfRegister::status);
     cout << "status=0x" << c << endl;
 
-    nrf::write_register(CONFIG_REG_ADDR, 0x0B);
-    c = nrf::read_register(CONFIG_REG_ADDR);
+    nrf::write_register(NrfRegister::config, 0x0B);
+    c = nrf::read_register(NrfRegister::config);
     cout << "c=0x" << c << endl;
-    nrf_buf[0] = 5;
-    nrf_buf[1] = 6;
-    nrf_buf[2] = 7;
-    nrf_buf[3] = 8;
-    nrf_buf[4] = 9;
-    nrf::write_address_register(RX_ADDR_P0, nrf_buf);
 
-    nrf_buf[0] = 0;
-    nrf_buf[1] = 0;
-    nrf_buf[2] = 0;
-    nrf_buf[3] = 0;
-    nrf_buf[4] = 0;
-    nrf::read_address_register(RX_ADDR_P0, nrf_buf);
-    cout << "rx_addr_p0=0x" << nrf_buf[0] << nrf_buf[1] << nrf_buf[2] << nrf_buf[3] << nrf_buf[4] << endl;
+    NrfAddress addr(5, 6, 7, 8, 9);
+    nrf::write_address_register(NrfRegister::rx_addr_p0, addr);
+
+    NrfAddress r_addr;
+    nrf::read_address_register(NrfRegister::rx_addr_p0, r_addr);
+    cout << "rx_addr_p0=0x" << r_addr.buf[0] << r_addr.buf[1] << r_addr.buf[2] << r_addr.buf[3] << r_addr.buf[4] << endl;
   }
 }

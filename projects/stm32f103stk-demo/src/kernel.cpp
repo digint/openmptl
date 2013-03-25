@@ -61,7 +61,7 @@ void Kernel::init(void)
   time::enable();
 
   lcd::init();
-  lcd::set_contrast(0x45);
+  // lcd::set_contrast(0x45);
 
   nrf::init();
 

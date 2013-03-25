@@ -25,31 +25,52 @@
 #include "arch/spi.hpp"
 
 enum class NrfCommand : uint8_t {
-  nop             = 0xff,
-  r_rx_payload    = 0x61,
-  w_tx_payload    = 0xa0,
-  flush_tx        = 0xe1,
-  flush_rx        = 0xe2,
-  reuse_tx_pl     = 0xe3
+  nop          = 0xff,
+  r_rx_payload = 0x61,
+  w_tx_payload = 0xa0,
+  flush_tx     = 0xe1,
+  flush_rx     = 0xe2,
+  reuse_tx_pl  = 0xe3
 };
 
 enum class NrfRegister : uint8_t {
-  rx_addr_p0      = 0x0a,
-  rx_addr_p1      = 0x0b,
-  tx_addr         = 0x10,
-  rx_pw_p0        = 0x11,
-  rx_pw_p1        = 0x12,
-  fifo_status     = 0x17,
+  config       = 0x00,
+  en_aa        = 0x01,
+  en_rxaddr    = 0x02,
+  setup_aw     = 0x03,
+  setup_retr   = 0x04,
+  rf_ch        = 0x05,
+  rf_setup     = 0x06,
+  status       = 0x07,
+  observe_tx   = 0x08, 
+  rpd          = 0x09,
+  rx_addr_p0   = 0x0a,
+  rx_addr_p1   = 0x0b,
+  rx_addr_p2   = 0x0c,
+  rx_addr_p3   = 0x0d,
+  rx_addr_p4   = 0x0e,
+  rx_addr_p5   = 0x0f,
+  tx_addr      = 0x10,
+  rx_pw_p0     = 0x11,
+  rx_pw_p1     = 0x12,
+  rx_pw_p2     = 0x13,
+  rx_pw_p3     = 0x14,
+  rx_pw_p4     = 0x15,
+  rx_pw_p5     = 0x16,
+  fifo_status  = 0x17,
+  dynpd        = 0x1c,
+  feature      = 0x1d
+};
 
-  max_rt          = 0x10,
+struct NrfAddress {
+  uint8_t buf[5];
 
-  config_reg_addr = 0x00,
-  status_addr     = 0x07,
-
-  flush_tx        = 0xe1,
-  tx_full         = 0x01,
-  rx_dr           = 0x40,
-  tx_ds           = 0x20
+  NrfAddress(void) {
+    buf[0] = 0; buf[1] = 0; buf[2] = 0; buf[3] = 0; buf[4] = 0;
+  }
+  NrfAddress(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4, uint8_t p5) {
+    buf[0] = p1; buf[1] = p2; buf[2] = p3; buf[3] = p4; buf[4] = p5;
+  }
 };
 
 template<typename spi_type,
@@ -59,6 +80,19 @@ template<typename spi_type,
          >
 class Nrf24l01
 {
+  using spi = spi_type;
+
+  using spi_master = SpiMaster<
+    spi,
+    8_mhz,  // max frequency
+    8,      // 8bit data
+    SpiClockPolarity::low,
+    SpiClockPhase::first_edge,
+    SpiDataDirection::two_lines_full_duplex,
+    SpiSoftwareSlaveManagement::enabled,
+    SpiFrameFormat::msb_first
+    >;
+
   /* Tcwh: CSN Inactive time: min. 50ns */
   /* Time between calls of disable() -> enable() */
   static void wait_tcwh(void) {
@@ -101,19 +135,6 @@ class Nrf24l01
   }
 public:
 
-  using spi = spi_type;
-
-  using spi_master = SpiMaster<
-    spi,
-    8_mhz,  // max frequency
-    8,      // 8bit data
-    SpiClockPolarity::low,
-    SpiClockPhase::first_edge,
-    SpiDataDirection::two_lines_full_duplex,
-    SpiSoftwareSlaveManagement::enabled,
-    SpiFrameFormat::msb_first
-    >;
-
   using resources = ResourceList<
     typename spi_master::resources,
     typename nrf_ce::resources,
@@ -131,16 +152,16 @@ public:
     return ret;
   }
 
-  static void read_address_register(NrfRegister reg, uint8_t *ret_addr) {
+  static void read_address_register(NrfRegister reg, NrfAddress & ret_addr) {
     enable_slave_select();
     writeread(read_cmd(reg));
     for (int i=0; i < 5; i++) {
-      ret_addr[i] = writeread(NrfCommand::nop);
+      ret_addr.buf[i] = writeread(NrfCommand::nop);
     }
     disable_slave_select();
   }
 
-  static void write_address_register(NrfRegister reg, const uint8_t data[] ) {
+  static void write_address_register(NrfRegister reg, NrfAddress const & addr) {
     if(reg == NrfRegister::rx_addr_p0 ||
        reg == NrfRegister::rx_addr_p1 ||
        reg == NrfRegister::tx_addr)
@@ -148,7 +169,7 @@ public:
       enable_slave_select();
       writeread(write_cmd(reg));
       for (int i = 0; i < 5; i++) {
-        writeread(data[i]);
+        writeread(addr.buf[i]);
       }
       disable_slave_select();
     }
@@ -179,45 +200,6 @@ public:
   static void configure() {
     spi_master::configure();
   }
-
-#if 0
-  static void assign_addr(const uint8_t * rx_addr_p0, const uint8_t * rx_addr_p1, const uint8_t * tx_addr) {
-    uint8_t buf[5];
-
-    // Write CONFIG register (addres - 0x00)
-    //00001010 - CRC enable, power-up, RX
-    write_register(CONFIG_REG_ADDR, 0x0B);
-    // read
-    read_register(CONFIG_REG_ADDR);
-
-    // Write RX_ADDR_P0 register -> Set receive address data Pipe0 -> address in RX_ADDRESS_P0 array
-    //???    write_address_register(RX_ADDR_P0, rx_addr_p0);
-    write_address_register(RX_ADDR_P0, rx_addr_p0);
-    // read
-    read_address_register(RX_ADDR_P0, buf);  // TODO: compare
-
-    // Write RX_ADDR_P1 register -> Set receive address data Pipe1 -> address in RX_ADDRESS_P1 array
-    write_address_register(RX_ADDR_P1, rx_addr_p1);
-    // read
-    read_address_register(RX_ADDR_P1, buf);
-
-    // Write TX_ADDR register -> Transmit address. Used for a PTX device only. Address in TX_ADDRESS array
-    write_address_register(TX_ADDR, tx_addr);
-    // read
-    read_address_register(TX_ADDR, buf);
-
-    // Write RX_PW_P0 register -> Set number of bytes in RX payload in data pipe0 -> 1 byte
-    write_register(RX_PW_P0, 1);
-    // read
-    read_register(RX_PW_P0);
-
-    // Write RX_PW_P1 register -> Set number of bytes in RX payload in data pipe1 -> 1 byte
-    write_register(RX_PW_P1, 1);
-    // read
-    read_register(RX_PW_P1);
-
-  }
-#endif
 };
 
 #endif // NRF24L01_HPP_INCLUDED
