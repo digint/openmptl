@@ -26,7 +26,7 @@
 class Joystick
 {
   typedef GpioInput<'C', 6, GpioInputConfig::floating, GpioActiveState::high> button;
-  typedef Adc<1, AdcMode::independent, AdcScanMode::disabled, AdcContinuousConvMode::single, AdcExternalTrigConv::none, AdcDataAlign::right, 1> adc;
+  typedef Adc<1, AdcMode::independent, AdcScanMode::disabled, AdcContinuousConvMode::single, AdcExternalTrigConv::SoftwareStart, AdcDataAlign::right, AdcRegularChannelSequenceLength<1> > adc;
   
   static int get_value(void) {
     adc::enable_software_start_conversion();

@@ -23,6 +23,7 @@
 
 #include <arch/rcc.hpp>
 #include <arch/reg/adc.hpp>
+#include <type_traits>
 
 /** Dual mode selection. */
 enum class AdcMode : uint32_t {
@@ -61,28 +62,65 @@ enum class AdcContinuousConvMode : uint32_t {
  * Select the external event used to trigger the start of
  * conversion of a regular group:
  */
-enum class AdcExternalTrigConv : uint32_t {
-  // For ADC1 and ADC2, the assigned triggers are:
-  T1_CC1    = 0,  /**< 000: Timer 1 CC1 event   */
-  T1_CC2    = 1,  /**< 001: Timer 1 CC2 event   */
-  T1_CC3    = 2,  /**< 010: Timer 1 CC3 event   */
-  T2_CC2    = 3,  /**< 011: Timer 2 CC2 event   */
-  T3_TRGO   = 4,  /**< 100: Timer 3 TRGO event  */
-  T4_CC4    = 5,  /**< 101: Timer 4 CC4 event   */
-  ext_IT11  = 6,  /**< 110: EXTI line11/TIM8_TRGO event (TIM8_TRGO is available only in high-density and XL-density devices) */
-  none      = 7   /**< 111: SWSTART             */
-#if 0 // TODO: special treatment for ADC3
-  // For ADC3, the assigned triggers are:
-  T3_CC1    = 0,  /**< 000: Timer 3 CC1 event   */
-  T2_CC3    = 1,  /**< 001: Timer 2 CC3 event   */
-  T1_CC3    = 2,  /**< 010: Timer 1 CC3 event   */
-  T8_CC1    = 3,  /**< 011: Timer 8 CC1 event   */
-  T8_TRGO   = 4,  /**< 100: Timer 8 TRGO event  */
-  T5_CC1    = 5,  /**< 101: Timer 5 CC1 event   */
-  T5_CC3    = 6,  /**< 110: Timer 5 CC3 event   */
-  none      = 7   /**< 111: SWSTART             */
+namespace AdcExternalTrigConv
+{
+  /* SWSTART */
+  struct SoftwareStart
+  {
+    template<unsigned adc_no>
+    struct extsel : std::integral_constant<uint32_t, 0>
+    { };
+  };
+
+  /* CC */
+  template<unsigned timer, unsigned capture_compare>
+  struct CaptureCompare
+  {
+    template<unsigned adc_no>
+    struct extsel {
+      static constexpr uint32_t value =
+        (adc_no  < 3) && (timer == 1) && (capture_compare == 1) ? 0 :
+        (adc_no  < 3) && (timer == 1) && (capture_compare == 2) ? 1 :
+        (adc_no  < 3) && (timer == 1) && (capture_compare == 3) ? 2 :
+        (adc_no  < 3) && (timer == 2) && (capture_compare == 1) ? 3 :
+        (adc_no  < 3) && (timer == 4) && (capture_compare == 4) ? 6 :
+        (adc_no == 3) && (timer == 3) && (capture_compare == 1) ? 0 :
+        (adc_no == 3) && (timer == 2) && (capture_compare == 3) ? 1 :
+        (adc_no == 3) && (timer == 1) && (capture_compare == 3) ? 2 :
+        (adc_no == 3) && (timer == 8) && (capture_compare == 1) ? 3 :
+        (adc_no == 3) && (timer == 5) && (capture_compare == 1) ? 5 :
+        (adc_no == 3) && (timer == 5) && (capture_compare == 3) ? 6 :
+        0xff;
+      static_assert((value & 0x7) == value, "invalid timer / capture_compare combination");
+    };
+  };
+
+  /* TRGO */
+  template<unsigned timer>
+  struct TriggerOutput
+  {
+    template<unsigned adc_no>
+    struct extsel {
+      static constexpr uint32_t value =
+        (adc_no  < 3) && (timer == 3) ? 4 :
+        (adc_no == 3) && (timer == 8) ? 4 :
+#if defined (STM32F10X_XL)
+        (adc_no  < 3) && (timer == 8) ? 6 :
 #endif
-};
+        0xff;
+      static_assert((value & 0x7) == value, "invalid timer / capture_compare combination");
+    };
+  };
+
+  struct EXTI_line11
+  {
+    template<unsigned adc_no>
+    struct extsel : std::integral_constant<uint32_t, 6>
+    {
+      static_assert(adc_no < 3, "invalid ADC number for EXTI_line11 external trigger conversion");
+    };
+  };
+}
 
 /** Data alignment */
 enum class AdcDataAlign : uint32_t {
@@ -117,22 +155,26 @@ enum class AdcSampleTime {
   cycles_239_5 = 7    /**< 111: 239.5 cycles  */
 };
 
+/**< Regular channel sequence length 1<=n<=16 (SQR1[23:20] L) */
+template<unsigned len>
+struct AdcRegularChannelSequenceLength
+: std::integral_constant<uint32_t, len - 1>
+{
+  static_assert((len >= 1) && (len <= 16), "invalid ADC channel sequence length");
+};
 
-// TODO: nice defaults
-template<unsigned adc_no,
-         AdcMode mode,
-         AdcScanMode scan_mode,
-         AdcContinuousConvMode cont_conv_mode,
-         AdcExternalTrigConv ext_trig_conv,
-         AdcDataAlign data_align,
-         unsigned numof_channel // Regular channel sequence length 1<=n<=16 (SQR1[23:20] L)
+
+template<unsigned              adc_no,
+         AdcMode               mode           = AdcMode::independent,
+         AdcScanMode           scan_mode      = AdcScanMode::disabled,
+         AdcContinuousConvMode cont_conv_mode = AdcContinuousConvMode::single,
+         typename              ext_trig_conv  = AdcExternalTrigConv::CaptureCompare<1, 1>,
+         AdcDataAlign          data_align     = AdcDataAlign::right,
+         typename              chan_seq_len   = AdcRegularChannelSequenceLength<1>
          >
 class Adc
 {
-// TODO: support ADC3
-//  static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
-  static_assert((adc_no >= 1) && (adc_no <= 2), "invalid ADC number");
-  static_assert((numof_channel >= 1) && (numof_channel <= 16), "invalid ADC channel sequence length");
+  static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
 
   using ADCx = reg::ADC<adc_no>;
 
@@ -140,22 +182,22 @@ public:
   typedef Rcc_adc_clock_resources<adc_no> resources;
 
   static void configure(void) {
-    // ADCx CR1 config
+    /* ADCx CR1 config */
     ADCx::CR1::template set<typename ADCx::CR1::DUALMOD,
                             typename ADCx::CR1::SCAN>
       (ADCx::CR1::DUALMOD::shifted_value((uint32_t)mode) |
        ADCx::CR1::SCAN::   shifted_value((uint32_t)scan_mode));
 
-    // ADCx CR2 config
+    /* ADCx CR2 config */
     ADCx::CR2::template set<typename ADCx::CR2::CONT,
                             typename ADCx::CR2::ALIGN,
                             typename ADCx::CR2::EXTSEL>
       (ADCx::CR2::ALIGN:: shifted_value((uint32_t)data_align) |
-       ADCx::CR2::EXTSEL::shifted_value((uint32_t)ext_trig_conv) |
+       ADCx::CR2::EXTSEL::shifted_value((uint32_t)ext_trig_conv::template extsel<adc_no>::value) |
        ADCx::CR2::CONT::  shifted_value((uint32_t)cont_conv_mode));
 
-    // ADCx SQR1 config
-    ADCx::SQR1::L::shift_and_set((uint32_t)numof_channel - 1);
+    /* ADCx SQR1 config */
+    ADCx::SQR1::L::shift_and_set(chan_seq_len::value);
   }
 
   static void reset(void) {

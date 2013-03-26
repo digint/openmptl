@@ -31,7 +31,7 @@ class Scb
 public:
 
   static void set_priority_group(uint32_t group) {
-    //TODO: assert(group == (group & 0x07));
+    // assert(group == (group & 0x07));
 
     auto reg  =  SCB::AIRCR::load();
     reg &= ~(SCB::AIRCR::VECTKEY::value | SCB::AIRCR::PRIGROUP::value);
