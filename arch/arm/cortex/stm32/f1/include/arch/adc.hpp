@@ -68,7 +68,7 @@ namespace AdcExternalTrigConv
   struct SoftwareStart
   {
     template<unsigned adc_no>
-    struct extsel : std::integral_constant<uint32_t, 0>
+    struct extsel : std::integral_constant<uint32_t, 7>
     { };
   };
 
