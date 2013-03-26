@@ -28,179 +28,161 @@ namespace reg
   /**
    * Embedded Flash memory (FLASH)
    */
-  class FLASH
+
+  /**
+   * FLASH
+   */
+  struct FLASH
   {
-    static constexpr reg_addr_t reg_base = 0x40022000;
+    static constexpr reg_addr_t base_addr = 0x40022000;
 
     /**
      * Flash access control register
      */
-    template<typename R>
-    struct __ACR
-    : public R
+    struct ACR
+    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000030 >
     {
-      typedef RegisterBits< R,  0,  2 > LATENCY;       /**< [ 1: 0] Latency                          */
-      typedef RegisterBits< R,  3,  1 > HLFCYA;        /**< [ 3: 3] Flash Half Cycle Access Enable   */
-      typedef RegisterBits< R,  4,  1 > PRFTBE;        /**< [ 4: 4] Prefetch Buffer Enable           */
-      typedef RegisterBits< R,  5,  1 > PRFTBS;        /**< [ 5: 5] Prefetch Buffer Status           */
+      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000030 >;
+
+      using LATENCY  = RegisterBits< type,  0,  3 >;  /**< Latency                         */
+      using HLFCYA   = RegisterBits< type,  3,  1 >;  /**< Flash half cycle access enable  */
+      using PRFTBE   = RegisterBits< type,  4,  1 >;  /**< Prefetch buffer enable          */
+      using PRFTBS   = RegisterBits< type,  5,  1 >;  /**< Prefetch buffer status          */
     };
 
     /**
-     * FPEC Key
+     * Flash key register
      */
-    template<typename R>
-    struct __KEYR
-    : public R
+    struct KEYR
+    : public Register< uint32_t, base_addr + 0x4, Access::wo, 0x00000000 >
     {
+      using type = Register< uint32_t, base_addr + 0x4, Access::wo, 0x00000000 >;
+
+      using KEY  = RegisterBits< type,  0, 32 >;  /**< FPEC key  */
     };
 
     /**
-     * Option Byte Key
+     * Flash option key register
      */
-    template<typename R>
-    struct __OPTKEYR
-    : public R
+    struct OPTKEYR
+    : public Register< uint32_t, base_addr + 0x8, Access::wo, 0x00000000 >
     {
+      using type = Register< uint32_t, base_addr + 0x8, Access::wo, 0x00000000 >;
+
+      using OPTKEY  = RegisterBits< type,  0, 32 >;  /**< Option byte key  */
     };
 
+    /**
+     * Status register
+     */
+    struct SR
+    : public Register< uint32_t, base_addr + 0xc, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0xc, Access::rw, 0x00000000 >;
+
+      using EOP       = RegisterBits< type,  5,  1 >;  /**< End of operation        */
+      using WRPRTERR  = RegisterBits< type,  4,  1 >;  /**< Write protection error  */
+      using PGERR     = RegisterBits< type,  2,  1 >;  /**< Programming error       */
+      using BSY       = RegisterBits< type,  0,  1 >;  /**< Busy                    */
+    };
+
+    /**
+     * Control register
+     */
+    struct CR
+    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x00000080 >
+    {
+      using type = Register< uint32_t, base_addr + 0x10, Access::rw, 0x00000080 >;
+
+      using PG      = RegisterBits< type,  0,  1 >;  /**< Programming                        */
+      using PER     = RegisterBits< type,  1,  1 >;  /**< Page Erase                         */
+      using MER     = RegisterBits< type,  2,  1 >;  /**< Mass Erase                         */
+      using OPTPG   = RegisterBits< type,  4,  1 >;  /**< Option byte programming            */
+      using OPTER   = RegisterBits< type,  5,  1 >;  /**< Option byte erase                  */
+      using STRT    = RegisterBits< type,  6,  1 >;  /**< Start                              */
+      using LOCK    = RegisterBits< type,  7,  1 >;  /**< Lock                               */
+      using OPTWRE  = RegisterBits< type,  9,  1 >;  /**< Option bytes write enable          */
+      using ERRIE   = RegisterBits< type, 10,  1 >;  /**< Error interrupt enable             */
+      using EOPIE   = RegisterBits< type, 12,  1 >;  /**< End of operation interrupt enable  */
+    };
+
+    /**
+     * Flash address register
+     */
+    struct AR
+    : public Register< uint32_t, base_addr + 0x14, Access::wo, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x14, Access::wo, 0x00000000 >;
+
+      using FAR  = RegisterBits< type,  0, 32 >;  /**< Flash Address  */
+    };
+
+    /**
+     * Option byte register
+     */
+    struct OBR
+    : public Register< uint32_t, base_addr + 0x1c, Access::ro, 0x03FFFFFC >
+    {
+      using type = Register< uint32_t, base_addr + 0x1c, Access::ro, 0x03FFFFFC >;
+
+      using OPTERR      = RegisterBits< type,  0,  1 >;  /**< Option byte error  */
+      using RDPRT       = RegisterBits< type,  1,  1 >;  /**< Read protection    */
+      using WDG_SW      = RegisterBits< type,  2,  1 >;  /**< WDG_SW             */
+      using nRST_STOP   = RegisterBits< type,  3,  1 >;  /**< nRST_STOP          */
+      using nRST_STDBY  = RegisterBits< type,  4,  1 >;  /**< nRST_STDBY         */
+      using Data0       = RegisterBits< type, 10,  8 >;  /**< Data0              */
+      using Data1       = RegisterBits< type, 18,  8 >;  /**< Data1              */
+    };
+
+    /**
+     * Write protection register
+     */
+    struct WRPR
+    : public Register< uint32_t, base_addr + 0x20, Access::ro, 0xFFFFFFFF >
+    {
+      using type = Register< uint32_t, base_addr + 0x20, Access::ro, 0xFFFFFFFF >;
+
+      using WRP  = RegisterBits< type,  0, 32 >;  /**< Write protect  */
+    };
+
+
+#if 0
     /**
      * document me!
+     *
+     * NOTE: only available for XL-density Flash modules
      */
-    template<typename R>
-    struct __SR
-    : public R
-    {
-      typedef RegisterBits< R,  0,  1 > BSY;           /**< [ 0: 0] Busy                     */
-      typedef RegisterBits< R,  2,  1 > PGERR;         /**< [ 2: 2] Programming Error        */
-      typedef RegisterBits< R,  4,  1 > WRPRTERR;      /**< [ 4: 4] Write Protection Error   */
-      typedef RegisterBits< R,  5,  1 > EOP;           /**< [ 5: 5] End of operation         */
-    };
-
-
-    /**
-     * document me!
-     */
-    template<typename R>
-    struct __CR
-    : public R
-    {
-      typedef RegisterBits< R,  0,  1 > PG;            /**< [ 0: 0] Programming                         */
-      typedef RegisterBits< R,  1,  1 > PER;           /**< [ 1: 1] Page Erase                          */
-      typedef RegisterBits< R,  2,  1 > MER;           /**< [ 2: 2] Mass Erase                          */
-      typedef RegisterBits< R,  4,  1 > OPTPG;         /**< [ 4: 4] Option Byte Programming             */
-      typedef RegisterBits< R,  5,  1 > OPTER;         /**< [ 5: 5] Option Byte Erase                   */
-      typedef RegisterBits< R,  6,  1 > STRT;          /**< [ 6: 6] Start                               */
-      typedef RegisterBits< R,  7,  1 > LOCK;          /**< [ 7: 7] Lock                                */
-      typedef RegisterBits< R,  9,  1 > OPTWRE;        /**< [ 9: 9] Option Bytes Write Enable           */
-      typedef RegisterBits< R, 10,  1 > ERRIE;         /**< [10:10] Error Interrupt Enable              */
-      typedef RegisterBits< R, 12,  1 > EOPIE;         /**< [12:12] End of operation interrupt enable   */
-    };
-
-    /**
-     * Flash Address
-     */
-    template<typename R>
-    struct __AR
-    : public R
-    {
-    };
-
-
-    /* reserved: 0x4002 2018 - 0x4002 201B */
-
-
-    /**
-     * Option Byte Register
-     */
-    template<typename R>
-    struct __OBR
-    : public R
-    {
-      typedef RegisterBits< R,  0,  1 > OPTERR;        /**< [ 0: 0] Option Byte Error   */
-      typedef RegisterBits< R,  1,  1 > RDPRT;         /**< [ 1: 1] Read protection     */
-      typedef RegisterBits< R,  2,  8 > USER;          /**< [ 9: 2] User Option Bytes   */
-      typedef RegisterBits< R,  2,  1 > WDG_SW;        /**< [ 2: 2] WDG_SW              */
-      typedef RegisterBits< R,  3,  1 > nRST_STOP;     /**< [ 3: 3] nRST_STOP           */
-      typedef RegisterBits< R,  4,  1 > nRST_STDBY;    /**< [ 4: 4] nRST_STDBY          */
-      typedef RegisterBits< R,  5,  1 > BFB2;          /**< [ 5: 5] BFB2                */
-    };
-
-    /**
-     * Write Protect
-     */
-    template<typename R>
-    struct __WRPR
-    : public R
-    {
-    };
-
-
-    /* reserved: 0x4002 2024 - 0x4002 2043 */
-
+    struct KEYR2
+    : public Register< uint32_t, reg_base + 0x44, Access::rw >
+    { };
 
     /**
      * document me!
      *
      * NOTE: only available for XL-density Flash modules
      */
-    template<typename R>
-    struct __KEYR2
-    : public R
-    {
-    };
-
-
-    /* reserved: 0x4002 2048 - 0x4002 204B */
-
+    struct SR2
+    : public Register< uint32_t, reg_base + 0x4c, Access::rw >
+    { };
 
     /**
      * document me!
      *
      * NOTE: only available for XL-density Flash modules
      */
-    template<typename R>
-    struct __SR2
-    : public R
-    {
-    };
+    struct CR2
+    : public Register< uint32_t, reg_base + 0x50, Access::rw >
+    { };
 
     /**
      * document me!
      *
      * NOTE: only available for XL-density Flash modules
      */
-    template<typename R>
-    struct __CR2
-    : public R
-    {
-    };
-
-    /**
-     * document me!
-     *
-     * NOTE: only available for XL-density Flash modules
-     */
-    template<typename R>
-    struct __AR2
-    : public R
-    {
-    };
-
-
-  public:
-
-    typedef __ACR    < Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000030 > > ACR;
-    typedef __KEYR   < Register< uint32_t, reg_base + 0x04, Access::rw > > KEYR;
-    typedef __OPTKEYR< Register< uint32_t, reg_base + 0x08, Access::rw > > OPTKEYR;
-    typedef __SR     < Register< uint32_t, reg_base + 0x0c, Access::rw > > SR;
-    typedef __CR     < Register< uint32_t, reg_base + 0x10, Access::rw > > CR;
-    typedef __AR     < Register< uint32_t, reg_base + 0x14, Access::rw > > AR;
-    typedef __OBR    < Register< uint32_t, reg_base + 0x1c, Access::rw > > OBR;
-    typedef __WRPR   < Register< uint32_t, reg_base + 0x20, Access::rw > > WRPR;
-    typedef __KEYR2  < Register< uint32_t, reg_base + 0x44, Access::rw > > KEYR2;
-    typedef __SR2    < Register< uint32_t, reg_base + 0x4c, Access::rw > > SR2;
-    typedef __CR2    < Register< uint32_t, reg_base + 0x50, Access::rw > > CR2;
-    typedef __AR2    < Register< uint32_t, reg_base + 0x54, Access::rw > > AR2;
+    struct AR2
+    : public Register< uint32_t, reg_base + 0x54, Access::rw >
+    { };
+#endif
   };
 }
 

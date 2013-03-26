@@ -44,7 +44,7 @@ namespace reg
   struct __TIM_COMMON
   {
     /**
-     * control register 1
+     * Control register 1
      */
     struct CR1
     : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x0000 >
@@ -62,7 +62,7 @@ namespace reg
     };
 
     /**
-     * control register 2
+     * Control register 2
      */
     struct CR2
     : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x0000 >
@@ -84,7 +84,7 @@ namespace reg
     };
 
     /**
-     * slave mode control register
+     * Slave mode control register
      */
     struct SMCR
     : public Register< uint32_t, base_addr + 0x8, Access::rw, 0x0000 >
@@ -126,7 +126,7 @@ namespace reg
     };
 
     /**
-     * status register
+     * Status register
      */
     struct SR
     : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x0000 >
@@ -148,7 +148,7 @@ namespace reg
     };
 
     /**
-     * event generation register
+     * Event generation register
      */
     struct EGR
     : public Register< uint32_t, base_addr + 0x14, Access::wo, 0x0000 >
@@ -166,7 +166,7 @@ namespace reg
     };
 
     /**
-     * capture/compare mode register 1 (output mode)
+     * Capture/compare mode register 1 (output mode)
      */
     struct CCMR1_Output
     : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >
@@ -186,7 +186,7 @@ namespace reg
     };
 
     /**
-     * capture/compare mode register 1 (input mode)
+     * Capture/compare mode register 1 (input mode)
      */
     struct CCMR1_Input
     : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >
@@ -202,7 +202,7 @@ namespace reg
     };
 
     /**
-     * capture/compare mode register 2 (output mode)
+     * Capture/compare mode register 2 (output mode)
      */
     struct CCMR2_Output
     : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
@@ -222,7 +222,7 @@ namespace reg
     };
 
     /**
-     * capture/compare mode register 2 (input mode)
+     * Capture/compare mode register 2 (input mode)
      */
     struct CCMR2_Input
     : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
@@ -238,7 +238,7 @@ namespace reg
     };
 
     /**
-     * capture/compare enable register
+     * Capture/compare enable register
      */
     struct CCER
     : public Register< uint32_t, base_addr + 0x20, Access::rw, 0x0000 >
@@ -262,37 +262,37 @@ namespace reg
     };
 
     /**
-     * counter
+     * Counter
      */
     using CNT = Register< uint32_t, base_addr + 0x24, Access::rw, 0x0000 >;
 
     /**
-     * prescaler
+     * Prescaler
      */
     using PSC = Register< uint32_t, base_addr + 0x28, Access::rw, 0x0000 >;
 
     /**
-     * auto-reload register
+     * Auto-reload register
      */
     using ARR = Register< uint32_t, base_addr + 0x2c, Access::rw, 0x0000 >;
 
     /**
-     * capture/compare register 1
+     * Capture/compare register 1
      */
     using CCR1 = Register< uint32_t, base_addr + 0x34, Access::rw, 0x0000 >;
 
     /**
-     * capture/compare register 2
+     * Capture/compare register 2
      */
     using CCR2 = Register< uint32_t, base_addr + 0x38, Access::rw, 0x0000 >;
 
     /**
-     * capture/compare register 3
+     * Capture/compare register 3
      */
     using CCR3 = Register< uint32_t, base_addr + 0x3c, Access::rw, 0x0000 >;
 
     /**
-     * capture/compare register 4
+     * Capture/compare register 4
      */
     using CCR4 = Register< uint32_t, base_addr + 0x40, Access::rw, 0x0000 >;
 
@@ -314,7 +314,7 @@ namespace reg
     using DMAR = Register< uint32_t, base_addr + 0x4c, Access::rw, 0x0000 >;
 
     /**
-     * repetition counter register
+     * Repetition counter register
      */
     struct RCR
     : public Register< uint32_t, base_addr + 0x30, Access::rw, 0x0000 >
@@ -325,7 +325,7 @@ namespace reg
     };
 
     /**
-     * break and dead-time register
+     * Break and dead-time register
      */
     struct BDTR
     : public Register< uint32_t, base_addr + 0x44, Access::rw, 0x0000 >

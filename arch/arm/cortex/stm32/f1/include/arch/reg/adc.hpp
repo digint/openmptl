@@ -29,258 +29,236 @@ namespace reg
    * Analog-to-digital converter (ADC)
    */
   template<unsigned adc_no>
-  class ADC
+  struct ADC
   {
     static_assert((adc_no >= 1) && (adc_no <= 3), "invalid index for register");
 
-    static constexpr reg_addr_t reg_base = adc_no == 1 ? 0x40012400 :
-                                           adc_no == 2 ? 0x40012800 :
-                                           adc_no == 3 ? 0x40013C00 :
-                                           0;
+    static constexpr reg_addr_t base_addr =
+      adc_no == 1 ? 0x40012400 :
+      adc_no == 2 ? 0x40012800 :
+      adc_no == 3 ? 0x40013C00 :
+      0;
 
     /**
-     * ADC status register
+     * Status register
      */
-    template<typename R>
-    struct __SR
-    : public R
+    struct SR
+    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000000 >
     {
-      // TODO: special access rc_w0
-      typedef RegisterBits< R,  0,  1 > AWD;           /**< [ 0: 0] Analog watchdog flag                 */
-      typedef RegisterBits< R,  1,  1 > EOC;           /**< [ 1: 1] End of conversion                    */
-      typedef RegisterBits< R,  2,  1 > JEOC;          /**< [ 2: 2] Injected channel end of conversion   */
-      typedef RegisterBits< R,  3,  1 > JSTRT;         /**< [ 3: 3] Injected channel Start flag          */
-      typedef RegisterBits< R,  4,  1 > STRT;          /**< [ 4: 4] Regular channel Start flag           */
-    };
+      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000000 >;
 
-
-    /**
-     * ADC control register 1
-     */
-    template<typename R>
-    struct __CR1
-    : public R
-    {
-      typedef RegisterBits< R,  0,  5 > AWDCH;         /**< [ 4: 0] Analog watchdog channel select bits                    */
-      typedef RegisterBits< R,  5,  1 > EOCIE;         /**< [ 5: 5] Interrupt enable for EOC                               */
-      typedef RegisterBits< R,  6,  1 > AWDIE;         /**< [ 6: 6] AAnalog Watchdog interrupt enable                      */
-      typedef RegisterBits< R,  7,  1 > JEOCIE;        /**< [ 7: 7] Interrupt enable for injected channels                 */
-      typedef RegisterBits< R,  8,  1 > SCAN;          /**< [ 8: 8] Scan mode                                              */
-      typedef RegisterBits< R,  9,  1 > AWDSGL;        /**< [ 9: 9] Enable the watchdog on a single channel in scan mode   */
-      typedef RegisterBits< R, 10,  1 > JAUTO;         /**< [10:10] Automatic injected group conversion                    */
-      typedef RegisterBits< R, 11,  1 > DISCEN;        /**< [11:11] Discontinuous mode on regular channels                 */
-      typedef RegisterBits< R, 12,  1 > JDISCEN;       /**< [12:12] Discontinuous mode on injected channels                */
-      typedef RegisterBits< R, 13,  3 > DISCNUM;       /**< [15:13] Discontinuous mode channel count                       */
-      typedef RegisterBits< R, 16,  4 > DUALMOD;       /**< [19:16] Dual mode selection                                    */
-      typedef RegisterBits< R, 22,  1 > JAWDEN;        /**< [22:22] Analog watchdog enable on injected channels            */
-      typedef RegisterBits< R, 23,  1 > AWDEN;         /**< [23:23] Analog watchdog enable on regular channels             */
-    };
-
-
-    /**
-     * ADC control register 2
-     */
-    template<typename R>
-    struct __CR2
-    : public R
-    {
-      typedef RegisterBits< R,  0,  1 > ADON;          /**< [ 0: 0] A/D Converter ON / OFF                                   */
-      typedef RegisterBits< R,  1,  1 > CONT;          /**< [ 1: 1] Continuous Conversion                                    */
-      typedef RegisterBits< R,  2,  1 > CAL;           /**< [ 2: 2] A/D Calibration                                          */
-      typedef RegisterBits< R,  3,  1 > RSTCAL;        /**< [ 3: 3] Reset Calibration                                        */
-      typedef RegisterBits< R,  8,  1 > DMA;           /**< [ 8: 8] Direct Memory access mode                                */
-      typedef RegisterBits< R, 11,  1 > ALIGN;         /**< [11:11] Data Alignment                                           */
-      typedef RegisterBits< R, 12,  3 > JEXTSEL;       /**< [14:12] External event select for injected group                 */
-      typedef RegisterBits< R, 15,  1 > JEXTTRIG;      /**< [15:15] External Trigger Conversion mode for injected channels   */
-      typedef RegisterBits< R, 17,  3 > EXTSEL;        /**< [19:17] External Event Select for regular group                  */
-      typedef RegisterBits< R, 20,  1 > EXTTRIG;       /**< [20:20] External Trigger Conversion mode for regular channels    */
-      typedef RegisterBits< R, 21,  1 > JSWSTART;      /**< [21:21] Start Conversion of injected channels                    */
-      typedef RegisterBits< R, 22,  1 > SWSTART;       /**< [22:22] Start Conversion of regular channels                     */
-      typedef RegisterBits< R, 23,  1 > TSVREFE;       /**< [23:23] Temperature Sensor and VREFINT Enable                    */
-    };
-
-
-    /**
-     * ADC sample time register 1
-     */
-    template<typename R>
-    struct __SMPR1
-    : public R
-    {
-      typedef RegisterBits< R,  0,  3 > SMP10;         /**< [ 2: 0] Channel 10 Sample time selection   */
-      typedef RegisterBits< R,  3,  3 > SMP11;         /**< [ 5: 3] Channel 11 Sample time selection   */
-      typedef RegisterBits< R,  6,  3 > SMP12;         /**< [ 8: 6] Channel 12 Sample time selection   */
-      typedef RegisterBits< R,  9,  3 > SMP13;         /**< [11: 9] Channel 13 Sample time selection   */
-      typedef RegisterBits< R, 12,  3 > SMP14;         /**< [14:12] Channel 14 Sample time selection   */
-      typedef RegisterBits< R, 15,  3 > SMP15;         /**< [17:15] Channel 15 Sample time selection   */
-      typedef RegisterBits< R, 18,  3 > SMP16;         /**< [20:18] Channel 16 Sample time selection   */
-      typedef RegisterBits< R, 21,  3 > SMP17;         /**< [23:21] Channel 17 Sample time selection   */
-    };
-
-
-    /**
-     * ADC sample time register 2
-     */
-    template<typename R>
-    struct __SMPR2
-    : public R
-    {
-      typedef RegisterBits< R,  0,  3 > SMP0;          /**< [ 2: 0] Channel 0 Sample time selection   */
-      typedef RegisterBits< R,  3,  3 > SMP1;          /**< [ 5: 3] Channel 1 Sample time selection   */
-      typedef RegisterBits< R,  6,  3 > SMP2;          /**< [ 8: 6] Channel 2 Sample time selection   */
-      typedef RegisterBits< R,  9,  3 > SMP3;          /**< [11: 9] Channel 3 Sample time selection   */
-      typedef RegisterBits< R, 12,  3 > SMP4;          /**< [14:12] Channel 4 Sample time selection   */
-      typedef RegisterBits< R, 15,  3 > SMP5;          /**< [17:15] Channel 5 Sample time selection   */
-      typedef RegisterBits< R, 18,  3 > SMP6;          /**< [20:18] Channel 6 Sample time selection   */
-      typedef RegisterBits< R, 21,  3 > SMP7;          /**< [23:21] Channel 7 Sample time selection   */
-      typedef RegisterBits< R, 24,  3 > SMP8;          /**< [26:24] Channel 8 Sample time selection   */
-      typedef RegisterBits< R, 27,  3 > SMP9;          /**< [29:27] Channel 9 Sample time selection   */
-    };
-
-
-    /**
-     * ADC injected channel data offset register
-     */
-    template<typename R>
-    struct __JOFR
-    : public R
-    {
-      typedef RegisterBits< R,  0, 12 > JOFFSET;       /**< [11: 0] Data offset for injected channel 1   */
-    };
-
-
-    /**
-     * ADC watchdog high threshold register
-     */
-    template<typename R>
-    struct __HTR
-    : public R
-    {
-      typedef RegisterBits< R,  0, 12 > HT;            /**< [11: 0] Analog watchdog high threshold   */
-    };
-
-
-    /**
-     * ADC watchdog low threshold register
-     */
-    template<typename R>
-    struct __LTR
-    : public R
-    {
-      typedef RegisterBits< R,  0, 12 > LT;            /**< [11: 0] Analog watchdog low threshold   */
-    };
-
-
-    /**
-     * ADC regular sequence register 1
-     */
-    template<typename R>
-    struct __SQR1
-    : public R
-    {
-      typedef RegisterBits< R,  0,  5 > SQ13;          /**< [ 4: 0] 13th conversion in regular sequence   */
-      typedef RegisterBits< R,  5,  5 > SQ14;          /**< [ 9: 5] 14th conversion in regular sequence   */
-      typedef RegisterBits< R, 10,  5 > SQ15;          /**< [14:10] 15th conversion in regular sequence   */
-      typedef RegisterBits< R, 15,  5 > SQ16;          /**< [19:15] 16th conversion in regular sequence   */
-      typedef RegisterBits< R, 20,  4 > L;             /**< [23:20] Regular channel sequence length       */
-    };
-
-
-    /**
-     * ADC regular sequence register 2
-     */
-    template<typename R>
-    struct __SQR2
-    : public R
-    {
-      typedef RegisterBits< R,  0,  5 > SQ7;           /**< [ 4: 0] 7th conversion in regular sequence    */
-      typedef RegisterBits< R,  5,  5 > SQ8;           /**< [ 9: 5] 8th conversion in regular sequence    */
-      typedef RegisterBits< R, 10,  5 > SQ9;           /**< [14:10] 9th conversion in regular sequence    */
-      typedef RegisterBits< R, 15,  5 > SQ10;          /**< [19:15] 10th conversion in regular sequence   */
-      typedef RegisterBits< R, 20,  5 > SQ11;          /**< [24:20] 11th conversion in regular sequence   */
-      typedef RegisterBits< R, 25,  5 > SQ12;          /**< [29:25] 12th conversion in regular sequence   */
-    };
-
-
-    /**
-     * ADC regular sequence register 3
-     */
-    template<typename R>
-    struct __SQR3
-    : public R
-    {
-      typedef RegisterBits< R,  0,  5 > SQ1;           /**< [ 4: 0] 1st conversion in regular sequence   */
-      typedef RegisterBits< R,  5,  5 > SQ2;           /**< [ 9: 5] 2nd conversion in regular sequence   */
-      typedef RegisterBits< R, 10,  5 > SQ3;           /**< [14:10] 3rd conversion in regular sequence   */
-      typedef RegisterBits< R, 15,  5 > SQ4;           /**< [19:15] 4th conversion in regular sequence   */
-      typedef RegisterBits< R, 20,  5 > SQ5;           /**< [24:20] 5th conversion in regular sequence   */
-      typedef RegisterBits< R, 25,  5 > SQ6;           /**< [29:25] 6th conversion in regular sequence   */
-    };
-
-
-    /**
-     * ADC injected sequence register
-     */
-    template<typename R>
-    struct __JSQR
-    : public R
-    {
-      typedef RegisterBits< R,  0,  5 > JSQ1;          /**< [ 4: 0] 1st conversion in injected sequence   */
-      typedef RegisterBits< R,  5,  5 > JSQ2;          /**< [ 9: 5] 2nd conversion in injected sequence   */
-      typedef RegisterBits< R, 10,  5 > JSQ3;          /**< [14:10] 3rd conversion in injected sequence   */
-      typedef RegisterBits< R, 15,  5 > JSQ4;          /**< [19:15] 4th conversion in injected sequence   */
-      typedef RegisterBits< R, 20,  2 > JL;            /**< [21:20] Injected Sequence length)             */
-    };
-
-
-    /**
-     * ADC injected data register 1
-     */
-    template<typename R>
-    struct __JDR
-    : public R
-    {
-      typedef RegisterBits< R,  0, 16 > JDATA;         /**< [15: 0] Injected data   */
+      using STRT   = RegisterBits< type,  4,  1 >;  /**< Regular channel start flag          */
+      using JSTRT  = RegisterBits< type,  3,  1 >;  /**< Injected channel start flag         */
+      using JEOC   = RegisterBits< type,  2,  1 >;  /**< Injected channel end of conversion  */
+      using EOC    = RegisterBits< type,  1,  1 >;  /**< Regular channel end of conversion   */
+      using AWD    = RegisterBits< type,  0,  1 >;  /**< Analog watchdog flag                */
     };
 
     /**
-     * ADC regular data register
+     * Control register 1
      */
-    template<typename R>
-    struct __DR
-    : public R
+    struct CR1
+    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
     {
-      typedef RegisterBits< R,  0, 16 > DATA;          /**< [15: 0] Regular data   */
-      typedef RegisterBits< R, 16, 16 > ADC2DATA;      /**< [31:16] ADC2 data      */
+      using type = Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >;
+
+      using AWDEN    = RegisterBits< type, 23,  1 >;  /**< Analog watchdog enable on regular channels            */
+      using JAWDEN   = RegisterBits< type, 22,  1 >;  /**< Analog watchdog enable on injected channels           */
+      using DUALMOD  = RegisterBits< type, 16,  4 >;  /**< Dual mode selection                                   */
+      using DISCNUM  = RegisterBits< type, 13,  3 >;  /**< Discontinuous mode channel count                      */
+      using JDISCEN  = RegisterBits< type, 12,  1 >;  /**< Discontinuous mode on injected channels               */
+      using DISCEN   = RegisterBits< type, 11,  1 >;  /**< Discontinuous mode on regular channels                */
+      using JAUTO    = RegisterBits< type, 10,  1 >;  /**< Automatic injected group conversion                   */
+      using AWDSGL   = RegisterBits< type,  9,  1 >;  /**< Enable the watchdog on a single channel in scan mode  */
+      using SCAN     = RegisterBits< type,  8,  1 >;  /**< Scan mode                                             */
+      using JEOCIE   = RegisterBits< type,  7,  1 >;  /**< Interrupt enable for injected channels                */
+      using AWDIE    = RegisterBits< type,  6,  1 >;  /**< Analog watchdog interrupt enable                      */
+      using EOCIE    = RegisterBits< type,  5,  1 >;  /**< Interrupt enable for EOC                              */
+      using AWDCH    = RegisterBits< type,  0,  5 >;  /**< Analog watchdog channel select bits                   */
     };
 
+    /**
+     * Control register 2
+     */
+    struct CR2
+    : public Register< uint32_t, base_addr + 0x8, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x8, Access::rw, 0x00000000 >;
 
-  public:
+      using TSVREFE   = RegisterBits< type, 23,  1 >;  /**< Temperature sensor and VREFINT enable                   */
+      using SWSTART   = RegisterBits< type, 22,  1 >;  /**< Start conversion of regular channels                    */
+      using JSWSTART  = RegisterBits< type, 21,  1 >;  /**< Start conversion of injected channels                   */
+      using EXTTRIG   = RegisterBits< type, 20,  1 >;  /**< External trigger conversion mode for regular channels   */
+      using EXTSEL    = RegisterBits< type, 17,  3 >;  /**< External event select for regular group                 */
+      using JEXTTRIG  = RegisterBits< type, 15,  1 >;  /**< External trigger conversion mode for injected channels  */
+      using JEXTSEL   = RegisterBits< type, 12,  3 >;  /**< External event select for injected group                */
+      using ALIGN     = RegisterBits< type, 11,  1 >;  /**< Data alignment                                          */
+      using DMA       = RegisterBits< type,  8,  1 >;  /**< Direct memory access mode                               */
+      using RSTCAL    = RegisterBits< type,  3,  1 >;  /**< Reset calibration                                       */
+      using CAL       = RegisterBits< type,  2,  1 >;  /**< A/D calibration                                         */
+      using CONT      = RegisterBits< type,  1,  1 >;  /**< Continuous conversion                                   */
+      using ADON      = RegisterBits< type,  0,  1 >;  /**< A/D converter ON / OFF                                  */
+    };
 
-    typedef __SR   < Register< uint32_t, reg_base + 0x00, Access::rw > > SR;
-    typedef __CR1  < Register< uint32_t, reg_base + 0x04, Access::rw > > CR1;
-    typedef __CR2  < Register< uint32_t, reg_base + 0x08, Access::rw > > CR2;
-    typedef __SMPR1< Register< uint32_t, reg_base + 0x0c, Access::rw > > SMPR1;
-    typedef __SMPR2< Register< uint32_t, reg_base + 0x10, Access::rw > > SMPR2;
+    /**
+     * Sample time register 1
+     */
+    struct SMPR1
+    : public Register< uint32_t, base_addr + 0xc, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0xc, Access::rw, 0x00000000 >;
 
+      using SMP10  = RegisterBits< type,  0,  3 >;  /**< Channel 10 sample time selection  */
+      using SMP11  = RegisterBits< type,  3,  3 >;  /**< Channel 11 sample time selection  */
+      using SMP12  = RegisterBits< type,  6,  3 >;  /**< Channel 12 sample time selection  */
+      using SMP13  = RegisterBits< type,  9,  3 >;  /**< Channel 13 sample time selection  */
+      using SMP14  = RegisterBits< type, 12,  3 >;  /**< Channel 14 sample time selection  */
+      using SMP15  = RegisterBits< type, 15,  3 >;  /**< Channel 15 sample time selection  */
+      using SMP16  = RegisterBits< type, 18,  3 >;  /**< Channel 16 sample time selection  */
+      using SMP17  = RegisterBits< type, 21,  3 >;  /**< Channel 17 sample time selection  */
+    };
+
+    /**
+     * Sample time register 2
+     */
+    struct SMPR2
+    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x10, Access::rw, 0x00000000 >;
+
+      using SMP0  = RegisterBits< type,  0,  3 >;  /**< Channel 0 sample time selection  */
+      using SMP1  = RegisterBits< type,  3,  3 >;  /**< Channel 1 sample time selection  */
+      using SMP2  = RegisterBits< type,  6,  3 >;  /**< Channel 2 sample time selection  */
+      using SMP3  = RegisterBits< type,  9,  3 >;  /**< Channel 3 sample time selection  */
+      using SMP4  = RegisterBits< type, 12,  3 >;  /**< Channel 4 sample time selection  */
+      using SMP5  = RegisterBits< type, 15,  3 >;  /**< Channel 5 sample time selection  */
+      using SMP6  = RegisterBits< type, 18,  3 >;  /**< Channel 6 sample time selection  */
+      using SMP7  = RegisterBits< type, 21,  3 >;  /**< Channel 7 sample time selection  */
+      using SMP8  = RegisterBits< type, 24,  3 >;  /**< Channel 8 sample time selection  */
+      using SMP9  = RegisterBits< type, 27,  3 >;  /**< Channel 9 sample time selection  */
+    };
+
+    /**
+     * Injected channel data offset register x
+     */
     template<unsigned jofr_no>
     struct JOFR
-    : __JOFR<Register< uint32_t, reg_base + 0x14 + (jofr_no - 1) * 4, Access::rw > >
-    { static_assert((jofr_no >= 1) && (jofr_no <= 4), "invalid index for register"); };
+    : public Register< uint32_t, base_addr + 0x14 + (jofr_no - 1) * 4, Access::rw, 0x00000000 >
+    {
+      static_assert((jofr_no >= 1) && (jofr_no <= 4), "invalid index for JOFR register");
+      using type = Register< uint32_t, base_addr + 0x14 + (jofr_no - 1) * 4, Access::rw, 0x00000000 >;
 
-    typedef __HTR  < Register< uint32_t, reg_base + 0x24, Access::rw, 0x00000FFF > > HTR;
-    typedef __LTR  < Register< uint32_t, reg_base + 0x28, Access::rw             > > LTR;
-    typedef __SQR1 < Register< uint32_t, reg_base + 0x2c, Access::rw             > > SQR1;
-    typedef __SQR2 < Register< uint32_t, reg_base + 0x30, Access::rw             > > SQR2;
-    typedef __SQR3 < Register< uint32_t, reg_base + 0x34, Access::rw             > > SQR3;
-    typedef __JSQR < Register< uint32_t, reg_base + 0x38, Access::rw             > > JSQR;
+      using JOFFSET  = RegisterBits< type,  0, 12 >;  /**< Data offset for injected channel x  */
+    };
 
+    /**
+     * Watchdog higher threshold register
+     */
+    struct HTR
+    : public Register< uint32_t, base_addr + 0x24, Access::rw, 0x00000FFF >
+    {
+      using type = Register< uint32_t, base_addr + 0x24, Access::rw, 0x00000FFF >;
+
+      using HT  = RegisterBits< type,  0, 12 >;  /**< Analog watchdog higher threshold  */
+    };
+
+    /**
+     * Watchdog lower threshold register
+     */
+    struct LTR
+    : public Register< uint32_t, base_addr + 0x28, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x28, Access::rw, 0x00000000 >;
+
+      using LT  = RegisterBits< type,  0, 12 >;  /**< Analog watchdog lower threshold  */
+    };
+
+    /**
+     * Regular sequence register 1
+     */
+    struct SQR1
+    : public Register< uint32_t, base_addr + 0x2c, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x2c, Access::rw, 0x00000000 >;
+
+      using L     = RegisterBits< type, 20,  4 >;  /**< Regular channel sequence length      */
+      using SQ16  = RegisterBits< type, 15,  5 >;  /**< 16th conversion in regular sequence  */
+      using SQ15  = RegisterBits< type, 10,  5 >;  /**< 15th conversion in regular sequence  */
+      using SQ14  = RegisterBits< type,  5,  5 >;  /**< 14th conversion in regular sequence  */
+      using SQ13  = RegisterBits< type,  0,  5 >;  /**< 13th conversion in regular sequence  */
+    };
+
+    /**
+     * Regular sequence register 2
+     */
+    struct SQR2
+    : public Register< uint32_t, base_addr + 0x30, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x30, Access::rw, 0x00000000 >;
+
+      using SQ12  = RegisterBits< type, 25,  5 >;  /**< 12th conversion in regular sequence  */
+      using SQ11  = RegisterBits< type, 20,  5 >;  /**< 11th conversion in regular sequence  */
+      using SQ10  = RegisterBits< type, 15,  5 >;  /**< 10th conversion in regular sequence  */
+      using SQ9   = RegisterBits< type, 10,  5 >;  /**< 9th conversion in regular sequence   */
+      using SQ8   = RegisterBits< type,  5,  5 >;  /**< 8th conversion in regular sequence   */
+      using SQ7   = RegisterBits< type,  0,  5 >;  /**< 7th conversion in regular sequence   */
+    };
+
+    /**
+     * Regular sequence register 3
+     */
+    struct SQR3
+    : public Register< uint32_t, base_addr + 0x34, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x34, Access::rw, 0x00000000 >;
+
+      using SQ6  = RegisterBits< type, 25,  5 >;  /**< 6th conversion in regular sequence  */
+      using SQ5  = RegisterBits< type, 20,  5 >;  /**< 5th conversion in regular sequence  */
+      using SQ4  = RegisterBits< type, 15,  5 >;  /**< 4th conversion in regular sequence  */
+      using SQ3  = RegisterBits< type, 10,  5 >;  /**< 3rd conversion in regular sequence  */
+      using SQ2  = RegisterBits< type,  5,  5 >;  /**< 2nd conversion in regular sequence  */
+      using SQ1  = RegisterBits< type,  0,  5 >;  /**< 1st conversion in regular sequence  */
+    };
+
+    /**
+     * Injected sequence register
+     */
+    struct JSQR
+    : public Register< uint32_t, base_addr + 0x38, Access::rw, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x38, Access::rw, 0x00000000 >;
+
+      using JL    = RegisterBits< type, 20,  2 >;  /**< Injected sequence length             */
+      using JSQ4  = RegisterBits< type, 15,  5 >;  /**< 4th conversion in injected sequence  */
+      using JSQ3  = RegisterBits< type, 10,  5 >;  /**< 3rd conversion in injected sequence  */
+      using JSQ2  = RegisterBits< type,  5,  5 >;  /**< 2nd conversion in injected sequence  */
+      using JSQ1  = RegisterBits< type,  0,  5 >;  /**< 1st conversion in injected sequence  */
+    };
+
+    /**
+     * Injected data register x
+     */
     template<unsigned jdr_no>
     struct JDR
-    : __JDR<Register< uint32_t, reg_base + 0x3c + (jdr_no - 1) * 4, Access::ro > >
-    { static_assert((jdr_no >= 1) && (jdr_no <= 4), "invalid index for register"); };
+    : public Register< uint32_t, base_addr + 0x3c + (jdr_no - 1) * 4, Access::ro, 0x00000000 >
+    {
+      static_assert((jdr_no >= 1) && (jdr_no <= 4), "invalid index for JDR register");
+      using type = Register< uint32_t, base_addr + 0x3c + (jdr_no - 1) * 4, Access::ro, 0x00000000 >;
 
-    typedef __DR   < Register< uint32_t, reg_base + 0x4c, Access::ro > > DR;
+      using JDATA  = RegisterBits< type,  0, 16 >;  /**< Injected data  */
+    };
+
+    /**
+     * regular data register
+     */
+    struct DR
+    : public Register< uint32_t, base_addr + 0x4c, Access::ro, 0x00000000 >
+    {
+      using type = Register< uint32_t, base_addr + 0x4c, Access::ro, 0x00000000 >;
+
+      using DATA      = RegisterBits< type,  0, 16 >;  /**< Regular data  */
+      using ADC2DATA  = RegisterBits< type, 16, 16 >;  /**< ADC2 data     */
+    };
   };
 }
 

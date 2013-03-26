@@ -34,15 +34,15 @@ namespace reg
     static_assert((reg_name >= 'A') && (reg_name <= 'G'), "invalid index for register");
 
     static constexpr unsigned    gpio_no   = reg_name - 'A';
-    static constexpr reg_addr_t  reg_base = 0x40010800 + gpio_no * 0x0400;
+    static constexpr reg_addr_t  base_addr = 0x40010800 + gpio_no * 0x0400;
 
-    typedef Register< uint32_t, reg_base + 0x00, Access::rw, 0x44444444 > CRL;            /**< Port configuration register low    */
-    typedef Register< uint32_t, reg_base + 0x04, Access::rw, 0x44444444 > CRH;            /**< Port configuration register high   */
-    typedef Register< uint32_t, reg_base + 0x08, Access::ro /* TODO: 0x0000XXXX */ > IDR; /**< Port input data register           */
-    typedef Register< uint32_t, reg_base + 0x0c, Access::rw             > ODR;            /**< Port output data register          */
-    typedef Register< uint32_t, reg_base + 0x10, Access::wo             > BSRR;           /**< Port bit set/reset register        */
-    typedef Register< uint32_t, reg_base + 0x14, Access::wo             > BRR;            /**< Port bit reset register            */
-    typedef Register< uint32_t, reg_base + 0x18, Access::rw             > LCKR;           /**< Port configuration lock register   */
+    using CRL   = Register< uint32_t, base_addr + 0x00, Access::rw, 0x44444444 >;  /**< Port configuration register low    */
+    using CRH   = Register< uint32_t, base_addr + 0x04, Access::rw, 0x44444444 >;  /**< Port configuration register high   */
+    using IDR   = Register< uint32_t, base_addr + 0x08, Access::ro, 0x00000000 >;  /**< Port input data register           */
+    using ODR   = Register< uint32_t, base_addr + 0x0c, Access::rw, 0x00000000 >;  /**< Port output data register          */
+    using BSRR  = Register< uint32_t, base_addr + 0x10, Access::wo, 0x00000000 >;  /**< Port bit set/reset register        */
+    using BRR   = Register< uint32_t, base_addr + 0x14, Access::wo, 0x00000000 >;  /**< Port bit reset register            */
+    using LCKR  = Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >;  /**< Port configuration lock register   */
   };
 }
 

@@ -175,6 +175,7 @@ template<unsigned              adc_no,
 class Adc
 {
   static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
+  static_assert((adc_no > 1) || (mode == AdcMode::independent), "dual mode is only available for ADC1");
 
   using ADCx = reg::ADC<adc_no>;
 
@@ -183,10 +184,15 @@ public:
 
   static void configure(void) {
     /* ADCx CR1 config */
-    ADCx::CR1::template set<typename ADCx::CR1::DUALMOD,
-                            typename ADCx::CR1::SCAN>
-      (ADCx::CR1::DUALMOD::shifted_value((uint32_t)mode) |
-       ADCx::CR1::SCAN::   shifted_value((uint32_t)scan_mode));
+    auto cr1 = ADCx::CR1::load();
+    if(adc_no == 1)
+      cr1 &= ~ADCx::CR1::DUALMOD::value;
+    cr1 &= ~ADCx::CR1::SCAN::value;
+
+    if(adc_no == 1)
+      cr1 |= ADCx::CR1::DUALMOD::shifted_value((uint32_t)mode);
+    cr1 |= ADCx::CR1::SCAN::shifted_value((uint32_t)scan_mode);
+    ADCx::CR1::store(cr1);
 
     /* ADCx CR2 config */
     ADCx::CR2::template set<typename ADCx::CR2::CONT,

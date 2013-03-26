@@ -139,10 +139,10 @@ namespace reg
       : public Rb
       {
 #ifdef STM32F10X_CL
-        typedef RegisterConst< Rb, 0x0 > PREDIV1;      /**< 00: PREDIV1 clock not divided for PLL entry    */
+        typedef RegisterConst< Rb, 0x0 > PREDIV1_DIV1; /**< 00: PREDIV1 clock not divided for PLL entry    */
         typedef RegisterConst< Rb, 0x1 > PREDIV1_DIV2; /**< 01: PREDIV1 clock divided by 2 for PLL entry   */
 #else
-        typedef RegisterConst< Rb, 0x0 > HSE;          /**< 00: HSE clock not divided    */
+        typedef RegisterConst< Rb, 0x0 > HSE_DIV1;     /**< 00: HSE clock not divided    */
         typedef RegisterConst< Rb, 0x1 > HSE_DIV2;     /**< 01: HSE clock divided by 2   */
 #endif
       };

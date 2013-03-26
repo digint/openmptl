@@ -34,17 +34,13 @@ namespace reg
   template<reg_addr_t base_addr>
   struct __SPI_COMMON
   {
-    static_assert(base_addr > 0, "invalid base address");
-    static constexpr const char * name_str = "SPIx";
-
     /**
      * Control register 1
      */
     struct CR1
     : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x0000 >
     {
-      typedef Register< uint32_t, base_addr + 0x00, Access::rw, 0x0000 > reg_type;
-      static constexpr const char * name_str = "CR1";
+      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x0000 >;
 
       /** Baud Rate Control  */
       template<typename Rb>
@@ -71,20 +67,20 @@ namespace reg
         };
       };
 
-      typedef        RegisterBits< reg_type, 15,  1 >   BIDIMODE;   /**< Bidirectional data mode enable       */
-      typedef        RegisterBits< reg_type, 14,  1 >   BIDIOE;     /**< Output enable in bidirectional mode  */
-      typedef        RegisterBits< reg_type, 13,  1 >   CRCEN;      /**< Hardware CRC calculation enable      */
-      typedef        RegisterBits< reg_type, 12,  1 >   CRCNEXT;    /**< CRC transfer next                    */
-      typedef        RegisterBits< reg_type, 11,  1 >   DFF;        /**< Data frame format                    */
-      typedef        RegisterBits< reg_type, 10,  1 >   RXONLY;     /**< Receive only                         */
-      typedef        RegisterBits< reg_type,  9,  1 >   SSM;        /**< Software slave management            */
-      typedef        RegisterBits< reg_type,  8,  1 >   SSI;        /**< Internal slave select                */
-      typedef        RegisterBits< reg_type,  7,  1 >   LSBFIRST;   /**< Frame format                         */
-      typedef        RegisterBits< reg_type,  6,  1 >   SPE;        /**< SPI enable                           */
-      typedef __BR < RegisterBits< reg_type,  3,  3 > > BR;         /**< Baud rate control                    */
-      typedef        RegisterBits< reg_type,  2,  1 >   MSTR;       /**< Master selection                     */
-      typedef        RegisterBits< reg_type,  1,  1 >   CPOL;       /**< Clock polarity                       */
-      typedef        RegisterBits< reg_type,  0,  1 >   CPHA;       /**< Clock phase                          */
+      using BIDIMODE  =        RegisterBits< type, 15,  1 >;    /**< Bidirectional data mode enable       */
+      using BIDIOE    =        RegisterBits< type, 14,  1 >;    /**< Output enable in bidirectional mode  */
+      using CRCEN     =        RegisterBits< type, 13,  1 >;    /**< Hardware CRC calculation enable      */
+      using CRCNEXT   =        RegisterBits< type, 12,  1 >;    /**< CRC transfer next                    */
+      using DFF       =        RegisterBits< type, 11,  1 >;    /**< Data frame format                    */
+      using RXONLY    =        RegisterBits< type, 10,  1 >;    /**< Receive only                         */
+      using SSM       =        RegisterBits< type,  9,  1 >;    /**< Software slave management            */
+      using SSI       =        RegisterBits< type,  8,  1 >;    /**< Internal slave select                */
+      using LSBFIRST  =        RegisterBits< type,  7,  1 >;    /**< Frame format                         */
+      using SPE       =        RegisterBits< type,  6,  1 >;    /**< SPI enable                           */
+      using BR        = __BR < RegisterBits< type,  3,  3 > >;  /**< Baud rate control                    */
+      using MSTR      =        RegisterBits< type,  2,  1 >;    /**< Master selection                     */
+      using CPOL      =        RegisterBits< type,  1,  1 >;    /**< Clock polarity                       */
+      using CPHA      =        RegisterBits< type,  0,  1 >;    /**< Clock phase                          */
     };
 
     /**
@@ -93,15 +89,14 @@ namespace reg
     struct CR2
     : public Register< uint32_t, base_addr + 0x04, Access::rw, 0x0000 >
     {
-      typedef Register< uint32_t, base_addr + 0x04, Access::rw, 0x0000 > reg_type;
-      static constexpr const char * name_str = "CR2";
+      using type = Register< uint32_t, base_addr + 0x4, Access::rw, 0x0000 >;
 
-      typedef RegisterBits< reg_type,  7,  1 > TXEIE;     /**< Tx buffer empty interrupt enable      */
-      typedef RegisterBits< reg_type,  6,  1 > RXNEIE;    /**< RX buffer not empty interrupt enable  */
-      typedef RegisterBits< reg_type,  5,  1 > ERRIE;     /**< Error interrupt enable                */
-      typedef RegisterBits< reg_type,  2,  1 > SSOE;      /**< SS output enable                      */
-      typedef RegisterBits< reg_type,  1,  1 > TXDMAEN;   /**< Tx buffer DMA enable                  */
-      typedef RegisterBits< reg_type,  0,  1 > RXDMAEN;   /**< Rx buffer DMA enable                  */
+      using TXEIE    = RegisterBits< type,  7,  1 >;  /**< Tx buffer empty interrupt enable      */
+      using RXNEIE   = RegisterBits< type,  6,  1 >;  /**< Rx buffer not empty interrupt enable  */
+      using ERRIE    = RegisterBits< type,  5,  1 >;  /**< Error interrupt enable                */
+      using SSOE     = RegisterBits< type,  2,  1 >;  /**< SS output enable                      */
+      using TXDMAEN  = RegisterBits< type,  1,  1 >;  /**< Tx buffer DMA enable                  */
+      using RXDMAEN  = RegisterBits< type,  0,  1 >;  /**< Rx buffer DMA enable                  */
     };
 
     /**
@@ -110,84 +105,54 @@ namespace reg
     struct SR
     : public Register< uint32_t, base_addr + 0x08, Access::rw, 0x0002 >
     {
-      typedef Register< uint32_t, base_addr + 0x08, Access::rw, 0x0002 > reg_type;
-      static constexpr const char * name_str = "SR";
+      using type = Register< uint32_t, base_addr + 0x8, Access::rw, 0x0002 >;
 
-      typedef RegisterBits< reg_type,  7,  1 > BSY;      /**< Busy flag                 */
-      typedef RegisterBits< reg_type,  6,  1 > OVR;      /**< Overrun flag              */
-      typedef RegisterBits< reg_type,  5,  1 > MODF;     /**< Mode fault                */
-      typedef RegisterBits< reg_type,  4,  1 > CRCERR;   /**< CRC error flag            */
-      typedef RegisterBits< reg_type,  3,  1 > UDR;      /**< Underrun flag             */
-      typedef RegisterBits< reg_type,  2,  1 > CHSIDE;   /**< Channel side              */
-      typedef RegisterBits< reg_type,  1,  1 > TXE;      /**< Transmit buffer empty     */
-      typedef RegisterBits< reg_type,  0,  1 > RXNE;     /**< Receive buffer not empty  */
+      using BSY     = RegisterBits< type,  7,  1 >;  /**< Busy flag                 */
+      using OVR     = RegisterBits< type,  6,  1 >;  /**< Overrun flag              */
+      using MODF    = RegisterBits< type,  5,  1 >;  /**< Mode fault                */
+      using CRCERR  = RegisterBits< type,  4,  1 >;  /**< CRC error flag            */
+      using UDR     = RegisterBits< type,  3,  1 >;  /**< Underrun flag             */
+      using CHSIDE  = RegisterBits< type,  2,  1 >;  /**< Channel side              */
+      using TXE     = RegisterBits< type,  1,  1 >;  /**< Transmit buffer empty     */
+      using RXNE    = RegisterBits< type,  0,  1 >;  /**< Receive buffer not empty  */
     };
 
     /**
      * Data register
      */
-    struct DR
-    : public Register< uint32_t, base_addr + 0x0C, Access::rw, 0x0000 >
-    {
-      typedef Register< uint32_t, base_addr + 0x0C, Access::rw, 0x0000 > reg_type;
-      static constexpr const char * name_str = "DR";
-
-      typedef RegisterBits< reg_type,  0, 16 > DR_;   /**< Data register  */
-    };
+    using DR = Register< uint32_t, base_addr + 0x0c, Access::rw, 0x0000 >;
 
     /**
      * CRC polynomial register
      */
-    struct CRCPR
-    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x0007 >
-    {
-      typedef Register< uint32_t, base_addr + 0x10, Access::rw, 0x0007 > reg_type;
-      static constexpr const char * name_str = "CRCPR";
-
-      typedef RegisterBits< reg_type,  0, 16 > CRCPOLY;   /**< CRC polynomial register  */
-    };
+    using CRCPR = Register< uint32_t, base_addr + 0x10, Access::rw, 0x0007 >;
 
     /**
      * Rx CRC register
      */
-    struct RXCRCR
-    : public Register< uint32_t, base_addr + 0x14, Access::ro, 0x0000 >
-    {
-      typedef Register< uint32_t, base_addr + 0x14, Access::ro, 0x0000 > reg_type;
-      static constexpr const char * name_str = "RXCRCR";
-
-      typedef RegisterBits< reg_type,  0, 16 > RXCRC_;   /**< Rx CRC register  */
-    };
+    using RXCRCR = Register< uint32_t, base_addr + 0x14, Access::ro, 0x0000 >;
 
     /**
      * Tx CRC register
      */
-    struct TXCRCR
-    : public Register< uint32_t, base_addr + 0x18, Access::ro, 0x0000 >
-    {
-      typedef Register< uint32_t, base_addr + 0x18, Access::ro, 0x0000 > reg_type;
-      static constexpr const char * name_str = "TXCRCR";
-
-      typedef RegisterBits< reg_type,  0, 16 > TXCRC_;   /**< Tx CRC register  */
-    };
+    using TXCRCR = Register< uint32_t, base_addr + 0x18, Access::ro, 0x0000 >;
 
     /**
      * I2S configuration register
      */
     struct I2SCFGR
-    : public Register< uint32_t, base_addr + 0x1C, Access::rw, 0x0000 >
+    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      typedef Register< uint32_t, base_addr + 0x1C, Access::rw, 0x0000 > reg_type;
-      static constexpr const char * name_str = "I2SCFGR";
+      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >;
 
-      typedef RegisterBits< reg_type, 11,  1 > I2SMOD;    /**< I2S mode selection                                 */
-      typedef RegisterBits< reg_type, 10,  1 > I2SE;      /**< I2S Enable                                         */
-      typedef RegisterBits< reg_type,  8,  2 > I2SCFG;    /**< I2S configuration mode                             */
-      typedef RegisterBits< reg_type,  7,  1 > PCMSYNC;   /**< PCM frame synchronization                          */
-      typedef RegisterBits< reg_type,  4,  2 > I2SSTD;    /**< I2S standard selection                             */
-      typedef RegisterBits< reg_type,  3,  1 > CKPOL;     /**< Steady state clock polarity                        */
-      typedef RegisterBits< reg_type,  1,  2 > DATLEN;    /**< Data length to be transferred                      */
-      typedef RegisterBits< reg_type,  0,  1 > CHLEN;     /**< Channel length (number of bits per audio channel)  */
+      using I2SMOD   = RegisterBits< type, 11,  1 >;  /**< I2S mode selection                                 */
+      using I2SE     = RegisterBits< type, 10,  1 >;  /**< I2S Enable                                         */
+      using I2SCFG   = RegisterBits< type,  8,  2 >;  /**< I2S configuration mode                             */
+      using PCMSYNC  = RegisterBits< type,  7,  1 >;  /**< PCM frame synchronization                          */
+      using I2SSTD   = RegisterBits< type,  4,  2 >;  /**< I2S standard selection                             */
+      using CKPOL    = RegisterBits< type,  3,  1 >;  /**< Steady state clock polarity                        */
+      using DATLEN   = RegisterBits< type,  1,  2 >;  /**< Data length to be transferred                      */
+      using CHLEN    = RegisterBits< type,  0,  1 >;  /**< Channel length (number of bits per audio channel)  */
     };
 
     /**
@@ -196,12 +161,11 @@ namespace reg
     struct I2SPR
     : public Register< uint32_t, base_addr + 0x20, Access::rw, 00000010 >
     {
-      typedef Register< uint32_t, base_addr + 0x20, Access::rw, 00000010 > reg_type;
-      static constexpr const char * name_str = "I2SPR";
+      using type = Register< uint32_t, base_addr + 0x20, Access::rw, 00000010 >;
 
-      typedef RegisterBits< reg_type,  9,  1 > MCKOE;    /**< Master clock output enable    */
-      typedef RegisterBits< reg_type,  8,  1 > ODD;      /**< Odd factor for the prescaler  */
-      typedef RegisterBits< reg_type,  0,  8 > I2SDIV;   /**< I2S Linear prescaler          */
+      using MCKOE    = RegisterBits< type,  9,  1 >;  /**< Master clock output enable    */
+      using ODD      = RegisterBits< type,  8,  1 >;  /**< Odd factor for the prescaler  */
+      using I2SDIV   = RegisterBits< type,  0,  8 >;  /**< I2S Linear prescaler          */
     };
   };
 
@@ -216,10 +180,10 @@ namespace reg
 
   public:
     struct CR2 : public base::CR2 {
-      typedef RegisterBits< typename base::CR2::reg_type,  4,  1 > FRF;  /**< Frame format  */
+      using FRF = RegisterBits< typename base::CR2::type,  4,  1 >;  /**< Frame format  */
     };
     struct SR : public base::SR {
-      typedef RegisterBits< typename base::SR::reg_type,  8,  1 > FRE;  /**< Frame format error  */
+      using RFE = RegisterBits< typename base::SR::type,  8,  1 >;  /**< Frame format error  */
     };
   };
 }

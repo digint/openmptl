@@ -26,60 +26,51 @@
 namespace reg
 {
   /**
-   * Power control registers (PWR)
+   * Power control
    */
-  class PWR
+  struct PWR
   {
-    static constexpr reg_addr_t reg_base = 0x40007000;
+    static constexpr reg_addr_t base_addr = 0x40007000;
 
     /**
-     * Power control register
+     * Power control register (PWR_CR)
      */
-    template<typename R>
-    class __CR
-    : public R
+    struct CR
+    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000000 >
     {
-      /** PVD Level Selection  */
-      template<typename Rb>
-      struct __PLS
-      : public Rb
+      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000000 >;
+
+      using LPDS  = RegisterBits< type,  0,  1 >;    /**< Low Power Deep Sleep                    */
+      using PDDS  = RegisterBits< type,  1,  1 >;    /**< Power Down Deep Sleep                   */
+      using CWUF  = RegisterBits< type,  2,  1 >;    /**< Clear Wake-up Flag                      */
+      using CSBF  = RegisterBits< type,  3,  1 >;    /**< Clear STANDBY Flag                      */
+      using PVDE  = RegisterBits< type,  4,  1 >;    /**< Power Voltage Detector Enable           */
+
+      /** PVD Level Selection */
+      struct PLS  : RegisterBits< type,  5,  3 >
       {
-        /** PVD Threshold of 2.<fraction> volts (e.g. 2.5V if fraction=5) */
         template<unsigned int fraction>
         struct VoltageThreshold
-        : public RegisterConst< Rb, fraction - 2 >
+        : public RegisterConst< bits_type, fraction - 2 >
         { static_assert((fraction >= 2) && (fraction <= 9), "invalid fraction"); };
       };
 
-    public:
-
-      typedef         RegisterBits< R,  0,  1 >   LPDS; /**< [ 0: 0] Low-Power Deepsleep                      */
-      typedef         RegisterBits< R,  1,  1 >   PDDS; /**< [ 1: 1] Power Down Deepsleep                     */
-      typedef         RegisterBits< R,  2,  1 >   CWUF; /**< [ 2: 2] Clear Wakeup Flag                        */
-      typedef         RegisterBits< R,  3,  1 >   CSBF; /**< [ 3: 3] Clear Standby Flag                       */
-      typedef         RegisterBits< R,  4,  1 >   PVDE; /**< [ 4: 4] Power Voltage Detector Enable            */
-      typedef __PLS < RegisterBits< R,  5,  3 > > PLS;  /**< [ 7: 5] PVD Level Selection                      */
-      typedef         RegisterBits< R,  8,  1 >   DBP;  /**< [ 8: 8] Disable Backup Domain write protection   */
+      using DBP   = RegisterBits< type,  8,  1 >;    /**< Disable Backup Domain write protection  */
     };
-
 
     /**
-     * Power control/status register
+     * Power control register (PWR_CR)
      */
-    template<typename R>
-    struct __CSR
-    : public R
+    struct CSR
+    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
     {
-      typedef RegisterBits< R,  0,  1 > WUF;           /**< [ 0: 0] Wakeup Flag       */
-      typedef RegisterBits< R,  1,  1 > SBF;           /**< [ 1: 1] Standby Flag      */
-      typedef RegisterBits< R,  2,  1 > PVDO;          /**< [ 2: 2] PVD Output        */
-      typedef RegisterBits< R,  8,  1 > EWUP;          /**< [ 8: 8] Enable WKUP pin   */
+      using type = Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >;
+
+      using WUF   = RegisterBits< type,  0,  1 >;  /**< Wake-Up Flag     */
+      using SBF   = RegisterBits< type,  1,  1 >;  /**< STANDBY Flag     */
+      using PVDO  = RegisterBits< type,  2,  1 >;  /**< PVD Output       */
+      using EWUP  = RegisterBits< type,  8,  1 >;  /**< Enable WKUP pin  */
     };
-
-  public:
-
-    typedef __CR < Register< uint32_t, reg_base + 0x00, Access::rw > > CR;
-    typedef __CSR< Register< uint32_t, reg_base + 0x04, Access::rw > > CSR;
   };
 }
 
