@@ -28,6 +28,9 @@ namespace reg
   /**
    * Advanced timer
    *
+   * Note that the registers are actually only 16bit wide, but accessing
+   * them with 32bit is faster in general.
+   *
    * NOTE: not all register bits are valid for all timer, especially:
    * - General-porpose timers (TIM2 to TIM5) are a subset of "advanced timer"
    * - General-porpose timers (TIM9 to TIM14) are another subset of "advanced timer"
@@ -166,9 +169,9 @@ namespace reg
      * capture/compare mode register 1 (output mode)
      */
     struct CCMR1_Output
-    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >;
+      using type = Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >;
 
       using OC2CE  = RegisterBits< type, 15,  1 >;  /**< Output Compare 2 clear enable    */
       using OC2M   = RegisterBits< type, 12,  3 >;  /**< Output Compare 2 mode            */
@@ -186,9 +189,9 @@ namespace reg
      * capture/compare mode register 1 (input mode)
      */
     struct CCMR1_Input
-    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >;
+      using type = Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >;
 
       using IC2F    = RegisterBits< type, 12,  4 >;  /**< Input capture 2 filter       */
       using IC2PSC  = RegisterBits< type, 10,  2 >;  /**< Input capture 2 prescaler    */
@@ -202,9 +205,9 @@ namespace reg
      * capture/compare mode register 2 (output mode)
      */
     struct CCMR2_Output
-    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x00000000 >;
+      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >;
 
       using OC4CE  = RegisterBits< type, 15,  1 >;  /**< Output compare 4 clear enable    */
       using OC4M   = RegisterBits< type, 12,  3 >;  /**< Output compare 4 mode            */
@@ -222,9 +225,9 @@ namespace reg
      * capture/compare mode register 2 (input mode)
      */
     struct CCMR2_Input
-    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x00000000 >;
+      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >;
 
       using IC4F    = RegisterBits< type, 12,  4 >;  /**< Input capture 4 filter       */
       using IC4PSC  = RegisterBits< type, 10,  2 >;  /**< Input capture 4 prescaler    */
@@ -261,7 +264,7 @@ namespace reg
     /**
      * counter
      */
-    using CNT = Register< uint32_t, base_addr + 0x24, Access::rw, 0x00000000 >;
+    using CNT = Register< uint32_t, base_addr + 0x24, Access::rw, 0x0000 >;
 
     /**
      * prescaler
@@ -271,27 +274,27 @@ namespace reg
     /**
      * auto-reload register
      */
-    using ARR = Register< uint32_t, base_addr + 0x2c, Access::rw, 0x00000000 >;
+    using ARR = Register< uint32_t, base_addr + 0x2c, Access::rw, 0x0000 >;
 
     /**
      * capture/compare register 1
      */
-    using CCR1 = Register< uint32_t, base_addr + 0x34, Access::rw, 0x00000000 >;
+    using CCR1 = Register< uint32_t, base_addr + 0x34, Access::rw, 0x0000 >;
 
     /**
      * capture/compare register 2
      */
-    using CCR2 = Register< uint32_t, base_addr + 0x38, Access::rw, 0x00000000 >;
+    using CCR2 = Register< uint32_t, base_addr + 0x38, Access::rw, 0x0000 >;
 
     /**
      * capture/compare register 3
      */
-    using CCR3 = Register< uint32_t, base_addr + 0x3c, Access::rw, 0x00000000 >;
+    using CCR3 = Register< uint32_t, base_addr + 0x3c, Access::rw, 0x0000 >;
 
     /**
      * capture/compare register 4
      */
-    using CCR4 = Register< uint32_t, base_addr + 0x40, Access::rw, 0x00000000 >;
+    using CCR4 = Register< uint32_t, base_addr + 0x40, Access::rw, 0x0000 >;
 
     /**
      * DMA control register
