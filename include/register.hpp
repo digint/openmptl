@@ -93,15 +93,6 @@
 
 namespace mpl
 {
-  template<typename T>
-  static constexpr T bit_or(void) {
-    return 0;
-  }
-  template<typename T, T Head, T... Tail>
-  static constexpr T bit_or(void) {
-    return Head | bit_or<T, Tail...>();
-  }
-
   template<typename T, typename Head, typename... Tail>
   struct all_same {
     static constexpr bool value = std::is_same<T, Head>::value && all_same<T, Tail...>::value;
@@ -109,6 +100,39 @@ namespace mpl
   template<typename T, typename U>
   struct all_same<T, U> {
     static constexpr bool value = std::is_same<T, U>::value;
+  };
+
+
+  template<typename, typename...>
+  struct reg_combined;
+
+  template<typename T>
+  struct reg_combined<T>
+  {
+    static constexpr T set_mask       = 0;
+    static constexpr T clear_mask     = 0;
+    static constexpr T clear_mask_min = 0;
+  };
+
+  template<typename T, typename Head, typename... Tail>
+  struct reg_combined<T, Head, Tail...>
+  {
+    static constexpr T set_mask   = Head::set_mask   | reg_combined<T, Tail...>::set_mask;
+    static constexpr T clear_mask = Head::clear_mask | reg_combined<T, Tail...>::clear_mask;
+
+    /**
+     * Minimal clear mask (USE WITH CARE!)
+     *
+     * The bits in clear_mask_min are only set if they do not appear
+     * in the set_mask.
+     * This helps in some cases where the compiler is not smart enough:
+     * e.g. gcc-4.8 generating Arm-Thumb2:
+     *   x = (x & ~0x1ff00) | 0xff00
+     *   x = (x & ~0x10000) | 0xff00   <-- one BIC instruction less!
+     */
+    static constexpr T clear_mask_min =
+      (Head::clear_mask & ~Head::set_mask) |
+      reg_combined<T, Tail...>::clear_mask_min;
   };
 }
 
@@ -124,7 +148,8 @@ namespace reg
     static_assert(std::is_integral<T>::value, "T is not an integral type");
     static_assert(std::is_unsigned<T>::value, "T is not an unsigned type");
 
-    typedef Register<T, _addr, _access, _reset_value> type;
+    using type     = Register<T, _addr, _access, _reset_value>;
+    using reg_type = type;
 
     static constexpr reg_addr_t addr        = _addr;
     static constexpr Access     access      = _access;
@@ -140,22 +165,21 @@ namespace reg
     template<typename... Rb>
     static void clear(void) {
       static_assert(mpl::all_same<type, typename Rb::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      clear(mpl::bit_or<T, Rb::value...>());
+      clear(mpl::reg_combined<T, Rb...>::clear_mask);
     }
 
     /* set constants */
     template<typename... Rc>
     static void set(void) {
-      // TODO: enable only if all_RegisterConst
       static_assert(mpl::all_same<type, typename Rc::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      set( mpl::bit_or<T, Rc::value...>(), mpl::bit_or<T, Rc::bitmask...>() );
+      set(mpl::reg_combined<T, Rc...>::set_mask, mpl::reg_combined<T, Rc...>::clear_mask_min);
     }
 
     /* set value, masked by Rb */
     template<typename... Rb>
     static void set(T const value) {
       static_assert(mpl::all_same<type, typename Rb::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      set( value, mpl::bit_or<T, Rb::bitmask...>() );
+      set(value, mpl::reg_combined<T, Rb...>::clear_mask);
     }
   };
 
@@ -169,28 +193,31 @@ namespace reg
             >
   struct RegisterBits
   {
-    typedef R reg_type;
-    typedef typename R::value_type value_type;
+    using type       = RegisterBits<R, _offset, width>;
+    using bits_type  = type;
+    using reg_type   = R;
+    using value_type = typename R::value_type;
 
-    static constexpr unsigned   offset  = _offset;
-    static constexpr value_type bitmask = ((1 << width) - 1) << offset;  /* (e.g. width(3) = 0b111 = 7) */
-    static constexpr value_type value   = bitmask;
+    static constexpr unsigned   offset     = _offset;
+    static constexpr value_type set_mask   = ((1 << width) - 1) << offset;  /* (e.g. width(3) = 0b111 = 7) */
+    static constexpr value_type clear_mask = set_mask;
+    static constexpr value_type value      = set_mask; // TODO: use unshifted here?
 
     static_assert(width >= 1, "invalid width");
     static_assert(offset + width <= sizeof(value_type) * 8, "invalid width/offset");
 
-    static value_type test()           { return R::load() & bitmask;  }
+    static value_type test()           { return R::load() & set_mask; }
     static value_type test_and_shift() { return test() >> offset; }
 
     static bool       test(value_type const _value) { return test() == _value; }
 
-    static void       set()            { R::set(value);            }
-    static void       clear()          { R::clear(value);          }
+    static void       set()            { R::set(set_mask); }
+    static void       clear()          { R::clear(clear_mask); }
 
     /** NOTE: this does not check if _value is masked correctly! */
-    static void set(value_type const _value) { R::set(_value, bitmask); }
+    static void set(value_type const _value) { R::set(_value, set_mask); }
     static void shift_and_set(value_type const _value) {
-      R::set(shifted_value(_value), bitmask);
+      R::set(shifted_value(_value), set_mask);
     }
 
     // TODO: better naming for this
@@ -215,13 +242,16 @@ namespace reg
   template< typename R, typename R::value_type _value >
   struct RegisterConst
   {
-    typedef typename R::value_type value_type;
-    typedef typename R::reg_type reg_type;
+    using type       = RegisterConst<R, _value>;
+    using bits_type  = R;
+    using value_type = typename R::value_type;
+    using reg_type   = typename R::reg_type;
 
-    static constexpr value_type value   = _value << R::offset;
-    static constexpr value_type bitmask = R::bitmask;
+    static constexpr value_type value      = _value << R::offset;
+    static constexpr value_type set_mask   = value;
+    static constexpr value_type clear_mask = R::clear_mask;
 
-    static_assert((value & bitmask) == value, "value does not fit into bits of R");
+    static_assert((set_mask & clear_mask) == value, "value does not fit into bits of R");
 
     static void set()     { R::set(value);   }
     static bool test()    { return R::test(value); }
