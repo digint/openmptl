@@ -23,6 +23,8 @@
 
 #include "reg/scb.hpp"
 
+#if 0  // TODO: fixme
+
 template<unsigned priority_bits>
 class Scb
 {
@@ -33,10 +35,9 @@ public:
   static void set_priority_group(uint32_t group) {
     // assert(group == (group & 0x07));
 
-    auto reg  =  SCB::AIRCR::load();
-    reg &= ~(SCB::AIRCR::VECTKEY::value | SCB::AIRCR::PRIGROUP::value);
-    reg |= (0x5FA << 16) | (group << 8);
-    SCB::AIRCR::store(reg);
+    SCB::AIRCR::set<SCB::AIRCR::VECTKEY, SCB::AIRCR::PRIGROUP>
+      ( SCB::AIRCR::VECTKEY ::shifted_value(0x5FA) |
+        SCB::AIRCR::PRIGROUP::shifted_value(group) );
   }
 
   static uint32_t get_priority_group(void) {
@@ -56,5 +57,6 @@ public:
   }
 };
 
+#endif
 
 #endif // COMMON_ARM_CORTEX_SCB_HPP_INCLUDED

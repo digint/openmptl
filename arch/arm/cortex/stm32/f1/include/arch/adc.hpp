@@ -267,12 +267,14 @@ public:
   static void enable_software_start_conversion(void) {
     // - Enable ADC conversion on external event
     // - Start ADC conversion
-    ADCx::CR2::set(ADCx::CR2::EXTTRIG::value | ADCx::CR2::SWSTART::value);
+    ADCx::CR2::template set<typename ADCx::CR2::EXTTRIG,
+                            typename ADCx::CR2::SWSTART>();
   }
   static void disable_software_start_conversion(void) {
     // - Stop ADC conversion
     // - Disable ADC conversion on external event
-    ADCx::CR2::clear(ADCx::CR2::EXTTRIG::value | ADCx::CR2::SWSTART::value);
+    ADCx::CR2::template clear<typename ADCx::CR2::EXTTRIG,
+                              typename ADCx::CR2::SWSTART>();
   }
 
   static void wait_eoc(void) {

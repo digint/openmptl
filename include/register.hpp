@@ -230,7 +230,7 @@ namespace reg
       static_assert(bit_no < width, "invalid bit_no");
     };
 
-    // cast operator
+    /* cast operator */
     constexpr operator value_type() { return value; }
   };
 
