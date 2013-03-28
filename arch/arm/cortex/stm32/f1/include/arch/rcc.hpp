@@ -58,46 +58,63 @@ public:
   }
 
   static void set_system_clock(void) {
-    auto cfgr = RCC::CFGR::load();
-
     switch(cpu_clock_freq) {
     case 24_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 6 = 24 MHz               */
-      cfgr |= (RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE2::DIV1::value | RCC::CFGR::PPRE1::DIV1::value);
-      cfgr &= ~(RCC::CFGR::PLLSRC::value | RCC::CFGR::PLLXTPRE::value | RCC::CFGR::PLLMUL::value);
-      cfgr |= (RCC::CFGR::PLLSRC::HSE::value | RCC::CFGR::PLLXTPRE::HSE_DIV2::value | RCC::CFGR::PLLMUL::MUL6::value);
+      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
+                      RCC::CFGR::PPRE1   ::DIV1,
+                      RCC::CFGR::PPRE2   ::DIV1,
+                      RCC::CFGR::PLLSRC  ::HSE,
+                      RCC::CFGR::PLLXTPRE::HSE_DIV2,
+                      RCC::CFGR::PLLMUL  ::MUL6
+                      >();
       break;
     case 36_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 9 = 36 MHz               */
-      cfgr |= (RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE2::DIV1::value | RCC::CFGR::PPRE1::DIV1::value);
-      cfgr &= ~(RCC::CFGR::PLLSRC::value | RCC::CFGR::PLLXTPRE::value | RCC::CFGR::PLLMUL::value);
-      cfgr |= (RCC::CFGR::PLLSRC::HSE::value | RCC::CFGR::PLLXTPRE::HSE_DIV2::value | RCC::CFGR::PLLMUL::MUL9::value);
+      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
+                      RCC::CFGR::PPRE1   ::DIV1,
+                      RCC::CFGR::PPRE2   ::DIV1,
+                      RCC::CFGR::PLLSRC  ::HSE,
+                      RCC::CFGR::PLLXTPRE::HSE_DIV2,
+                      RCC::CFGR::PLLMUL  ::MUL9
+                      >();
       break;
     case 48_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 6 = 48 MHz                   */
-      cfgr |= (RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE2::DIV1::value | RCC::CFGR::PPRE1::DIV2::value);
-      cfgr &= ~(RCC::CFGR::PLLSRC::value | RCC::CFGR::PLLXTPRE::value | RCC::CFGR::PLLMUL::value);
-      cfgr |= (RCC::CFGR::PLLSRC::HSE::value | RCC::CFGR::PLLMUL::MUL6::value);
+      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
+                      RCC::CFGR::PPRE1   ::DIV2,
+                      RCC::CFGR::PPRE2   ::DIV1,
+                      RCC::CFGR::PLLSRC  ::HSE,
+                      RCC::CFGR::PLLXTPRE::HSE_DIV1,
+                      RCC::CFGR::PLLMUL  ::MUL6
+                      >();
       break;
     case 56_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 7 = 56 MHz                   */
-      cfgr |= (RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE2::DIV1::value | RCC::CFGR::PPRE1::DIV2::value);
-      cfgr &= ~(RCC::CFGR::PLLSRC::value | RCC::CFGR::PLLXTPRE::value | RCC::CFGR::PLLMUL::value);
-      cfgr |= (RCC::CFGR::PLLSRC::HSE::value | RCC::CFGR::PLLMUL::MUL7::value);
+      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
+                      RCC::CFGR::PPRE1   ::DIV2,
+                      RCC::CFGR::PPRE2   ::DIV1,
+                      RCC::CFGR::PLLSRC  ::HSE,
+                      RCC::CFGR::PLLXTPRE::HSE_DIV1,
+                      RCC::CFGR::PLLMUL  ::MUL7
+                      >();
       break;
     case 72_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 9 = 72 MHz                   */
-      cfgr |= (RCC::CFGR::HPRE::DIV1::value | RCC::CFGR::PPRE2::DIV1::value | RCC::CFGR::PPRE1::DIV2::value);
-      cfgr &= ~(RCC::CFGR::PLLSRC::value | RCC::CFGR::PLLXTPRE::value | RCC::CFGR::PLLMUL::value);
-      cfgr |= (RCC::CFGR::PLLSRC::HSE::value | RCC::CFGR::PLLMUL::MUL9::value);
+      RCC::CFGR::set<RCC::CFGR::HPRE    ::DIV1,
+                     RCC::CFGR::PPRE1   ::DIV2,
+                     RCC::CFGR::PPRE2   ::DIV1,
+                     RCC::CFGR::PLLSRC  ::HSE,
+                     RCC::CFGR::PLLXTPRE::HSE_DIV1,
+                     RCC::CFGR::PLLMUL  ::MUL9
+                     >();
       break;
     }
-    RCC::CFGR::store(cfgr);
 
     RCC::CR::PLLON::set();
     while(RCC::CR::PLLRDY::test() == 0);
