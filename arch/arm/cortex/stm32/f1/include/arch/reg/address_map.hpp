@@ -23,7 +23,7 @@
 
 namespace reg
 {
-  template<uint32_t addr>
+  template<reg_addr_t addr>
   struct AddressMap {
     static constexpr const char * name_str = nullptr;
   };
