@@ -50,18 +50,18 @@ namespace reg {
     static constexpr Access     access = _access;
     static constexpr reg_addr_t addr   = _addr;
 
-    /** integral type for load() and store() register access. */
+    /** Integral type used for register access. */
     typedef T value_type;
 
     static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
 
-    /** load (read) the register value. */
+    /** Load (read) register value. */
     static T    load(void) {
       static_assert(access != Access::wo, "read access to a write-only register");
       return *value_ptr;
     }
 
-    /** store (write) a register value. */
+    /** Store (write) a register value. */
     static void store(T const value) {
       static_assert(access != Access::ro, "write access to a read-only register");
       *value_ptr = value;
