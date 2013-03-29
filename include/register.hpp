@@ -111,7 +111,7 @@ namespace mpl
   {
     static constexpr T set_mask       = 0;
     static constexpr T clear_mask     = 0;
-    static constexpr T clear_mask_min = 0;
+    static constexpr T cropped_clear_mask = 0;
   };
 
   template<typename T, typename Head, typename... Tail>
@@ -121,18 +121,22 @@ namespace mpl
     static constexpr T clear_mask = Head::clear_mask | reg_combined<T, Tail...>::clear_mask;
 
     /**
-     * Minimal clear mask (USE WITH CARE!)
+     * Cropped clear mask (USE WITH CARE!)
      *
-     * The bits in clear_mask_min are only set if they do not appear
-     * in the set_mask.
-     * This helps in some cases where the compiler is not smart enough:
-     * e.g. gcc-4.8 generating Arm-Thumb2:
-     *   x = (x & ~0x1ff00) | 0xff00
-     *   x = (x & ~0x10000) | 0xff00   <-- one BIC instruction less!
+     * The bits in cropped_clear_mask are only set if they do not
+     * appear in the set_mask. This helps in some cases where the
+     * compiler is not smart enough.
+     * Example: (gcc-4.8 generating Arm-Thumb2)
+     *
+     *   x = (x & ~0x1ff00) | 0x0ff00
+     *   x = (x & ~0x10000) | 0x0ff00   <-- one BIC instruction less!
+     *
+     * It does not matter which form you use, as long as you perform a
+     * load-clear-set-store sequence.
      */
-    static constexpr T clear_mask_min =
+    static constexpr T cropped_clear_mask =
       (Head::clear_mask & ~Head::set_mask) |
-      reg_combined<T, Tail...>::clear_mask_min;
+      reg_combined<T, Tail...>::cropped_clear_mask;
   };
 }
 
@@ -172,7 +176,7 @@ namespace reg
     template<typename... Rc>
     static void set(void) {
       static_assert(mpl::all_same<type, typename Rc::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      set(mpl::reg_combined<T, Rc...>::set_mask, mpl::reg_combined<T, Rc...>::clear_mask_min);
+      set(mpl::reg_combined<T, Rc...>::set_mask, mpl::reg_combined<T, Rc...>::cropped_clear_mask);
     }
 
     /* set value, masked by Rb */
@@ -193,40 +197,42 @@ namespace reg
             >
   struct RegisterBits
   {
+    static_assert(std::is_same<typename R::type, typename R::reg_type>::value, "template argument R is not o type: Register<>");
     using type       = RegisterBits<R, _offset, width>;
     using bits_type  = type;
     using reg_type   = R;
     using value_type = typename R::value_type;
 
     static constexpr unsigned   offset     = _offset;
-    static constexpr value_type set_mask   = ((1 << width) - 1) << offset;  /* (e.g. width(3) = 0b111 = 7) */
-    static constexpr value_type clear_mask = set_mask;
-    static constexpr value_type value      = set_mask; // TODO: use unshifted here?
+    static constexpr value_type value      = ((1 << width) - 1) << offset;  /* (e.g. width(3) = 0b111 = 7) */
+    static constexpr value_type clear_mask = value;  // TODO: rename bitmask ?
+    static constexpr value_type set_mask   = value;
 
     static_assert(width >= 1, "invalid width");
     static_assert(offset + width <= sizeof(value_type) * 8, "invalid width/offset");
 
-    static value_type test()           { return R::load() & set_mask; }
+    static value_type test()           { return R::load() & clear_mask; }
     static value_type test_and_shift() { return test() >> offset; }
 
-    static bool       test(value_type const _value) { return test() == _value; }
+    static bool       test(value_type const test_value) { return test() == test_value; }
 
     static void       set()            { R::set(set_mask); }
     static void       clear()          { R::clear(clear_mask); }
 
     /** NOTE: this does not check if _value is masked correctly! */
-    static void set(value_type const _value) { R::set(_value, set_mask); }
-    static void shift_and_set(value_type const _value) {
-      R::set(shifted_value(_value), set_mask);
+    static void set(value_type const set_value) { R::set(set_value, set_mask); }
+    static void shift_and_set(value_type const set_value) {
+      R::set(shifted_value(set_value), set_mask);
     }
 
     // TODO: better naming for this
-    static constexpr value_type shifted_value(value_type const _value) {
-      return (_value << offset);
+    static constexpr value_type shifted_value(value_type const input_value) {
+      // assert((input_value << offset) | clear_mask, "input value does not match clear_mask");
+      return (input_value << offset);
     }
 
     template<unsigned bit_no>
-    struct bit : RegisterBits< R, offset + bit_no, 1 > {
+    struct bit : RegisterBits< reg_type, offset + bit_no, 1 > {
       static_assert(bit_no < width, "invalid bit_no");
     };
 
@@ -247,6 +253,7 @@ namespace reg
     using value_type = typename R::value_type;
     using reg_type   = typename R::reg_type;
 
+    static constexpr value_type offset     = R::offset;
     static constexpr value_type value      = _value << R::offset;
     static constexpr value_type set_mask   = value;
     static constexpr value_type clear_mask = R::clear_mask;
@@ -256,9 +263,30 @@ namespace reg
     static void set()     { R::set(value);   }
     static bool test()    { return R::test(value); }
 
+    /* NOTE: clear() is NOT declared. Clearing a contant value in a
+     * register not make sense imho.  What you actually want to do to
+     * is clearing all bits (offset, width) where RegisterConst<> is
+     * defined on. In order to clear the constant, you must refer to
+     * the underlying RegisterBits<> type by either accessing it
+     * directly (preferred), or use the bits_type:
+     *
+     *   RegisterConst<>::bits_type::clear()
+     *
+     */
+#if 0 /* clear(): INTENTIONALLY NOT DECLARED */
+    //! static void clear()   { R::clear(); }  /* INTENTIONALLY NOT DECLARED */
+#endif
+
     // cast operator
     constexpr operator value_type() { return value; }
   };
+
+
+  ////////////////////  Debug  ////////////////////
+
+
+  template<typename T>
+  using DebugRegister = Register<T, 0, Access::invalid, 0>;
 
 }
 
