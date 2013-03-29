@@ -40,9 +40,11 @@ namespace reg
    * Check the reference manual for details about which register bits
    * are valid for the timers you use.
    */
-  template<reg_addr_t base_addr>
+  template<reg_addr_t _base_addr>
   struct TIM_Common
   {
+    static constexpr reg_addr_t base_addr = _base_addr;
+
     /**
      * Control register 1
      */

@@ -166,14 +166,14 @@ namespace reg
   template<reg_addr_t base_addr>
   class USART_Common_Ext : public USART_Common<base_addr>
   {
-    using type =USART_Common<base_addr>;
+    using base_type = USART_Common<base_addr>;
 
   public:
-    struct CR1 : public type::CR1 {
-      using OVER8  = RegisterBits< typename type::CR1::reg_type, 15,  1 >;   /**< Oversampling mode  */
+    struct CR1 : public base_type::CR1 {
+      using OVER8  = RegisterBits< typename base_type::CR1::type, 15,  1 >;   /**< Oversampling mode  */
     };
-    struct CR3 : public type::CR3 {
-      using ONEBIT = RegisterBits< typename type::CR3::reg_type, 11,  1 >;   /**< One sample bit method enable  */
+    struct CR3 : public base_type::CR3 {
+      using ONEBIT = RegisterBits< typename base_type::CR3::type, 11,  1 >;   /**< One sample bit method enable  */
     };
   };
 }

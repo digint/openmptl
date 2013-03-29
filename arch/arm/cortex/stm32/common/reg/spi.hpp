@@ -34,9 +34,11 @@ namespace reg
    * unsigned integer type with width of at least 16 bits". In most
    * situations the compiler (gcc-4.8) will use 32bit integers.
    */
-  template<reg_addr_t base_addr>
+  template<reg_addr_t _base_addr>
   struct SPI_Common
   {
+    static constexpr reg_addr_t base_addr = _base_addr;
+
     /**
      * Control register 1
      */
@@ -179,14 +181,15 @@ namespace reg
   template<reg_addr_t base_addr>
   class SPI_Common_Ext : public SPI_Common<base_addr>
   {
-    typedef SPI_Common<base_addr> base;
+    using base_type = SPI_Common<base_addr>;
 
   public:
-    struct CR2 : public base::CR2 {
-      using FRF = RegisterBits< typename base::CR2::type,  4,  1 >;  /**< Frame format  */
+
+    struct CR2 : public base_type::CR2 {
+      using FRF = RegisterBits< typename base_type::CR2::type,  4,  1 >;  /**< Frame format  */
     };
-    struct SR : public base::SR {
-      using RFE = RegisterBits< typename base::SR::type,  8,  1 >;  /**< Frame format error  */
+    struct SR : public base_type::SR {
+      using RFE = RegisterBits< typename base_type::SR::type,  8,  1 >;  /**< Frame format error  */
     };
   };
 }
