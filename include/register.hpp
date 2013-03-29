@@ -144,19 +144,14 @@ namespace mpl
 namespace reg
 {
   template< typename   T,
-            reg_addr_t _addr,
-            Access     _access,
+            reg_addr_t addr,
+            Access     access,
             T          _reset_value = 0 >
-  struct Register : public RegisterStorage<T, _addr, _access, _reset_value>
+  struct Register : public RegisterStorage<T, addr, access, _reset_value>
   {
-    static_assert(std::is_integral<T>::value, "T is not an integral type");
-    static_assert(std::is_unsigned<T>::value, "T is not an unsigned type");
-
-    using type     = Register<T, _addr, _access, _reset_value>;
+    using type     = Register<T, addr, access, _reset_value>;
     using reg_type = type;
 
-    static constexpr reg_addr_t addr        = _addr;
-    static constexpr Access     access      = _access;
     static constexpr T          reset_value = _reset_value;
 
     static T    test (T const value) { return type::load() & value;          }

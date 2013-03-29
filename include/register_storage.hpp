@@ -38,18 +38,30 @@ namespace reg {
   typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
 
   template< typename   T,
-            reg_addr_t addr,
-            Access     access,
+            reg_addr_t _addr,
+            Access     _access,
             T          reset_value >
   struct RegisterStorage
   {
+    static_assert(std::is_integral<T>::value, "T is not an integral type");
+    static_assert(std::is_unsigned<T>::value, "T is not an unsigned type");
+    static_assert(!std::is_volatile<T>::value, "T is is a volatile-qualified type (why would you want this?)");
+
+    static constexpr Access     access = _access;
+    static constexpr reg_addr_t addr   = _addr;
+
+    /** integral type for load() and store() register access. */
     typedef T value_type;
+
     static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
 
+    /** load (read) the register value. */
     static T    load(void) {
       static_assert(access != Access::wo, "read access to a write-only register");
       return *value_ptr;
     }
+
+    /** store (write) a register value. */
     static void store(T const value) {
       static_assert(access != Access::ro, "write access to a read-only register");
       *value_ptr = value;
