@@ -112,9 +112,10 @@ public:
   }
 
   static uint32_t get_divider(void) {
-    // TODO: better return type
-    //    return (((uint32_t)RTC::DIVH::load() & (uint32_t)0x000F) << 16 ) | RTC::DIVL::load();
-    return (RTC::DIVH::RTC_DIV::test() << 16 ) | RTC::DIVL::load();
+    return ((uint32_t)RTC::DIVH::load() << 16 ) | (uint32_t)RTC::DIVL::load();
+
+    /* paranoid variant: applies bitmask on high/low register before shifting */
+    //    return ((uint32_t)RTC::DIVH::exact_type::test() << 16 ) | (uint32_t)RTC::DIVL::exact_type::test();
   }
 
   struct StaticIsrWrap : public IsrWrap {

@@ -18,146 +18,117 @@
  *
  */
 
-#ifndef REG_RTC_HPP_INCLUDED
-#define REG_RTC_HPP_INCLUDED
+#ifndef ARCH_REG_RTC_HPP_INCLUDED
+#define ARCH_REG_RTC_HPP_INCLUDED
 
 #include <register.hpp>
 
 namespace reg
 {
   /**
-   * Real-time clock (RTC)
-   *
-   * Note that the registers are actually only 16bit wide, but accessing
-   * them with 32bit is faster in general.
+   * Real time clock
    */
-  class RTC
+  struct RTC
   {
-    static constexpr reg_addr_t reg_base = 0x40002800;
+    static constexpr reg_addr_t base_addr = 0x40002800;
 
     /**
-     * RTC control register high
+     * RTC Control register high
      */
-    template<typename R>
-    struct __CRH
-    : public R
+    struct CRH
+    : public Register< uint_fast16_t, base_addr + 0x0, Access::rw, 0x0000 >
     {
-      typedef RegisterBits< R,  0,  1 > SECIE;         /**< [ 0: 0] Second Interrupt Enable     */
-      typedef RegisterBits< R,  1,  1 > ALRIE;         /**< [ 1: 1] Alarm Interrupt Enable      */
-      typedef RegisterBits< R,  2,  1 > OWIE;          /**< [ 2: 2] OverfloW Interrupt Enable   */
-    };
-
-
-    /**
-     * RTC control register low
-     */
-    template<typename R>
-    struct __CRL
-    : public R
-    {
-      typedef RegisterBits< R,  0,  1 > SECF;          /**< [ 0: 0] Second Flag                   */
-      typedef RegisterBits< R,  1,  1 > ALRF;          /**< [ 1: 1] Alarm Flag                    */
-      typedef RegisterBits< R,  2,  1 > OWF;           /**< [ 2: 2] OverfloW Flag                 */
-      typedef RegisterBits< R,  3,  1 > RSF;           /**< [ 3: 3] Registers Synchronized Flag   */
-      typedef RegisterBits< R,  4,  1 > CNF;           /**< [ 4: 4] Configuration Flag            */
-      typedef RegisterBits< R,  5,  1 > RTOFF;         /**< [ 5: 5] RTC operation OFF             */
+      using SECIE  = RegisterBits< type,  0,  1 >;  /**< Second interrupt Enable    */
+      using ALRIE  = RegisterBits< type,  1,  1 >;  /**< Alarm interrupt Enable     */
+      using OWIE   = RegisterBits< type,  2,  1 >;  /**< Overflow interrupt Enable  */
     };
 
     /**
-     * RTC prescaler load register high
+     * RTC Control register low
      */
-    template<typename R>
-    struct __PRLH
-    : public R
+    struct CRL
+    : public Register< uint_fast16_t, base_addr + 0x4, Access::rw, 0x0020 >
     {
-      typedef RegisterBits< R,  0,  4 > PRL;           /**< [ 3: 0] RTC Prescaler Reload Value High   */
+      using SECF   = RegisterBits< type,  0,  1 >;  /**< Second Flag                  */
+      using ALRF   = RegisterBits< type,  1,  1 >;  /**< Alarm Flag                   */
+      using OWF    = RegisterBits< type,  2,  1 >;  /**< Overflow Flag                */
+      using RSF    = RegisterBits< type,  3,  1 >;  /**< Registers Synchronized Flag  */
+      using CNF    = RegisterBits< type,  4,  1 >;  /**< Configuration Flag           */
+      using RTOFF  = RegisterBits< type,  5,  1 >;  /**< RTC operation OFF            */
     };
 
     /**
-     * RTC prescaler load register low
+     * RTC Prescaler load register high
      */
-    template<typename R>
-    struct __PRLL
-    : public R
+    struct PRLH
+    : public Register< uint_fast16_t, base_addr + 0x8, Access::wo, 0x0000 >
     {
-      typedef RegisterBits< R,  0, 16 > PRL;           /**< [15: 0] RTC Prescaler Reload Value Low   */
+      using exact_type = RegisterBits< type,  0,  4 >;  /**< RTC Prescaler Load Register High  */
     };
 
     /**
-     * RTC prescaler divider register high
+     * RTC Prescaler load register low
      */
-    template<typename R>
-    struct __DIVH
-    : public R
+    struct PRLL
+    : public Register< uint_fast16_t, base_addr + 0xc, Access::wo, 0x8000 >
     {
-      typedef RegisterBits< R,  0,  4 > RTC_DIV;       /**< [ 3: 0] RTC Clock Divider High   */
+      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC Prescaler Divider Register Low  */
     };
 
     /**
-     * RTC prescaler divider register low
+     * RTC Prescaler divider register high
      */
-    template<typename R>
-    struct __DIVL
-    : public R
+    struct DIVH
+    : public Register< uint_fast16_t, base_addr + 0x10, Access::ro, 0x0000 >
     {
-      typedef RegisterBits< R,  0, 16 > RTC_DIV;       /**< [15: 0] RTC Clock Divider Low   */
+      using exact_type = RegisterBits< type,  0,  4 >;  /**< RTC prescaler divider register high  */
     };
 
     /**
-     * RTC counter register high
+     * RTC Prescaler divider register low
      */
-    template<typename R>
-    struct __CNTH
-    : public R
+    struct DIVL
+    : public Register< uint_fast16_t, base_addr + 0x14, Access::ro, 0x8000 >
     {
-      typedef RegisterBits< R,  0, 16 > RTC_CNT;       /**< [15: 0] RTC Counter High   */
+      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC prescaler divider register Low  */
     };
 
     /**
-     * RTC counter register low
+     * RTC Counter register high
      */
-    template<typename R>
-    struct __CNTL
-    : public R
+    struct CNTH
+    : public Register< uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >
     {
-      typedef RegisterBits< R,  0, 16 > RTC_CNT;       /**< [15: 0] RTC Counter Low   */
+      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC counter register high  */
     };
 
     /**
-     * RTC alarm register high
+     * RTC Counter register low
      */
-    template<typename R>
-    struct __ALRH
-    : public R
+    struct CNTL
+    : public Register< uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      typedef RegisterBits< R,  0, 16 > RTC_ALR;       /**< [15: 0] RTC Alarm High   */
+      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC counter register Low  */
     };
 
     /**
-     * RTC alarm register low
+     * RTC Alarm register high
      */
-    template<typename R>
-    struct __ALRL
-    : public R
+    struct ALRH
+    : public Register< uint_fast16_t, base_addr + 0x20, Access::wo, 0xFFFF >
     {
-      typedef RegisterBits< R,  0, 16 > RTC_ALR;       /**< [15: 0] RTC Alarm Low   */
+      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC alarm register high  */
     };
 
-
-  public:
-
-    // TODO: use "uint_fast16_t", this is way cooler!
-    typedef __CRH < Register< uint32_t, reg_base + 0x00, Access::rw         > > CRH;  /**< RTC control register high             */
-    typedef __CRL < Register< uint32_t, reg_base + 0x04, Access::rw, 0x0020 > > CRL;  /**< RTC control register low              */
-    typedef __PRLH< Register< uint32_t, reg_base + 0x08, Access::wo         > > PRLH; /**< RTC prescaler load register high      */
-    typedef __PRLL< Register< uint32_t, reg_base + 0x0c, Access::wo, 0x8000 > > PRLL; /**< RTC prescaler load register low       */
-    typedef __DIVH< Register< uint32_t, reg_base + 0x10, Access::ro         > > DIVH; /**< RTC prescaler divider register high   */
-    typedef __DIVL< Register< uint32_t, reg_base + 0x14, Access::ro, 0x8000 > > DIVL; /**< RTC prescaler divider register low    */
-    typedef __CNTH< Register< uint32_t, reg_base + 0x18, Access::rw         > > CNTH; /**< RTC counter register high             */
-    typedef __CNTL< Register< uint32_t, reg_base + 0x1c, Access::rw         > > CNTL; /**< RTC counter register low              */
-    typedef __ALRH< Register< uint32_t, reg_base + 0x20, Access::wo         > > ALRH; /**< RTC alarm register high               */
-    typedef __ALRL< Register< uint32_t, reg_base + 0x24, Access::wo         > > ALRL; /**< RTC alarm register low                */
+    /**
+     * RTC Alarm register low
+     */
+    struct ALRL
+    : public Register< uint_fast16_t, base_addr + 0x24, Access::wo, 0xFFFF >
+    {
+      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC alarm register low  */
+    };
   };
 }
 
-#endif // REG_RTC_HPP_INCLUDED
+#endif // ARCH_REG_RTC_HPP_INCLUDED
