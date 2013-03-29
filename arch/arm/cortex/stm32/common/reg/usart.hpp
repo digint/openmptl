@@ -29,11 +29,14 @@ namespace reg
    * Universal synchronous asynchronous receiver transmitter (USART),
    * common to all stm32 processors.
    *
-   * NOTE: We use std::uint_fast16_t to access the registers. This way we
-   * leave it up to the compiler to use either 16-bit or 32-bit
+   * NOTE: We use std::uint_fast16_t to access the registers. This way
+   * we leave it up to the compiler to use either 16-bit or 32-bit
    * integers for the access_type. More precicely: "use fastest
    * unsigned integer type with width of at least 16 bits". In most
-   * situations the compiler (gcc-4.8) will use 32bit integers.
+   * situations the compiler toolchain (gcc-4.8) will choose 32bit
+   * integers for ARM / ARM-Thumb(2).
+   *
+   * TODO: move ^^^this^^^ text to the "register access" discussion.
    */
   template<reg_addr_t base_addr>
   struct USART_Common
@@ -44,6 +47,29 @@ namespace reg
     struct SR
     : public Register< std::uint_fast16_t, base_addr + 0x00, Access::rw, 0x00c0 >
     {
+      // TODO: document why it sucks to have to define reg_type here
+      // again.  This is required here (by the standard) because the
+      // template parameter "base_addr" is used as template-parameter
+      // in our Register<> base class:
+      //
+      //   Register< ..., base_addr + 0x00, ... >
+      //                  ^^^
+      // C++ Standard says that you should fully qualify
+      // name according to 14.6.2/3:
+      //
+      //   In the definition of a class template or a member of a
+      //   class template, if a base class of the class template
+      //   depends on a template-parameter, the base class scope is
+      //   not examined during unqualified name lookup either at the
+      //   point of definition of the class template or member or
+      //   during an instantiation of the class template or member.
+      //
+      // This all has to do with specialization: the Register<>
+      // template could be specialized later on, possibly making
+      // reg_type unavailable.
+      // 
+      // see discussion here: http://stackoverflow.com/questions/1643035/propagating-typedef-from-based-to-derived-class-for-template
+      //
       using reg_type = Register< std::uint_fast16_t, base_addr + 0x00, Access::rw, 0x00c0 >;
 
       using CTS   = RegisterBits< reg_type,  9,  1 >;   /**< CTS flag                      */
