@@ -33,12 +33,12 @@ namespace reg
   };
 
   // TODO: available SPI depends on cpu sub-arch
-  template<> class SPI<1> : public __SPI_COMMON_EXT< 0x40013000 > { };
-  template<> class SPI<2> : public __SPI_COMMON_EXT< 0x40003800 > { };
-  template<> class SPI<3> : public __SPI_COMMON_EXT< 0x40003C00 > { };
-  template<> class SPI<4> : public __SPI_COMMON_EXT< 0x40013400 > { };
-  template<> class SPI<5> : public __SPI_COMMON_EXT< 0x40015000 > { };
-  template<> class SPI<6> : public __SPI_COMMON_EXT< 0x40015400 > { };
+  template<> class SPI<1> : public SPI_Common_Ext< 0x40013000 > { };
+  template<> class SPI<2> : public SPI_Common_Ext< 0x40003800 > { };
+  template<> class SPI<3> : public SPI_Common_Ext< 0x40003C00 > { };
+  template<> class SPI<4> : public SPI_Common_Ext< 0x40013400 > { };
+  template<> class SPI<5> : public SPI_Common_Ext< 0x40015000 > { };
+  template<> class SPI<6> : public SPI_Common_Ext< 0x40015400 > { };
 }
 
 #endif // REG_SPI_HPP_INCLUDED

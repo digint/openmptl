@@ -41,15 +41,15 @@ namespace reg
    * are valid for the timers you use.
    */
   template<reg_addr_t base_addr>
-  struct __TIM_COMMON
+  struct TIM_Common
   {
     /**
      * Control register 1
      */
     struct CR1
-    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x0, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x0, Access::rw, 0x0000 >;
 
       using CKD   = RegisterBits< type,  8,  2 >;  /**< Clock division                 */
       using ARPE  = RegisterBits< type,  7,  1 >;  /**< Auto-reload preload enable     */
@@ -65,9 +65,9 @@ namespace reg
      * Control register 2
      */
     struct CR2
-    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x4, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x4, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x4, Access::rw, 0x0000 >;
 
       using OIS4   = RegisterBits< type, 14,  1 >;  /**< Output Idle state 4                       */
       using OIS3N  = RegisterBits< type, 13,  1 >;  /**< Output Idle state 3                       */
@@ -87,9 +87,9 @@ namespace reg
      * Slave mode control register
      */
     struct SMCR
-    : public Register< uint32_t, base_addr + 0x8, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x8, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x8, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x8, Access::rw, 0x0000 >;
 
       using ETP   = RegisterBits< type, 15,  1 >;  /**< External trigger polarity   */
       using ECE   = RegisterBits< type, 14,  1 >;  /**< External clock enable       */
@@ -104,9 +104,9 @@ namespace reg
      * DMA/Interrupt enable register
      */
     struct DIER
-    : public Register< uint32_t, base_addr + 0xc, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0xc, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0xc, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0xc, Access::rw, 0x0000 >;
 
       using TDE    = RegisterBits< type, 14,  1 >;  /**< Trigger DMA request enable            */
       using COMDE  = RegisterBits< type, 13,  1 >;  /**< COM DMA request enable                */
@@ -129,9 +129,9 @@ namespace reg
      * Status register
      */
     struct SR
-    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x10, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x10, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x10, Access::rw, 0x0000 >;
 
       using CC4OF  = RegisterBits< type, 12,  1 >;  /**< Capture/Compare 4 overcapture flag  */
       using CC3OF  = RegisterBits< type, 11,  1 >;  /**< Capture/Compare 3 overcapture flag  */
@@ -151,9 +151,9 @@ namespace reg
      * Event generation register
      */
     struct EGR
-    : public Register< uint32_t, base_addr + 0x14, Access::wo, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x14, Access::wo, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x14, Access::wo, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x14, Access::wo, 0x0000 >;
 
       using BG    = RegisterBits< type,  7,  1 >;  /**< Break generation                           */
       using TG    = RegisterBits< type,  6,  1 >;  /**< Trigger generation                         */
@@ -169,9 +169,9 @@ namespace reg
      * Capture/compare mode register 1 (output mode)
      */
     struct CCMR1_Output
-    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >;
 
       using OC2CE  = RegisterBits< type, 15,  1 >;  /**< Output Compare 2 clear enable    */
       using OC2M   = RegisterBits< type, 12,  3 >;  /**< Output Compare 2 mode            */
@@ -189,9 +189,9 @@ namespace reg
      * Capture/compare mode register 1 (input mode)
      */
     struct CCMR1_Input
-    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x18, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >;
 
       using IC2F    = RegisterBits< type, 12,  4 >;  /**< Input capture 2 filter       */
       using IC2PSC  = RegisterBits< type, 10,  2 >;  /**< Input capture 2 prescaler    */
@@ -205,9 +205,9 @@ namespace reg
      * Capture/compare mode register 2 (output mode)
      */
     struct CCMR2_Output
-    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >;
 
       using OC4CE  = RegisterBits< type, 15,  1 >;  /**< Output compare 4 clear enable    */
       using OC4M   = RegisterBits< type, 12,  3 >;  /**< Output compare 4 mode            */
@@ -225,9 +225,9 @@ namespace reg
      * Capture/compare mode register 2 (input mode)
      */
     struct CCMR2_Input
-    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >;
 
       using IC4F    = RegisterBits< type, 12,  4 >;  /**< Input capture 4 filter       */
       using IC4PSC  = RegisterBits< type, 10,  2 >;  /**< Input capture 4 prescaler    */
@@ -241,9 +241,9 @@ namespace reg
      * Capture/compare enable register
      */
     struct CCER
-    : public Register< uint32_t, base_addr + 0x20, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x20, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x20, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x20, Access::rw, 0x0000 >;
 
       using CC4P   = RegisterBits< type, 13,  1 >;  /**< Capture/Compare 3 output Polarity              */
       using CC4E   = RegisterBits< type, 12,  1 >;  /**< Capture/Compare 4 output enable                */
@@ -264,45 +264,45 @@ namespace reg
     /**
      * Counter
      */
-    using CNT = Register< uint32_t, base_addr + 0x24, Access::rw, 0x0000 >;
+    using CNT = Register< std::uint_fast16_t, base_addr + 0x24, Access::rw, 0x0000 >;
 
     /**
      * Prescaler
      */
-    using PSC = Register< uint32_t, base_addr + 0x28, Access::rw, 0x0000 >;
+    using PSC = Register< std::uint_fast16_t, base_addr + 0x28, Access::rw, 0x0000 >;
 
     /**
      * Auto-reload register
      */
-    using ARR = Register< uint32_t, base_addr + 0x2c, Access::rw, 0x0000 >;
+    using ARR = Register< std::uint_fast16_t, base_addr + 0x2c, Access::rw, 0x0000 >;
 
     /**
      * Capture/compare register 1
      */
-    using CCR1 = Register< uint32_t, base_addr + 0x34, Access::rw, 0x0000 >;
+    using CCR1 = Register< std::uint_fast16_t, base_addr + 0x34, Access::rw, 0x0000 >;
 
     /**
      * Capture/compare register 2
      */
-    using CCR2 = Register< uint32_t, base_addr + 0x38, Access::rw, 0x0000 >;
+    using CCR2 = Register< std::uint_fast16_t, base_addr + 0x38, Access::rw, 0x0000 >;
 
     /**
      * Capture/compare register 3
      */
-    using CCR3 = Register< uint32_t, base_addr + 0x3c, Access::rw, 0x0000 >;
+    using CCR3 = Register< std::uint_fast16_t, base_addr + 0x3c, Access::rw, 0x0000 >;
 
     /**
      * Capture/compare register 4
      */
-    using CCR4 = Register< uint32_t, base_addr + 0x40, Access::rw, 0x0000 >;
+    using CCR4 = Register< std::uint_fast16_t, base_addr + 0x40, Access::rw, 0x0000 >;
 
     /**
      * DMA control register
      */
     struct DCR
-    : public Register< uint32_t, base_addr + 0x48, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x48, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x48, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x48, Access::rw, 0x0000 >;
 
       using DBL  = RegisterBits< type,  8,  5 >;  /**< DMA burst length  */
       using DBA  = RegisterBits< type,  0,  5 >;  /**< DMA base address  */
@@ -311,15 +311,15 @@ namespace reg
     /**
      * DMA address for full transfer
      */
-    using DMAR = Register< uint32_t, base_addr + 0x4c, Access::rw, 0x0000 >;
+    using DMAR = Register< std::uint_fast16_t, base_addr + 0x4c, Access::rw, 0x0000 >;
 
     /**
      * Repetition counter register
      */
     struct RCR
-    : public Register< uint32_t, base_addr + 0x30, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x30, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x30, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x30, Access::rw, 0x0000 >;
 
       using REP  = RegisterBits< type,  0,  8 >;  /**< Repetition counter value  */
     };
@@ -328,9 +328,9 @@ namespace reg
      * Break and dead-time register
      */
     struct BDTR
-    : public Register< uint32_t, base_addr + 0x44, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x44, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x44, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x44, Access::rw, 0x0000 >;
 
       using MOE   = RegisterBits< type, 15,  1 >;  /**< Main output enable                 */
       using AOE   = RegisterBits< type, 14,  1 >;  /**< Automatic output enable            */

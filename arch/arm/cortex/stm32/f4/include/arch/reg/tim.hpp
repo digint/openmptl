@@ -32,20 +32,20 @@ namespace reg
     static_assert(tim_no == !tim_no, "unsupported TIM number");  // assertion needs to be dependent of template parameter
   };
 
-  template<> class TIM<  1 > : public __TIM_COMMON< 0x40010000 > { };
-  template<> class TIM<  2 > : public __TIM_COMMON< 0x40000000 > { };
-  template<> class TIM<  3 > : public __TIM_COMMON< 0x40000400 > { };
-  template<> class TIM<  4 > : public __TIM_COMMON< 0x40000800 > { };
-  template<> class TIM<  5 > : public __TIM_COMMON< 0x40000c00 > { };
-  template<> class TIM<  6 > : public __TIM_COMMON< 0x40001000 > { };
-  template<> class TIM<  7 > : public __TIM_COMMON< 0x40001400 > { };
-  template<> class TIM<  8 > : public __TIM_COMMON< 0x40010400 > { };
-  template<> class TIM<  9 > : public __TIM_COMMON< 0x40014000 > { };
-  template<> class TIM< 10 > : public __TIM_COMMON< 0x40014400 > { };
-  template<> class TIM< 11 > : public __TIM_COMMON< 0x40014800 > { };
-  template<> class TIM< 12 > : public __TIM_COMMON< 0x40001800 > { };
-  template<> class TIM< 13 > : public __TIM_COMMON< 0x40001c00 > { };
-  template<> class TIM< 14 > : public __TIM_COMMON< 0x40002000 > { };
+  template<> class TIM<  1 > : public TIM_Common< 0x40010000 > { };
+  template<> class TIM<  2 > : public TIM_Common< 0x40000000 > { };
+  template<> class TIM<  3 > : public TIM_Common< 0x40000400 > { };
+  template<> class TIM<  4 > : public TIM_Common< 0x40000800 > { };
+  template<> class TIM<  5 > : public TIM_Common< 0x40000c00 > { };
+  template<> class TIM<  6 > : public TIM_Common< 0x40001000 > { };
+  template<> class TIM<  7 > : public TIM_Common< 0x40001400 > { };
+  template<> class TIM<  8 > : public TIM_Common< 0x40010400 > { };
+  template<> class TIM<  9 > : public TIM_Common< 0x40014000 > { };
+  template<> class TIM< 10 > : public TIM_Common< 0x40014400 > { };
+  template<> class TIM< 11 > : public TIM_Common< 0x40014800 > { };
+  template<> class TIM< 12 > : public TIM_Common< 0x40001800 > { };
+  template<> class TIM< 13 > : public TIM_Common< 0x40001c00 > { };
+  template<> class TIM< 14 > : public TIM_Common< 0x40002000 > { };
 }
 
 #endif // REG_TIM_HPP_INCLUDED

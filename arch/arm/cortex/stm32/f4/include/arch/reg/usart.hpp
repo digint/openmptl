@@ -32,10 +32,10 @@ namespace reg
     static_assert(usart_no == !usart_no, "unsupported USART number");  // assertion needs to be dependent of template parameter
   };
 
-  template<> class USART<1> : public __USART_COMMON_EXT< 0x40011000 > { };
-  template<> class USART<2> : public __USART_COMMON_EXT< 0x40004400 > { };
-  template<> class USART<3> : public __USART_COMMON_EXT< 0x40004800 > { };
-  template<> class USART<6> : public __USART_COMMON_EXT< 0x40011400 > { };
+  template<> class USART<1> : public USART_Common_Ext< 0x40011000 > { };
+  template<> class USART<2> : public USART_Common_Ext< 0x40004400 > { };
+  template<> class USART<3> : public USART_Common_Ext< 0x40004800 > { };
+  template<> class USART<6> : public USART_Common_Ext< 0x40011400 > { };
 }
 
 #endif // REG_USART_HPP_INCLUDED

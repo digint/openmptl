@@ -115,7 +115,7 @@ public:
     return ((uint32_t)RTC::DIVH::load() << 16 ) | (uint32_t)RTC::DIVL::load();
 
     /* paranoid variant: applies bitmask on high/low register before shifting */
-    //    return ((uint32_t)RTC::DIVH::exact_type::test() << 16 ) | (uint32_t)RTC::DIVL::exact_type::test();
+    // return ((uint32_t)RTC::DIVH::bits_type::test() << 16 ) | (uint32_t)RTC::DIVL::bits_type::test();
   }
 
   struct StaticIsrWrap : public IsrWrap {

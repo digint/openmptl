@@ -273,9 +273,7 @@ namespace reg
      *   RegisterConst<>::bits_type::clear()
      *
      */
-#if 0 /* clear(): INTENTIONALLY NOT DECLARED */
-    //! static void clear()   { R::clear(); }  /* INTENTIONALLY NOT DECLARED */
-#endif
+    //! static void clear() { R::clear(); }  /* INTENTIONALLY NOT DECLARED */
 
     // cast operator
     constexpr operator value_type() { return value; }

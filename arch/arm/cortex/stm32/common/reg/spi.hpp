@@ -28,19 +28,22 @@ namespace reg
   /**
    * Serial peripheral interface (SPI)
    *
-   * Note that the registers are actually only 16bit wide, but accessing
-   * them with 32bit is faster in general.
+   * NOTE: We use std::uint_fast16_t to access the registers. This way we
+   * leave it up to the compiler to use either 16-bit or 32-bit
+   * integers for the access_type. More precicely: "use fastest
+   * unsigned integer type with width of at least 16 bits". In most
+   * situations the compiler (gcc-4.8) will use 32bit integers.
    */
   template<reg_addr_t base_addr>
-  struct __SPI_COMMON
+  struct SPI_Common
   {
     /**
      * Control register 1
      */
     struct CR1
-    : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x00, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x0, Access::rw, 0x0000 >;
 
       /** Baud Rate Control  */
       template<typename Rb>
@@ -87,9 +90,9 @@ namespace reg
      * Control register 2
      */
     struct CR2
-    : public Register< uint32_t, base_addr + 0x04, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x04, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x4, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x4, Access::rw, 0x0000 >;
 
       using TXEIE    = RegisterBits< type,  7,  1 >;  /**< Tx buffer empty interrupt enable      */
       using RXNEIE   = RegisterBits< type,  6,  1 >;  /**< Rx buffer not empty interrupt enable  */
@@ -103,9 +106,9 @@ namespace reg
      * Status register
      */
     struct SR
-    : public Register< uint32_t, base_addr + 0x08, Access::rw, 0x0002 >
+    : public Register< std::uint_fast16_t, base_addr + 0x08, Access::rw, 0x0002 >
     {
-      using type = Register< uint32_t, base_addr + 0x8, Access::rw, 0x0002 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x8, Access::rw, 0x0002 >;
 
       using BSY     = RegisterBits< type,  7,  1 >;  /**< Busy flag                 */
       using OVR     = RegisterBits< type,  6,  1 >;  /**< Overrun flag              */
@@ -120,30 +123,30 @@ namespace reg
     /**
      * Data register
      */
-    using DR = Register< uint32_t, base_addr + 0x0c, Access::rw, 0x0000 >;
+    using DR = Register< std::uint_fast16_t, base_addr + 0x0c, Access::rw, 0x0000 >;
 
     /**
      * CRC polynomial register
      */
-    using CRCPR = Register< uint32_t, base_addr + 0x10, Access::rw, 0x0007 >;
+    using CRCPR = Register< std::uint_fast16_t, base_addr + 0x10, Access::rw, 0x0007 >;
 
     /**
      * Rx CRC register
      */
-    using RXCRCR = Register< uint32_t, base_addr + 0x14, Access::ro, 0x0000 >;
+    using RXCRCR = Register< std::uint_fast16_t, base_addr + 0x14, Access::ro, 0x0000 >;
 
     /**
      * Tx CRC register
      */
-    using TXCRCR = Register< uint32_t, base_addr + 0x18, Access::ro, 0x0000 >;
+    using TXCRCR = Register< std::uint_fast16_t, base_addr + 0x18, Access::ro, 0x0000 >;
 
     /**
      * I2S configuration register
      */
     struct I2SCFGR
-    : public Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      using type = Register< uint32_t, base_addr + 0x1c, Access::rw, 0x0000 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >;
 
       using I2SMOD   = RegisterBits< type, 11,  1 >;  /**< I2S mode selection                                 */
       using I2SE     = RegisterBits< type, 10,  1 >;  /**< I2S Enable                                         */
@@ -159,9 +162,9 @@ namespace reg
      * I2S prescaler register
      */
     struct I2SPR
-    : public Register< uint32_t, base_addr + 0x20, Access::rw, 00000010 >
+    : public Register< std::uint_fast16_t, base_addr + 0x20, Access::rw, 00000010 >
     {
-      using type = Register< uint32_t, base_addr + 0x20, Access::rw, 00000010 >;
+      using type = Register< std::uint_fast16_t, base_addr + 0x20, Access::rw, 00000010 >;
 
       using MCKOE    = RegisterBits< type,  9,  1 >;  /**< Master clock output enable    */
       using ODD      = RegisterBits< type,  8,  1 >;  /**< Odd factor for the prescaler  */
@@ -174,9 +177,9 @@ namespace reg
    * Some architectures (e.g. stm32f4xx) support multiple frame formats
    */
   template<reg_addr_t base_addr>
-  class __SPI_COMMON_EXT : public __SPI_COMMON<base_addr>
+  class SPI_Common_Ext : public SPI_Common<base_addr>
   {
-    typedef __SPI_COMMON<base_addr> base;
+    typedef SPI_Common<base_addr> base;
 
   public:
     struct CR2 : public base::CR2 {

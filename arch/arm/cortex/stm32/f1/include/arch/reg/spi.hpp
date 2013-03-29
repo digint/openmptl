@@ -32,12 +32,12 @@ namespace reg
     static_assert(spi_no == !spi_no, "unsupported SPI number");  // assertion needs to be dependent of template parameter
   };
 
-  template<> class SPI<1> : public __SPI_COMMON< 0x40013000 > { };
+  template<> class SPI<1> : public SPI_Common< 0x40013000 > { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-  template<> class SPI<2> : public __SPI_COMMON< 0x40003800 > { };
+  template<> class SPI<2> : public SPI_Common< 0x40003800 > { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_CL)
-  template<> class SPI<3> : public __SPI_COMMON< 0x40003C00 > { };
+  template<> class SPI<3> : public SPI_Common< 0x40003C00 > { };
 #endif
 }
 

@@ -36,7 +36,7 @@ namespace reg
      * RTC Control register high
      */
     struct CRH
-    : public Register< uint_fast16_t, base_addr + 0x0, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x0, Access::rw, 0x0000 >
     {
       using SECIE  = RegisterBits< type,  0,  1 >;  /**< Second interrupt Enable    */
       using ALRIE  = RegisterBits< type,  1,  1 >;  /**< Alarm interrupt Enable     */
@@ -47,7 +47,7 @@ namespace reg
      * RTC Control register low
      */
     struct CRL
-    : public Register< uint_fast16_t, base_addr + 0x4, Access::rw, 0x0020 >
+    : public Register< std::uint_fast16_t, base_addr + 0x4, Access::rw, 0x0020 >
     {
       using SECF   = RegisterBits< type,  0,  1 >;  /**< Second Flag                  */
       using ALRF   = RegisterBits< type,  1,  1 >;  /**< Alarm Flag                   */
@@ -61,72 +61,72 @@ namespace reg
      * RTC Prescaler load register high
      */
     struct PRLH
-    : public Register< uint_fast16_t, base_addr + 0x8, Access::wo, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x8, Access::wo, 0x0000 >
     {
-      using exact_type = RegisterBits< type,  0,  4 >;  /**< RTC Prescaler Load Register High  */
+      using bits_type = RegisterBits< type,  0,  4 >;  /**< RTC Prescaler Load Register High  */
     };
 
     /**
      * RTC Prescaler load register low
      */
     struct PRLL
-    : public Register< uint_fast16_t, base_addr + 0xc, Access::wo, 0x8000 >
+    : public Register< std::uint_fast16_t, base_addr + 0xc, Access::wo, 0x8000 >
     {
-      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC Prescaler Divider Register Low  */
+      using bits_type = RegisterBits< type,  0, 16 >;  /**< RTC Prescaler Divider Register Low  */
     };
 
     /**
      * RTC Prescaler divider register high
      */
     struct DIVH
-    : public Register< uint_fast16_t, base_addr + 0x10, Access::ro, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x10, Access::ro, 0x0000 >
     {
-      using exact_type = RegisterBits< type,  0,  4 >;  /**< RTC prescaler divider register high  */
+      using bits_type = RegisterBits< type,  0,  4 >;  /**< RTC prescaler divider register high  */
     };
 
     /**
      * RTC Prescaler divider register low
      */
     struct DIVL
-    : public Register< uint_fast16_t, base_addr + 0x14, Access::ro, 0x8000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x14, Access::ro, 0x8000 >
     {
-      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC prescaler divider register Low  */
+      using bits_type = RegisterBits< type,  0, 16 >;  /**< RTC prescaler divider register Low  */
     };
 
     /**
      * RTC Counter register high
      */
     struct CNTH
-    : public Register< uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >
     {
-      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC counter register high  */
+      using bits_type = RegisterBits< type,  0, 16 >;  /**< RTC counter register high  */
     };
 
     /**
      * RTC Counter register low
      */
     struct CNTL
-    : public Register< uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >
+    : public Register< std::uint_fast16_t, base_addr + 0x1c, Access::rw, 0x0000 >
     {
-      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC counter register Low  */
+      using bits_type = RegisterBits< type,  0, 16 >;  /**< RTC counter register Low  */
     };
 
     /**
      * RTC Alarm register high
      */
     struct ALRH
-    : public Register< uint_fast16_t, base_addr + 0x20, Access::wo, 0xFFFF >
+    : public Register< std::uint_fast16_t, base_addr + 0x20, Access::wo, 0xFFFF >
     {
-      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC alarm register high  */
+      using bits_type = RegisterBits< type,  0, 16 >;  /**< RTC alarm register high  */
     };
 
     /**
      * RTC Alarm register low
      */
     struct ALRL
-    : public Register< uint_fast16_t, base_addr + 0x24, Access::wo, 0xFFFF >
+    : public Register< std::uint_fast16_t, base_addr + 0x24, Access::wo, 0xFFFF >
     {
-      using exact_type = RegisterBits< type,  0, 16 >;  /**< RTC alarm register low  */
+      using bits_type = RegisterBits< type,  0, 16 >;  /**< RTC alarm register low  */
     };
   };
 }
