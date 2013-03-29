@@ -21,11 +21,12 @@
 // #define CORE_SIMULATION
 
 #include <register.hpp>
+#include <register_manip.hpp>
 #include <cassert>
 #include "unittest_static_assert.hpp"
 
-using namespace reg;
-
+namespace reg
+{
 class TEST
 {
   static constexpr reg_addr_t reg_base = 0x1234;
@@ -66,10 +67,39 @@ public:
   };
 };
 
+  template<> struct AddressMap< 0x00001234 > { static constexpr const char * name_str = "TEST::REG"; };
+}
+
+using namespace reg;
+
+
 void reg::RegisterReaction::react() { }
+
+void unittest_register_manip()
+{
+  std::cout << "*** unittest_register_manip ***" << std::endl; 
+
+  TEST::REG::reset();
+
+  RegisterManip<TEST::REG> reg;
+  reg |= 0xff;
+  reg &= 0x00ffffff;
+  reg.set<TEST::REG::BITS_4_7::CONST_d>();
+  reg.store();
+  assert(TEST::REG::load() == 0x005555df);
+
+  uint32_t set_mask           = mpl::reg_combined<uint32_t, TEST::REG::BITS_4_7::CONST_d>::set_mask;
+  uint32_t clear_mask         = mpl::reg_combined<uint32_t, TEST::REG::BITS_4_7::CONST_d>::clear_mask;
+  uint32_t cropped_clear_mask = mpl::reg_combined<uint32_t, TEST::REG::BITS_4_7::CONST_d>::cropped_clear_mask;
+  assert(set_mask           == 0x000000d0);
+  assert(clear_mask         == 0x000000f0);
+  assert(cropped_clear_mask == 0x00000020);
+}
 
 int main()
 {
+  std::cout << "*** main ***" << std::endl; 
+
   /* Register */
   TEST::REG::store(0xffff0000);
   assert(TEST::REG::test(0x000f0000) == 0x000f0000);
@@ -198,6 +228,8 @@ int main()
   TEST::REG::store(0xffffff0f);
   TEST::REG::set<TEST::REG::BITS_4_7::bit<1> >();
   assert(TEST::REG::load() == 0xffffff2f);
+
+  unittest_register_manip(); // TODO: separate register_manip.cpp
 
   // fail: clearing bits from different register
   UNITTEST_STATIC_ASSERT( TEST::REG::clear<TEST::REG2::BITS_0_7>(); )

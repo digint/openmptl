@@ -280,14 +280,6 @@ namespace reg
     // cast operator
     constexpr operator value_type() { return value; }
   };
-
-
-  ////////////////////  Debug  ////////////////////
-
-
-  template<typename T>
-  using DebugRegister = Register<T, 0, Access::invalid, 0>;
-
 }
 
 #endif // REGISTER_HPP_INCLUDED
