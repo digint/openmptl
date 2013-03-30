@@ -60,30 +60,49 @@ enum class UsartClockPhase {
 };
 
 
-template< typename           rcc,
-          unsigned           _usart_no,
-          unsigned           baud_rate    = 9600,
-          unsigned           word_length  = 8,   /* supported: 8 and 9 bits */
-          UsartParity        parity       = UsartParity::disabled,
-          UsartStopBits      stop_bits    = UsartStopBits::stop_bits_1,
-          UsartFlowControl   flow_control = UsartFlowControl::disabled,
-          bool               enable_rx    = true,
-          bool               enable_tx    = true,
-          bool               clock_enable = false,
-          UsartClockPolarity cpol         = UsartClockPolarity::low,
-          UsartClockPhase    cpha         = UsartClockPhase::first,
-          bool               lbcl         = false
+template< typename           _rcc,
+          unsigned           _baud_rate    = 9600,
+          unsigned           _word_length  = 8,   /* supported: 8 and 9 bits */
+          UsartParity        _parity       = UsartParity::disabled,
+          UsartStopBits      _stop_bits    = UsartStopBits::stop_bits_1,
+          UsartFlowControl   _flow_control = UsartFlowControl::disabled,
+          bool               _enable_rx    = true,
+          bool               _enable_tx    = true,
+          bool               _clock_enable = false,
+          UsartClockPolarity _cpol         = UsartClockPolarity::low,
+          UsartClockPhase    _cpha         = UsartClockPhase::first,
+          bool               _lbcl         = false
           >
+struct UsartConfig
+{
+  static_assert((_word_length == 8) || (_word_length == 9), "invalid word length");
+
+  using rcc = _rcc;
+
+  static constexpr unsigned           baud_rate    = _baud_rate;
+  static constexpr unsigned           word_length  = _word_length;
+  static constexpr UsartParity        parity       = _parity;
+  static constexpr UsartStopBits      stop_bits    = _stop_bits;
+  static constexpr UsartFlowControl   flow_control = _flow_control;
+  static constexpr bool               enable_rx    = _enable_rx;
+  static constexpr bool               enable_tx    = _enable_tx;
+  static constexpr bool               clock_enable = _clock_enable;
+  static constexpr UsartClockPolarity cpol         = _cpol;
+  static constexpr UsartClockPhase    cpha         = _cpha;
+  static constexpr bool               lbcl         = _lbcl;
+};
+
+
+template< unsigned _usart_no >
 class Usart
 {
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
-  static_assert((word_length == 8) || (word_length == 9), "invalid word length");
-
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
+
+public:
 
   using USARTx = reg::USART<_usart_no>;
 
-public:
   static constexpr unsigned usart_no = _usart_no;
   using resources = Rcc_usart_clock_resources<usart_no>;
   using Irq = irq::USART<usart_no>;
@@ -139,50 +158,52 @@ public:
   static void enable_tx_interrupt(void)  { USARTx::CR1::TXEIE::set(); }
   static void disable_tx_interrupt(void) { USARTx::CR1::TXEIE::clear(); }
 
-
-  static void configure(void) {
+  template<typename T>
+  static void configure(T const & cfg)
+  {
     /* USARTx CR1 config */
     auto cr1 = USARTx::CR1::load();
     cr1 &= ~(USARTx::CR1::M::value | USARTx::CR1::PCE::value | USARTx::CR1::PS::value | USARTx::CR1::TE::value | USARTx::CR1::RE::value);
-    if(word_length == 9)
+    if(cfg.word_length == 9)
       cr1 |= USARTx::CR1::M::value;
-    if(parity == UsartParity::even)
+    if(cfg.parity == UsartParity::even)
       cr1 |= USARTx::CR1::PCE::value;
-    if(parity == UsartParity::odd)
+    if(cfg.parity == UsartParity::odd)
       cr1 |= USARTx::CR1::PCE::value | USARTx::CR1::PS::value;
-    if(enable_tx)
+    if(cfg.enable_tx)
       cr1 |= USARTx::CR1::TE::value;
-    if(enable_rx)
+    if(cfg.enable_rx)
       cr1 |= USARTx::CR1::RE::value;
     USARTx::CR1::store(cr1);
 
     /* USARTx CR2 config */
     auto cr2 = USARTx::CR2::load();
     cr2 &= ~(USARTx::CR2::STOP::value | USARTx::CR2::CLKEN::value | USARTx::CR2::CPOL::value | USARTx::CR2::CPHA::value | USARTx::CR2::LBCL::value);
-    cr2 |= (uint32_t)stop_bits << 12;
-    if(clock_enable)
+    cr2 |= (uint32_t)cfg.stop_bits << 12;
+    if(cfg.clock_enable)
       cr2 |= USARTx::CR2::CLKEN::value;
-    if(cpol == UsartClockPolarity::high)
+    if(cfg.cpol == UsartClockPolarity::high)
       cr2 |= USARTx::CR2::CPOL::value;
-    if(cpha == UsartClockPhase::second)
+    if(cfg.cpha == UsartClockPhase::second)
       cr2 |= USARTx::CR2::CPHA::value;
-    if(lbcl)
+    if(cfg.lbcl)
       cr2 |= USARTx::CR2::LBCL::value;
     USARTx::CR2::store(cr2);
 
     /* USARTx CR3 config */
     USARTx::CR3::template set<typename USARTx::CR3::CTSE,
                               typename USARTx::CR3::RTSE>
-      ((uint32_t)flow_control << 8);
+      ((uint32_t)cfg.flow_control << 8);
 
     /* calculate values for baud rate register */
-    constexpr unsigned pclk = (usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-    constexpr unsigned div  = (pclk * 25) / (4 * baud_rate);
+    constexpr unsigned pclk = (usart_no == 1 ? T::rcc::pclk2_freq : T::rcc::pclk1_freq );
+    constexpr unsigned div  = (pclk * 25) / (4 * cfg.baud_rate);
     constexpr unsigned mant = div / 100;
     constexpr unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
 
     USARTx::BRR::store((mant << 4) | (fraq & 0x0f));
   }
+
 };
 
 #endif // STM32_COMMON_USART_HPP_INCLUDED

@@ -66,6 +66,7 @@ public:
 
 
 template<typename usart,
+         typename usart_cfg,
          unsigned fifo_size  = 256,
          bool     _crlf      = true,
          bool     debug_irqs = false>
@@ -106,23 +107,23 @@ public:
   }
 
   static void open(void) {
-    usart::configure();
+    usart::configure(usart_cfg());
     usart::enable();
     usart::Irq::enable();
     usart::enable_interrupt(true, false, true, false, false);
   }
 };
 
-template<typename usart, unsigned fifo_size, bool crlf, bool debug_irqs>
-volatile unsigned int UartStreamDevice<usart, fifo_size, crlf, debug_irqs>::irq_count;
-template<typename usart, unsigned fifo_size, bool crlf, bool debug_irqs>
-volatile unsigned int UartStreamDevice<usart, fifo_size, crlf, debug_irqs>::irq_errors;
+template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
+volatile unsigned int UartStreamDevice<usart, usart_cfg, fifo_size, crlf, debug_irqs>::irq_count;
+template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
+volatile unsigned int UartStreamDevice<usart,usart_cfg,  fifo_size, crlf, debug_irqs>::irq_errors;
 
-template<typename usart, unsigned fifo_size, bool crlf, bool debug_irqs>
-RingBuffer<char, fifo_size> UartStreamDevice<usart, fifo_size, crlf, debug_irqs>::rx_fifo;
+template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
+RingBuffer<char, fifo_size> UartStreamDevice<usart, usart_cfg, fifo_size, crlf, debug_irqs>::rx_fifo;
 
-template<typename usart, unsigned fifo_size, bool crlf, bool debug_irqs>
-RingBuffer<char, fifo_size> UartStreamDevice<usart, fifo_size, crlf, debug_irqs>::tx_fifo;
+template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
+RingBuffer<char, fifo_size> UartStreamDevice<usart, usart_cfg, fifo_size, crlf, debug_irqs>::tx_fifo;
 
 
 

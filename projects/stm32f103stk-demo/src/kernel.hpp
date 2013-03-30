@@ -41,10 +41,12 @@ struct Kernel
 
   using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
 
-  using usart         = Usart< rcc, 2, 115200 >;  // tested up to 2250000 baud
+  using usart        = Usart<2>;
+  using usart_config = UsartConfig< rcc, 115200 >;  // tested up to 2250000 baud
+
   using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
-  using uart_stream_device = UartStreamDevice< usart, 512, true, true >; /* irq debug enabled */
+  using uart_stream_device = UartStreamDevice< usart, usart_config, 512, true, true >; /* irq debug enabled */
 
   using spi       = Spi< rcc, 1 >;
   using spi_sck   = SpiGpio< 'A', 5 >;
