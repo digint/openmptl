@@ -40,10 +40,10 @@ namespace text
 template<typename stream_device_type, typename cmd_hooks>
 class Terminal
 {
-  typedef typename stream_device_type::fifo_type::char_type char_type;
-  typedef FifoStream< typename stream_device_type::fifo_type, stream_device_type > tx_stream_type;
+  using char_type      = typename stream_device_type::fifo_type::char_type;
+  using tx_stream_type = FifoStream< typename stream_device_type::fifo_type, stream_device_type >;
 
-  static constexpr std::size_t cmd_buf_size = 80;  // TODO: no hardcoding!
+  static constexpr std::size_t cmd_buf_size = 80;  // TODO: use cmd_hooks::cmd_buf_size, which is the maximum of all command sizes (can be computed at compile-time!)
 
   char_type cmd_buf[cmd_buf_size];
   unsigned cmd_index = 0;
@@ -58,8 +58,9 @@ public:
 
   Terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
-  void open() {
-    stream_device_type::open();
+  template<typename device_cfg_type>  // TODO: more specific, only allow devices by stream_device class
+  static void open(device_cfg_type const & device_cfg) {
+    stream_device_type::open(device_cfg); // !!!!
   }
 
   void process_input(void)

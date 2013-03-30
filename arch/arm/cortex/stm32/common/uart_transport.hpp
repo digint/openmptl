@@ -24,6 +24,20 @@
 #include <arch/usart.hpp>
 #include <fifo.hpp>
 
+template<typename stream_device_type, typename uart_config_type>
+struct UartDevice : public stream_device_type
+{
+  static constexpr uart_config_type cfg = uart_config_type();
+};
+
+template<typename rcc>
+struct UartDynDevice
+{
+  UsartConfig<rcc> cfg;
+
+  UartDynDevice(UsartConfig<rcc> cfg_) : cfg(cfg_) {};
+};
+
 template<typename usart>
 class UartIrqTransport
 {
@@ -66,11 +80,10 @@ public:
 
 
 template<typename usart,
-         typename usart_cfg,
-         unsigned fifo_size  = 256,
+         typename _fifo_type = RingBuffer<char, 256>,
          bool     _crlf      = true,
          bool     debug_irqs = false>
-class UartStreamDevice
+class UartIrqStream
 {
   using char_type = char;
 
@@ -89,7 +102,7 @@ class UartStreamDevice
 public:
   static constexpr bool crlf = _crlf;
 
-  using fifo_type = RingBuffer<char_type, fifo_size>;
+  using fifo_type = _fifo_type;
 
   static fifo_type rx_fifo;
   static fifo_type tx_fifo;
@@ -106,24 +119,30 @@ public:
     usart::enable_tx_interrupt();
   }
 
-  static void open(void) {
-    usart::configure(usart_cfg());
+  template<typename usart_cfg_type>
+  static void open(usart_cfg_type const & usart_cfg) {
+    usart::configure(usart_cfg.cfg);
     usart::enable();
     usart::Irq::enable();
     usart::enable_interrupt(true, false, true, false, false);
   }
+
+  template<typename usart_cfg_type>
+  static void open(void) {
+    open(usart_cfg_type());
+  }
 };
 
-template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
-volatile unsigned int UartStreamDevice<usart, usart_cfg, fifo_size, crlf, debug_irqs>::irq_count;
-template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
-volatile unsigned int UartStreamDevice<usart,usart_cfg,  fifo_size, crlf, debug_irqs>::irq_errors;
+template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
+volatile unsigned int UartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_count;
+template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
+volatile unsigned int UartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_errors;
 
-template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
-RingBuffer<char, fifo_size> UartStreamDevice<usart, usart_cfg, fifo_size, crlf, debug_irqs>::rx_fifo;
+template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
+fifo_type UartIrqStream<usart, fifo_type, crlf, debug_irqs>::rx_fifo;
 
-template<typename usart, typename usart_cfg, unsigned fifo_size, bool crlf, bool debug_irqs>
-RingBuffer<char, fifo_size> UartStreamDevice<usart, usart_cfg, fifo_size, crlf, debug_irqs>::tx_fifo;
+template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
+fifo_type UartIrqStream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
 
 
 

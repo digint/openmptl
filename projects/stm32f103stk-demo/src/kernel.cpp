@@ -71,7 +71,6 @@ void Kernel::init(void)
 void Kernel::run(void)
 {
   CycleCounter cycle_counter;
-  Terminal<uart_stream_device, terminal_hooks::commands> terminal;
   char joytext_buf[16] = "              ";
   const char * joypos_text = "center";
   Joystick::Position joypos = Joystick::Position::center;
@@ -90,7 +89,16 @@ void Kernel::run(void)
   Screen::assign(&item_list);
 
   /* open terminal and print welcome message */
-  terminal.open();
+  Terminal<uart_stream_device, terminal_hooks::commands> terminal;
+
+#ifdef USART_DYNAMIC
+  UartDynDevice<rcc> dev( UsartConfig<rcc>(115200) );
+  terminal.open(dev);
+#else
+  terminal.open(Kernel::uart_device());
+#endif
+
+
   terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
 
   /* start kernel loop */

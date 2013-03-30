@@ -59,7 +59,6 @@ enum class UsartClockPhase {
   second   /* The second clock transition is the first data capture edge. */
 };
 
-
 template< typename           _rcc,
           unsigned           _baud_rate    = 9600,
           unsigned           _word_length  = 8,   /* supported: 8 and 9 bits */
@@ -71,9 +70,9 @@ template< typename           _rcc,
           bool               _clock_enable = false,
           UsartClockPolarity _cpol         = UsartClockPolarity::low,
           UsartClockPhase    _cpha         = UsartClockPhase::first,
-          bool               _lbcl         = false
+          bool               _lbcl         = false                                 
           >
-struct UsartConfig
+struct UsartConfig  // TODO: rename UsartDevice
 {
   static_assert((_word_length == 8) || (_word_length == 9), "invalid word length");
 
@@ -90,8 +89,52 @@ struct UsartConfig
   static constexpr UsartClockPolarity cpol         = _cpol;
   static constexpr UsartClockPhase    cpha         = _cpha;
   static constexpr bool               lbcl         = _lbcl;
+
+  void open() { };  // TODO
 };
 
+template< typename _rcc >
+struct UsartConfig< _rcc >
+{
+  using rcc = _rcc;
+
+  unsigned           baud_rate   ;
+  unsigned           word_length ;
+  UsartParity        parity      ;
+  UsartStopBits      stop_bits   ;
+  UsartFlowControl   flow_control;
+  bool               enable_rx   ;
+  bool               enable_tx   ;
+  bool               clock_enable;
+  UsartClockPolarity cpol        ;
+  UsartClockPhase    cpha        ;
+  bool               lbcl        ;
+
+  UsartConfig( unsigned           _baud_rate    = 9600,                                 
+               unsigned           _word_length  = 8,   /* supported: 8 and 9 bits */    
+               UsartParity        _parity       = UsartParity::disabled,                
+               UsartStopBits      _stop_bits    = UsartStopBits::stop_bits_1,           
+               UsartFlowControl   _flow_control = UsartFlowControl::disabled,           
+               bool               _enable_rx    = true,                                 
+               bool               _enable_tx    = true,                                 
+               bool               _clock_enable = false,                                
+               UsartClockPolarity _cpol         = UsartClockPolarity::low,              
+               UsartClockPhase    _cpha         = UsartClockPhase::first,               
+               bool               _lbcl         = false                                
+               )
+  : baud_rate    ( _baud_rate ),
+    word_length  ( _word_length ),
+    parity       ( _parity ),
+    stop_bits    ( _stop_bits ),
+    flow_control ( _flow_control ),
+    enable_rx    ( _enable_rx ),
+    enable_tx    ( _enable_tx ),
+    clock_enable ( _clock_enable ),
+    cpol         ( _cpol ),
+    cpha         ( _cpha ),
+    lbcl         ( _lbcl )
+  { }
+};
 
 template< unsigned _usart_no >
 class Usart
@@ -159,47 +202,53 @@ public:
   static void disable_tx_interrupt(void) { USARTx::CR1::TXEIE::clear(); }
 
   template<typename T>
-  static void configure(T const & cfg)
+  static void configure(T const & uart_config)
   {
     /* USARTx CR1 config */
     auto cr1 = USARTx::CR1::load();
     cr1 &= ~(USARTx::CR1::M::value | USARTx::CR1::PCE::value | USARTx::CR1::PS::value | USARTx::CR1::TE::value | USARTx::CR1::RE::value);
-    if(cfg.word_length == 9)
+    if(uart_config.word_length == 9)
       cr1 |= USARTx::CR1::M::value;
-    if(cfg.parity == UsartParity::even)
+    if(uart_config.parity == UsartParity::even)
       cr1 |= USARTx::CR1::PCE::value;
-    if(cfg.parity == UsartParity::odd)
+    if(uart_config.parity == UsartParity::odd)
       cr1 |= USARTx::CR1::PCE::value | USARTx::CR1::PS::value;
-    if(cfg.enable_tx)
+    if(uart_config.enable_tx)
       cr1 |= USARTx::CR1::TE::value;
-    if(cfg.enable_rx)
+    if(uart_config.enable_rx)
       cr1 |= USARTx::CR1::RE::value;
     USARTx::CR1::store(cr1);
 
     /* USARTx CR2 config */
     auto cr2 = USARTx::CR2::load();
     cr2 &= ~(USARTx::CR2::STOP::value | USARTx::CR2::CLKEN::value | USARTx::CR2::CPOL::value | USARTx::CR2::CPHA::value | USARTx::CR2::LBCL::value);
-    cr2 |= (uint32_t)cfg.stop_bits << 12;
-    if(cfg.clock_enable)
+    cr2 |= (uint32_t)uart_config.stop_bits << 12;
+    if(uart_config.clock_enable)
       cr2 |= USARTx::CR2::CLKEN::value;
-    if(cfg.cpol == UsartClockPolarity::high)
+    if(uart_config.cpol == UsartClockPolarity::high)
       cr2 |= USARTx::CR2::CPOL::value;
-    if(cfg.cpha == UsartClockPhase::second)
+    if(uart_config.cpha == UsartClockPhase::second)
       cr2 |= USARTx::CR2::CPHA::value;
-    if(cfg.lbcl)
+    if(uart_config.lbcl)
       cr2 |= USARTx::CR2::LBCL::value;
     USARTx::CR2::store(cr2);
 
     /* USARTx CR3 config */
     USARTx::CR3::template set<typename USARTx::CR3::CTSE,
                               typename USARTx::CR3::RTSE>
-      ((uint32_t)cfg.flow_control << 8);
+      ((uint32_t)uart_config.flow_control << 8);
 
     /* calculate values for baud rate register */
     constexpr unsigned pclk = (usart_no == 1 ? T::rcc::pclk2_freq : T::rcc::pclk1_freq );
-    constexpr unsigned div  = (pclk * 25) / (4 * cfg.baud_rate);
+#ifdef USART_DYNAMIC // !!!!
+    unsigned div  = (pclk * 25) / (4 * uart_config.baud_rate);
+    unsigned mant = div / 100;
+    unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
+#else
+    constexpr unsigned div  = (pclk * 25) / (4 * uart_config.baud_rate);
     constexpr unsigned mant = div / 100;
     constexpr unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
+#endif
 
     USARTx::BRR::store((mant << 4) | (fraq & 0x0f));
   }
