@@ -27,9 +27,8 @@ class RegisterManip
 public:
   using value_type = typename T::value_type;
 
-  RegisterManip() { reg = T::load(); }
-  RegisterManip(T val) : reg(val) { }
-
+  RegisterManip() : reg(T::load()) { }
+  RegisterManip(value_type val) : reg(val) { }
 
   RegisterManip<T> operator|(const T & rhs) { return RegisterManip<T>(reg | rhs); }
 
@@ -37,7 +36,11 @@ public:
   RegisterManip<T> & operator|=(value_type rhs) { this->reg |= rhs; return *this; }
   RegisterManip<T> & operator&=(value_type rhs) { this->reg &= rhs; return *this; }
 
-  void store(void) { T::store(reg); }
+  constexpr operator value_type() { return reg; }
+
+  void load(void) { reg = T::load(); }
+  void store(void) const { T::store(reg); }
+
   void set(value_type const set_mask) { reg |= set_mask; }
   void set(value_type const set_mask, value_type const clear_mask) { reg = (reg & ~clear_mask) | set_mask; }
   void clear(value_type const value) { reg &= ~value; }
