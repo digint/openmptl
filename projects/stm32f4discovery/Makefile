@@ -122,7 +122,7 @@ OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 # commmon flags propagated to CFLAGS, CXXFLAGS, ASFLAGS (not LDFLAGS)
 FLAGS       += $(CPUFLAGS)
 FLAGS       += $(INCLUDE)
-FLAGS       += -Wa,-gdwarf-2
+FLAGS       += -Wa,-gdwarf-4
 FLAGS       += -MMD
 FLAGS       += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
 
