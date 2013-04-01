@@ -89,14 +89,23 @@ void Kernel::run(void)
   Screen::assign(&item_list);
 
   /* open terminal and print welcome message */
+
+  cycle_counter.start();
+
+  //  using uart_device_type = UartDynDevice<usart>;
   Terminal<uart_stream_device, terminal_hooks::commands> terminal;
 
 #ifdef USART_DYNAMIC
-  UartDynDevice<rcc> dev( UsartConfig<rcc>(115200) );
-  terminal.open(dev);
+  tty0_device tty0(115200);
+  //tty0_device tty0(time::get_systick());
+  terminal.open(tty0);
+  //  terminal.open(tty0_device(115200));
 #else
-  terminal.open(Kernel::uart_device());
+  //  terminal.open(tty0_device());
+  terminal.open<tty0_device>();
 #endif
+
+  cycle_counter.stop();
 
 
   terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
@@ -105,7 +114,7 @@ void Kernel::run(void)
   fsm_list::start();
   while(1)
   {
-    cycle_counter.start();
+    //!!!    cycle_counter.start();
     /* poll joystick */
     debouncer.set(joy::get_position());
     if(debouncer.get(joypos)) {
@@ -142,7 +151,7 @@ void Kernel::run(void)
     tick      = time::get_systick();
     irq_count = uart_stream_device::irq_count;
     eirq      = uart_stream_device::irq_errors;
-    cycle_counter.stop();
+    //    cycle_counter.stop();
     cycle     = cycle_counter.get();
 
     /* update screen */

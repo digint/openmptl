@@ -41,15 +41,35 @@ struct Kernel
 
   using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
 
-  using usart        = Usart<2>;
+  using usart        = Usart<2, rcc>;
 
   using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
+
   using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
 
-#ifndef USART_DYNAMIC
-  using usart_config = UsartConfig< rcc, 115200 >;  // tested up to 2250000 baud
-  using uart_device = UartDevice< uart_stream_device, usart_config>;
+#if 0
+  static constexpr UsartConfig usart_config =
+    {
+      115200,                             // .baud_rate    
+      8,   /* supported: 8 and 9 bits */  // .word_length    
+      UsartParity::disabled,              // .parity         
+      UsartStopBits::stop_bits_1,         // .stop_bits      
+      UsartFlowControl::disabled,         // .flow_control   
+      true,                               // .enable_rx      
+      true,                               // .enable_tx      
+      false,                              // .clock_enable   
+      UsartClockPolarity::low,            // .cpol           
+      UsartClockPhase::first,             // .cpha           
+      false                               // .lbcl         
+    };
+#endif
+
+
+#ifdef USART_DYNAMIC
+  using tty0_device = UartDevice< usart >;
+#else
+  using tty0_device = UartStaticDevice< usart, 115200 >;
 #endif
 
   //  using uart_stream_device = UartStreamDevice< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */

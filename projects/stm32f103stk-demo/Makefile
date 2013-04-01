@@ -37,6 +37,8 @@ else
   CPUFLAGS   = -mcpu=cortex-m3 -mthumb
 endif
 
+FLAGS += -DUSART_DYNAMIC # TODO: remove me !!!
+
 FLAGS       += -DSTM32F10X_MD
 # FLAGS       += -DHEAP_FIXED_SIZE=8129
 

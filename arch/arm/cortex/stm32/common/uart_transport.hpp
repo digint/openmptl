@@ -24,20 +24,6 @@
 #include <arch/usart.hpp>
 #include <fifo.hpp>
 
-template<typename stream_device_type, typename uart_config_type>
-struct UartDevice : public stream_device_type
-{
-  static constexpr uart_config_type cfg = uart_config_type();
-};
-
-template<typename rcc>
-struct UartDynDevice
-{
-  UsartConfig<rcc> cfg;
-
-  UartDynDevice(UsartConfig<rcc> cfg_) : cfg(cfg_) {};
-};
-
 template<typename usart>
 class UartIrqTransport
 {
@@ -119,17 +105,13 @@ public:
     usart::enable_tx_interrupt();
   }
 
-  template<typename usart_cfg_type>
-  static void open(usart_cfg_type const & usart_cfg) {
-    usart::configure(usart_cfg.cfg);
+  /** NOTE: Make sure the device is setup (by calling
+   *        UsartDevice.configure()) before calling this function
+   */
+  static void open(void) {
     usart::enable();
     usart::Irq::enable();
     usart::enable_interrupt(true, false, true, false, false);
-  }
-
-  template<typename usart_cfg_type>
-  static void open(void) {
-    open(usart_cfg_type());
   }
 };
 

@@ -40,11 +40,13 @@ struct Kernel
 
   using systick = SysTick< rcc, 1_khz, SysTickClockSource::hclk >;
 
-  using usart         = Usart< rcc, 2, 115200 >;
+  using usart         = Usart< 2, rcc >;
   using usart_gpio_tx = UsartGpioTx< usart, 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< usart, 'A', 3 >;
 
-  using uart_stream_device = UartStreamDevice< usart, 512 >;
+  using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512> >;
+
+  using tty0_device = UartDevice< usart >;
 
   using led_green  = GpioLed< 'D', 12 >;
   using led_orange = GpioLed< 'D', 13 >;

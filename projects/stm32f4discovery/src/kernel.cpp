@@ -55,7 +55,7 @@ void Kernel::run(void)
 {
   Terminal<uart_stream_device, terminal_hooks::commands> terminal;
 
-  terminal.open();
+  terminal.open(tty0_device(115200));
   terminal.tx_stream << "\r\n\r\nWelcome to CppCore terminal console!\r\n# " << flush;
 
   while(1)
