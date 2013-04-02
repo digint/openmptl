@@ -23,7 +23,7 @@
 
 #include "resource_mpl.hpp"
 #include <type_traits>
-
+#include <compiler.h>
 
 ////////////////////  SharedRegister  ////////////////////
 
@@ -58,7 +58,7 @@ struct SharedRegister
 
   /* Called by resource_type_list_impl::configure() on a combined */
   /* SharedRegister type. (which we are in this context, see "combine" above)  */
-  void configure() {
+  static __always_inline void configure() {
     if((set_mask != 0) || (clear_mask != 0))
       R::set(set_mask, clear_mask);
 
@@ -119,10 +119,7 @@ struct ResourceList : mpl::resource_list_impl<Args...>
     static constexpr isr_t value = combined_type< IrqResourceGroup<irqn> >::value;
   };
 
-  /* Instantiate and run configure() on all combined resource types.  */
-  /* NOTE: We instantiate here because for some reason calling a      */
-  /* static configure() function results code not being inlined.      */
-  /* TODO: check again, find out why this is so.                      */
+  /* Run configure() on all combined resource types.  */
   static void configure() {
     resource_type_list::template configure<type>();
   }

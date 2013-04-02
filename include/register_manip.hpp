@@ -21,6 +21,8 @@
 #ifndef REGISTER_MANIP_HPP_INCLUDED
 #define REGISTER_MANIP_HPP_INCLUDED
 
+#include <compiler.h>
+
 template<typename T>
 class RegisterManip
 {
@@ -38,20 +40,20 @@ public:
 
   constexpr operator value_type() { return reg; }
 
-  void load(void) { reg = T::load(); }
-  void store(void) const { T::store(reg); }
+  void __always_inline load(void) { reg = T::load(); }
+  void __always_inline store(void) const { T::store(reg); }
 
-  void set(value_type const set_mask) { reg |= set_mask; }
-  void set(value_type const set_mask, value_type const clear_mask) { reg = (reg & ~clear_mask) | set_mask; }
-  void clear(value_type const value) { reg &= ~value; }
+  void __always_inline set(value_type const set_mask) { reg |= set_mask; }
+  void __always_inline set(value_type const set_mask, value_type const clear_mask) { reg = (reg & ~clear_mask) | set_mask; }
+  void __always_inline clear(value_type const value) { reg &= ~value; }
 
   template<typename... Rb>
-  void clear(void) {
+  void __always_inline clear(void) {
     clear(mpl::reg_combined<value_type, Rb...>::clear_mask);
   }
 
   template<typename... Rc>
-  void set(void) {
+  void __always_inline set(void) {
     using combined = mpl::reg_combined<value_type, Rc...>;
     set( combined::set_mask, combined::cropped_clear_mask );
   }

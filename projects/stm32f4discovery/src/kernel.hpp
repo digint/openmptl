@@ -30,6 +30,7 @@
 #include <arch/usart.hpp>
 #include <arch/uart_transport.hpp>
 #include <resource.hpp>
+#include <compiler.h>
 
 struct Kernel
 {
@@ -51,7 +52,7 @@ struct Kernel
   using led_blue   = GpioLed< 'D', 15 >;
 
   /* Reset exception: triggered on system startup (system entry point). */
-  static void reset_isr(void) __attribute__ ((naked));
+  static void __naked reset_isr(void);
 
   /* Execute the systick isr in RAM, which makes it faster, with predictive execution time */
   static void systick_isr(void) __attribute__ ((long_call, section (".ram_functions")));

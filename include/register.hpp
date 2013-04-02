@@ -89,6 +89,7 @@
 
 #include <type_traits>
 #include <cstdint>
+#include <compiler.h>
 #include "register_storage.hpp"
 
 namespace mpl
@@ -149,36 +150,37 @@ namespace reg
             T          _reset_value = 0 >
   struct Register : public RegisterStorage<T, addr, access, _reset_value>
   {
-    using type     = Register<T, addr, access, _reset_value>;
-    using reg_type = type;
+    using type       = Register<T, addr, access, _reset_value>;
+    using reg_type   = type;
+    using value_type = T;
 
-    static constexpr T          reset_value = _reset_value;
+    static constexpr value_type reset_value = _reset_value;
 
-    static T    test (T const value) { return type::load() & value;          }
-    static void set  (T const value) { type::store( type::load() | value );  }
-    static void set  (T const set_mask, T const clear_mask) { type::store( (type::load() & ~clear_mask) | set_mask ); }
-    static void clear(T const value) { type::store( type::load() & ~value ); }
-    static void mask (T const value) { type::store( type::load() & value );  }
-    static void reset()              { type::store(reset_value);             }
+    static __always_inline value_type    test (value_type const value) { return type::load() & value;          }
+    static __always_inline void set  (value_type const value) { type::store( type::load() | value );  }
+    static __always_inline void set  (value_type const set_mask, value_type const clear_mask) { type::store( (type::load() & ~clear_mask) | set_mask ); }
+    static __always_inline void clear(value_type const value) { type::store( type::load() & ~value ); }
+    static __always_inline void mask (value_type const value) { type::store( type::load() & value );  }
+    static __always_inline void reset()              { type::store(reset_value);             }
 
     template<typename... Rb>
-    static void clear(void) {
+    static __always_inline void clear(void) {
       static_assert(mpl::all_same<type, typename Rb::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      clear(mpl::reg_combined<T, Rb...>::clear_mask);
+      clear(mpl::reg_combined<value_type, Rb...>::clear_mask);
     }
 
     /* set constants */
     template<typename... Rc>
-    static void set(void) {
+    static __always_inline void set(void) {
       static_assert(mpl::all_same<type, typename Rc::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      set(mpl::reg_combined<T, Rc...>::set_mask, mpl::reg_combined<T, Rc...>::cropped_clear_mask);
+      set(mpl::reg_combined<value_type, Rc...>::set_mask, mpl::reg_combined<value_type, Rc...>::cropped_clear_mask);
     }
 
     /* set value, masked by Rb */
     template<typename... Rb>
-    static void set(T const value) {
+    static __always_inline void set(value_type const value) {
       static_assert(mpl::all_same<type, typename Rb::reg_type...>::value, "template arguments are not of same type as our class (Register<...>)");
-      set(value, mpl::reg_combined<T, Rb...>::clear_mask);
+      set(value, mpl::reg_combined<value_type, Rb...>::clear_mask);
     }
   };
 
@@ -206,22 +208,22 @@ namespace reg
     static_assert(width >= 1, "invalid width");
     static_assert(offset + width <= sizeof(value_type) * 8, "invalid width/offset");
 
-    static value_type test()           { return R::load() & clear_mask; }
-    static value_type test_and_shift() { return test() >> offset; }
+    static __always_inline value_type test()           { return R::load() & clear_mask; }
+    static __always_inline value_type test_and_shift() { return test() >> offset; }
 
-    static bool       test(value_type const test_value) { return test() == test_value; }
+    static __always_inline bool       test(value_type const test_value) { return test() == test_value; }
 
-    static void       set()            { R::set(set_mask); }
-    static void       clear()          { R::clear(clear_mask); }
+    static __always_inline void       set()            { R::set(set_mask); }
+    static __always_inline void       clear()          { R::clear(clear_mask); }
 
     /** NOTE: this does not check if _value is masked correctly! */
-    static void set(value_type const set_value) { R::set(set_value, set_mask); }
-    static void shift_and_set(value_type const set_value) {
+    static __always_inline void set(value_type const set_value) { R::set(set_value, set_mask); }
+    static __always_inline void shift_and_set(value_type const set_value) {
       R::set(shifted_value(set_value), set_mask);
     }
 
     // TODO: better naming for this
-    static constexpr value_type shifted_value(value_type const input_value) {
+    static __always_inline constexpr value_type shifted_value(value_type const input_value) {
       // assert((input_value << offset) | clear_mask, "input value does not match clear_mask");
       return (input_value << offset);
     }
@@ -255,8 +257,8 @@ namespace reg
 
     static_assert((set_mask & clear_mask) == value, "value does not fit into bits of R");
 
-    static void set()     { R::set(value);   }
-    static bool test()    { return R::test(value); }
+    static __always_inline void set()     { R::set(value);   }
+    static __always_inline bool test()    { return R::test(value); }
 
     /* NOTE: clear() is NOT declared. Clearing a contant value in a
      * register not make sense imho.  What you actually want to do to
@@ -268,7 +270,7 @@ namespace reg
      *   RegisterConst<>::bits_type::clear()
      *
      */
-    //! static void clear() { R::clear(); }  /* INTENTIONALLY NOT DECLARED */
+    //! static __always_inline void clear() { R::clear(); }  /* INTENTIONALLY NOT DECLARED */
 
     // cast operator
     constexpr operator value_type() { return value; }

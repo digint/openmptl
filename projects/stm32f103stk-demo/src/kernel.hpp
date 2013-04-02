@@ -31,6 +31,7 @@
 #include <arch/uart_transport.hpp>
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
+#include <compiler.h>
 #include "time.hpp"
 
 struct Kernel
@@ -65,14 +66,14 @@ struct Kernel
   using time      = Time< systick >;
 
   /* Reset core exception: triggered on system startup (system entry point). */
-  static void reset_isr(void) __attribute__ ((naked));
+  static void  __naked reset_isr(void);
 
   static void null_isr(void)  { }
   static void warn_isr(void)  { Kernel::led::on(); }
   static void error_isr(void) { while(1) { Kernel::led::on(); } }
 
   static void init(void);
-  static void run(void) __attribute__ ((noreturn));
+  static void __noreturn run(void);
 
   using resources = ResourceList<
     IrqResource< typename irq::Reset, reset_isr >,

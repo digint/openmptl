@@ -21,6 +21,8 @@
 #ifndef REGISTER_STORAGE_HPP_INCLUDED
 #define REGISTER_STORAGE_HPP_INCLUDED
 
+#include <compiler.h>
+
 #ifdef CORE_SIMULATION
 #include <arch/reg/address_map.hpp>
 #include <iostream>
@@ -56,13 +58,13 @@ namespace reg {
     static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
 
     /** Load (read) register value. */
-    static T    load(void) {
+    static __always_inline T    load(void) {
       static_assert(access != Access::wo, "read access to a write-only register");
       return *value_ptr;
     }
 
     /** Store (write) a register value. */
-    static void store(T const value) {
+    static __always_inline void store(T const value) {
       static_assert(access != Access::ro, "write access to a read-only register");
       *value_ptr = value;
     }

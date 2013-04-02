@@ -23,6 +23,7 @@
 
 #include <type_traits>
 #include <cstdint>
+#include <compiler.h>
 #include <isr.hpp>  // isr_t
 
 // Hint: template debugging:
@@ -61,7 +62,7 @@ namespace mpl
       typename Tu::template append<group_type>
       >::type;
 
-    void configure() { }
+    static __always_inline void configure() { }
 
     template<typename U>
     struct combine {
@@ -183,8 +184,9 @@ namespace mpl
     };
 
     template<typename Rl>
-    static void configure() {
-      typename Rl::template resource_filtered_list<Head>::combined_type().configure();
+    static __always_inline void configure() {
+      //typename Rl::template resource_filtered_list<Head>::combined_type().configure();
+      Rl::template resource_filtered_list<Head>::combined_type::configure();
       resource_type_list_impl<Args...>::template configure<Rl>();
     }
 
