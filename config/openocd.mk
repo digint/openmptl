@@ -43,6 +43,9 @@ debug:
 # command: set tdesc filename <file name>
 	@echo Starting OpenOCD debugger
 	@echo "*"
-	@echo "* $(CROSS)gdb -ex \"set tdesc filename gdb-target.xml\" -ex \"target remote localhost:$(oocd_gdb_port)\" $(ELF)"
+
+# gdb-target.xml is not needed anymore with recent versions
+#	@echo "* $(CROSS)gdb -ex \"set tdesc filename gdb-target.xml\" -ex \"target remote localhost:$(oocd_gdb_port)\" $(ELF)"
+	@echo "* $(CROSS)gdb -ex \"target remote localhost:$(oocd_gdb_port)\" $(ELF)"
 	@echo "*"
 	$(OPENOCD) $(oocd_params_debug)
