@@ -83,16 +83,17 @@ class Nrf24l01
 {
   using spi = spi_type;
 
-  using spi_master = SpiMaster<
-    spi,
-    8_mhz,  // max frequency
-    8,      // 8bit data
-    SpiClockPolarity::low,
-    SpiClockPhase::first_edge,
-    SpiDataDirection::two_lines_full_duplex,
-    SpiSoftwareSlaveManagement::enabled,
-    SpiFrameFormat::msb_first
-    >;
+  struct DeviceConfig {
+    static constexpr freq_t                     max_frequency = 8_mhz;
+    static constexpr unsigned                   data_size     = 8;
+    static constexpr SpiClockPolarity           clk_pol       = SpiClockPolarity::low;
+    static constexpr SpiClockPhase              clk_phase     = SpiClockPhase::first_edge;
+    static constexpr SpiDataDirection           data_dir      = SpiDataDirection::two_lines_full_duplex;
+    static constexpr SpiSoftwareSlaveManagement ssm           = SpiSoftwareSlaveManagement::enabled;
+    static constexpr SpiFrameFormat             frame_format  = SpiFrameFormat::msb_first;
+  };
+
+  using spi_device = SpiDevice< spi_type, DeviceConfig >;
 
   /* Tcwh: CSN Inactive time: min. 50ns */
   /* Time between calls of disable() -> enable() */
@@ -121,7 +122,7 @@ class Nrf24l01
   }
 
   static uint8_t writeread(uint8_t data) {
-    return spi_master::writeread_blocking(data);
+    return spi_device::writeread_blocking(data);
   }
 
   static uint8_t writeread(NrfCommand cmd) {
@@ -129,7 +130,7 @@ class Nrf24l01
   }
 
   static uint8_t read_cmd(NrfRegister reg) {
-    return static_cast<uint8_t>(reg)  & 0x1f;
+    return static_cast<uint8_t>(reg) & 0x1f;
   }
   static uint8_t write_cmd(NrfRegister reg) {
     return (1 << 5) | (static_cast<uint8_t>(reg) & 0x1f);
@@ -137,7 +138,7 @@ class Nrf24l01
 public:
 
   using resources = ResourceList<
-    typename spi_master::resources,
+    typename spi_device::resources,
     typename nrf_ce::resources,
     typename nrf_csn::resources,
     typename nrf_irq::resources
@@ -193,7 +194,7 @@ public:
   }
 
   static void enable() {
-    spi_master::reconfigure();
+    spi_device::reconfigure();
   }
 };
 

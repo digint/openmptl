@@ -138,8 +138,8 @@ public:
 };
 
 
-
 /////  NOKIA 3310  /////
+
 
 template<typename spi_type,
          typename lcd_ds,   //< data / command selection
@@ -148,50 +148,51 @@ template<typename spi_type,
          >
 class Lcd_Nokia3310 : public Lcd< 84, 48 >
 {
-  using spi_master = SpiMaster<
-    spi_type,
-    4_mhz,    // max_frequency
-    8,        // 8bit data
-    SpiClockPolarity::high,
-    SpiClockPhase::second_edge,
-    SpiDataDirection::one_line_tx,
-    SpiSoftwareSlaveManagement::enabled,
-    SpiFrameFormat::msb_first
-    >;
+  struct DeviceConfig {
+    static constexpr freq_t                     max_frequency = 4_mhz;
+    static constexpr unsigned                   data_size     = 8;
+    static constexpr SpiClockPolarity           clk_pol       = SpiClockPolarity::high;
+    static constexpr SpiClockPhase              clk_phase     = SpiClockPhase::second_edge;
+    static constexpr SpiDataDirection           data_dir      = SpiDataDirection::one_line_tx;
+    static constexpr SpiSoftwareSlaveManagement ssm           = SpiSoftwareSlaveManagement::enabled;
+    static constexpr SpiFrameFormat             frame_format  = SpiFrameFormat::msb_first;
+  };
+
+  using spi_device = SpiDevice< spi_type, DeviceConfig >;
 
   static void enable_slave_select(void) {
     lcd_e::enable();
   }
   static void disable_slave_select(void) {
-    spi_master::wait_not_busy();
+    spi_device::wait_not_busy();
     lcd_e::disable();
   }
 
   static void select_data() {
-    spi_master::wait_not_busy();
+    spi_device::wait_not_busy();
     lcd_ds::set(); /* select data */
   }
 
   static void select_command() {
-    spi_master::wait_not_busy();
+    spi_device::wait_not_busy();
     lcd_ds::reset(); /* select command */
   }
 
   static void send_byte(unsigned char data) {
-    spi_master::send_blocking(data);
+    spi_device::send_blocking(data);
   }
 
 public:
 
   using resources = ResourceList<
-    typename spi_master::resources,
+    typename spi_device::resources,
     typename lcd_ds::resources,
     typename lcd_reset::resources,
     typename lcd_e::resources
     >;
 
   static void enable(void) {
-    spi_master::reconfigure();
+    spi_device::reconfigure();
   }
 
   void update(void) {

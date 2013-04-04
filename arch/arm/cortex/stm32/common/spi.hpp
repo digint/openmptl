@@ -57,6 +57,7 @@ template<typename  rcc_type,
          unsigned _spi_no>
 class Spi
 {
+protected:
   using SPIx = reg::SPI<_spi_no>;
   using rcc = rcc_type;
 
@@ -89,6 +90,8 @@ public:
                         SpiSoftwareSlaveManagement ssm,
                         SpiFrameFormat             frame_format)
   {
+    // assert(data_size == 8 || data_size == 16, "invalid data size");
+
     auto cr1 = SPIx::CR1::load();
 
     /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
@@ -179,30 +182,38 @@ public:
 };
 
 
+struct SpiDeviceDefaultConfig
+{
+  static constexpr freq_t                     max_frequency = 0;  /* Hz, 0=maximum available */
+  static constexpr unsigned                   data_size     = 8;
+  static constexpr SpiClockPolarity           clk_pol       = SpiClockPolarity::low;
+  static constexpr SpiClockPhase              clk_phase     = SpiClockPhase::first_edge;
+  static constexpr SpiDataDirection           data_dir      = SpiDataDirection::two_lines_full_duplex;
+  static constexpr SpiSoftwareSlaveManagement ssm           = SpiSoftwareSlaveManagement::disabled;
+  static constexpr SpiFrameFormat             frame_format  = SpiFrameFormat::msb_first;
+};
 
-template<typename spi,
-         freq_t max_frequency = 0, /* Hz, 0=maximum available */
-         unsigned data_size = 8,
-         SpiClockPolarity clk_pol = SpiClockPolarity::low,
-         SpiClockPhase clk_phase = SpiClockPhase::first_edge,
-         SpiDataDirection data_dir = SpiDataDirection::two_lines_full_duplex,
-         SpiSoftwareSlaveManagement ssm = SpiSoftwareSlaveManagement::disabled,
-         SpiFrameFormat frame_format = SpiFrameFormat::msb_first
-         >
-class SpiMaster : public spi {
 
-  static_assert(data_size == 8 || data_size == 16, "invalid data size");
-
+template<typename spi_type, typename cfg >
+class SpiDevice : public spi_type
+{
 public:
 
-  using resources = typename spi::resources;
+  using resources = typename spi_type::resources;
 
   /**
    * Configure SPI.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   static void configure(void) {
-    spi::configure(SpiMasterSelection::master, max_frequency, data_size, clk_pol, clk_phase, data_dir, ssm, frame_format);
+    spi_type::configure(SpiMasterSelection::master,
+                        cfg::max_frequency,
+                        cfg::data_size,
+                        cfg::clk_pol,
+                        cfg::clk_phase,
+                        cfg::data_dir,
+                        cfg::ssm,
+                        cfg::frame_format);
   }
 
   /**
@@ -210,9 +221,9 @@ public:
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   static void reconfigure(void) {
-    spi::disable();
+    spi_type::disable();
     configure();
-    spi::enable();
+    spi_type::enable();
   }
 };
 
