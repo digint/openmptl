@@ -25,6 +25,7 @@
 #include <arch/nvic.hpp>
 #include <resource.hpp>
 #include <type_traits>
+#include <compiler.h>
 
 #ifndef CORE_SIMULATION
 static_assert(sizeof(isr_t)  == 4, "wrong size for isr function pointer");
@@ -46,10 +47,7 @@ namespace mpl
   struct vector_table_impl {
     static constexpr std::size_t size = sizeof...(isr_list) + 1;
 
-    static isr_t vector_table[size] __attribute__ ((section(".isr_vector")));
-
-    /* Build the vector table by declaring a pointer to it */
-    isr_t *vector_table_p = vector_table;
+    static __used isr_t vector_table[size] __attribute__ ((section(".isr_vector")));
   };
 
   template<const uint32_t *stack_top, isr_t... isr_list>
@@ -117,8 +115,5 @@ struct VectorTable
   static_assert(sizeof(VectorTable<stack_top, resource_list, default_isr>::vector_table) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + -irq::Reset::irqn),
                 "IRQ vector table size error");
 };
-
-/* Explicit template instantiation (does not work, vector_table is stripped)  */
-// template class VectorTable<82, &_stack_top>;
 
 #endif // COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
