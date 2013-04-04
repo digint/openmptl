@@ -62,11 +62,11 @@ void Kernel::init(void)
 
   lcd::init();
   nrf::init();
+
   joy::init();
 
   // lcd::set_contrast(0x45);
 }
-
 
 void Kernel::run(void)
 {
@@ -94,16 +94,7 @@ void Kernel::run(void)
 
   //  using uart_device_type = UartDynDevice<usart>;
   Terminal<uart_stream_device, terminal_hooks::commands> terminal;
-
-#ifdef USART_DYNAMIC
-  tty0_device tty0(115200);
-  //tty0_device tty0(time::get_systick());
-  terminal.open(tty0);
-  //  terminal.open(tty0_device(115200));
-#else
-  //  terminal.open(tty0_device());
-  terminal.open<tty0_device>();
-#endif
+  terminal.open(tty0_device());
 
   cycle_counter.stop();
 
@@ -151,7 +142,7 @@ void Kernel::run(void)
     tick      = time::get_systick();
     irq_count = uart_stream_device::irq_count;
     eirq      = uart_stream_device::irq_errors;
-    //    cycle_counter.stop();
+    //!!!    cycle_counter.stop();
     cycle     = cycle_counter.get();
 
     /* update screen */

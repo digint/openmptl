@@ -42,37 +42,17 @@ struct Kernel
   using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
 
   using usart        = Usart<2, rcc>;
-
   using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
 
+  struct tty0_uart_config : UartDeviceDefaultConfig
+  {
+    static constexpr unsigned baud_rate = 115200;
+    /* Note: If you want to have a dynamic baud_rate, declare:  */
+    /*       static unsigned baud_rate;                         */
+  };
+  using tty0_device = UartDevice< usart, tty0_uart_config >;
   using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
-
-#if 0
-  static constexpr UsartConfig usart_config =
-    {
-      115200,                             // .baud_rate    
-      8,   /* supported: 8 and 9 bits */  // .word_length    
-      UsartParity::disabled,              // .parity         
-      UsartStopBits::stop_bits_1,         // .stop_bits      
-      UsartFlowControl::disabled,         // .flow_control   
-      true,                               // .enable_rx      
-      true,                               // .enable_tx      
-      false,                              // .clock_enable   
-      UsartClockPolarity::low,            // .cpol           
-      UsartClockPhase::first,             // .cpha           
-      false                               // .lbcl         
-    };
-#endif
-
-
-#ifdef USART_DYNAMIC
-  using tty0_device = UartDevice< usart >;
-#else
-  using tty0_device = UartStaticDevice< usart, 115200 >;
-#endif
-
-  //  using uart_stream_device = UartStreamDevice< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
 
   using spi       = Spi< rcc, 1 >;
   using spi_sck   = SpiGpio< 'A', 5 >;
