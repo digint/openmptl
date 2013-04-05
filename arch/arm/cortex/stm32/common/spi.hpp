@@ -25,13 +25,13 @@
 #include <arch/nvic.hpp>
 #include <arch/reg/spi.hpp>
 
-enum class SpiClockPolarity {
-  low,
-  high
-};
 enum class SpiMasterSelection {
   master,
   slave
+};
+enum class SpiClockPolarity {
+  low,
+  high
 };
 enum class SpiClockPhase {
   first_edge,
@@ -52,6 +52,19 @@ enum class SpiFrameFormat {
   lsb_first
 };
 
+struct SpiDefaultConfig
+{
+  static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::slave;
+
+  static constexpr freq_t                     max_frequency    = 0;  /* Hz, 0=maximum available */
+  static constexpr unsigned                   data_size        = 8;  /* 8 bit or 16 bit data size */
+  static constexpr SpiClockPolarity           clk_pol          = SpiClockPolarity::low;
+  static constexpr SpiClockPhase              clk_phase        = SpiClockPhase::first_edge;
+  static constexpr SpiDataDirection           data_dir         = SpiDataDirection::two_lines_full_duplex;
+  static constexpr SpiSoftwareSlaveManagement ssm              = SpiSoftwareSlaveManagement::disabled;
+  static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
+};
+
 
 template<typename  rcc_type,
          unsigned _spi_no>
@@ -61,77 +74,47 @@ protected:
   using SPIx = reg::SPI<_spi_no>;
   using rcc = rcc_type;
 
+  static constexpr unsigned freq = (_spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+
+  static constexpr typename SPIx::CR1::value_type baud_rate_prescaler_cr1_set_mask(freq_t max_frequency)
+  {
+    return ( max_frequency == 0          ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
+             max_frequency >= freq / 2   ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
+             max_frequency >= freq / 4   ? reg::RegisterConst< typename SPIx::CR1::BR, 1 >::value :
+             max_frequency >= freq / 8   ? reg::RegisterConst< typename SPIx::CR1::BR, 2 >::value :
+             max_frequency >= freq / 16  ? reg::RegisterConst< typename SPIx::CR1::BR, 3 >::value :
+             max_frequency >= freq / 32  ? reg::RegisterConst< typename SPIx::CR1::BR, 4 >::value :
+             max_frequency >= freq / 64  ? reg::RegisterConst< typename SPIx::CR1::BR, 5 >::value :
+             max_frequency >= freq / 128 ? reg::RegisterConst< typename SPIx::CR1::BR, 6 >::value :
+             reg::RegisterConst< typename SPIx::CR1::BR, 7 >::value );
+  }
+
+  template<typename spi_config_type>
+  static constexpr typename SPIx::CR1::value_type cr1_set_mask(spi_config_type const & cfg)
+  {
+    // assert(cfg.data_size == 8 || cfg.data_size == 16);
+    return
+      ((cfg.master_selection == SpiMasterSelection::master) ? (SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value) : 0)
+
+      | ((cfg.data_dir == SpiDataDirection::two_lines_rx_only) ? SPIx::CR1::RXONLY::value   :
+         (cfg.data_dir == SpiDataDirection::one_line_rx)       ? SPIx::CR1::BIDIMODE::value :
+         (cfg.data_dir == SpiDataDirection::one_line_tx)       ? (SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value) : 0)
+
+      | ((cfg.data_size    == 16)                         ? SPIx::CR1::DFF::value      : 0)
+      | ((cfg.clk_pol      == SpiClockPolarity::high)     ? SPIx::CR1::CPOL::value     : 0)
+      | ((cfg.clk_phase    == SpiClockPhase::second_edge) ? SPIx::CR1::CPHA::value     : 0)
+      | ((cfg.ssm          == SpiSoftwareSlaveManagement::enabled) ? SPIx::CR1::SSM::value : 0)
+      | ((cfg.frame_format == SpiFrameFormat::lsb_first)  ? SPIx::CR1::LSBFIRST::value : 0)
+      
+      | baud_rate_prescaler_cr1_set_mask(cfg.max_frequency)
+      ;
+  }
+
 public:
 
   static constexpr unsigned spi_no = _spi_no;
   using resources = Rcc_spi_clock_resources<spi_no>;
   using Irq = irq::SPI<spi_no>;
-
-  static constexpr unsigned freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-
-  static unsigned baud_rate_prescaler(freq_t max_frequency) {
-    return ( max_frequency == 0          ?   2 :
-             max_frequency >= freq / 2   ?   2 :
-             max_frequency >= freq / 4   ?   4 :
-             max_frequency >= freq / 8   ?   8 :
-             max_frequency >= freq / 16  ?  16 :
-             max_frequency >= freq / 32  ?  32 :
-             max_frequency >= freq / 64  ?  64 :
-             max_frequency >= freq / 128 ? 128 :
-             256 );
-  }
-
-  static void configure(SpiMasterSelection         master_selection,
-                        freq_t                     max_frequency,   /* Hz, 0=maximum available */
-                        unsigned                   data_size,
-                        SpiClockPolarity           clk_pol,
-                        SpiClockPhase              clk_phase,
-                        SpiDataDirection           data_dir,
-                        SpiSoftwareSlaveManagement ssm,
-                        SpiFrameFormat             frame_format)
-  {
-    // assert(data_size == 8 || data_size == 16, "invalid data size");
-
-    auto cr1 = SPIx::CR1::load();
-
-    /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
-    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
-
-    if(data_dir == SpiDataDirection::two_lines_rx_only)
-      cr1 |= SPIx::CR1::RXONLY::value;
-    else if(data_dir == SpiDataDirection::one_line_rx)
-      cr1 |= SPIx::CR1::BIDIMODE::value;
-    else if(data_dir == SpiDataDirection::one_line_tx)
-      cr1 |= SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value;
-
-    if(master_selection == SpiMasterSelection::master)
-      cr1 |= SPIx::CR1::MSTR::value | 
-        //        (ssm == SpiSoftwareSlaveManagement::enabled ? SPIx::CR1::SSI::value : 0); // SPI Master: Master Selection / Internal slave select
-        SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
-    if(data_size == 16)
-      cr1 |= SPIx::CR1::DFF::value;
-    if(clk_pol == SpiClockPolarity::high)
-      cr1 |= SPIx::CR1::CPOL::value;
-    if(clk_phase == SpiClockPhase::second_edge)
-      cr1 |= SPIx::CR1::CPHA::value;
-    if(ssm == SpiSoftwareSlaveManagement::enabled)
-      cr1 |= SPIx::CR1::SSM::value;
-    if(frame_format == SpiFrameFormat::lsb_first)
-      cr1 |= SPIx::CR1::LSBFIRST::value;
-      
-    switch(baud_rate_prescaler(max_frequency)) {
-    case 2:   cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value; break;
-    case 4:   cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 1 >::value; break;
-    case 8:   cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 2 >::value; break;
-    case 16:  cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 3 >::value; break;
-    case 32:  cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 4 >::value; break;
-    case 64:  cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 5 >::value; break;
-    case 128: cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 6 >::value; break;
-    case 256: cr1 |= reg::RegisterConst< typename SPIx::CR1::BR, 7 >::value; break;
-    }
-
-    SPIx::CR1::store(cr1);
-  }
 
   static void reset_crc(void) {
     SPIx::CRCPR::reset();
@@ -179,23 +162,66 @@ public:
     wait_receive_not_empty();
     return receive();
   }
-};
 
+  template<typename spi_config_type>
+  static void configure(spi_config_type const & cfg)
+  {
+    auto cr1 = SPIx::CR1::load();
+    /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
+    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
+    cr1 |= cr1_set_mask(cfg);
+    SPIx::CR1::store(cr1);
+  }
 
-struct SpiDeviceDefaultConfig
-{
-  static constexpr freq_t                     max_frequency = 0;  /* Hz, 0=maximum available */
-  static constexpr unsigned                   data_size     = 8;
-  static constexpr SpiClockPolarity           clk_pol       = SpiClockPolarity::low;
-  static constexpr SpiClockPhase              clk_phase     = SpiClockPhase::first_edge;
-  static constexpr SpiDataDirection           data_dir      = SpiDataDirection::two_lines_full_duplex;
-  static constexpr SpiSoftwareSlaveManagement ssm           = SpiSoftwareSlaveManagement::disabled;
-  static constexpr SpiFrameFormat             frame_format  = SpiFrameFormat::msb_first;
+#if 0
+  static void configure(SpiMasterSelection         master_selection,
+                        freq_t                     max_frequency,   /* Hz, 0=maximum available */
+                        unsigned                   data_size,
+                        SpiClockPolarity           clk_pol,
+                        SpiClockPhase              clk_phase,
+                        SpiDataDirection           data_dir,
+                        SpiSoftwareSlaveManagement ssm,
+                        SpiFrameFormat             frame_format)
+  {
+    // assert(data_size == 8 || data_size == 16, "invalid data size");
+
+    auto cr1 = SPIx::CR1::load();
+
+    /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
+    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
+
+    if(master_selection == SpiMasterSelection::master)
+      cr1 |= SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
+    // if(ssm == SpiSoftwareSlaveManagement::enabled) cr1 |= SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
+
+    if(data_dir == SpiDataDirection::two_lines_rx_only)
+      cr1 |= SPIx::CR1::RXONLY::value;
+    else if(data_dir == SpiDataDirection::one_line_rx)
+      cr1 |= SPIx::CR1::BIDIMODE::value;
+    else if(data_dir == SpiDataDirection::one_line_tx)
+      cr1 |= SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value;
+
+    if(data_size == 16)
+      cr1 |= SPIx::CR1::DFF::value;
+    if(clk_pol == SpiClockPolarity::high)
+      cr1 |= SPIx::CR1::CPOL::value;
+    if(clk_phase == SpiClockPhase::second_edge)
+      cr1 |= SPIx::CR1::CPHA::value;
+    if(ssm == SpiSoftwareSlaveManagement::enabled)
+      cr1 |= SPIx::CR1::SSM::value;
+    if(frame_format == SpiFrameFormat::lsb_first)
+      cr1 |= SPIx::CR1::LSBFIRST::value;
+      
+    cr1 |= baud_rate_prescaler_cr1_set_mask(max_frequency);
+
+    SPIx::CR1::store(cr1);
+  }
+#endif
 };
 
 
 template<typename spi_type, typename cfg >
-class SpiDevice : public spi_type
+class SpiDevice : public spi_type, public cfg
 {
 public:
 
@@ -205,26 +231,20 @@ public:
    * Configure SPI.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
-  static void configure(void) {
-    spi_type::configure(SpiMasterSelection::master,
-                        cfg::max_frequency,
-                        cfg::data_size,
-                        cfg::clk_pol,
-                        cfg::clk_phase,
-                        cfg::data_dir,
-                        cfg::ssm,
-                        cfg::frame_format);
+  void configure(void) {
+    spi_type::configure(*this);
   }
 
   /**
    * Reconfigure and enable SPI.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
-  static void reconfigure(void) {
+  void reconfigure(void) {
     spi_type::disable();
     configure();
     spi_type::enable();
   }
+
 };
 
 #endif // STM32_COMMON_SPI_HPP_INCLUDED

@@ -84,13 +84,15 @@ class Nrf24l01
   using spi = spi_type;
 
   struct DeviceConfig {
-    static constexpr freq_t                     max_frequency = 8_mhz;
-    static constexpr unsigned                   data_size     = 8;
-    static constexpr SpiClockPolarity           clk_pol       = SpiClockPolarity::low;
-    static constexpr SpiClockPhase              clk_phase     = SpiClockPhase::first_edge;
-    static constexpr SpiDataDirection           data_dir      = SpiDataDirection::two_lines_full_duplex;
-    static constexpr SpiSoftwareSlaveManagement ssm           = SpiSoftwareSlaveManagement::enabled;
-    static constexpr SpiFrameFormat             frame_format  = SpiFrameFormat::msb_first;
+    static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::master;
+
+    static constexpr freq_t                     max_frequency    = 8_mhz;
+    static constexpr unsigned                   data_size        = 8;
+    static constexpr SpiClockPolarity           clk_pol          = SpiClockPolarity::low;
+    static constexpr SpiClockPhase              clk_phase        = SpiClockPhase::first_edge;
+    static constexpr SpiDataDirection           data_dir         = SpiDataDirection::two_lines_full_duplex;
+    static constexpr SpiSoftwareSlaveManagement ssm              = SpiSoftwareSlaveManagement::enabled;
+    static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
   };
 
   using spi_device = SpiDevice< spi_type, DeviceConfig >;
@@ -194,7 +196,7 @@ public:
   }
 
   static void enable() {
-    spi_device::reconfigure();
+    spi_device().reconfigure();
   }
 };
 

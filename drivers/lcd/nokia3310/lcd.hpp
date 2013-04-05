@@ -149,13 +149,15 @@ template<typename spi_type,
 class Lcd_Nokia3310 : public Lcd< 84, 48 >
 {
   struct DeviceConfig {
-    static constexpr freq_t                     max_frequency = 4_mhz;
-    static constexpr unsigned                   data_size     = 8;
-    static constexpr SpiClockPolarity           clk_pol       = SpiClockPolarity::high;
-    static constexpr SpiClockPhase              clk_phase     = SpiClockPhase::second_edge;
-    static constexpr SpiDataDirection           data_dir      = SpiDataDirection::one_line_tx;
-    static constexpr SpiSoftwareSlaveManagement ssm           = SpiSoftwareSlaveManagement::enabled;
-    static constexpr SpiFrameFormat             frame_format  = SpiFrameFormat::msb_first;
+    static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::master;
+
+    static constexpr freq_t                     max_frequency    = 4_mhz;
+    static constexpr unsigned                   data_size        = 8;
+    static constexpr SpiClockPolarity           clk_pol          = SpiClockPolarity::high;
+    static constexpr SpiClockPhase              clk_phase        = SpiClockPhase::second_edge;
+    static constexpr SpiDataDirection           data_dir         = SpiDataDirection::one_line_tx;
+    static constexpr SpiSoftwareSlaveManagement ssm              = SpiSoftwareSlaveManagement::enabled;
+    static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
   };
 
   using spi_device = SpiDevice< spi_type, DeviceConfig >;
@@ -192,7 +194,7 @@ public:
     >;
 
   static void enable(void) {
-    spi_device::reconfigure();
+    spi_device().reconfigure();
   }
 
   void update(void) {
