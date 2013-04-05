@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <type_traits>
 #include <compiler.h>
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 static_assert(sizeof(isr_t)  == 4, "wrong size for isr function pointer");
 static_assert(alignof(isr_t) == 4, "wrong alignment for isr function pointer table");
 #endif

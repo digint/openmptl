@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +27,8 @@
 #ifndef CRT_HPP_INCLUDED
 #define CRT_HPP_INCLUDED
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 
-#include <arch/core.hpp>
 #include <cstdint>
 
 /* Make sure your linker script provides these: */
@@ -73,7 +72,7 @@ namespace crt
   }
 } // namespace crt
 
-#else // CORE_SIMULATION
+#else // OPENMPTL_SIMULATION
 
 namespace crt
 {
@@ -83,6 +82,6 @@ namespace crt
   static inline void call_dtors(void) { }
 } // namespace crt
 
-#endif //CORE_SIMULATION
+#endif //OPENMPTL_SIMULATION
 
 #endif // CRT_HPP_INCLUDED

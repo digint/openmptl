@@ -1,7 +1,7 @@
 #
-# CppCore - C++ microprocessor core library
+# OpenMPTL - C++ Microprocessor Template Library
 #
-# Copyright 2012 Axel Burri <axel@tty0.ch>
+# Copyright 2013 Axel Burri <axel@tty0.ch>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,31 +21,29 @@
 # project setup
 #
 
-PROJECT      = cppcore
+PROJECT        = stm32f103stk-demo
 
-CPPCORE_TOP  = ../..
-TINYFSM_TOP  = ../../../tinyfsm
+OPENMPTL_TOP   = ../..
+TINYFSM_TOP    = ../../../tinyfsm
 
-CPPCORE_ARCH = arm/cortex/stm32/f1
+OPENMPTL_ARCH  = arm/cortex/stm32/f1
 
 ifdef SIMULATION
-  CROSS      = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
-  FLAGS     += -DCORE_SIMULATION
-#  FLAGS     += -DDEBUG_REGISTER
+  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
+  FLAGS       += -DOPENMPTL_SIMULATION
+#  FLAGS       += -DDEBUG_REGISTER
 else
-  CROSS      = arm-none-eabi-
-  CPUFLAGS   = -mcpu=cortex-m3 -mthumb
+  CROSS        = arm-none-eabi-
+  CPUFLAGS     = -mcpu=cortex-m3 -mthumb
 endif
 
-FLAGS += -DUSART_DYNAMIC # TODO: remove me !!!
-
-FLAGS       += -DSTM32F10X_MD
-# FLAGS       += -DHEAP_FIXED_SIZE=8129
+FLAGS         += -DSTM32F10X_MD
+# FLAGS        += -DHEAP_FIXED_SIZE=8129
 
 # HINT: g++ -Q -O2 --help=optimizers
-OPTIMIZER    = -Os
+OPTIMIZER      = -Os
 
-LD_SCRIPT    = stm32f10x_flash_md.ld
+LD_SCRIPT      = stm32f10x_flash_md.ld
 
 OPENOCD_CONFIG = -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
 
@@ -74,27 +72,27 @@ vpath %.S   $(SRC_DIRS)
 #------------------------------------------------------------------------------
 # build environment
 #
-include $(CPPCORE_TOP)/config/gcc.mk
-include $(CPPCORE_TOP)/config/system.mk
+include $(OPENMPTL_TOP)/config/gcc.mk
+include $(OPENMPTL_TOP)/config/system.mk
 
 
 #------------------------------------------------------------------------------
-# cppcore includes
+# OpenMPTL includes
 #
-include $(CPPCORE_TOP)/config/cppcore.mk
-INCLUDE     += $(CPPCORE_INCLUDE)
+include $(OPENMPTL_TOP)/config/openmptl.mk
+INCLUDE     += $(OPENMPTL_INCLUDE)
 
-#SRCS        += $(CPPCORE_SRC)
-#vpath %.cpp $(CPPCORE_SRC_DIRS)
+#SRCS        += $(OPENMPTL_SRC)
+#vpath %.cpp $(OPENMPTL_SRC_DIRS)
 
 # add all drivers
-DRIVERS_SRC_DIRS = $(wildcard $(CPPCORE_DRIVERS_DIR)/*/*)
+DRIVERS_SRC_DIRS = $(wildcard $(OPENMPTL_DRIVERS_DIR)/*/*)
 SRCS            += $(wildcard $(addsuffix /*.cpp, $(DRIVERS_SRC_DIRS)))
 vpath %.cpp $(DRIVERS_SRC_DIRS)
 
 
 #------------------------------------------------------------------------------
-# tinyfsm includes
+# TinyFSM includes
 #
 INCLUDE     += -I $(TINYFSM_TOP)/include
 
@@ -102,7 +100,7 @@ INCLUDE     += -I $(TINYFSM_TOP)/include
 #------------------------------------------------------------------------------
 # boost includes
 #
-include $(CPPCORE_TOP)/config/boost.mk
+include $(OPENMPTL_TOP)/config/boost.mk
 INCLUDE     += $(BOOST_INCLUDE)
 FLAGS       += $(BOOST_FLAGS)
 
@@ -183,17 +181,17 @@ CXXFLAGS    += -pedantic
 
 ASFLAGS      = $(FLAGS)
 
-LD_FLAGS     = $(CPUFLAGS)
-LD_FLAGS    += -fno-exceptions
-LD_FLAGS    += -fno-rtti
-#! LD_FLAGS += -frepo     # Enable automatic template instantiation at link time
+LDFLAGS      = $(CPUFLAGS)
+LDFLAGS     += -fno-exceptions
+LDFLAGS     += -fno-rtti
+#! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
-  LD_FLAGS    += -pthread
+  LDFLAGS     += -pthread
 else
-  LD_FLAGS  += -nostartfiles
-  LD_FLAGS  += -Wl,-Map="$(MAP)",--cref
-  LD_FLAGS  += -Wl,--gc-sections
-  LD_FLAGS  += -T$(LD_SCRIPT)
+  LDFLAGS   += -nostartfiles
+  LDFLAGS   += -Wl,-Map="$(MAP)",--cref
+  LDFLAGS   += -Wl,--gc-sections
+  LDFLAGS   += -T$(LD_SCRIPT)
 endif
 
 
@@ -212,7 +210,7 @@ $(HEX):	$(ELF)
 
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LD_FLAGS) -o "$(ELF)"
+	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
 	$(SIZE) $@
 
 $(OBJ_DIR)/%.o: %.cpp
@@ -239,7 +237,7 @@ clean:
 	$(RM) $(MAP)
 	$(RM) $(LSS)
 
-include $(CPPCORE_TOP)/config/doxygen.mk
-include $(CPPCORE_TOP)/config/openocd.mk
+include $(OPENMPTL_TOP)/config/doxygen.mk
+include $(OPENMPTL_TOP)/config/openocd.mk
 
 -include $(wildcard $(OBJ_DIR)/*.d)

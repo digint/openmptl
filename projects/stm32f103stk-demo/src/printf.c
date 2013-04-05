@@ -19,7 +19,7 @@
 
 */
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 
 #include "printf.h"
 
@@ -234,4 +234,4 @@ void tfp_sprintf(char* s, const char *fmt, ...)
   va_end(va);
 }
 
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION

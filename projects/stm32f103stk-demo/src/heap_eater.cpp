@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "terminal_hooks.hpp"
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 
 extern char *heap_ptr;
 #ifdef HEAP_FIXED_SIZE
@@ -43,10 +43,10 @@ void terminal_hooks::HeapEater::run(poorman_ostream<char> & cout) {
   cout << "heap_ptr: new=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
 }
 
-#else ///// CORE_SIMULATION /////
+#else ///// OPENMPTL_SIMULATION /////
 
 void terminal_hooks::HeapEater::run(poorman_ostream<char> & cout) {
-  cout << "core_simulation: empty syscalls test" << endl;
+  cout << "OpenMPTL simulation: HeapEater dummy" << endl;
 }
 
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION

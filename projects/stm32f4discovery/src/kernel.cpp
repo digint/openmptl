@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +18,10 @@
  *
  */
 
-#include "kernel.hpp"
-#include <arch/core.hpp>
-#include <arch/uart_transport.hpp>
-
+#include <terminal.hpp>
+#include <resource.hpp>
 #include "terminal_hooks.hpp"
+#include "kernel.hpp"
 
 static volatile int systick_count = 1000;
 static volatile int second = 0;

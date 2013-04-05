@@ -1,7 +1,7 @@
 #
-# CppCore - C++ microprocessor core library
+# OpenMPTL - C++ Microprocessor Template Library
 #
-# Copyright 2012 Axel Burri <axel@tty0.ch>
+# Copyright 2013 Axel Burri <axel@tty0.ch>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,27 +21,27 @@
 # project setup
 #
 
-PROJECT      = cppcore
+PROJECT        = stm32f4discovery-demo
 
-CPPCORE_TOP  = ../..
-TINYFSM_TOP  = ../../../tinyfsm
+OPENMPTL_TOP   = ../..
+TINYFSM_TOP    = ../../../tinyfsm
 
-CPPCORE_ARCH = arm/cortex/stm32/f4
+OPENMPTL_ARCH  = arm/cortex/stm32/f4
 
 ifdef SIMULATION
-  CROSS      = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
-  FLAGS     += -DCORE_SIMULATION
-  FLAGS     += -DDEBUG_REGISTER
+  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
+  FLAGS       += -DOPENMPTL_SIMULATION
+  FLAGS       += -DDEBUG_REGISTER
 else
-  CROSS      = arm-none-eabi-
-  CPUFLAGS   = -mcpu=cortex-m4 -mthumb
+  CROSS        = arm-none-eabi-
+  CPUFLAGS     = -mcpu=cortex-m4 -mthumb
 endif
 
 
 # HINT: g++ -Q -O2 --help=optimizers
-OPTIMIZER    = -Os
+OPTIMIZER      = -Os
 
-LD_SCRIPT    = stm32f40x_flash.ld
+LD_SCRIPT      = stm32f40x_flash.ld
 
 OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 
@@ -70,18 +70,18 @@ vpath %.S   $(SRC_DIRS)
 #------------------------------------------------------------------------------
 # build environment
 #
-include $(CPPCORE_TOP)/config/gcc.mk
-include $(CPPCORE_TOP)/config/system.mk
+include $(OPENMPTL_TOP)/config/gcc.mk
+include $(OPENMPTL_TOP)/config/system.mk
 
 
 #------------------------------------------------------------------------------
-# cppcore includes
+# OpenMPTL includes
 #
-include $(CPPCORE_TOP)/config/cppcore.mk
-INCLUDE     += $(CPPCORE_INCLUDE)
+include $(OPENMPTL_TOP)/config/openmptl.mk
+INCLUDE     += $(OPENMPTL_INCLUDE)
 
-#SRCS        += $(CPPCORE_SRC)
-#vpath %.cpp $(CPPCORE_SRC_DIRS)
+#SRCS        += $(OPENMPTL_SRC)
+#vpath %.cpp $(OPENMPTL_SRC_DIRS)
 
 
 #------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ INCLUDE     += $(CPPCORE_INCLUDE)
 #------------------------------------------------------------------------------
 # boost includes
 #
-#include $(CPPCORE_TOP)/config/boost.mk
+#include $(OPENMPTL_TOP)/config/boost.mk
 #INCLUDE     += $(BOOST_INCLUDE)
 #FLAGS       += $(BOOST_FLAGS)
 
@@ -174,17 +174,17 @@ CXXFLAGS    += -pedantic
 
 ASFLAGS      = $(FLAGS)
 
-LD_FLAGS     = $(CPUFLAGS)
-LD_FLAGS    += -fno-exceptions
-LD_FLAGS    += -fno-rtti
-#! LD_FLAGS += -frepo     # Enable automatic template instantiation at link time
+LDFLAGS      = $(CPUFLAGS)
+LDFLAGS     += -fno-exceptions
+LDFLAGS     += -fno-rtti
+#! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
-  LD_FLAGS    += -pthread
+  LDFLAGS     += -pthread
 else
-  LD_FLAGS  += -nostartfiles
-  LD_FLAGS  += -Wl,-Map="$(MAP)",--cref
-  LD_FLAGS  += -Wl,--gc-sections
-  LD_FLAGS  += -T$(LD_SCRIPT)
+  LDFLAGS   += -nostartfiles
+  LDFLAGS   += -Wl,-Map="$(MAP)",--cref
+  LDFLAGS   += -Wl,--gc-sections
+  LDFLAGS   += -T$(LD_SCRIPT)
 endif
 
 
@@ -203,7 +203,7 @@ $(HEX):	$(ELF)
 
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LD_FLAGS) -o "$(ELF)"
+	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
 	$(SIZE) $@
 
 $(OBJ_DIR)/%.o: %.cpp
@@ -230,7 +230,7 @@ clean:
 	$(RM) $(MAP)
 	$(RM) $(LSS)
 
-include $(CPPCORE_TOP)/config/doxygen.mk
-include $(CPPCORE_TOP)/config/openocd.mk
+include $(OPENMPTL_TOP)/config/doxygen.mk
+include $(OPENMPTL_TOP)/config/openocd.mk
 
 -include $(wildcard $(OBJ_DIR)/*.d)

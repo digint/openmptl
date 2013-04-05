@@ -1,7 +1,7 @@
 #
-# CppCore - C++ microprocessor core library
+# OpenMPTL - C++ Microprocessor Template Library
 #
-# Copyright 2012 Axel Burri <axel@tty0.ch>
+# Copyright 2013 Axel Burri <axel@tty0.ch>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,17 +21,15 @@
 # project setup
 #
 
-PROJECT      = cppcore
-
-CPPCORE_TOP  = ../..
+OPENMPTL_TOP  = ../..
 
 #CROSS        = x86_64-pc-linux-gnu-
 CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
 
 # needed by some unittests
-CPPCORE_ARCH = arm/cortex/stm32/f4
+OPENMPTL_ARCH = arm/cortex/stm32/f4
 
-FLAGS       += -DCORE_SIMULATION
+FLAGS       += -DOPENMPTL_SIMULATION
 FLAGS       += -DDEBUG_REGISTER
 
 
@@ -56,15 +54,15 @@ vpath %.cpp $(SRC_DIR)
 #------------------------------------------------------------------------------
 # build environment
 #
-include $(CPPCORE_TOP)/config/gcc.mk
-include $(CPPCORE_TOP)/config/system.mk
+include $(OPENMPTL_TOP)/config/gcc.mk
+include $(OPENMPTL_TOP)/config/system.mk
 
 
 #------------------------------------------------------------------------------
-# cppcore includes
+# OpenMPTL includes
 #
-include $(CPPCORE_TOP)/config/cppcore.mk
-INCLUDE     += $(CPPCORE_INCLUDE)
+include $(OPENMPTL_TOP)/config/openmptl.mk
+INCLUDE     += $(OPENMPTL_INCLUDE)
 
 
 #------------------------------------------------------------------------------
@@ -101,11 +99,11 @@ CXXFLAGS    += -fshort-enums
 #CXXFLAGS    += -ffreestanding -nostdinc++
 
 CXXFLAGS    += -Wall -Wextra
-CXXFLAGS    += -Winline   # see non-inlined functions
+CXXFLAGS    += -Winline
 CXXFLAGS    += -Wpointer-arith
 CXXFLAGS    += -Wredundant-decls
-#!CXXFLAGS    += -Wctor-dtor-privacy  # boost/intrusive/list.hpp does not satisfy these
-#!CXXFLAGS    += -Wshadow             # boost/intrusive/list.hpp does not satisfy these
+CXXFLAGS    += -Wctor-dtor-privacy
+CXXFLAGS    += -Wshadow
 CXXFLAGS    += -Wcast-qual
 CXXFLAGS    += -Wcast-align
 CXXFLAGS    += -pedantic

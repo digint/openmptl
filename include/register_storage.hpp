@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,19 +23,20 @@
 
 #include <compiler.h>
 
-#ifdef CORE_SIMULATION
+#ifdef OPENMPTL_SIMULATION
 #include <arch/reg/address_map.hpp>
 #include <iostream>
 #include <iomanip>
 #include <typeinfo>
 #include <bitset>
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION
 
 namespace reg {
 
+  /** Register access */
   enum class Access { ro, wo, rw };
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 
   typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
 
@@ -71,7 +72,7 @@ namespace reg {
   };
 
 
-#else ////////////////////  CORE_SIMULATION  ////////////////////
+#else ////////////////////  OPENMPTL_SIMULATION  ////////////////////
 
 
   typedef uint32_t  reg_addr_t;
@@ -177,7 +178,7 @@ namespace reg {
             T          reset_value >
   T RegisterStorage<T, addr, access, reset_value>::reg_value = reset_value;
 
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION
 
 }
 

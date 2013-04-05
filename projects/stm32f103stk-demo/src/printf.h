@@ -95,7 +95,7 @@ regs Kusti, 23.10.2004
  extern "C" {
 #endif 
 
-#ifdef CORE_SIMULATION
+#ifdef OPENMPTL_SIMULATION
 #include <stdio.h>
 #else
 
@@ -111,7 +111,7 @@ void tfp_format(void* putp,void (*putf) (void*,char), const char *fmt, va_list v
 #define printf tfp_printf 
 #define sprintf tfp_sprintf 
 
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION
 
 #ifdef __cplusplus
 }

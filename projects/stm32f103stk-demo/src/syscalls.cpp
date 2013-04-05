@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 
 #include "kernel.hpp"
 #include "printf.h"
@@ -102,4 +102,4 @@ int _getpid(int n)
 }
 #endif
 
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION

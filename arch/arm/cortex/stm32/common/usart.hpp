@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #ifndef STM32_COMMON_USART_HPP_INCLUDED
 #define STM32_COMMON_USART_HPP_INCLUDED
 
-#include <arch/core.hpp>
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
 #include <arch/rcc.hpp>

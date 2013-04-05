@@ -1,7 +1,7 @@
 /*
- * CppCore - C++ microprocessor core library
+ * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2012 Axel Burri <axel@tty0.ch>
+ * Copyright 2013 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ void Kernel::reset_isr(void) {
   Kernel::run();
 }
 
-#ifndef CORE_SIMULATION
+#ifndef OPENMPTL_SIMULATION
 
 #include <arch/vector_table.hpp>
 
@@ -42,18 +42,18 @@ extern const uint32_t _stack_top;  /* provided by linker script */
 VectorTable<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
 
 
-#else // CORE_SIMULATION
+#else // OPENMPTL_SIMULATION
 
 
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
-  std::cout << "cppcore simulation" << std::endl
-            << "------------------" << std::endl
+  std::cout << "OpenMPTL simulation" << std::endl
+            << "-------------------" << std::endl
             << std::endl;
 
   Kernel::reset_isr();
 }
 
-#endif // CORE_SIMULATION
+#endif // OPENMPTL_SIMULATION
