@@ -21,7 +21,7 @@
 #ifndef JOYSTICK_HPP_INCLUDED
 #define JOYSTICK_HPP_INCLUDED
 
-#include "arch/adc.hpp"
+#include <arch/adc.hpp>
 
 class Joystick
 {

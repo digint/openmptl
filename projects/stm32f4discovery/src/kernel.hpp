@@ -29,6 +29,7 @@
 #include <arch/gpio.hpp>
 #include <arch/usart.hpp>
 #include <arch/uart_transport.hpp>
+#include <peripheral_device.hpp>
 #include <resource.hpp>
 #include <compiler.h>
 
@@ -44,9 +45,11 @@ struct Kernel
   using usart_gpio_tx = UsartGpioTx< usart, 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< usart, 'A', 3 >;
 
+  struct usart_tty0_config : UsartDefaultConfig {
+    static constexpr unsigned baud_rate = 115200;
+  };
+  using tty0_device        = PeripheralDevice< usart, usart_tty0_config >;
   using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512> >;
-
-  using tty0_device = UartDevice< usart >;
 
   using led_green  = GpioLed< 'D', 12 >;
   using led_orange = GpioLed< 'D', 13 >;

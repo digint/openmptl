@@ -21,7 +21,6 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
-#include <resource.hpp>
 #include <lcd/nokia3310/lcd.hpp>
 #include <rf/nrf24l01/nrf24l01.hpp>
 #include <joystick/stm32f103stk/joystick.hpp>
@@ -31,6 +30,8 @@
 #include <arch/uart_transport.hpp>
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
+#include <peripheral_device.hpp>
+#include <resource.hpp>
 #include <compiler.h>
 #include "time.hpp"
 
@@ -41,17 +42,19 @@ struct Kernel
 
   using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
 
-  using usart        = Usart<2, rcc>;
+  using usart         = Usart<2, rcc>;
   using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
   using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
 
-  struct tty0_uart_config : UartDeviceDefaultConfig
+  struct usart_tty0_config : UsartDefaultConfig
   {
     static constexpr unsigned baud_rate = 115200;
-    /* Note: If you want to have a dynamic baud_rate, declare:  */
-    /*       static unsigned baud_rate;                         */
+
+    /* Note: UartDevice is derived from this class. This means you can  */
+    /*       easily declare a dynamic baud_rate like this:              */
+    // unsigned baud_rate;
   };
-  using tty0_device = UartDevice< usart, tty0_uart_config >;
+  using tty0_device        = PeripheralDevice< usart, usart_tty0_config >;
   using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
 
   using spi       = Spi< rcc, 1 >;

@@ -74,18 +74,18 @@ protected:
   using SPIx = reg::SPI<_spi_no>;
   using rcc = rcc_type;
 
-  static constexpr unsigned freq = (_spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+  static constexpr unsigned clk_freq = (_spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
 
   static constexpr typename SPIx::CR1::value_type baud_rate_prescaler_cr1_set_mask(freq_t max_frequency)
   {
-    return ( max_frequency == 0          ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
-             max_frequency >= freq / 2   ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
-             max_frequency >= freq / 4   ? reg::RegisterConst< typename SPIx::CR1::BR, 1 >::value :
-             max_frequency >= freq / 8   ? reg::RegisterConst< typename SPIx::CR1::BR, 2 >::value :
-             max_frequency >= freq / 16  ? reg::RegisterConst< typename SPIx::CR1::BR, 3 >::value :
-             max_frequency >= freq / 32  ? reg::RegisterConst< typename SPIx::CR1::BR, 4 >::value :
-             max_frequency >= freq / 64  ? reg::RegisterConst< typename SPIx::CR1::BR, 5 >::value :
-             max_frequency >= freq / 128 ? reg::RegisterConst< typename SPIx::CR1::BR, 6 >::value :
+    return ( max_frequency == 0              ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
+             max_frequency >= clk_freq / 2   ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
+             max_frequency >= clk_freq / 4   ? reg::RegisterConst< typename SPIx::CR1::BR, 1 >::value :
+             max_frequency >= clk_freq / 8   ? reg::RegisterConst< typename SPIx::CR1::BR, 2 >::value :
+             max_frequency >= clk_freq / 16  ? reg::RegisterConst< typename SPIx::CR1::BR, 3 >::value :
+             max_frequency >= clk_freq / 32  ? reg::RegisterConst< typename SPIx::CR1::BR, 4 >::value :
+             max_frequency >= clk_freq / 64  ? reg::RegisterConst< typename SPIx::CR1::BR, 5 >::value :
+             max_frequency >= clk_freq / 128 ? reg::RegisterConst< typename SPIx::CR1::BR, 6 >::value :
              reg::RegisterConst< typename SPIx::CR1::BR, 7 >::value );
   }
 
@@ -217,34 +217,6 @@ public:
     SPIx::CR1::store(cr1);
   }
 #endif
-};
-
-
-template<typename spi_type, typename cfg >
-class SpiDevice : public spi_type, public cfg
-{
-public:
-
-  using resources = typename spi_type::resources;
-
-  /**
-   * Configure SPI.
-   * NOTE: make sure no communication is ongoing when calling this function.
-   */
-  void configure(void) {
-    spi_type::configure(*this);
-  }
-
-  /**
-   * Reconfigure and enable SPI.
-   * NOTE: make sure no communication is ongoing when calling this function.
-   */
-  void reconfigure(void) {
-    spi_type::disable();
-    configure();
-    spi_type::enable();
-  }
-
 };
 
 #endif // STM32_COMMON_SPI_HPP_INCLUDED

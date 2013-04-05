@@ -64,12 +64,6 @@ public:
     stream_device_type::open();
   }
 
-  template<typename device_type>  // TODO: more specific, only allow devices supported by stream_device class
-  static void open() {
-    device_type::configure();
-    stream_device_type::open();
-  }
-
   void process_input(void)
   {
     bool flush_tx = false;

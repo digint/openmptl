@@ -21,9 +21,10 @@
 #ifndef LCD_HPP_INCLUDED
 #define LCD_HPP_INCLUDED
 
-#include "arch/gpio.hpp"
-#include "arch/spi.hpp"
+#include <arch/gpio.hpp>
+#include <arch/spi.hpp>
 #include <arch/core.hpp>
+#include <peripheral_device.hpp>
 
 /* NOTE: font_width is the font INCLUDING character separator (e.g. use 6 for 8x5 font) */
 template<unsigned font_width>
@@ -148,7 +149,8 @@ template<typename spi_type,
          >
 class Lcd_Nokia3310 : public Lcd< 84, 48 >
 {
-  struct DeviceConfig {
+  struct spi_device_config
+  {
     static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::master;
 
     static constexpr freq_t                     max_frequency    = 4_mhz;
@@ -160,7 +162,7 @@ class Lcd_Nokia3310 : public Lcd< 84, 48 >
     static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
   };
 
-  using spi_device = SpiDevice< spi_type, DeviceConfig >;
+  using spi_device = PeripheralDevice< spi_type, spi_device_config >;
 
   static void enable_slave_select(void) {
     lcd_e::enable();

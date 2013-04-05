@@ -21,8 +21,9 @@
 #ifndef NRF24L01_HPP_INCLUDED
 #define NRF24L01_HPP_INCLUDED
 
-#include "arch/gpio.hpp"
-#include "arch/spi.hpp"
+#include <arch/gpio.hpp>
+#include <arch/spi.hpp>
+#include <peripheral_device.hpp>
 
 enum class NrfCommand : uint8_t {
   r_rx_payload = 0x61,
@@ -81,9 +82,8 @@ template<typename spi_type,
          >
 class Nrf24l01
 {
-  using spi = spi_type;
-
-  struct DeviceConfig {
+  struct spi_device_config
+  {
     static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::master;
 
     static constexpr freq_t                     max_frequency    = 8_mhz;
@@ -95,7 +95,7 @@ class Nrf24l01
     static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
   };
 
-  using spi_device = SpiDevice< spi_type, DeviceConfig >;
+  using spi_device = PeripheralDevice< spi_type, spi_device_config >;
 
   /* Tcwh: CSN Inactive time: min. 50ns */
   /* Time between calls of disable() -> enable() */
