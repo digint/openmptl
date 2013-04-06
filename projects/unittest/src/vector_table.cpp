@@ -45,7 +45,7 @@ int main()
   resource_list::check();
   resource_list::configure();
 
-  isr_t *vt = vector_table.vector_table_p;
+  isr_t *vt = vector_table.vector_table;
 
   assert((unsigned long)vt[0] == (unsigned long)&stack_top);
   assert((unsigned long)vt[vector_table.irq_channel_offset + 41] == (unsigned long)default_isr);

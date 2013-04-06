@@ -21,9 +21,11 @@
 #ifndef ARCH_REG_ADDRESS_MAP_HPP_INCLUDED
 #define ARCH_REG_ADDRESS_MAP_HPP_INCLUDED
 
+#include <cstdint>
+
 namespace reg
 {
-  template<reg_addr_t addr>
+  template<uintptr_t addr>
   struct AddressMap {
     static constexpr const char * name_str = nullptr;
   };
