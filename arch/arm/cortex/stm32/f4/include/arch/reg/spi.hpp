@@ -32,7 +32,7 @@ namespace reg
     static_assert(spi_no == !spi_no, "unsupported SPI number");  // assertion needs to be dependent of template parameter
   };
 
-  // TODO: available SPI depends on cpu sub-arch
+  /* NOTE: available SPI depends on cpu sub-arch */
   template<> class SPI<1> : public SPI_Common_Ext< 0x40013000 > { };
   template<> class SPI<2> : public SPI_Common_Ext< 0x40003800 > { };
   template<> class SPI<3> : public SPI_Common_Ext< 0x40003C00 > { };

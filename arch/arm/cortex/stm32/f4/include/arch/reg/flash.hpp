@@ -31,7 +31,6 @@ namespace reg
   struct FLASH
   {
     static constexpr reg_addr_t base_addr = 0x40023C00;
-    static constexpr const char * name_str = "FLASH";
 
     /**
      * Flash access control register
@@ -39,36 +38,23 @@ namespace reg
     struct ACR
     : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "ACR";
-
-      typedef RegisterBits< reg_type, 12,  1 > DCRST;     /**< Data cache reset          */
-      typedef RegisterBits< reg_type, 11,  1 > ICRST;     /**< Instruction cache reset   */
-      typedef RegisterBits< reg_type, 10,  1 > DCEN;      /**< Data cache enable         */
-      typedef RegisterBits< reg_type,  9,  1 > ICEN;      /**< Instruction cache enable  */
-      typedef RegisterBits< reg_type,  8,  1 > PRFTEN;    /**< Prefetch enable           */
-      typedef RegisterBits< reg_type,  0,  3 > LATENCY;   /**< Latency                   */
+      using DCRST    = RegisterBits< type, 12,  1 >;  /**< Data cache reset          */
+      using ICRST    = RegisterBits< type, 11,  1 >;  /**< Instruction cache reset   */
+      using DCEN     = RegisterBits< type, 10,  1 >;  /**< Data cache enable         */
+      using ICEN     = RegisterBits< type,  9,  1 >;  /**< Instruction cache enable  */
+      using PRFTEN   = RegisterBits< type,  8,  1 >;  /**< Prefetch enable           */
+      using LATENCY  = RegisterBits< type,  0,  3 >;  /**< Latency                   */
     };
 
     /**
      * Flash key register
      */
-    struct KEYR
-    : public Register< uint32_t, base_addr + 0x04, Access::wo, 0x00000000 >
-    {
-      typedef Register< uint32_t, base_addr + 0x04, Access::wo, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "KEYR";
-    };
+    using KEYR     = Register< uint32_t, base_addr + 0x04, Access::wo, 0x00000000 >;
 
     /**
      * Flash option key register
      */
-    struct OPTKEYR
-    : public Register< uint32_t, base_addr + 0x08, Access::wo, 0x00000000 >
-    {
-      typedef Register< uint32_t, base_addr + 0x08, Access::wo, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "OPTKEYR";
-    };
+    using OPTKEYR  = Register< uint32_t, base_addr + 0x08, Access::wo, 0x00000000 >;
 
     /**
      * Status register
@@ -76,16 +62,13 @@ namespace reg
     struct SR
     : public Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "SR";
-
-      typedef RegisterBits< reg_type, 16,  1 > BSY;      /**< Busy                           */
-      typedef RegisterBits< reg_type,  7,  1 > PGSERR;   /**< Programming sequence error     */
-      typedef RegisterBits< reg_type,  6,  1 > PGPERR;   /**< Programming parallelism error  */
-      typedef RegisterBits< reg_type,  5,  1 > PGAERR;   /**< Programming alignment error    */
-      typedef RegisterBits< reg_type,  4,  1 > WRPERR;   /**< Write protection error         */
-      typedef RegisterBits< reg_type,  1,  1 > OPERR;    /**< Operation error                */
-      typedef RegisterBits< reg_type,  0,  1 > EOP;      /**< End of operation               */
+      using BSY     = RegisterBits< type, 16,  1 >;  /**< Busy                           */
+      using PGSERR  = RegisterBits< type,  7,  1 >;  /**< Programming sequence error     */
+      using PGPERR  = RegisterBits< type,  6,  1 >;  /**< Programming parallelism error  */
+      using PGAERR  = RegisterBits< type,  5,  1 >;  /**< Programming alignment error    */
+      using WRPERR  = RegisterBits< type,  4,  1 >;  /**< Write protection error         */
+      using OPERR   = RegisterBits< type,  1,  1 >;  /**< Operation error                */
+      using EOP     = RegisterBits< type,  0,  1 >;  /**< End of operation               */
     };
 
     /**
@@ -94,18 +77,15 @@ namespace reg
     struct CR
     : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x80000000 >
     {
-      typedef Register< uint32_t, base_addr + 0x10, Access::rw, 0x80000000 > reg_type;
-      static constexpr const char * name_str = "CR";
-
-      typedef RegisterBits< reg_type, 31,  1 > LOCK;    /**< Lock                               */
-      typedef RegisterBits< reg_type, 25,  1 > ERRIE;   /**< Error interrupt enable             */
-      typedef RegisterBits< reg_type, 24,  1 > EOPIE;   /**< End of operation interrupt enable  */
-      typedef RegisterBits< reg_type, 16,  1 > STRT;    /**< Start                              */
-      typedef RegisterBits< reg_type,  8,  2 > PSIZE;   /**< Program size                       */
-      typedef RegisterBits< reg_type,  3,  4 > SNB;     /**< Sector number                      */
-      typedef RegisterBits< reg_type,  2,  1 > MER;     /**< Mass erase                         */
-      typedef RegisterBits< reg_type,  1,  1 > SER;     /**< Sector erase                       */
-      typedef RegisterBits< reg_type,  0,  1 > PG;      /**< Programming                        */
+      using LOCK   = RegisterBits< type, 31,  1 >;  /**< Lock                               */
+      using ERRIE  = RegisterBits< type, 25,  1 >;  /**< Error interrupt enable             */
+      using EOPIE  = RegisterBits< type, 24,  1 >;  /**< End of operation interrupt enable  */
+      using STRT   = RegisterBits< type, 16,  1 >;  /**< Start                              */
+      using PSIZE  = RegisterBits< type,  8,  2 >;  /**< Program size                       */
+      using SNB    = RegisterBits< type,  3,  4 >;  /**< Sector number                      */
+      using MER    = RegisterBits< type,  2,  1 >;  /**< Mass erase                         */
+      using SER    = RegisterBits< type,  1,  1 >;  /**< Sector erase                       */
+      using PG     = RegisterBits< type,  0,  1 >;  /**< Programming                        */
     };
 
     /**
@@ -114,25 +94,22 @@ namespace reg
     struct OPTCR
     : public Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000014 >
     {
-      typedef Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000014 > reg_type;
-      static constexpr const char * name_str = "OPTCR";
-
       /** User option bytes  */
       template<typename Rb>
       struct __USER
       : public Rb
       {
-        typedef RegisterConst< Rb, 0x1 > WDG_SW;
-        typedef RegisterConst< Rb, 0x2 > NRST_STOP;
-        typedef RegisterConst< Rb, 0x4 > NRST_STDBY;
+        using WDG_SW      = RegisterConst< Rb, 0x1 >;
+        using NRST_STOP   = RegisterConst< Rb, 0x2 >; 
+        using NRST_STDBY  = RegisterConst< Rb, 0x4 >;
       };
 
-      typedef          RegisterBits< reg_type, 16, 12 >   NWRP;     /**< Not write protect  */
-      typedef          RegisterBits< reg_type,  8,  8 >   RDP;      /**< Read protect       */
-      typedef __USER < RegisterBits< reg_type,  5,  3 > > USER;     /**< User option bytes  */
-      typedef          RegisterBits< reg_type,  2,  2 >   BOR_LEV;  /**< BOR reset Level    */
-      typedef          RegisterBits< reg_type,  1,  1 >   OPTSTRT;  /**< Option start       */
-      typedef          RegisterBits< reg_type,  0,  1 >   OPTLOCK;  /**< Option lock        */
+      using NWRP     =          RegisterBits< type, 16, 12 >;    /**< Not write protect  */
+      using RDP      =          RegisterBits< type,  8,  8 >;    /**< Read protect       */
+      using USER     = __USER < RegisterBits< type,  5,  3 > >;  /**< User option bytes  */
+      using BOR_LEV  =          RegisterBits< type,  2,  2 >;    /**< BOR reset Level    */
+      using OPTSTRT  =          RegisterBits< type,  1,  1 >;    /**< Option start       */
+      using OPTLOCK  =          RegisterBits< type,  0,  1 >;    /**< Option lock        */
     };
   };
 }

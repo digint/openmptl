@@ -33,38 +33,38 @@ namespace reg
    */
   struct DWT
   {
-    typedef Register<uint32_t, 0xE0001000, Access::rw> CTRL;        /**< Control Register  */
-    typedef Register<uint32_t, 0xE0001004, Access::rw> CYCCNT;      /**< Cycle Count Register  */
-    typedef Register<uint32_t, 0xE0001008, Access::rw> CPICNT;      /**< CPI Count Register  */
-    typedef Register<uint32_t, 0xE000100C, Access::rw> EXCCNT;      /**< Exception Overhead Count Register  */
-    typedef Register<uint32_t, 0xE0001010, Access::rw> SLEEPCNT;    /**< Sleep Count Register  */
-    typedef Register<uint32_t, 0xE0001014, Access::rw> LSUCNT;      /**< LSU Count Register  */
-    typedef Register<uint32_t, 0xE0001018, Access::rw> FOLDCNT;     /**< Folded-instruction Count Register  */
-    typedef Register<uint32_t, 0xE000101C, Access::ro> PCSR;        /**< Program Counter Sample Register  */
-    typedef Register<uint32_t, 0xE0001020, Access::rw> COMP0;       /**< Comparator Register0  */
-    typedef Register<uint32_t, 0xE0001024, Access::rw> MASK0;       /**< Mask Register0  */
-    typedef Register<uint32_t, 0xE0001028, Access::rw> FUNCTION0;   /**< Function Register0  */
-    typedef Register<uint32_t, 0xE0001030, Access::rw> COMP1;       /**< Comparator Register1  */
-    typedef Register<uint32_t, 0xE0001034, Access::rw> MASK1;       /**< Mask Register1  */
-    typedef Register<uint32_t, 0xE0001038, Access::rw> FUNCTION1;   /**< Function Register1  */
-    typedef Register<uint32_t, 0xE0001040, Access::rw> COMP2;       /**< Comparator Register2  */
-    typedef Register<uint32_t, 0xE0001044, Access::rw> MASK2;       /**< Mask Register2  */
-    typedef Register<uint32_t, 0xE0001048, Access::rw> FUNCTION2;   /**< Function Register2  */
-    typedef Register<uint32_t, 0xE0001050, Access::rw> COMP3;       /**< Comparator Register3  */
-    typedef Register<uint32_t, 0xE0001054, Access::rw> MASK3;       /**< Mask Register3  */
-    typedef Register<uint32_t, 0xE0001058, Access::rw> FUNCTION3;   /**< Function Register3  */
-    typedef Register<uint32_t, 0xE0001FD0, Access::ro, 0x04 > PID4; /**< Peripheral identification registers  */
-    typedef Register<uint32_t, 0xE0001FD4, Access::ro, 0x00 > PID5;
-    typedef Register<uint32_t, 0xE0001FD8, Access::ro, 0x00 > PID6;
-    typedef Register<uint32_t, 0xE0001FDC, Access::ro, 0x00 > PID7;
-    typedef Register<uint32_t, 0xE0001FE0, Access::ro, 0x02 > PID0;
-    typedef Register<uint32_t, 0xE0001FE4, Access::ro, 0xB0 > PID1;
-    typedef Register<uint32_t, 0xE0001FE8, Access::ro, 0x3B > PID2;
-    typedef Register<uint32_t, 0xE0001FEC, Access::ro, 0x00 > PID3;
-    typedef Register<uint32_t, 0xE0001FF0, Access::ro, 0x0D > CID0; /**< Component identification registers  */
-    typedef Register<uint32_t, 0xE0001FF4, Access::ro, 0xE0 > CID1;
-    typedef Register<uint32_t, 0xE0001FF8, Access::ro, 0x05 > CID2;
-    typedef Register<uint32_t, 0xE0001FFC, Access::ro, 0xB1 > CID3;
+    using CTRL       = Register<uint32_t, 0xE0001000, Access::rw>;        /**< Control Register  */
+    using CYCCNT     = Register<uint32_t, 0xE0001004, Access::rw>;        /**< Cycle Count Register  */
+    using CPICNT     = Register<uint32_t, 0xE0001008, Access::rw>;        /**< CPI Count Register  */
+    using EXCCNT     = Register<uint32_t, 0xE000100C, Access::rw>;        /**< Exception Overhead Count Register  */
+    using SLEEPCNT   = Register<uint32_t, 0xE0001010, Access::rw>;        /**< Sleep Count Register  */
+    using LSUCNT     = Register<uint32_t, 0xE0001014, Access::rw>;        /**< LSU Count Register  */
+    using FOLDCNT    = Register<uint32_t, 0xE0001018, Access::rw>;        /**< Folded-instruction Count Register  */
+    using PCSR       = Register<uint32_t, 0xE000101C, Access::ro>;        /**< Program Counter Sample Register  */
+    using COMP0      = Register<uint32_t, 0xE0001020, Access::rw>;        /**< Comparator Register0  */
+    using MASK0      = Register<uint32_t, 0xE0001024, Access::rw>;        /**< Mask Register0  */
+    using FUNCTION0  = Register<uint32_t, 0xE0001028, Access::rw>;        /**< Function Register0  */
+    using COMP1      = Register<uint32_t, 0xE0001030, Access::rw>;        /**< Comparator Register1  */
+    using MASK1      = Register<uint32_t, 0xE0001034, Access::rw>;        /**< Mask Register1  */
+    using FUNCTION1  = Register<uint32_t, 0xE0001038, Access::rw>;        /**< Function Register1  */
+    using COMP2      = Register<uint32_t, 0xE0001040, Access::rw>;        /**< Comparator Register2  */
+    using MASK2      = Register<uint32_t, 0xE0001044, Access::rw>;        /**< Mask Register2  */
+    using FUNCTION2  = Register<uint32_t, 0xE0001048, Access::rw>;        /**< Function Register2  */
+    using COMP3      = Register<uint32_t, 0xE0001050, Access::rw>;        /**< Comparator Register3  */
+    using MASK3      = Register<uint32_t, 0xE0001054, Access::rw>;        /**< Mask Register3  */
+    using FUNCTION3  = Register<uint32_t, 0xE0001058, Access::rw>;        /**< Function Register3  */
+    using PID4       = Register<uint32_t, 0xE0001FD0, Access::ro, 0x04 >; /**< Peripheral identification registers  */
+    using PID5       = Register<uint32_t, 0xE0001FD4, Access::ro, 0x00 >;
+    using PID6       = Register<uint32_t, 0xE0001FD8, Access::ro, 0x00 >;
+    using PID7       = Register<uint32_t, 0xE0001FDC, Access::ro, 0x00 >;
+    using PID0       = Register<uint32_t, 0xE0001FE0, Access::ro, 0x02 >;
+    using PID1       = Register<uint32_t, 0xE0001FE4, Access::ro, 0xB0 >;
+    using PID2       = Register<uint32_t, 0xE0001FE8, Access::ro, 0x3B >;
+    using PID3       = Register<uint32_t, 0xE0001FEC, Access::ro, 0x00 >;
+    using CID0       = Register<uint32_t, 0xE0001FF0, Access::ro, 0x0D >; /**< Component identification registers  */
+    using CID1       = Register<uint32_t, 0xE0001FF4, Access::ro, 0xE0 >;
+    using CID2       = Register<uint32_t, 0xE0001FF8, Access::ro, 0x05 >;
+    using CID3       = Register<uint32_t, 0xE0001FFC, Access::ro, 0xB1 >;
   };
 }
 

@@ -31,254 +31,237 @@ namespace reg
    * For details, see "Cortex-M3 Technical Reference Manual":
    * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
    */
-  class SCB
+  struct SCB
   {
+    /** Auxiliary Control Register, ACTLR  */
+    using ACTLR  = Register< uint32_t, 0xE000E008, Access::rw >;
+
     /**
      * SysTick Control and Status Register
      */
-    template<typename R>
-    struct __STCSR
-    : public R
+    struct STCSR
+    : public Register< uint32_t, 0xE000E010, Access::rw >
     {
-      typedef RegisterBits< R,  0,  1 > ENABLE;        /**< [ 0: 0] Counter enable                                 */
-      typedef RegisterBits< R,  1,  1 > TICKINT;       /**< [ 1: 1] Counting down to 0 pends the SysTick handler   */
-      typedef RegisterBits< R,  2,  1 > CLKSOURCE;     /**< [ 2: 2] Clock source                                   */
-      typedef RegisterBits< R, 16,  1 > COUNTFLAG;     /**< [16:16] Count Flag                                     */
+      using ENABLE     = RegisterBits< type,  0,  1 >;  /**< [ 0: 0] Counter enable                                 */
+      using TICKINT    = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] Counting down to 0 pends the SysTick handler   */
+      using CLKSOURCE  = RegisterBits< type,  2,  1 >;  /**< [ 2: 2] Clock source                                   */
+      using COUNTFLAG  = RegisterBits< type, 16,  1 >;  /**< [16:16] Count Flag                                     */
     };
+
+    /**
+     * SysTick Reload Value Register
+     */
+    using STRVR  = Register< uint32_t, 0xE000E014, Access::rw >;
+
+    /**
+     * SysTick Current Value Register
+     */
+    using STCVR  = Register< uint32_t, 0xE000E018, Access::rw >;
 
     /**
      * SysTick Calilbration Value Register
      */
-    template<typename R>
-    struct __STCR
-    : public R
+    struct STCR
+    : public Register< uint32_t, 0xE000E01C, Access::ro >
     {
-      typedef RegisterBits< R, 30,  1 > SKEW;          /**< [30:30] Calibration value is not exactly 10 ms   */
-      typedef RegisterBits< R, 31,  1 > NOREF;         /**< [31:31] The reference clock is not provided      */
+      using SKEW   = RegisterBits< type, 30,  1 >;  /**< [30:30] Calibration value is not exactly 10 ms   */
+      using NOREF  = RegisterBits< type, 31,  1 >;  /**< [31:31] The reference clock is not provided      */
     };
 
     /**
      * CPUID Base Register, CPUID
      */
-    template<typename R>
-    struct __CPUID
-    : public R
+    struct CPUID
+    : public Register< uint32_t, 0xE000ED00, Access::ro >
     {
-      typedef RegisterBits< R,  0,  4 > REVISION;      /**< [ 3: 0] Implementation defined revision number   */
-      typedef RegisterBits< R,  4, 12 > PARTNO;        /**< [15: 4] Number of processor within family        */
-      typedef RegisterBits< R, 16,  4 > Constant;      /**< [19:16] Reads as 0x0F                            */
-      typedef RegisterBits< R, 20,  4 > VARIANT;       /**< [23:20] Implementation defined variant number    */
-      typedef RegisterBits< R, 24,  8 > IMPLEMENTER;   /**< [31:24] Implementer code. ARM is 0x41            */
+      using REVISION     = RegisterBits< type,  0,  4 >;  /**< [ 3: 0] Implementation defined revision number   */
+      using PARTNO       = RegisterBits< type,  4, 12 >;  /**< [15: 4] Number of processor within family        */
+      using Constant     = RegisterBits< type, 16,  4 >;  /**< [19:16] Reads as 0x0F                            */
+      using VARIANT      = RegisterBits< type, 20,  4 >;  /**< [23:20] Implementation defined variant number    */
+      using IMPLEMENTER  = RegisterBits< type, 24,  8 >;  /**< [31:24] Implementer code. ARM is 0x41            */
     };
 
     /**
      * Interrupt Control and State Register
      */
-    template<typename R>
-    struct __ICSR
-    : public R
+    struct ICSR
+    : public Register< uint32_t, 0xE000ED04, Access::rw >
     {
-      typedef RegisterBits< R,  0,  9 > VECTACTIVE;    /**< [ 8: 0] Active ISR number field                                                          */
-      typedef RegisterBits< R, 11,  1 > RETTOBASE;     /**< [11:11] All active exceptions minus the IPSR_current_exception yields the empty set      */
-      typedef RegisterBits< R, 12, 10 > VECTPENDING;   /**< [21:12] Pending ISR number field                                                         */
-      typedef RegisterBits< R, 22,  1 > ISRPENDING;    /**< [22:22] Interrupt pending flag                                                           */
-      typedef RegisterBits< R, 23,  1 > ISRPREEMPT;    /**< [23:23] It indicates that a pending interrupt becomes active in the next running cycle   */
-      typedef RegisterBits< R, 25,  1 > PENDSTCLR;     /**< [25:25] Clear pending SysTick bit                                                        */
-      typedef RegisterBits< R, 26,  1 > PENDSTSET;     /**< [26:26] Set pending SysTick bit                                                          */
-      typedef RegisterBits< R, 27,  1 > PENDSVCLR;     /**< [27:27] Clear pending pendSV bit                                                         */
-      typedef RegisterBits< R, 28,  1 > PENDSVSET;     /**< [28:28] Set pending pendSV bit                                                           */
-      typedef RegisterBits< R, 31,  1 > NMIPENDSET;    /**< [31:31] Set pending NMI bit                                                              */
+      using VECTACTIVE   = RegisterBits< type,  0,  9 >;  /**< [ 8: 0] Active ISR number field                                                          */
+      using RETTOBASE    = RegisterBits< type, 11,  1 >;  /**< [11:11] All active exceptions minus the IPSR_current_exception yields the empty set      */
+      using VECTPENDING  = RegisterBits< type, 12, 10 >;  /**< [21:12] Pending ISR number field                                                         */
+      using ISRPENDING   = RegisterBits< type, 22,  1 >;  /**< [22:22] Interrupt pending flag                                                           */
+      using ISRPREEMPT   = RegisterBits< type, 23,  1 >;  /**< [23:23] It indicates that a pending interrupt becomes active in the next running cycle   */
+      using PENDSTCLR    = RegisterBits< type, 25,  1 >;  /**< [25:25] Clear pending SysTick bit                                                        */
+      using PENDSTSET    = RegisterBits< type, 26,  1 >;  /**< [26:26] Set pending SysTick bit                                                          */
+      using PENDSVCLR    = RegisterBits< type, 27,  1 >;  /**< [27:27] Clear pending pendSV bit                                                         */
+      using PENDSVSET    = RegisterBits< type, 28,  1 >;  /**< [28:28] Set pending pendSV bit                                                           */
+      using NMIPENDSET   = RegisterBits< type, 31,  1 >;  /**< [31:31] Set pending NMI bit                                                              */
     };
 
     /**
      * Vector Table Offset Register
      */
-    template<typename R>
-    struct __VTOR
-    : public R
+    struct VTOR
+    : public Register< uint32_t, 0xE000ED08, Access::rw >
     {
-      typedef RegisterBits< R,  7, 22 > TBLOFF;        /**< [28: 7] Vector table base offset field    */
-      typedef RegisterBits< R, 29,  1 > TBLBASE;       /**< [29:29] Table base in code(0) or RAM(1)   */
+      using TBLOFF   = RegisterBits< type,  7, 22 >;  /**< [28: 7] Vector table base offset field    */
+      using TBLBASE  = RegisterBits< type, 29,  1 >;  /**< [29:29] Table base in code(0) or RAM(1)   */
     };
 
     /**
      * Application Interrupt and Reset Control Register
      */
-    template<typename R>
-    struct __AIRCR
-    : public R
+    struct AIRCR
+    : public Register< uint32_t, 0xE000ED0C, Access::rw >
     {
-      typedef RegisterBits< R,  0,  1 > VECTRESET;     /**< [ 0: 0] System Reset bit                                         */
-      typedef RegisterBits< R,  1,  1 > VECTCLRACTIVE; /**< [ 1: 1] Clear active vector bit                                  */
-      typedef RegisterBits< R,  2,  1 > SYSRESETREQ;   /**< [ 2: 2] Requests chip control logic to generate a reset          */
-      typedef RegisterBits< R,  8,  3 > PRIGROUP;      /**< [10: 8] Priority group                                           */
-      typedef RegisterBits< R, 15,  1 > ENDIANESS;     /**< [15:15] Data endianness bit                                      */
-      typedef RegisterBits< R, 16, 16 > VECTKEY;       /**< [31:16] Register key (VECTKEY) - Reads as 0xFA05 (VECTKEYSTAT)   */
+      using VECTRESET      = RegisterBits< type,  0,  1 >;  /**< [ 0: 0] System Reset bit                                         */
+      using VECTCLRACTIVE  = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] Clear active vector bit                                  */
+      using SYSRESETREQ    = RegisterBits< type,  2,  1 >;  /**< [ 2: 2] Requests chip control logic to generate a reset          */
+      using PRIGROUP       = RegisterBits< type,  8,  3 >;  /**< [10: 8] Priority group                                           */
+      using ENDIANESS      = RegisterBits< type, 15,  1 >;  /**< [15:15] Data endianness bit                                      */
+      using VECTKEY        = RegisterBits< type, 16, 16 >;  /**< [31:16] Register key (VECTKEY) - Reads as 0xFA05 (VECTKEYSTAT)   */
     };
 
     /**
      * System Control Register
      */
-    template<typename R>
-    struct __SCR
-    : public R
+    struct SCR
+    : public Register< uint32_t, 0xE000ED10, Access::rw >
     {
-      typedef RegisterBits< R,  1,  1 > SLEEPONEXIT;   /**< [ 1: 1] Sleep on exit bit   */
-      typedef RegisterBits< R,  2,  1 > SLEEPDEEP;     /**< [ 2: 2] Sleep deep bit      */
-      typedef RegisterBits< R,  4,  1 > SEVONPEND;     /**< [ 4: 4] Wake up from WFE    */
+      using SLEEPONEXIT  = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] Sleep on exit bit   */
+      using SLEEPDEEP    = RegisterBits< type,  2,  1 >;  /**< [ 2: 2] Sleep deep bit      */
+      using SEVONPEND    = RegisterBits< type,  4,  1 >;  /**< [ 4: 4] Wake up from WFE    */
     };
 
     /**
      * Configuration and Control Register
      */
-    template<typename R>
-    struct __CCR
-    : public R
+    struct CCR
+    : public Register< uint32_t, 0xE000ED14, Access::rw, 0x00000200 >
     {
-      typedef RegisterBits< R,  0,  1 > NONBASETHRDENA; /**< [ 0: 0] Thread mode can be entered from any level in Handler mode by controlled return value                    */
-      typedef RegisterBits< R,  1,  1 > USERSETMPEND;   /**< [ 1: 1] Enables user code to write the Software Trigger Interrupt register to trigger (pend) a Main exception   */
-      typedef RegisterBits< R,  3,  1 > UNALIGN_TRP;    /**< [ 3: 3] Trap for unaligned access                                                                               */
-      typedef RegisterBits< R,  4,  1 > DIV_0_TRP;      /**< [ 4: 4] Trap on Divide by 0                                                                                     */
-      typedef RegisterBits< R,  8,  1 > BFHFNMIGN;      /**< [ 8: 8] Handlers running at priority -1 and -2                                                                  */
-      typedef RegisterBits< R,  9,  1 > STKALIGN;       /**< [ 9: 9] On exception entry, the SP used prior to the exception is adjusted to be 8-byte aligned                 */
+      using NONBASETHRDENA  = RegisterBits< type,  0,  1 >;  /**< [ 0: 0] Thread mode can be entered from any level in Handler mode by controlled return value                    */
+      using USERSETMPEND    = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] Enables user code to write the Software Trigger Interrupt register to trigger (pend) a Main exception   */
+      using UNALIGN_TRP     = RegisterBits< type,  3,  1 >;  /**< [ 3: 3] Trap for unaligned access                                                                               */
+      using DIV_0_TRP       = RegisterBits< type,  4,  1 >;  /**< [ 4: 4] Trap on Divide by 0                                                                                     */
+      using BFHFNMIGN       = RegisterBits< type,  8,  1 >;  /**< [ 8: 8] Handlers running at priority -1 and -2                                                                  */
+      using STKALIGN        = RegisterBits< type,  9,  1 >;  /**< [ 9: 9] On exception entry, the SP used prior to the exception is adjusted to be 8-byte aligned                 */
     };
 
     /**
      * System Handler Priority Register
      */
-    template<typename R>
-    struct __SHPR
-    : public R
+    template<unsigned reg_index>
+    struct SHPR
+    : public Register< uint32_t, 0xE000ED18 + 4 * reg_index, Access::rw >
     {
+      static_assert(reg_index < 3, "invalid index for register");
+
+      using type = Register< uint32_t, 0xE000ED18 + 4 * reg_index, Access::rw >;
+
       // TODO: magic template for PRI_xx
-      typedef RegisterBits< R,  0,  8 > PRI_N;         /**< [ 7: 0] Priority of system handler 4,8, and 12. Mem Manage, reserved and Debug Monitor   */
-      typedef RegisterBits< R,  8,  8 > PRI_N1;        /**< [15: 8] Priority of system handler 5,9, and 13. Bus Fault, reserved and reserved         */
-      typedef RegisterBits< R, 16,  8 > PRI_N2;        /**< [23:16] Priority of system handler 6,10, and 14. Usage Fault, reserved and PendSV        */
-      typedef RegisterBits< R, 24,  8 > PRI_N3;        /**< [31:24] Priority of system handler 7,11, and 15. Reserved, SVCall and SysTick            */
+      using PRI_N   = RegisterBits< type,  0,  8 >;  /**< [ 7: 0] Priority of system handler 4,8, and 12. Mem Manage, reserved and Debug Monitor   */
+      using PRI_N1  = RegisterBits< type,  8,  8 >;  /**< [15: 8] Priority of system handler 5,9, and 13. Bus Fault, reserved and reserved         */
+      using PRI_N2  = RegisterBits< type, 16,  8 >;  /**< [23:16] Priority of system handler 6,10, and 14. Usage Fault, reserved and PendSV        */
+      using PRI_N3  = RegisterBits< type, 24,  8 >;  /**< [31:24] Priority of system handler 7,11, and 15. Reserved, SVCall and SysTick            */
     };
 
     /**
      * System Handler Control and State Register
      */
-    template<typename R>
-    struct __SHCSR
-    : public R
+    struct SHCSR
+    : public Register< uint32_t, 0xE000ED24, Access::rw >
     {
-      typedef RegisterBits< R,  0,  1 > MEMFAULTACT;    /**< [ 0: 0] MemManage is active     */
-      typedef RegisterBits< R,  1,  1 > BUSFAULTACT;    /**< [ 1: 1] BusFault is active      */
-      typedef RegisterBits< R,  3,  1 > USGFAULTACT;    /**< [ 3: 3] UsageFault is active    */
-      typedef RegisterBits< R,  7,  1 > SVCALLACT;      /**< [ 7: 7] SVCall is active        */
-      typedef RegisterBits< R,  8,  1 > MONITORACT;     /**< [ 8: 8] Monitor is active       */
-      typedef RegisterBits< R, 10,  1 > PENDSVACT;      /**< [10:10] PendSV is active        */
-      typedef RegisterBits< R, 11,  1 > SYSTICKACT;     /**< [11:11] SysTick is active       */
-      typedef RegisterBits< R, 12,  1 > USGFAULTPENDED; /**< [12:12] Usage Fault is pended   */
-      typedef RegisterBits< R, 13,  1 > MEMFAULTPENDED; /**< [13:13] MemManage is pended     */
-      typedef RegisterBits< R, 14,  1 > BUSFAULTPENDED; /**< [14:14] Bus Fault is pended     */
-      typedef RegisterBits< R, 15,  1 > SVCALLPENDED;   /**< [15:15] SVCall is pended        */
-      typedef RegisterBits< R, 16,  1 > MEMFAULTENA;    /**< [16:16] MemManage enable        */
-      typedef RegisterBits< R, 17,  1 > BUSFAULTENA;    /**< [17:17] Bus Fault enable        */
-      typedef RegisterBits< R, 18,  1 > USGFAULTENA;    /**< [18:18] UsageFault enable       */
+      using MEMFAULTACT     = RegisterBits< type,  0,  1 >;  /**< [ 0: 0] MemManage is active     */
+      using BUSFAULTACT     = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] BusFault is active      */
+      using USGFAULTACT     = RegisterBits< type,  3,  1 >;  /**< [ 3: 3] UsageFault is active    */
+      using SVCALLACT       = RegisterBits< type,  7,  1 >;  /**< [ 7: 7] SVCall is active        */
+      using MONITORACT      = RegisterBits< type,  8,  1 >;  /**< [ 8: 8] Monitor is active       */
+      using PENDSVACT       = RegisterBits< type, 10,  1 >;  /**< [10:10] PendSV is active        */
+      using SYSTICKACT      = RegisterBits< type, 11,  1 >;  /**< [11:11] SysTick is active       */
+      using USGFAULTPENDED  = RegisterBits< type, 12,  1 >;  /**< [12:12] Usage Fault is pended   */
+      using MEMFAULTPENDED  = RegisterBits< type, 13,  1 >;  /**< [13:13] MemManage is pended     */
+      using BUSFAULTPENDED  = RegisterBits< type, 14,  1 >;  /**< [14:14] Bus Fault is pended     */
+      using SVCALLPENDED    = RegisterBits< type, 15,  1 >;  /**< [15:15] SVCall is pended        */
+      using MEMFAULTENA     = RegisterBits< type, 16,  1 >;  /**< [16:16] MemManage enable        */
+      using BUSFAULTENA     = RegisterBits< type, 17,  1 >;  /**< [17:17] Bus Fault enable        */
+      using USGFAULTENA     = RegisterBits< type, 18,  1 >;  /**< [18:18] UsageFault enable       */
     };
 
     /**
      * Configurable Fault Status Registers
      */
-    template<typename R>
-    struct __CFSR
-    : public R
+    struct CFSR
+    : public Register< uint32_t, 0xE000ED28, Access::rw >
     {
       /* MFSR */
       // TODO: byte-accessible registers
-      // RegisterBits< R,  0,  8 > MFSR;
-      // RegisterBits< R,  8, 16 > BFSR;
-      // RegisterBits< R, 16, 16 > UFSR;
-      typedef RegisterBits< R,  0,  1 > IACCVIOL;      /**< [ 0: 0] Instruction access violation   */
-      typedef RegisterBits< R,  1,  1 > DACCVIOL;      /**< [ 1: 1] Data access violation          */
-      typedef RegisterBits< R,  3,  1 > MUNSTKERR;     /**< [ 3: 3] Unstacking error               */
-      typedef RegisterBits< R,  4,  1 > MSTKERR;       /**< [ 4: 4] Stacking error                 */
+      // RegisterBits< type,  0,  8 > MFSR;
+      // RegisterBits< type,  8, 16 > BFSR;
+      // RegisterBits< type, 16, 16 > UFSR;
+      using IACCVIOL     = RegisterBits< type,  0,  1 >;  /**< [ 0: 0] Instruction access violation   */
+      using DACCVIOL     = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] Data access violation          */
+      using MUNSTKERR    = RegisterBits< type,  3,  1 >;  /**< [ 3: 3] Unstacking error               */
+      using MSTKERR      = RegisterBits< type,  4,  1 >;  /**< [ 4: 4] Stacking error                 */
       /* BFSR */
-      typedef RegisterBits< R,  8,  1 > IBUSERR;       /**< [ 8: 8] Instruction bus error flag                      */
-      typedef RegisterBits< R,  9,  1 > PRECISERR;     /**< [ 9: 9] Precise data bus error                          */
-      typedef RegisterBits< R, 10,  1 > IMPRECISERR;   /**< [10:10] Imprecise data bus error                        */
-      typedef RegisterBits< R, 11,  1 > UNSTKERR;      /**< [11:11] Unstacking error                                */
-      typedef RegisterBits< R, 12,  1 > STKERR;        /**< [12:12] Stacking error                                  */
-      typedef RegisterBits< R, 15,  1 > BFARVALID;     /**< [15:15] Bus Fault Address Register address valid flag   */
+      using IBUSERR      = RegisterBits< type,  8,  1 >;  /**< [ 8: 8] Instruction bus error flag                      */
+      using PRECISERR    = RegisterBits< type,  9,  1 >;  /**< [ 9: 9] Precise data bus error                          */
+      using IMPRECISERR  = RegisterBits< type, 10,  1 >;  /**< [10:10] Imprecise data bus error                        */
+      using UNSTKERR     = RegisterBits< type, 11,  1 >;  /**< [11:11] Unstacking error                                */
+      using STKERR       = RegisterBits< type, 12,  1 >;  /**< [12:12] Stacking error                                  */
+      using BFARVALID    = RegisterBits< type, 15,  1 >;  /**< [15:15] Bus Fault Address Register address valid flag   */
       /* UFSR */
-      typedef RegisterBits< R, 16,  1 > UNDEFINSTR;    /**< [16:16] The processor attempt to excecute an undefined instruction                 */
-      typedef RegisterBits< R, 17,  1 > INVSTATE;      /**< [17:17] Invalid combination of EPSR and instruction                                */
-      typedef RegisterBits< R, 18,  1 > INVPC;         /**< [18:18] Attempt to load EXC_RETURN into pc illegally                               */
-      typedef RegisterBits< R, 19,  1 > NOCP;          /**< [19:19] Attempt to use a coprocessor instruction                                   */
-      typedef RegisterBits< R, 24,  1 > UNALIGNED;     /**< [24:24] Fault occurs when there is an attempt to make an unaligned memory access   */
-      typedef RegisterBits< R, 25,  1 > DIVBYZERO;     /**< [25:25] Fault occurs when SDIV or DIV instruction is used with a divisor of 0      */
+      using UNDEFINSTR   = RegisterBits< type, 16,  1 >;  /**< [16:16] The processor attempt to excecute an undefined instruction                 */
+      using INVSTATE     = RegisterBits< type, 17,  1 >;  /**< [17:17] Invalid combination of EPSR and instruction                                */
+      using INVPC        = RegisterBits< type, 18,  1 >;  /**< [18:18] Attempt to load EXC_RETURN into pc illegally                               */
+      using NOCP         = RegisterBits< type, 19,  1 >;  /**< [19:19] Attempt to use a coprocessor instruction                                   */
+      using UNALIGNED    = RegisterBits< type, 24,  1 >;  /**< [24:24] Fault occurs when there is an attempt to make an unaligned memory access   */
+      using DIVBYZERO    = RegisterBits< type, 25,  1 >;  /**< [25:25] Fault occurs when SDIV or DIV instruction is used with a divisor of 0      */
     };
 
     /**
      * HardFault Status Register
      */
-    template<typename R>
-    struct __HFSR
-    : public R
+    struct HFSR
+    : public Register< uint32_t, 0xE000ED2C, Access::rw >
     {
-      typedef RegisterBits< R,  1,  1 > VECTTBL;       /**< [ 1: 1] Fault occures because of vector table read on exception processing                */
-      typedef RegisterBits< R, 30,  1 > FORCED;        /**< [30:30] Hard Fault activated when a configurable Fault was received and cannot activate   */
-      typedef RegisterBits< R, 31,  1 > DEBUGEVT;      /**< [31:31] Fault related to debug                                                            */
+      using VECTTBL   = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] Fault occures because of vector table read on exception processing                */
+      using FORCED    = RegisterBits< type, 30,  1 >;  /**< [30:30] Hard Fault activated when a configurable Fault was received and cannot activate   */
+      using DEBUGEVT  = RegisterBits< type, 31,  1 >;  /**< [31:31] Fault related to debug                                                            */
     };
 
     /**
      * Debug Fault Status Register
      */
-    template<typename R>
-    struct __DFSR
-    : public R
+    struct DFSR
+    : public Register< uint32_t, 0xE000ED30, Access::rw >
     {
-      typedef RegisterBits< R,  0,  1 > HALTED;        /**< [ 0: 0] Halt request flag                      */
-      typedef RegisterBits< R,  1,  1 > BKPT;          /**< [ 1: 1] BKPT flag                              */
-      typedef RegisterBits< R,  2,  1 > DWTTRAP;       /**< [ 2: 2] Data Watchpoint and Trace (DWT) flag   */
-      typedef RegisterBits< R,  3,  1 > VCATCH;        /**< [ 3: 3] Vector catch flag                      */
-      typedef RegisterBits< R,  4,  1 > EXTERNAL;      /**< [ 4: 4] External debug request flag            */
+      using HALTED    = RegisterBits< type,  0,  1 >;  /**< [ 0: 0] Halt request flag                      */
+      using BKPT      = RegisterBits< type,  1,  1 >;  /**< [ 1: 1] BKPT flag                              */
+      using DWTTRAP   = RegisterBits< type,  2,  1 >;  /**< [ 2: 2] Data Watchpoint and Trace (DWT) flag   */
+      using VCATCH    = RegisterBits< type,  3,  1 >;  /**< [ 3: 3] Vector catch flag                      */
+      using EXTERNAL  = RegisterBits< type,  4,  1 >;  /**< [ 4: 4] External debug request flag            */
     };
 
-  public:
 
-    typedef          Register< uint32_t, 0xE000E008, Access::rw >   ACTLR; /**< Auxiliary Control Register, ACTLR   */
-    typedef __STCSR< Register< uint32_t, 0xE000E010, Access::rw > > STCSR;
-    typedef          Register< uint32_t, 0xE000E014, Access::rw >   STRVR; /**< SysTick Reload Value Register        */
-    typedef          Register< uint32_t, 0xE000E018, Access::rw >   STCVR; /**< SysTick Current Value Register   */
-    typedef __STCR < Register< uint32_t, 0xE000E01C, Access::ro > > STCR;
-    typedef __CPUID< Register< uint32_t, 0xE000ED00, Access::ro > > CPUID;
-    typedef __ICSR < Register< uint32_t, 0xE000ED04, Access::rw > > ICSR;
-    typedef __VTOR < Register< uint32_t, 0xE000ED08, Access::rw > > VTOR;
-    typedef __AIRCR< Register< uint32_t, 0xE000ED0C, Access::rw > > AIRCR;
-    typedef __SCR  < Register< uint32_t, 0xE000ED10, Access::rw > > SCR;
-    typedef __CCR  < Register< uint32_t, 0xE000ED14, Access::rw, 0x00000200 > > CCR; // TODO: 16-bit
-
-    template<unsigned reg_index>
-    struct SHPR
-    : __SHPR < Register< uint32_t, 0xE000ED18 + 4 * reg_index, Access::rw > >
-    { static_assert(reg_index < 3, "invalid index for register"); };
-
-    typedef __SHCSR< Register< uint32_t, 0xE000ED24, Access::rw > > SHCSR;
-    typedef __CFSR < Register< uint32_t, 0xE000ED28, Access::rw > > CFSR;
-    typedef __HFSR < Register< uint32_t, 0xE000ED2C, Access::rw > > HFSR;
-    typedef __DFSR < Register< uint32_t, 0xE000ED30, Access::rw > > DFSR;
-    typedef          Register< uint32_t, 0xE000ED34, Access::rw             > MMFAR;    /**< MemManage Fault Address Register[b]     */
-    typedef          Register< uint32_t, 0xE000ED38, Access::rw             > BFAR;     /**< BusFault Address Register[b]            */
-    typedef          Register< uint32_t, 0xE000ED3C, Access::rw             > AFSR;     /**< Auxiliary Fault Status Register, AFSR   */
-    typedef          Register< uint32_t, 0xE000ED40, Access::ro, 0x00000030 > ID_PFR0;  /**< Processor Feature Register 0            */
-    typedef          Register< uint32_t, 0xE000ED44, Access::ro, 0x00000200 > ID_PFR1;  /**< Processor Feature Register 1            */
-    typedef          Register< uint32_t, 0xE000ED48, Access::ro, 0x00100000 > ID_DFR0;  /**< Debug Features Register 0[c]            */
-    typedef          Register< uint32_t, 0xE000ED4C, Access::ro             > ID_AFR0;  /**< Auxiliary Features Register 0           */
-    typedef          Register< uint32_t, 0xE000ED50, Access::ro, 0x00100030 > ID_MMFR0; /**< Memory Model Feature Register 0         */
-    typedef          Register< uint32_t, 0xE000ED54, Access::ro             > ID_MMFR1; /**< Memory Model Feature Register 1         */
-    typedef          Register< uint32_t, 0xE000ED58, Access::ro, 0x01000000 > ID_MMFR2; /**< Memory Model Feature Register 2         */
-    typedef          Register< uint32_t, 0xE000ED5C, Access::ro             > ID_MMFR3; /**< Memory Model Feature Register 3         */
-    typedef          Register< uint32_t, 0xE000ED60, Access::ro, 0x01100110 > ID_ISAR0; /**< Instruction Set Attributes Register 0   */
-    typedef          Register< uint32_t, 0xE000ED64, Access::ro, 0x02111000 > ID_ISAR1; /**< Instruction Set Attributes Register 1   */
-    typedef          Register< uint32_t, 0xE000ED68, Access::ro, 0x21112231 > ID_ISAR2; /**< Instruction Set Attributes Register 2   */
-    typedef          Register< uint32_t, 0xE000ED6C, Access::ro, 0x01111110 > ID_ISAR3; /**< Instruction Set Attributes Register 3   */
-    typedef          Register< uint32_t, 0xE000ED70, Access::ro, 0x01310132 > ID_ISAR4; /**< Instruction Set Attributes Register 4   */
-    typedef          Register< uint32_t, 0xE000ED88, Access::rw             > CPACR;    /**< Coprocessor Access Control Register     */
-    typedef          Register< uint32_t, 0xE000EF00, Access::wo             > STIR;     /**< Software Triggered Interrupt Register   */
+    using MMFAR     = Register< uint32_t, 0xE000ED34, Access::rw             >;  /**< MemManage Fault Address Register[b]     */
+    using BFAR      = Register< uint32_t, 0xE000ED38, Access::rw             >;  /**< BusFault Address Register[b]            */
+    using AFSR      = Register< uint32_t, 0xE000ED3C, Access::rw             >;  /**< Auxiliary Fault Status Register, AFSR   */
+    using ID_PFR0   = Register< uint32_t, 0xE000ED40, Access::ro, 0x00000030 >;  /**< Processor Feature Register 0            */
+    using ID_PFR1   = Register< uint32_t, 0xE000ED44, Access::ro, 0x00000200 >;  /**< Processor Feature Register 1            */
+    using ID_DFR0   = Register< uint32_t, 0xE000ED48, Access::ro, 0x00100000 >;  /**< Debug Features Register 0[c]            */
+    using ID_AFR0   = Register< uint32_t, 0xE000ED4C, Access::ro             >;  /**< Auxiliary Features Register 0           */
+    using ID_MMFR0  = Register< uint32_t, 0xE000ED50, Access::ro, 0x00100030 >;  /**< Memory Model Feature Register 0         */
+    using ID_MMFR1  = Register< uint32_t, 0xE000ED54, Access::ro             >;  /**< Memory Model Feature Register 1         */
+    using ID_MMFR2  = Register< uint32_t, 0xE000ED58, Access::ro, 0x01000000 >;  /**< Memory Model Feature Register 2         */
+    using ID_MMFR3  = Register< uint32_t, 0xE000ED5C, Access::ro             >;  /**< Memory Model Feature Register 3         */
+    using ID_ISAR0  = Register< uint32_t, 0xE000ED60, Access::ro, 0x01100110 >;  /**< Instruction Set Attributes Register 0   */
+    using ID_ISAR1  = Register< uint32_t, 0xE000ED64, Access::ro, 0x02111000 >;  /**< Instruction Set Attributes Register 1   */
+    using ID_ISAR2  = Register< uint32_t, 0xE000ED68, Access::ro, 0x21112231 >;  /**< Instruction Set Attributes Register 2   */
+    using ID_ISAR3  = Register< uint32_t, 0xE000ED6C, Access::ro, 0x01111110 >;  /**< Instruction Set Attributes Register 3   */
+    using ID_ISAR4  = Register< uint32_t, 0xE000ED70, Access::ro, 0x01310132 >;  /**< Instruction Set Attributes Register 4   */
+    using CPACR     = Register< uint32_t, 0xE000ED88, Access::rw             >;  /**< Coprocessor Access Control Register     */
+    using STIR      = Register< uint32_t, 0xE000EF00, Access::wo             >;  /**< Software Triggered Interrupt Register   */
   };
 }
 

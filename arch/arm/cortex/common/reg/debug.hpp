@@ -33,21 +33,19 @@ namespace reg
    */
   struct DEBUG
   {
+    using DFSR   = Register<uint32_t, 0xE000ED30, Access::rw>;  /**< Debug Fault Status Register                   */
+    using DHCSR  = Register<uint32_t, 0xE000EDF0, Access::rw>;  /**< Debug Halting Control and Status Register     */
+    using DCRSR  = Register<uint32_t, 0xE000EDF4, Access::wo>;  /**< Debug Core Register Selector Register         */
+    using DCRDR  = Register<uint32_t, 0xE000EDF8, Access::rw>;  /**< Debug Core Register Data Register             */
+
     /**
      * Debug Exception and Monitor Control Register
      */
-    template<typename R>
-    struct __DEMCR
-    : public R
+    struct DEMCR
+    : public Register<uint32_t, 0xE000EDFC, Access::rw>
     {
-      typedef RegisterBits< R, 24,  1 > TRCENA;   /**< Enable DWT */
+      using TRCENA  = RegisterBits< type, 24,  1 >;   /**< Enable DWT */
     };
-
-    typedef Register<uint32_t, 0xE000ED30, Access::rw> DFSR;   /**< Debug Fault Status Register                   */
-    typedef Register<uint32_t, 0xE000EDF0, Access::rw> DHCSR;  /**< Debug Halting Control and Status Register     */
-    typedef Register<uint32_t, 0xE000EDF4, Access::wo> DCRSR;  /**< Debug Core Register Selector Register         */
-    typedef Register<uint32_t, 0xE000EDF8, Access::rw> DCRDR;  /**< Debug Core Register Data Register             */
-    typedef __DEMCR< Register<uint32_t, 0xE000EDFC, Access::rw> > DEMCR;  /**< Debug Exception and Monitor Control Register  */
   };
 }
 

@@ -33,17 +33,17 @@ namespace reg
    */
   struct MPU
   {
-    typedef   Register< uint32_t, 0xE000ED90, Access::ro, 0x00000800 > TYPE;    /**< MPU Type Register                        */
-    typedef   Register< uint32_t, 0xE000ED94, Access::rw             > CTRL;    /**< MPU Control Register                     */
-    typedef   Register< uint32_t, 0xE000ED98, Access::rw             > RNR;     /**< MPU Region Number Register               */
-    typedef   Register< uint32_t, 0xE000ED9C, Access::rw             > RBAR;    /**< MPU Region Base Address Register         */
-    typedef   Register< uint32_t, 0xE000EDA0, Access::rw             > RASR;    /**< MPU Region Attribute and Size Register   */
-    typedef   Register< uint32_t, 0xE000EDA4, Access::rw             > RBAR_A1; /**< MPU alias registers                      */
-    typedef   Register< uint32_t, 0xE000EDA8, Access::rw             > RASR_A1; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDAC, Access::rw             > RBAR_A2; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB0, Access::rw             > RASR_A2; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB4, Access::rw             > RBAR_A3; /**<                                          */
-    typedef   Register< uint32_t, 0xE000EDB8, Access::rw             > RASR_A3; /**<                                          */
+    using TYPE     = Register< uint32_t, 0xE000ED90, Access::ro, 0x00000800 >;  /**< MPU Type Register                        */
+    using CTRL     = Register< uint32_t, 0xE000ED94, Access::rw             >;  /**< MPU Control Register                     */
+    using RNR      = Register< uint32_t, 0xE000ED98, Access::rw             >;  /**< MPU Region Number Register               */
+    using RBAR     = Register< uint32_t, 0xE000ED9C, Access::rw             >;  /**< MPU Region Base Address Register         */
+    using RASR     = Register< uint32_t, 0xE000EDA0, Access::rw             >;  /**< MPU Region Attribute and Size Register   */
+    using RBAR_A1  = Register< uint32_t, 0xE000EDA4, Access::rw             >;  /**< MPU alias registers                      */
+    using RASR_A1  = Register< uint32_t, 0xE000EDA8, Access::rw             >;  /**<                                          */
+    using RBAR_A2  = Register< uint32_t, 0xE000EDAC, Access::rw             >;  /**<                                          */
+    using RASR_A2  = Register< uint32_t, 0xE000EDB0, Access::rw             >;  /**<                                          */
+    using RBAR_A3  = Register< uint32_t, 0xE000EDB4, Access::rw             >;  /**<                                          */
+    using RASR_A3  = Register< uint32_t, 0xE000EDB8, Access::rw             >;  /**<                                          */
   };
 }
 

@@ -31,7 +31,6 @@ namespace reg
   struct PWR
   {
     static constexpr reg_addr_t base_addr = 0x40007000;
-    static constexpr const char * name_str = "PWR";
 
     /**
      * Power control register
@@ -39,18 +38,15 @@ namespace reg
     struct CR
     : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00004000 >
     {
-      typedef Register< uint32_t, base_addr + 0x0, Access::rw, 0x00004000 > reg_type;
-      static constexpr const char * name_str = "CR";
-
-      typedef RegisterBits< reg_type, 14,  1 > VOS;    /**< Regulator voltage scaling output selection */
-      typedef RegisterBits< reg_type,  9,  1 > FPDS;   /**< Flash power down in Stop mode              */
-      typedef RegisterBits< reg_type,  8,  1 > DBP;    /**< Disable backup domain write protection     */
-      typedef RegisterBits< reg_type,  5,  3 > PLS;    /**< PVD level selection                        */
-      typedef RegisterBits< reg_type,  4,  1 > PVDE;   /**< Power voltage detector enable              */
-      typedef RegisterBits< reg_type,  3,  1 > CSBF;   /**< Clear standby flag                         */
-      typedef RegisterBits< reg_type,  2,  1 > CWUF;   /**< Clear wakeup flag                          */
-      typedef RegisterBits< reg_type,  1,  1 > PDDS;   /**< Power down deepsleep                       */
-      typedef RegisterBits< reg_type,  0,  1 > LPDS;   /**< Low-power deep sleep                       */
+      using VOS   = RegisterBits< type, 14,  1 >;  /**< Regulator voltage scaling output selection */
+      using FPDS  = RegisterBits< type,  9,  1 >;  /**< Flash power down in Stop mode              */
+      using DBP   = RegisterBits< type,  8,  1 >;  /**< Disable backup domain write protection     */
+      using PLS   = RegisterBits< type,  5,  3 >;  /**< PVD level selection                        */
+      using PVDE  = RegisterBits< type,  4,  1 >;  /**< Power voltage detector enable              */
+      using CSBF  = RegisterBits< type,  3,  1 >;  /**< Clear standby flag                         */
+      using CWUF  = RegisterBits< type,  2,  1 >;  /**< Clear wakeup flag                          */
+      using PDDS  = RegisterBits< type,  1,  1 >;  /**< Power down deepsleep                       */
+      using LPDS  = RegisterBits< type,  0,  1 >;  /**< Low-power deep sleep                       */
     };
 
     /**
@@ -59,16 +55,13 @@ namespace reg
     struct CSR
     : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 > reg_type;
-      static constexpr const char * name_str = "CSR";
-
-      typedef RegisterBits< reg_type, 14,  1 > VOSRDY;   /**< Regulator voltage scaling output selection ready bit  */
-      typedef RegisterBits< reg_type,  9,  1 > BRE;      /**< Backup regulator enable                               */
-      typedef RegisterBits< reg_type,  8,  1 > EWUP;     /**< Enable WKUP pin                                       */
-      typedef RegisterBits< reg_type,  3,  1 > BRR;      /**< Backup regulator ready                                */
-      typedef RegisterBits< reg_type,  2,  1 > PVDO;     /**< PVD output                                            */
-      typedef RegisterBits< reg_type,  1,  1 > SBF;      /**< Standby flag                                          */
-      typedef RegisterBits< reg_type,  0,  1 > WUF;      /**< Wakeup flag                                           */
+      using VOSRDY  = RegisterBits< type, 14,  1 >;  /**< Regulator voltage scaling output selection ready bit  */
+      using BRE     = RegisterBits< type,  9,  1 >;  /**< Backup regulator enable                               */
+      using EWUP    = RegisterBits< type,  8,  1 >;  /**< Enable WKUP pin                                       */
+      using BRR     = RegisterBits< type,  3,  1 >;  /**< Backup regulator ready                                */
+      using PVDO    = RegisterBits< type,  2,  1 >;  /**< PVD output                                            */
+      using SBF     = RegisterBits< type,  1,  1 >;  /**< Standby flag                                          */
+      using WUF     = RegisterBits< type,  0,  1 >;  /**< Wakeup flag                                           */
     };
   };
 }

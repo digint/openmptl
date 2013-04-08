@@ -34,15 +34,14 @@ namespace reg
   struct NVIC
   {
     /** Interrupt Controller Type Register */
-    typedef Register< uint32_t, 0xE000E004, Access::ro > ICTR;
+    using ICTR  = Register< uint32_t, 0xE000E004, Access::ro >;
 
     // TODO: The following registers are actually only 8bit wide.
     //       Check if access is better using 32bit or 8bit pointer
 
     /** Interrupt Set-Enable Registers */
     template<unsigned reg_index>
-    struct ISER
-    : Register<uint32_t, 0xE000E100 + 4 * reg_index, Access::rw >
+    struct ISER : Register<uint32_t, 0xE000E100 + 4 * reg_index, Access::rw >
     { static_assert(reg_index < 8, "invalid index for register"); };
 
     /** Interrupt Set-Enable Registers */
