@@ -23,12 +23,12 @@
 
 #include <register.hpp>
 
-namespace reg {
-
+namespace reg
+{
   /**
    * System Control Register
    *
-   * Imported from the Cortex-M3 Technical Reference Manual  (Revision: r2p1)
+   * For details, see "Cortex-M3 Technical Reference Manual":
    * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
    */
   class SCB
