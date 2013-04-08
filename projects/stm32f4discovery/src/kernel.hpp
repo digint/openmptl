@@ -67,7 +67,7 @@ struct Kernel
   static void error_isr(void) { while(1) { Kernel::led_red::on(); } }
 
   static void init(void);
-  static void run(void) __attribute__ ((noreturn));
+  static void __noreturn run(void);
 
   using resources = ResourceList<
     IrqResource< typename irq::Reset       , reset_isr   >,
