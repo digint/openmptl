@@ -30,7 +30,7 @@ namespace reg
    */
   class RCC
   {
-    static constexpr reg_addr_t reg_base = 0x40021000;
+    static constexpr reg_addr_t base_addr = 0x40021000;
     static constexpr const char * name_str = "RCC";
 
     /**
@@ -644,19 +644,19 @@ namespace reg
 
   public:
 
-    typedef __CR      < Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000083 /*TODO: 0x0000xx83*/ > > CR;
-    typedef __CFGR    < Register< uint32_t, reg_base + 0x04, Access::rw > > CFGR;
-    typedef __CIR     < Register< uint32_t, reg_base + 0x08, Access::rw > > CIR;
-    typedef __APB2RSTR< Register< uint32_t, reg_base + 0x0c, Access::rw > > APB2RSTR;
-    typedef __APB1RSTR< Register< uint32_t, reg_base + 0x10, Access::rw > > APB1RSTR;
-    typedef __AHBENR  < Register< uint32_t, reg_base + 0x14, Access::rw > > AHBENR;
-    typedef __APB2ENR < Register< uint32_t, reg_base + 0x18, Access::rw > > APB2ENR;
-    typedef __APB1ENR < Register< uint32_t, reg_base + 0x1c, Access::rw > > APB1ENR;
-    typedef __BDCR    < Register< uint32_t, reg_base + 0x20, Access::rw > > BDCR;
-    typedef __CSR     < Register< uint32_t, reg_base + 0x24, Access::rw, 0x0C000000 > > CSR;
+    typedef __CR      < Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000083 /*TODO: 0x0000xx83*/ > > CR;
+    typedef __CFGR    < Register< uint32_t, base_addr + 0x04, Access::rw > > CFGR;
+    typedef __CIR     < Register< uint32_t, base_addr + 0x08, Access::rw > > CIR;
+    typedef __APB2RSTR< Register< uint32_t, base_addr + 0x0c, Access::rw > > APB2RSTR;
+    typedef __APB1RSTR< Register< uint32_t, base_addr + 0x10, Access::rw > > APB1RSTR;
+    typedef __AHBENR  < Register< uint32_t, base_addr + 0x14, Access::rw > > AHBENR;
+    typedef __APB2ENR < Register< uint32_t, base_addr + 0x18, Access::rw > > APB2ENR;
+    typedef __APB1ENR < Register< uint32_t, base_addr + 0x1c, Access::rw > > APB1ENR;
+    typedef __BDCR    < Register< uint32_t, base_addr + 0x20, Access::rw > > BDCR;
+    typedef __CSR     < Register< uint32_t, base_addr + 0x24, Access::rw, 0x0C000000 > > CSR;
 #ifdef STM32F10X_CL
-    typedef __AHBRSTR < Register< uint32_t, reg_base + 0x28, Access::rw > > AHBRSTR;
-    typedef __CFGR2   < Register< uint32_t, reg_base + 0x2c, Access::rw > > CFGR2;
+    typedef __AHBRSTR < Register< uint32_t, base_addr + 0x28, Access::rw > > AHBRSTR;
+    typedef __CFGR2   < Register< uint32_t, base_addr + 0x2c, Access::rw > > CFGR2;
 #endif
   };
 }

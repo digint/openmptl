@@ -27,7 +27,7 @@ namespace reg
 {
 class TEST
 {
-  static constexpr reg_addr_t reg_base = 0x1234;
+  static constexpr reg_addr_t base_addr = 0x1234;
 
   template<typename R>
   class __REG
@@ -54,12 +54,12 @@ class TEST
   };
 
 public:
-  typedef __REG < Register< uint32_t, reg_base + 0x00, Access::rw, 0x55555555 > > REG;
+  typedef __REG < Register< uint32_t, base_addr + 0x00, Access::rw, 0x55555555 > > REG;
 
   struct REG2
-  : public Register< uint32_t, reg_base + 0x10, Access::rw, 0xaaaaaaaa >
+  : public Register< uint32_t, base_addr + 0x10, Access::rw, 0xaaaaaaaa >
   {
-    typedef Register< uint32_t, reg_base + 0x10, Access::rw, 0xaaaaaaaa > reg_type;
+    typedef Register< uint32_t, base_addr + 0x10, Access::rw, 0xaaaaaaaa > reg_type;
 
     typedef RegisterBits< reg_type, 0,  8 > BITS_0_7;
   };

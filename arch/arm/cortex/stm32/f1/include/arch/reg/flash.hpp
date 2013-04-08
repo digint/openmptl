@@ -153,7 +153,7 @@ namespace reg
      * NOTE: only available for XL-density Flash modules
      */
     struct KEYR2
-    : public Register< uint32_t, reg_base + 0x44, Access::rw >
+    : public Register< uint32_t, base_addr + 0x44, Access::rw >
     { };
 
     /**
@@ -162,7 +162,7 @@ namespace reg
      * NOTE: only available for XL-density Flash modules
      */
     struct SR2
-    : public Register< uint32_t, reg_base + 0x4c, Access::rw >
+    : public Register< uint32_t, base_addr + 0x4c, Access::rw >
     { };
 
     /**
@@ -171,7 +171,7 @@ namespace reg
      * NOTE: only available for XL-density Flash modules
      */
     struct CR2
-    : public Register< uint32_t, reg_base + 0x50, Access::rw >
+    : public Register< uint32_t, base_addr + 0x50, Access::rw >
     { };
 
     /**
@@ -180,7 +180,7 @@ namespace reg
      * NOTE: only available for XL-density Flash modules
      */
     struct AR2
-    : public Register< uint32_t, reg_base + 0x54, Access::rw >
+    : public Register< uint32_t, base_addr + 0x54, Access::rw >
     { };
 #endif
   };

@@ -30,16 +30,16 @@ namespace reg
    */
   struct FLASH
   {
-    static constexpr reg_addr_t reg_base = 0x40023C00;
+    static constexpr reg_addr_t base_addr = 0x40023C00;
     static constexpr const char * name_str = "FLASH";
 
     /**
      * Flash access control register
      */
     struct ACR
-    : public Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "ACR";
 
       typedef RegisterBits< reg_type, 12,  1 > DCRST;     /**< Data cache reset          */
@@ -54,9 +54,9 @@ namespace reg
      * Flash key register
      */
     struct KEYR
-    : public Register< uint32_t, reg_base + 0x04, Access::wo, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x04, Access::wo, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x04, Access::wo, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x04, Access::wo, 0x00000000 > reg_type;
       static constexpr const char * name_str = "KEYR";
     };
 
@@ -64,9 +64,9 @@ namespace reg
      * Flash option key register
      */
     struct OPTKEYR
-    : public Register< uint32_t, reg_base + 0x08, Access::wo, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x08, Access::wo, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x08, Access::wo, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x08, Access::wo, 0x00000000 > reg_type;
       static constexpr const char * name_str = "OPTKEYR";
     };
 
@@ -74,9 +74,9 @@ namespace reg
      * Status register
      */
     struct SR
-    : public Register< uint32_t, reg_base + 0x0C, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x0C, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "SR";
 
       typedef RegisterBits< reg_type, 16,  1 > BSY;      /**< Busy                           */
@@ -92,9 +92,9 @@ namespace reg
      * Control register
      */
     struct CR
-    : public Register< uint32_t, reg_base + 0x10, Access::rw, 0x80000000 >
+    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x80000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x10, Access::rw, 0x80000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x10, Access::rw, 0x80000000 > reg_type;
       static constexpr const char * name_str = "CR";
 
       typedef RegisterBits< reg_type, 31,  1 > LOCK;    /**< Lock                               */
@@ -112,9 +112,9 @@ namespace reg
      * Flash option control register
      */
     struct OPTCR
-    : public Register< uint32_t, reg_base + 0x14, Access::rw, 0x00000014 >
+    : public Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000014 >
     {
-      typedef Register< uint32_t, reg_base + 0x14, Access::rw, 0x00000014 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000014 > reg_type;
       static constexpr const char * name_str = "OPTCR";
 
       /** User option bytes  */

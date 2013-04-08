@@ -30,16 +30,16 @@ namespace reg
    */
   struct PWR
   {
-    static constexpr reg_addr_t reg_base = 0x40007000;
+    static constexpr reg_addr_t base_addr = 0x40007000;
     static constexpr const char * name_str = "PWR";
 
     /**
      * Power control register
      */
     struct CR
-    : public Register< uint32_t, reg_base + 0x0, Access::rw, 0x00004000 >
+    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00004000 >
     {
-      typedef Register< uint32_t, reg_base + 0x0, Access::rw, 0x00004000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x0, Access::rw, 0x00004000 > reg_type;
       static constexpr const char * name_str = "CR";
 
       typedef RegisterBits< reg_type, 14,  1 > VOS;    /**< Regulator voltage scaling output selection */
@@ -57,9 +57,9 @@ namespace reg
      * Power control/status register
      */
     struct CSR
-    : public Register< uint32_t, reg_base + 0x4, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x4, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CSR";
 
       typedef RegisterBits< reg_type, 14,  1 > VOSRDY;   /**< Regulator voltage scaling output selection ready bit  */

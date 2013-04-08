@@ -30,16 +30,16 @@ namespace reg
    */
   struct RCC
   {
-    static constexpr reg_addr_t reg_base = 0x40023800;
+    static constexpr reg_addr_t base_addr = 0x40023800;
     static constexpr const char * name_str = "RCC";
 
     /**
      * Clock control register
      */
     struct CR
-    : public Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000083 >
+    : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000083 >
     {
-      typedef Register< uint32_t, reg_base + 0x00, Access::rw, 0x00000083 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000083 > reg_type;
       static constexpr const char * name_str = "CR";
 
       typedef RegisterBits< reg_type, 27,  1 > PLLI2SRDY;   /**< PLLI2S clock ready flag                */
@@ -60,9 +60,9 @@ namespace reg
      * PLL configuration register
      */
     struct PLLCFGR
-    : public Register< uint32_t, reg_base + 0x04, Access::rw, 0x24003010 >
+    : public Register< uint32_t, base_addr + 0x04, Access::rw, 0x24003010 >
     {
-      typedef Register< uint32_t, reg_base + 0x04, Access::rw, 0x24003010 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x04, Access::rw, 0x24003010 > reg_type;
       static constexpr const char * name_str = "PLLCFGR";
 
       typedef RegisterBits< reg_type, 24,  4 > PLLQ;     /**< Main PLL division factor for USB OTG FS, SDIO and random number generator clocks  */
@@ -76,9 +76,9 @@ namespace reg
      * Clock configuration register
      */
     struct CFGR
-    : public Register< uint32_t, reg_base + 0x08, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x08, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x08, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x08, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CFGR";
 
       /** APB1/2 prescaler  */
@@ -136,9 +136,9 @@ namespace reg
      * Clock interrupt register
      */
     struct CIR
-    : public Register< uint32_t, reg_base + 0x0C, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x0C, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "CIR";
 
       typedef RegisterBits< reg_type, 23,  1 > CSSC;          /**< Clock security system interrupt clear  */
@@ -167,9 +167,9 @@ namespace reg
      * AHB1 peripheral reset register
      */
     struct AHB1RSTR
-    : public Register< uint32_t, reg_base + 0x10, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x10, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x10, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "AHB1RSTR";
 
       typedef RegisterBits< reg_type, 29,  1 > OTGHSRST;    /**< USB OTG HS module reset  */
@@ -192,9 +192,9 @@ namespace reg
      * AHB2 peripheral reset register
      */
     struct AHB2RSTR
-    : public Register< uint32_t, reg_base + 0x14, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x14, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "AHB2RSTR";
 
       typedef RegisterBits< reg_type,  7,  1 > OTGFSRST;   /**< USB OTG FS module reset               */
@@ -206,9 +206,9 @@ namespace reg
      * AHB3 peripheral reset register
      */
     struct AHB3RSTR
-    : public Register< uint32_t, reg_base + 0x18, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x18, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "AHB3RSTR";
 
       typedef RegisterBits< reg_type,  0,  1 > FSMCRST;   /**< Flexible static memory controller module reset  */
@@ -218,9 +218,9 @@ namespace reg
      * APB1 peripheral reset register
      */
     struct APB1RSTR
-    : public Register< uint32_t, reg_base + 0x20, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x20, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x20, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x20, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "APB1RSTR";
 
       typedef RegisterBits< reg_type, 29,  1 > DACRST;     /**< DAC reset              */
@@ -252,9 +252,9 @@ namespace reg
      * APB2 peripheral reset register
      */
     struct APB2RSTR
-    : public Register< uint32_t, reg_base + 0x24, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x24, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x24, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x24, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "APB2RSTR";
 
       typedef RegisterBits< reg_type, 18,  1 > TIM11RST;    /**< TIM11 reset                               */
@@ -274,9 +274,9 @@ namespace reg
      * AHB1 peripheral clock register
      */
     struct AHB1ENR
-    : public Register< uint32_t, reg_base + 0x30, Access::rw, 0x00100000 >
+    : public Register< uint32_t, base_addr + 0x30, Access::rw, 0x00100000 >
     {
-      typedef Register< uint32_t, reg_base + 0x30, Access::rw, 0x00100000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x30, Access::rw, 0x00100000 > reg_type;
       static constexpr const char * name_str = "AHB1ENR";
 
       typedef RegisterBits< reg_type, 30,  1 > OTGHSULPIEN;   /**< USB OTG HSULPI clock enable         */
@@ -304,9 +304,9 @@ namespace reg
      * AHB2 peripheral clock enable register
      */
     struct AHB2ENR
-    : public Register< uint32_t, reg_base + 0x34, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x34, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x34, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x34, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "AHB2ENR";
 
       typedef RegisterBits< reg_type,  7,  1 > OTGFSEN;   /**< USB OTG FS clock enable               */
@@ -318,9 +318,9 @@ namespace reg
      * AHB3 peripheral clock enable register
      */
     struct AHB3ENR
-    : public Register< uint32_t, reg_base + 0x38, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x38, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x38, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x38, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "AHB3ENR";
 
       typedef RegisterBits< reg_type,  0,  1 > FSMCEN;   /**< Flexible static memory controller module clock enable  */
@@ -330,9 +330,9 @@ namespace reg
      * APB1 peripheral clock enable register
      */
     struct APB1ENR
-    : public Register< uint32_t, reg_base + 0x40, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x40, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x40, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x40, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "APB1ENR";
 
       typedef RegisterBits< reg_type, 29,  1 > DACEN;      /**< DAC interface clock enable    */
@@ -364,9 +364,9 @@ namespace reg
      * APB2 peripheral clock enable register
      */
     struct APB2ENR
-    : public Register< uint32_t, reg_base + 0x44, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x44, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x44, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x44, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "APB2ENR";
 
       typedef RegisterBits< reg_type, 18,  1 > TIM11EN;    /**< TIM11 clock enable                            */
@@ -388,9 +388,9 @@ namespace reg
      * AHB1 peripheral clock enable in low power mode register
      */
     struct AHB1LPENR
-    : public Register< uint32_t, reg_base + 0x50, Access::rw, 0x7E6791FF >
+    : public Register< uint32_t, base_addr + 0x50, Access::rw, 0x7E6791FF >
     {
-      typedef Register< uint32_t, reg_base + 0x50, Access::rw, 0x7E6791FF > reg_type;
+      typedef Register< uint32_t, base_addr + 0x50, Access::rw, 0x7E6791FF > reg_type;
       static constexpr const char * name_str = "AHB1LPENR";
 
       typedef RegisterBits< reg_type, 30,  1 > OTGHSULPILPEN;   /**< USB OTG HS ULPI clock enable during sleep mode        */
@@ -421,9 +421,9 @@ namespace reg
      * AHB2 peripheral clock enable in low power mode register
      */
     struct AHB2LPENR
-    : public Register< uint32_t, reg_base + 0x54, Access::rw, 0x000000F1 >
+    : public Register< uint32_t, base_addr + 0x54, Access::rw, 0x000000F1 >
     {
-      typedef Register< uint32_t, reg_base + 0x54, Access::rw, 0x000000F1 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x54, Access::rw, 0x000000F1 > reg_type;
       static constexpr const char * name_str = "AHB2LPENR";
 
       typedef RegisterBits< reg_type,  7,  1 > OTGFSLPEN;   /**< USB OTG FS clock enable during sleep mode               */
@@ -435,9 +435,9 @@ namespace reg
      * AHB3 peripheral clock enable in low power mode register
      */
     struct AHB3LPENR
-    : public Register< uint32_t, reg_base + 0x58, Access::rw, 0x00000001 >
+    : public Register< uint32_t, base_addr + 0x58, Access::rw, 0x00000001 >
     {
-      typedef Register< uint32_t, reg_base + 0x58, Access::rw, 0x00000001 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x58, Access::rw, 0x00000001 > reg_type;
       static constexpr const char * name_str = "AHB3LPENR";
 
       typedef RegisterBits< reg_type,  0,  1 > FSMCLPEN;   /**< Flexible static memory controller module clock enable during sleep mode  */
@@ -447,9 +447,9 @@ namespace reg
      * APB1 peripheral clock enable in low power mode register
      */
     struct APB1LPENR
-    : public Register< uint32_t, reg_base + 0x60, Access::rw, 0x36FEC9FF >
+    : public Register< uint32_t, base_addr + 0x60, Access::rw, 0x36FEC9FF >
     {
-      typedef Register< uint32_t, reg_base + 0x60, Access::rw, 0x36FEC9FF > reg_type;
+      typedef Register< uint32_t, base_addr + 0x60, Access::rw, 0x36FEC9FF > reg_type;
       static constexpr const char * name_str = "APB1LPENR";
 
       typedef RegisterBits< reg_type, 29,  1 > DACLPEN;      /**< DAC interface clock enable during sleep mode    */
@@ -481,9 +481,9 @@ namespace reg
      * APB2 peripheral clock enabled in low power mode register
      */
     struct APB2LPENR
-    : public Register< uint32_t, reg_base + 0x64, Access::rw, 0x00075F33 >
+    : public Register< uint32_t, base_addr + 0x64, Access::rw, 0x00075F33 >
     {
-      typedef Register< uint32_t, reg_base + 0x64, Access::rw, 0x00075F33 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x64, Access::rw, 0x00075F33 > reg_type;
       static constexpr const char * name_str = "APB2LPENR";
 
       typedef RegisterBits< reg_type, 18,  1 > TIM11LPEN;    /**< TIM11 clock enable during sleep mode                            */
@@ -505,9 +505,9 @@ namespace reg
      * Backup domain control register
      */
     struct BDCR
-    : public Register< uint32_t, reg_base + 0x70, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x70, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x70, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x70, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "BDCR";
 
       typedef RegisterBits< reg_type, 16,  1 > BDRST;     /**< Backup domain software reset          */
@@ -523,9 +523,9 @@ namespace reg
      * Clock control and status register
      */
     struct CSR
-    : public Register< uint32_t, reg_base + 0x74, Access::rw, 0x0E000000 >
+    : public Register< uint32_t, base_addr + 0x74, Access::rw, 0x0E000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x74, Access::rw, 0x0E000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x74, Access::rw, 0x0E000000 > reg_type;
       static constexpr const char * name_str = "CSR";
 
       typedef RegisterBits< reg_type, 31,  1 > LPWRRSTF;   /**< Low-power reset flag                  */
@@ -544,9 +544,9 @@ namespace reg
      * Spread spectrum clock generation register
      */
     struct SSCGR
-    : public Register< uint32_t, reg_base + 0x80, Access::rw, 0x00000000 >
+    : public Register< uint32_t, base_addr + 0x80, Access::rw, 0x00000000 >
     {
-      typedef Register< uint32_t, reg_base + 0x80, Access::rw, 0x00000000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x80, Access::rw, 0x00000000 > reg_type;
       static constexpr const char * name_str = "SSCGR";
 
       typedef RegisterBits< reg_type, 31,  1 > SSCGEN;      /**< Spread spectrum modulation enable  */
@@ -559,9 +559,9 @@ namespace reg
      * PLLI2S configuration register
      */
     struct PLLI2SCFGR
-    : public Register< uint32_t, reg_base + 0x84, Access::rw, 0x20003000 >
+    : public Register< uint32_t, base_addr + 0x84, Access::rw, 0x20003000 >
     {
-      typedef Register< uint32_t, reg_base + 0x84, Access::rw, 0x20003000 > reg_type;
+      typedef Register< uint32_t, base_addr + 0x84, Access::rw, 0x20003000 > reg_type;
       static constexpr const char * name_str = "PLLI2SCFGR";
 
       typedef RegisterBits< reg_type, 28,  3 > PLLI2SR;   /**< PLLI2S division factor for I2S clocks  */
