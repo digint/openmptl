@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef STM32_COMMON_SPI_HPP_INCLUDED
-#define STM32_COMMON_SPI_HPP_INCLUDED
+#ifndef ARM_CORTEX_STM32_COMMON_SPI_HPP_INCLUDED
+#define ARM_CORTEX_STM32_COMMON_SPI_HPP_INCLUDED
 
 #include <arch/rcc.hpp>
 #include <arch/nvic.hpp>
@@ -219,4 +219,4 @@ public:
 #endif
 };
 
-#endif // STM32_COMMON_SPI_HPP_INCLUDED
+#endif // ARM_CORTEX_STM32_COMMON_SPI_HPP_INCLUDED

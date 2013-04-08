@@ -18,9 +18,8 @@
  *
  */
 
-
-#ifndef COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
-#define COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
+#ifndef ARM_CORTEX_COMMON_VECTOR_TABLE_HPP_INCLUDED
+#define ARM_CORTEX_COMMON_VECTOR_TABLE_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
 #include <resource.hpp>
@@ -116,4 +115,4 @@ struct VectorTable
                 "IRQ vector table size error");
 };
 
-#endif // COMMON_ARM_CORTEX_VECTOR_TABLE_HPP_INCLUDED
+#endif // ARM_CORTEX_COMMON_VECTOR_TABLE_HPP_INCLUDED

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef COMMON_ARM_CORTEX_DWT_HPP_INCLUDED
-#define COMMON_ARM_CORTEX_DWT_HPP_INCLUDED
+#ifndef ARM_CORTEX_COMMON_DWT_HPP_INCLUDED
+#define ARM_CORTEX_COMMON_DWT_HPP_INCLUDED
 
 #include "reg/dwt.hpp"
 #include "reg/debug.hpp"
@@ -83,4 +83,4 @@ public:
   }
 };
 
-#endif // COMMON_ARM_CORTEX_DWT_HPP_INCLUDED
+#endif // ARM_CORTEX_COMMON_DWT_HPP_INCLUDED

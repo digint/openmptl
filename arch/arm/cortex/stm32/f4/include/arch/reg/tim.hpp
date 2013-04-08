@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef REG_TIM_HPP_INCLUDED
-#define REG_TIM_HPP_INCLUDED
+#ifndef ARCH_REG_TIM_HPP_INCLUDED
+#define ARCH_REG_TIM_HPP_INCLUDED
 
 #include "../../../../common/reg/tim.hpp"
 
@@ -48,4 +48,4 @@ namespace reg
   template<> class TIM< 14 > : public TIM_Common< 0x40002000 > { };
 }
 
-#endif // REG_TIM_HPP_INCLUDED
+#endif // ARCH_REG_TIM_HPP_INCLUDED

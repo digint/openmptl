@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef STM32_COMMON_USART_HPP_INCLUDED
-#define STM32_COMMON_USART_HPP_INCLUDED
+#ifndef ARM_CORTEX_STM32_COMMON_USART_HPP_INCLUDED
+#define ARM_CORTEX_STM32_COMMON_USART_HPP_INCLUDED
 
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
@@ -200,5 +200,5 @@ public:
   }
 };
 
-#endif // STM32_COMMON_USART_HPP_INCLUDED
+#endif // ARM_CORTEX_STM32_COMMON_USART_HPP_INCLUDED
 

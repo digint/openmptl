@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
-#define COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
+#ifndef ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
+#define ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 
 struct CoreAsm
 {
@@ -41,4 +41,4 @@ struct CoreAsm
   static void nop(unsigned value) { while(value--) nop(); }
 };
 
-#endif // COMMON_ARM_CORTEX_CORE_HPP_INCLUDED
+#endif // ARM_CORTEX_COMMON_CORE_HPP_INCLUDED

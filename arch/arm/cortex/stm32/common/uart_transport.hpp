@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
-#define STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
+#ifndef ARM_CORTEX_STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
+#define ARM_CORTEX_STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
 
 #include <arch/usart.hpp>
 #include <fifo.hpp>
@@ -128,5 +128,5 @@ fifo_type UartIrqStream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
 
 
 
-#endif // STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
+#endif // ARM_CORTEX_STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
 

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef REG_SPI_HPP_INCLUDED
-#define REG_SPI_HPP_INCLUDED
+#ifndef ARCH_REG_SPI_HPP_INCLUDED
+#define ARCH_REG_SPI_HPP_INCLUDED
 
 #include "../../../../common/reg/spi.hpp"
 
@@ -41,4 +41,4 @@ namespace reg
 #endif
 }
 
-#endif // REG_SPI_HPP_INCLUDED
+#endif // ARCH_REG_SPI_HPP_INCLUDED

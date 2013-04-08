@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef REG_FLASH_HPP_INCLUDED
-#define REG_FLASH_HPP_INCLUDED
+#ifndef ARCH_REG_FLASH_HPP_INCLUDED
+#define ARCH_REG_FLASH_HPP_INCLUDED
 
 #include <register.hpp>
 
@@ -186,4 +186,4 @@ namespace reg
   };
 }
 
-#endif // REG_FLASH_HPP_INCLUDED
+#endif // ARCH_REG_FLASH_HPP_INCLUDED

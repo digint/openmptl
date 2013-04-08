@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef REG_PWR_HPP_INCLUDED
-#define REG_PWR_HPP_INCLUDED
+#ifndef ARCH_REG_PWR_HPP_INCLUDED
+#define ARCH_REG_PWR_HPP_INCLUDED
 
 #include <register.hpp>
 
@@ -73,4 +73,4 @@ namespace reg
   };
 }
 
-#endif // REG_PWR_HPP_INCLUDED
+#endif // ARCH_REG_PWR_HPP_INCLUDED
