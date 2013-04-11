@@ -139,11 +139,12 @@ public:
   using Irq = irq::USART<usart_no>;
 
   static void send(typename USARTx::DR::value_type data) {
-    // USARTx::DR::store(data & (uint32_t)0x01ff);
+    /* Implicitely clears the TXE bit in the SR register.  */
+    // assert((data & 0x01ff) == data);
     USARTx::DR::store(data);
   }
   static typename USARTx::DR::value_type receive(void) {
-    /* This also clears the RXNE bit in the SR register.             */
+    /* Implicitely clears the RXNE bit in the SR register.           */
     /* When receiving the parity enabled, the value read in the MSB  */
     /* bit is the received parity bit.                               */
     return USARTx::DR::load();

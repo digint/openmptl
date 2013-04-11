@@ -37,8 +37,7 @@ public:
 
   void process_io(Fifo<char> &rx_fifo, Fifo<char> &tx_fifo) {
     if(flags & SR::RXNE::value) {
-      // usart::ClearFlag(UsartFlags::RXNE);
-      uint32_t data = usart::receive();
+      uint32_t data = usart::receive(); /* implicitely clears RXNE flag */
       rx_fifo.push(data);
     }
     if(flags & SR::TXE::value) {
