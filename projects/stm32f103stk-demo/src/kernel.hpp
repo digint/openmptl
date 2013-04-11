@@ -27,7 +27,7 @@
 #include <arch/rcc.hpp>
 #include <arch/flash.hpp>
 #include <arch/usart.hpp>
-#include <arch/uart_transport.hpp>
+#include <arch/usart_stream.hpp>
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
 #include <peripheral_device.hpp>
@@ -54,8 +54,8 @@ struct Kernel
     /*       easily declare a dynamic baud_rate like this:              */
     // unsigned baud_rate;
   };
-  using tty0_device        = PeripheralDevice< usart, usart_tty0_config >;
-  using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
+  using tty0_device         = PeripheralDevice< usart, usart_tty0_config >;
+  using usart_stream_device = UsartIrqStream< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
 
   using spi       = Spi< rcc, 1 >;
   using spi_sck   = SpiGpio< 'A', 5 >;
@@ -102,7 +102,7 @@ struct Kernel
 
     usart_gpio_rx::resources,
     usart_gpio_tx::resources,
-    uart_stream_device::resources
+    usart_stream_device::resources
   >;
 };
 

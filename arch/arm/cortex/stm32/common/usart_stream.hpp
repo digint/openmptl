@@ -18,14 +18,14 @@
  *
  */
 
-#ifndef ARM_CORTEX_STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
-#define ARM_CORTEX_STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
+#ifndef ARM_CORTEX_STM32_COMMON_USART_STREAM_HPP_INCLUDED
+#define ARM_CORTEX_STM32_COMMON_USART_STREAM_HPP_INCLUDED
 
 #include <arch/usart.hpp>
 #include <fifo.hpp>
 
 template<typename usart>
-class UartIrqTransport
+class UsartIrqTransport
 {
   using SR = typename usart::USARTx::SR;
 
@@ -33,7 +33,7 @@ class UartIrqTransport
 
 public:
 
-  UartIrqTransport(void) : flags(SR::load()) { };
+  UsartIrqTransport(void) : flags(SR::load()) { };
 
   void process_io(Fifo<char> &rx_fifo, Fifo<char> &tx_fifo) {
     if(flags & SR::RXNE::value) {
@@ -68,12 +68,12 @@ template<typename usart,
          typename _fifo_type = RingBuffer<char, 256>,
          bool     _crlf      = true,
          bool     debug_irqs = false>
-class UartIrqStream
+class UsartIrqStream
 {
   using char_type = char;
 
   static void isr(void) {
-    UartIrqTransport<usart> transport;
+    UsartIrqTransport<usart> transport;
 
     if(debug_irqs) {
       irq_count++;
@@ -115,17 +115,17 @@ public:
 };
 
 template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int UartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_count;
+volatile unsigned int UsartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_count;
 template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int UartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_errors;
-
-template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-fifo_type UartIrqStream<usart, fifo_type, crlf, debug_irqs>::rx_fifo;
+volatile unsigned int UsartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_errors;
 
 template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-fifo_type UartIrqStream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
+fifo_type UsartIrqStream<usart, fifo_type, crlf, debug_irqs>::rx_fifo;
+
+template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
+fifo_type UsartIrqStream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
 
 
 
-#endif // ARM_CORTEX_STM32_COMMON_UART_TRANSPORT_HPP_INCLUDED
+#endif // ARM_CORTEX_STM32_COMMON_USART_STREAM_HPP_INCLUDED
 

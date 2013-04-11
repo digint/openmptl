@@ -52,7 +52,7 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  Terminal<uart_stream_device, terminal_hooks::commands> terminal;
+  Terminal<usart_stream_device, terminal_hooks::commands> terminal;
 
   terminal.open(tty0_device());
   terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << flush;

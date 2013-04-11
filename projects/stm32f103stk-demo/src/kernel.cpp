@@ -87,7 +87,7 @@ void Kernel::run(void)
   Screen::assign(&item_list);
 
   /* open terminal and print welcome message */
-  Terminal<uart_stream_device, terminal_hooks::commands> terminal;
+  Terminal<usart_stream_device, terminal_hooks::commands> terminal;
   terminal.open(tty0_device());
   terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << flush;
 
@@ -130,8 +130,8 @@ void Kernel::run(void)
     /* update screen rows */
     rtc_sec   = time::get_rtc_seconds();
     tick      = time::get_systick();
-    irq_count = uart_stream_device::irq_count;
-    eirq      = uart_stream_device::irq_errors;
+    irq_count = usart_stream_device::irq_count;
+    eirq      = usart_stream_device::irq_errors;
     cycle_counter.stop();
     cycle     = cycle_counter.get();
 

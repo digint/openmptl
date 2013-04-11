@@ -28,7 +28,7 @@
 #include <arch/systick.hpp>
 #include <arch/gpio.hpp>
 #include <arch/usart.hpp>
-#include <arch/uart_transport.hpp>
+#include <arch/usart_stream.hpp>
 #include <peripheral_device.hpp>
 #include <resource.hpp>
 #include <compiler.h>
@@ -48,8 +48,8 @@ struct Kernel
   struct usart_tty0_config : UsartDefaultConfig {
     static constexpr unsigned baud_rate = 115200;
   };
-  using tty0_device        = PeripheralDevice< usart, usart_tty0_config >;
-  using uart_stream_device = UartIrqStream< usart, RingBuffer<char, 512> >;
+  using tty0_device         = PeripheralDevice< usart, usart_tty0_config >;
+  using usart_stream_device = UsartIrqStream< usart, RingBuffer<char, 512> >;
 
   using led_green  = GpioLed< 'D', 12 >;
   using led_orange = GpioLed< 'D', 13 >;
@@ -84,7 +84,7 @@ struct Kernel
     led_blue::resources,
     usart_gpio_rx::resources,
     usart_gpio_tx::resources,
-    uart_stream_device::resources
+    usart_stream_device::resources
     >;
 };
 

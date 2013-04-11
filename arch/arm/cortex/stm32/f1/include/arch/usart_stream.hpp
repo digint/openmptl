@@ -18,5 +18,5 @@
  *
  */
 
-#include "../../../common/uart_transport.hpp"
+#include "../../../common/usart_stream.hpp"
 
