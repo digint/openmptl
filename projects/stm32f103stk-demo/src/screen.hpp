@@ -24,7 +24,7 @@
 #include <tinyfsm.hpp>
 #include "kernel.hpp"
 #include "events.hpp"
-#include "screenitem.hpp"
+#include "screen_item.hpp"
 
 
 // ----------------------------------------------------------------------------
