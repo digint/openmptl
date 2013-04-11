@@ -76,7 +76,7 @@ void Kernel::run(void)
 
   /* define the screem item list */
   ScreenItemList item_list;
-  TextRow    title0    (item_list, " OpenMPTL demo ");
+  TextRow    title0    (item_list, ">> OpenMPTL <<");
   TextRow    title1    (item_list, "--------------");
   TextRow    joytext   (item_list, joytext_buf);
   DataRow    rtc_sec   (item_list, "rtc");
