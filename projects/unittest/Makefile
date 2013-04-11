@@ -88,16 +88,10 @@ CXXFLAGS     = $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
 CXXFLAGS    += -g
-#CXXFLAGS    += -fomit-frame-pointer
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
-#CXXFLAGS    += -fno-elide-constructors
 CXXFLAGS    += -funsigned-bitfields
 CXXFLAGS    += -fshort-enums
-# CXXFLAGS  += -finline-limit=60    # number of pseudo-instructions, default is 600
-#! CXXFLAGS += -frepo     # Enable automatic template instantiation at link time
-# CXXFLAGS  += -fdump-class-hierarchy
-#CXXFLAGS    += -ffreestanding -nostdinc++
 
 CXXFLAGS    += -Wall -Wextra
 CXXFLAGS    += -Winline
@@ -108,8 +102,6 @@ CXXFLAGS    += -Wshadow
 CXXFLAGS    += -Wcast-qual
 CXXFLAGS    += -Wcast-align
 CXXFLAGS    += -pedantic
-#CXXFLAGS    += -Weffc++
-#CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 
 
 .PHONY: all clean clean_fail test test_fail
