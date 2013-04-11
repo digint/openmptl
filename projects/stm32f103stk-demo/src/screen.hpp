@@ -49,17 +49,12 @@ protected:
   static Kernel::lcd lcd;
 
   static ScreenItemList::iterator item_top;
-  static ScreenItemList * item_list;
+  static ScreenItemList *item_list;
 
 public:
 
-  static void assign(ScreenItemList * list) {
-    item_list = list;
-    item_top = list->begin();
-  }
-
+  static void set_item_list(ScreenItemList & list);
   static void update(void);
 };
 
-
-#endif
+#endif // FSM_SCREEN_HPP_INCLUDED

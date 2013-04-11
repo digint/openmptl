@@ -74,7 +74,7 @@ void Kernel::run(void)
   Joystick::Position joypos = Joystick::Position::center;
   Debouncer<Joystick::Position, time, 10> debouncer(joypos);
 
-  /* define the screem item list */
+  /* define the screen item list */
   ScreenItemList item_list;
   TextRow    title0    (item_list, ">> OpenMPTL <<");
   TextRow    title1    (item_list, "--------------");
@@ -84,7 +84,8 @@ void Kernel::run(void)
   DataRow    cycle     (item_list, "cyc");
   DataRowHex irq_count (item_list, "#irq");
   DataRowHex eirq      (item_list, "eirq");
-  Screen::assign(&item_list);
+
+  Screen::set_item_list(item_list);
 
   /* open terminal and print welcome message */
   Terminal<usart_stream_device, terminal_hooks::commands> terminal;

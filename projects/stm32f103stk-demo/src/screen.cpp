@@ -18,10 +18,8 @@
  *
  */
 
-#include "screen.hpp"
-
 #include <tinyfsm.hpp>
-#include <cstring> // memcpy
+#include "screen.hpp"
 
 // ----------------------------------------------------------------------------
 // States
@@ -31,15 +29,15 @@ class Main
 : public Screen
 {
   virtual void react(EvJoystickUp const &) {
-    if(item_top != item_list->begin()) {
-      item_top--;
-      update();
-    }
+    if(item_top == item_list->begin())
+      item_top = item_list->end();
+    item_top--;
   }
 
   virtual void react(EvJoystickDown const &) {
     item_top++;
-    update();
+    if(item_top == item_list->end())
+      item_top = item_list->begin();
   }
 };
 
@@ -49,13 +47,16 @@ class Main
 //
 
 void Screen::update(void) {
-  lcd.clear();
   ScreenItemList::iterator item(item_top);
-  ScreenItemList::iterator end(item_list->end());
+  lcd.clear();
 
   unsigned i = 0;
-  while((item != end) && (i < lcd.rows)) {
+  while((item != item_list->end()) && (i < lcd.rows)) {
+#ifdef OPENMPTL_USE_BOOST
     lcd.print_line(i, item->c_str(), item->get_inverted());
+#else
+    lcd.print_line(i, (*item)->c_str(), (*item)->get_inverted());
+#endif
     i++;
     item++;
   }
@@ -63,9 +64,14 @@ void Screen::update(void) {
   lcd.update();
 }
 
+void Screen::set_item_list(ScreenItemList & list) {
+  item_list = &list;
+  item_top = item_list->begin();
+}
+
 Kernel::lcd Screen::lcd;
 
-ScreenItemList * Screen::item_list;
+ScreenItemList *Screen::item_list;
 ScreenItemList::iterator Screen::item_top;
 
 

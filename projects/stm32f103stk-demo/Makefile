@@ -38,7 +38,12 @@ else
 endif
 
 FLAGS         += -DSTM32F10X_MD
-# FLAGS        += -DHEAP_FIXED_SIZE=8129
+#FLAGS         += -DHEAP_FIXED_SIZE=8129
+
+ifdef USE_BOOST
+  FLAGS       += -DOPENMPTL_USE_BOOST
+endif
+
 
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER      = -Os
@@ -100,9 +105,11 @@ INCLUDE     += -I $(TINYFSM_TOP)/include
 #------------------------------------------------------------------------------
 # boost includes
 #
-include $(OPENMPTL_TOP)/config/boost.mk
-INCLUDE     += $(BOOST_INCLUDE)
-FLAGS       += $(BOOST_FLAGS)
+ifdef USE_BOOST
+  include $(OPENMPTL_TOP)/config/boost.mk
+  INCLUDE     += $(BOOST_INCLUDE)
+  FLAGS       += $(BOOST_FLAGS)
+endif
 
 
 #------------------------------------------------------------------------------
@@ -171,8 +178,11 @@ CXXFLAGS    += -Wall -Wextra
 CXXFLAGS    += -Winline   # see non-inlined functions
 CXXFLAGS    += -Wpointer-arith
 CXXFLAGS    += -Wredundant-decls
-#!CXXFLAGS    += -Wctor-dtor-privacy  # boost/intrusive/list.hpp does not satisfy these
-#!CXXFLAGS    += -Wshadow             # boost/intrusive/list.hpp does not satisfy these
+ifndef USE_BOOST
+  # boost/intrusive/list.hpp does not satisfy these
+  CXXFLAGS  += -Wctor-dtor-privacy
+  CXXFLAGS  += -Wshadow
+endif
 CXXFLAGS    += -Wcast-qual
 CXXFLAGS    += -Wcast-align
 CXXFLAGS    += -pedantic
