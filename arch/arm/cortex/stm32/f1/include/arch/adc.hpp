@@ -163,7 +163,6 @@ struct AdcRegularChannelSequenceLength
   static_assert((len >= 1) && (len <= 16), "invalid ADC channel sequence length");
 };
 
-
 template<unsigned              adc_no,
          AdcMode               mode           = AdcMode::independent,
          AdcScanMode           scan_mode      = AdcScanMode::disabled,
@@ -190,20 +189,20 @@ public:
     cr1 &= ~ADCx::CR1::SCAN::value;
 
     if(adc_no == 1)
-      cr1 |= ADCx::CR1::DUALMOD::shifted_value((uint32_t)mode);
-    cr1 |= ADCx::CR1::SCAN::shifted_value((uint32_t)scan_mode);
+      cr1 |= ADCx::CR1::DUALMOD::value_from((uint32_t)mode);
+    cr1 |= ADCx::CR1::SCAN::value_from((uint32_t)scan_mode);
     ADCx::CR1::store(cr1);
 
     /* ADCx CR2 config */
     ADCx::CR2::template set<typename ADCx::CR2::CONT,
                             typename ADCx::CR2::ALIGN,
                             typename ADCx::CR2::EXTSEL>
-      (ADCx::CR2::ALIGN:: shifted_value((uint32_t)data_align) |
-       ADCx::CR2::EXTSEL::shifted_value((uint32_t)ext_trig_conv::template extsel<adc_no>::value) |
-       ADCx::CR2::CONT::  shifted_value((uint32_t)cont_conv_mode));
+      (ADCx::CR2::ALIGN ::value_from((uint32_t)data_align) |
+       ADCx::CR2::EXTSEL::value_from((uint32_t)ext_trig_conv::template extsel<adc_no>::value) |
+       ADCx::CR2::CONT  ::value_from((uint32_t)cont_conv_mode));
 
     /* ADCx SQR1 config */
-    ADCx::SQR1::L::shift_and_set(chan_seq_len::value);
+    ADCx::SQR1::L::set(chan_seq_len::value);
   }
 
   static void reset(void) {
@@ -278,7 +277,7 @@ public:
   }
 
   static void wait_eoc(void) {
-    while(ADCx::SR::EOC::test() == 0);
+    while(ADCx::SR::EOC::test() == false);
   }
 
   static uint16_t get_conversion_value(void) {

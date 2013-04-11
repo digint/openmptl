@@ -78,15 +78,15 @@ protected:
 
   static constexpr typename SPIx::CR1::value_type baud_rate_prescaler_cr1_set_mask(freq_t max_frequency)
   {
-    return ( max_frequency == 0              ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
-             max_frequency >= clk_freq / 2   ? reg::RegisterConst< typename SPIx::CR1::BR, 0 >::value :
-             max_frequency >= clk_freq / 4   ? reg::RegisterConst< typename SPIx::CR1::BR, 1 >::value :
-             max_frequency >= clk_freq / 8   ? reg::RegisterConst< typename SPIx::CR1::BR, 2 >::value :
-             max_frequency >= clk_freq / 16  ? reg::RegisterConst< typename SPIx::CR1::BR, 3 >::value :
-             max_frequency >= clk_freq / 32  ? reg::RegisterConst< typename SPIx::CR1::BR, 4 >::value :
-             max_frequency >= clk_freq / 64  ? reg::RegisterConst< typename SPIx::CR1::BR, 5 >::value :
-             max_frequency >= clk_freq / 128 ? reg::RegisterConst< typename SPIx::CR1::BR, 6 >::value :
-             reg::RegisterConst< typename SPIx::CR1::BR, 7 >::value );
+    return ( max_frequency == 0              ? SPIx::CR1::BR::value_from(0) :
+             max_frequency >= clk_freq / 2   ? SPIx::CR1::BR::value_from(0) :
+             max_frequency >= clk_freq / 4   ? SPIx::CR1::BR::value_from(1) :
+             max_frequency >= clk_freq / 8   ? SPIx::CR1::BR::value_from(2) :
+             max_frequency >= clk_freq / 16  ? SPIx::CR1::BR::value_from(3) :
+             max_frequency >= clk_freq / 32  ? SPIx::CR1::BR::value_from(4) :
+             max_frequency >= clk_freq / 64  ? SPIx::CR1::BR::value_from(5) :
+             max_frequency >= clk_freq / 128 ? SPIx::CR1::BR::value_from(6) :
+             SPIx::CR1::BR::value_from(7) );
   }
 
   template<typename spi_config_type>
@@ -128,10 +128,10 @@ public:
   }
 
   static void wait_transmit_empty(void) {
-    while(SPIx::SR::TXE::test() == 0);
+    while(SPIx::SR::TXE::test() == false);
   }
   static void wait_receive_not_empty(void) {
-    while(SPIx::SR::RXNE::test() == 0);
+    while(SPIx::SR::RXNE::test() == false);
   }
   static void wait_not_busy(void) {
     while(SPIx::SR::BSY::test());

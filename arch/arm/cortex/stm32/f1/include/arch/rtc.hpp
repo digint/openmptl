@@ -41,7 +41,7 @@ private:
     wait_config_done();
   }
   static void wait_config_done(void) {
-    while(RTC::CRL::RTOFF::test() == 0);
+    while(RTC::CRL::RTOFF::test() == false);
   }
 
 public:
@@ -50,9 +50,9 @@ public:
   using AlarmIrq  = irq::RTCAlarm;  /**< RTC Alarm through EXTI Line Interrupt  */
 
   static void wait_sync(void) {
-    while(reg::RCC::BDCR::LSERDY::test() == 0);
+    while(reg::RCC::BDCR::LSERDY::test() == false);
     RTC::CRL::RSF::clear();
-    while(RTC::CRL::RSF::test() == 0);
+    while(RTC::CRL::RSF::test() == false);
   }
 
   // TODO: enable/disable more than one at once

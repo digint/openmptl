@@ -111,7 +111,7 @@ protected:
   static constexpr typename USARTx::CR2::value_type cr2_set_mask(usart_config_type const & cfg)
   {
     return
-      USARTx::CR2::STOP::shifted_value((typename USARTx::CR2::value_type)cfg.stop_bits) |
+      USARTx::CR2::STOP::value_from((typename USARTx::CR2::value_type)cfg.stop_bits) |
       (cfg.clock_enable                     ? USARTx::CR2::CLKEN::value : 0) |
       (cfg.cpol == UsartClockPolarity::high ? USARTx::CR2::CPOL::value  : 0) |
       (cfg.cpha == UsartClockPhase::second  ? USARTx::CR2::CPHA::value  : 0) |

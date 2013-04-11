@@ -117,7 +117,7 @@ public:
     }
 
     RCC::CR::PLLON::set();
-    while(RCC::CR::PLLRDY::test() == 0);
+    while(RCC::CR::PLLRDY::test() == false);
     RCC::CFGR::SW::PLL::set();
     while(RCC::CFGR::SWS::PLL::test() == false);
   }

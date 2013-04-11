@@ -121,61 +121,57 @@ int main()
   /* RegisterBits */
 
   TEST::REG::store(0xffff0000);
-  assert(TEST::REG::BITS_0_3::test() == 0);
-  assert(TEST::REG::BITS_4_7::test() == 0);
-  assert(TEST::REG::BITS_8_31::test() == 0xffff0000);
+  assert(TEST::REG::BITS_0_3::test() == false);
+  assert(TEST::REG::BITS_4_7::test() == false);
+  assert(TEST::REG::BITS_8_31::get() == 0xffff00);
 
   TEST::REG::BITS_0_3::set();
-  assert(TEST::REG::BITS_0_3::test() == 0xf);
-  assert(TEST::REG::BITS_4_7::test() == 0);
-  assert(TEST::REG::BITS_8_31::test() == 0xffff0000);
+  assert(TEST::REG::BITS_0_3::get() == 0xf);
+  assert(TEST::REG::BITS_0_3::test(0xf) == true);
+  assert(TEST::REG::BITS_4_7::test() == false);
+  assert(TEST::REG::BITS_4_7::test(0x0) == true);
+  assert(TEST::REG::BITS_8_31::get() == 0xffff00);
 
   TEST::REG::BITS_0_3::set(0xc);
-  assert(TEST::REG::BITS_0_3::test() == 0xc);
-
+  assert(TEST::REG::BITS_0_3::test(0xc) == true);
+  assert(TEST::REG::load() == 0xffff000c);
 
 #if 0
-  TEST::REG::BITS_0_3::set(0x0);
-  TEST::REG::BITS_4_7::set(0xf);  // illegal, but not checked by RegisterBits
-  assert(TEST::REG::BITS_4_7::test_and_shift() == 0xf); // fail
-  assert(TEST::REG::BITS_0_3::test() == 0x0); // fail
+  TEST::REG::store(0);
+  TEST::REG::BITS_4_7::set(0xff);  // illegal, but not checked by RegisterBits
+  assert(TEST::REG::load() == 0x000000f0); // fails, since the bits were overwritten by illegal set() above
 #endif
 
   TEST::REG::store(0xffffffff);
   TEST::REG::BITS_0_3::set(0x0);
-  TEST::REG::BITS_4_7::shift_and_set(0xc);
-  assert(TEST::REG::BITS_4_7::test() == 0xc0);
-  assert(TEST::REG::BITS_4_7::test_and_shift() == 0xc);
-  assert(TEST::REG::BITS_0_3::test() == 0x0);
+  TEST::REG::BITS_4_7::set(0xc);
+  assert(TEST::REG::BITS_4_7::test() == true);
+  assert(TEST::REG::BITS_4_7::test(0xc) == true);
+  assert(TEST::REG::BITS_0_3::test() == false);
 
   TEST::REG::BITS_4_7::set();
-  assert(TEST::REG::BITS_4_7::test_and_shift() == 0xf);
-  assert(TEST::REG::BITS_0_3::test() == 0x0);
+  assert(TEST::REG::BITS_4_7::test(0xf) == true);
+  assert(TEST::REG::BITS_0_3::test() == false);
 
   TEST::REG::store(0xffffffff);
   TEST::REG::BITS_4_7::clear();
-  assert(TEST::REG::BITS_4_7::test() == 0x0);
-  assert(TEST::REG::BITS_4_7::test_and_shift() == 0x0);
-  assert(TEST::REG::BITS_0_3::test() == 0xf);
+  assert(TEST::REG::BITS_4_7::test() == false);
+  assert(TEST::REG::BITS_4_7::test(0x0) == true);
+  assert(TEST::REG::BITS_0_3::test(0xf) == true);
 
   TEST::REG::store(0xffffffff);
-  assert(TEST::REG::BITS_0_3::test() == 0xf);
-  assert(TEST::REG::BITS_4_7::test() == 0xf0);
-  assert(TEST::REG::BITS_8_31::test() == 0xffffff00);
-
-  TEST::REG::store(0xffffffff);
-  assert(TEST::REG::BITS_0_3::test() == 0xf);
-  assert(TEST::REG::BITS_4_7::test() == 0xf0);
-  assert(TEST::REG::BITS_8_31::test() == 0xffffff00);
+  assert(TEST::REG::BITS_0_3::test(0xf) == true);
+  assert(TEST::REG::BITS_4_7::test(0xf) == true);
   assert(TEST::REG::BITS_0_3::test(0x1) == false);
   assert(TEST::REG::BITS_0_3::test(0xe) == false);
+  assert(TEST::REG::BITS_8_31::get() == 0x00ffffff);
 
   TEST::REG::store(0x000000cc);
   assert(TEST::REG::BITS_0_3::test(0x1) == false);
   assert(TEST::REG::BITS_0_3::test(0xc) == true);
   assert(TEST::REG::BITS_0_3::test(0xd) == false);
-  assert(TEST::REG::BITS_4_7::test(0xc) == false);
-  assert(TEST::REG::BITS_4_7::test(0xc0) == true);
+  assert(TEST::REG::BITS_4_7::test(0xc) == true);
+  assert(TEST::REG::BITS_4_7::test(0xc0) == false);
   assert(TEST::REG::BITS_4_7::test(0xd0) == false);
 
   /* RegisterConst */
@@ -207,6 +203,9 @@ int main()
   assert(TEST::REG::BITS_4_7::BIT_1::test() == false);
   assert(TEST::REG::BITS_4_7::BIT_0_1::test() == false);
   assert(TEST::REG::BITS_4_7::CONST_d::test() == true);
+
+  // TODO: fail: 
+  //  UNITTEST_STATIC_ASSERT(( using fail_const = reg::RegisterConst<TEST::REG::BITS_4_7, 0x1f>; ))
 
 
   /* Enhanced register functionality */

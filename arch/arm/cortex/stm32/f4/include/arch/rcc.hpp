@@ -39,10 +39,10 @@ class Rcc {
     static_assert(q >= 2 && q <= 15,                    "invalid PLLQ value");
 
     static constexpr RCC::PLLCFGR::value_type value =
-      RCC::PLLCFGR::PLLM::shifted_value(m)           |
-      RCC::PLLCFGR::PLLN::shifted_value(n)           |
-      RCC::PLLCFGR::PLLP::shifted_value((p >> 1) -1) |
-      RCC::PLLCFGR::PLLQ::shifted_value(q)           |
+      RCC::PLLCFGR::PLLM::value_from(m)           |
+      RCC::PLLCFGR::PLLN::value_from(n)           |
+      RCC::PLLCFGR::PLLP::value_from((p >> 1) -1) |
+      RCC::PLLCFGR::PLLQ::value_from(q)           |
       RCC::PLLCFGR::PLLSRC::value;  // HSE
   };
 
@@ -101,7 +101,7 @@ public:
     }
 
     RCC::CR::PLLON::set();
-    while(RCC::CR::PLLRDY::test() == 0);
+    while(RCC::CR::PLLRDY::test() == false);
     RCC::CFGR::SW::PLL::set();
     while(RCC::CFGR::SWS::PLL::test() == false);
   }

@@ -59,7 +59,7 @@ namespace reg {
     static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
 
     /** Load (read) register value. */
-    static __always_inline T    load(void) {
+    static __always_inline T load(void) {
       static_assert(access != Access::wo, "read access to a write-only register");
       return *value_ptr;
     }
@@ -106,13 +106,16 @@ namespace reg {
   };
 
   template< typename   T,
-            reg_addr_t addr,
-            Access     access,
-            T          reset >
+            reg_addr_t _addr,
+            Access     _access,
+            T          reset_value >
   struct RegisterStorage
   {
     typedef T value_type;
     static T reg_value;
+
+    static constexpr Access     access = _access;
+    static constexpr reg_addr_t addr   = _addr;
 
     static constexpr unsigned additional_space = 6;
     static constexpr unsigned desc_max_width = 8;
@@ -131,7 +134,6 @@ namespace reg {
     }
 
     static void print_mod_line(const char * desc, T value) {
-
       std::cout << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
       if(AddressMap<addr>::name_str)  /* lookup register name */
         std::cout << std::left << std::setfill(' ') << std::setw(addr_width + additional_space) << AddressMap<addr>::name_str;
@@ -180,6 +182,6 @@ namespace reg {
 
 #endif // OPENMPTL_SIMULATION
 
-}
+} // namespace reg
 
 #endif // REGISTER_STORAGE_HPP_INCLUDED

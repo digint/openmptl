@@ -30,6 +30,14 @@ class Flash
 {
   using FLASH = reg::FLASH;
 
+  static_assert(rcc::hclk_freq <= 72_mhz, "unsupported system clock frequency");
+
+  static constexpr FLASH::ACR::LATENCY::value_type latency =
+    ((rcc::hclk_freq <= 24_mhz)  ?  0  :
+     (rcc::hclk_freq <= 48_mhz)  ?  1  :
+     (rcc::hclk_freq <= 72_mhz)  ?  2  :
+     -1 );
+
 public:
 
   static void enable_prefetch_buffer(void) {
@@ -40,19 +48,8 @@ public:
   }
 
   static void set_latency(void) {
-    switch(rcc::hclk_freq) {
-    case 24_mhz:
-      FLASH::ACR::LATENCY::shift_and_set(0);
-      break;
-    case 36_mhz:
-    case 48_mhz:
-      FLASH::ACR::LATENCY::shift_and_set(1);
-      break;
-    case 56_mhz:
-    case 72_mhz:
-      FLASH::ACR::LATENCY::shift_and_set(2);
-      break;
-    }
+    static_assert(latency <= 2, "invalid FLASH::ACR::LATENCY value");
+    FLASH::ACR::LATENCY::set(latency);
   }
 
   static void init(void) {
