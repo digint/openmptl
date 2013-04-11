@@ -29,7 +29,7 @@ class UartIrqTransport
 {
   using SR = typename usart::USARTx::SR;
 
-  typename SR::value_type flags;
+  const typename SR::value_type flags;
 
 public:
 
