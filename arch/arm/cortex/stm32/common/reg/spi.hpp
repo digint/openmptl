@@ -54,7 +54,7 @@ namespace reg
       {
         template<unsigned prescaler>
         struct Prescaler
-        : RegisterConst< Rb,
+        : public RegisterConst< Rb,
                          prescaler == 2   ? 0x0 :      /**< f_PCLK / 2     */
                          prescaler == 4   ? 0x1 :      /**< f_PCLK / 4     */
                          prescaler == 8   ? 0x2 :      /**< f_PCLK / 8     */

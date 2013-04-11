@@ -47,7 +47,7 @@ namespace reg
       using PVDE  = RegisterBits< type,  4,  1 >;    /**< Power Voltage Detector Enable           */
 
       /** PVD Level Selection */
-      struct PLS  : RegisterBits< type,  5,  3 >
+      struct PLS  : public RegisterBits< type,  5,  3 >
       {
         template<unsigned int fraction>
         struct VoltageThreshold
