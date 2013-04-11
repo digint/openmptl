@@ -21,7 +21,6 @@
 #include <register.hpp>
 #include <register_manip.hpp>
 #include <cassert>
-#include "unittest_static_assert.hpp"
 
 namespace reg
 {
@@ -204,8 +203,10 @@ int main()
   assert(TEST::REG::BITS_4_7::BIT_0_1::test() == false);
   assert(TEST::REG::BITS_4_7::CONST_d::test() == true);
 
-  // TODO: fail: 
-  //  UNITTEST_STATIC_ASSERT(( using fail_const = reg::RegisterConst<TEST::REG::BITS_4_7, 0x1f>; ))
+#ifdef UNITTEST_MUST_FAIL
+  // fail: value=0x1f does not fit into bits of R=TEST::REG::BITS_4_7
+  reg::RegisterConst<TEST::REG::BITS_4_7, 0x1f>::set();
+#endif
 
 
   /* Enhanced register functionality */
@@ -228,8 +229,11 @@ int main()
 
   unittest_register_manip(); // TODO: separate register_manip.cpp
 
-  // fail: clearing bits from different register
-  UNITTEST_STATIC_ASSERT( TEST::REG::clear<TEST::REG2::BITS_0_7>(); )
+#ifdef UNITTEST_MUST_FAIL
+  // clearing bits from different register
+  // fail: template arguments are not of same Register<> type
+  TEST::REG::clear<TEST::REG2::BITS_0_7>();
+#endif
 
   return 0;
 }

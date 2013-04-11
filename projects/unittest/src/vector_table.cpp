@@ -21,7 +21,6 @@
 #include <resource_mpl.hpp>
 #include <arch/vector_table.hpp>
 #include <cassert>
-#include "unittest_static_assert.hpp"
 
 static unsigned int stack_top = 0;
 static int isr_test = 0;
@@ -40,7 +39,10 @@ int main()
 {
   VectorTable<&stack_top, resource_list, default_isr> vector_table;
 
-  UNITTEST_STATIC_ASSERT( VectorTable<&stack_top, resource_fail_list, default_isr> vector_table_fail; )
+#ifdef UNITTEST_MUST_FAIL
+  // fail: ResourceList contains a resource derived from unique_resource (-> irq42) which is not unique
+  VectorTable<&stack_top, resource_fail_list, default_isr> vector_table_fail;
+#endif
 
   resource_list::check();
   resource_list::configure();

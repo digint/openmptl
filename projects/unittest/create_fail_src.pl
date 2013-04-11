@@ -39,12 +39,12 @@ while (my $infile = shift @ARGV) {
   my $pre = '';
   my $count = 0;
 
-  while ($text =~ /^\s*UNITTEST_STATIC_ASSERT[^\n]*\n/ms) {
+  while ($text =~ /UNITTEST_MUST_FAIL/ms) {
     my $m = $&;
     $pre = $pre . $`;
     $text = $';
     my $mm = $m;
-    $mm =~ s/UNITTEST_STATIC_ASSERT/UNITTEST_STATIC_ASSERT_ENABLED/;
+    $mm =~ s/UNITTEST_MUST_FAIL/UNITTEST_MUST_FAIL_ENABLED/;
 
     $count++;
     my $outfile = $outfile_prefix . $count . $fileext;

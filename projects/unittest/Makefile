@@ -31,6 +31,7 @@ OPENMPTL_ARCH = arm/cortex/stm32/f4
 
 FLAGS       += -DOPENMPTL_SIMULATION
 FLAGS       += -DDEBUG_REGISTER
+FLAGS       += -DUNITTEST_MUST_FAIL_ENABLED
 
 
 #------------------------------------------------------------------------------

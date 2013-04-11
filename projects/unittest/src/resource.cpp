@@ -20,7 +20,6 @@
 
 #include <resource.hpp>
 #include <register.hpp>
-#include "unittest_static_assert.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -73,8 +72,16 @@ int main()
 {
   /* check unique resources */
   list::check();
-  UNITTEST_STATIC_ASSERT( uniq_fail_list::check() );
-  UNITTEST_STATIC_ASSERT( bitmask_fail_list::configure() );
+
+#ifdef UNITTEST_MUST_FAIL
+  // fail: ResourceList contains a resource derived from unique_resource (-> uniq_c) which is not unique.
+  uniq_fail_list::check();
+#endif
+
+#ifdef UNITTEST_MUST_FAIL
+  // fail: set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour
+  bitmask_fail_list::configure();
+#endif
 
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);
