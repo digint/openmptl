@@ -24,7 +24,7 @@
 OPENMPTL_TOP  = ../..
 
 #CROSS        = x86_64-pc-linux-gnu-
-CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
+CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.0/x86_64-pc-linux-gnu-
 
 # needed by some unittests
 OPENMPTL_ARCH = arm/cortex/stm32/f4

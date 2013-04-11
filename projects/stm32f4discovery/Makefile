@@ -29,7 +29,7 @@ TINYFSM_TOP    = ../../../tinyfsm
 OPENMPTL_ARCH  = arm/cortex/stm32/f4
 
 ifdef SIMULATION
-  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.7.2/x86_64-pc-linux-gnu-
+  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.0/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
   FLAGS       += -DDEBUG_REGISTER
 else
