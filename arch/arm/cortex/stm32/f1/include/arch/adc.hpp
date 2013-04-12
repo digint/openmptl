@@ -174,7 +174,7 @@ template<unsigned              adc_no,
 class Adc
 {
   static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
-  static_assert((adc_no > 1) || (mode == AdcMode::independent), "dual mode is only available for ADC1");
+  static_assert((adc_no == 1) || (mode == AdcMode::independent), "dual mode is only available for ADC1");
 
   using ADCx = reg::ADC<adc_no>;
 
