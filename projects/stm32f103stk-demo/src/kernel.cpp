@@ -75,6 +75,8 @@ void Kernel::run(void)
   Debouncer<Joystick::Position, time, 10> debouncer(joypos);
 
   /* define the screen item list */
+#ifdef OPENMPTL_USE_BOOST
+  // also works with std::list<>, but slower, bigger
   ScreenItemList item_list;
   TextRow    title0    (item_list, ">> OpenMPTL <<");
   TextRow    title1    (item_list, "--------------");
@@ -84,6 +86,18 @@ void Kernel::run(void)
   DataRow    cycle     (item_list, "cyc");
   DataRowHex irq_count (item_list, "#irq");
   DataRowHex eirq      (item_list, "eirq");
+#else
+  // this is much faster, and reduces code size by 100 (list) to 200 (vector) bytes!
+  TextRow    title0    (">> OpenMPTL <<");
+  TextRow    title1    ("--------------");
+  TextRow    joytext   (joytext_buf);
+  DataRow    rtc_sec   ("rtc");
+  DataRowHex tick      ("tick");
+  DataRow    cycle     ("cyc");
+  DataRowHex irq_count ("#irq");
+  DataRowHex eirq      ("eirq");
+  ScreenItemList item_list{&title0, &title1, &joytext, &rtc_sec, &tick, &cycle, &irq_count, &eirq};
+#endif
 
   Screen::set_item_list(item_list);
 
@@ -97,6 +111,7 @@ void Kernel::run(void)
   while(1)
   {
     cycle_counter.start();
+
     /* poll joystick */
     debouncer.set(joy::get_position());
     if(debouncer.get(joypos)) {
@@ -133,6 +148,7 @@ void Kernel::run(void)
     tick      = time::get_systick();
     irq_count = usart_stream_device::irq_count;
     eirq      = usart_stream_device::irq_errors;
+
     cycle_counter.stop();
     cycle     = cycle_counter.get();
 
