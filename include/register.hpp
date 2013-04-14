@@ -144,6 +144,9 @@ namespace mpl
 
 namespace reg
 {
+  template< typename, unsigned, unsigned >
+  class RegisterBits;
+
   template< typename   T,
             reg_addr_t addr,
             Access     access,
@@ -155,6 +158,7 @@ namespace reg
 
   public:
     using type       = Register<T, addr, access, _reset_value>;
+    using bits_type  = RegisterBits< type, 0, sizeof(T) * 8>;
     using reg_type   = type;
     using value_type = T;
 
