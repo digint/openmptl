@@ -56,18 +56,33 @@ namespace reg {
     /** Integral type used for register access. */
     typedef T value_type;
 
+#if 0
+    /* For some reasons, reinterpret_cast is not allowed anymore in
+     * constant expressions (C++11 standard N3376, 5.19). In older
+     * drafts (N3242), this was allowed. Disabled here, since
+     * clang-3.2 does not allow it (gcc-4.8 is less permissive here).
+     */
     static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
+#endif
 
     /** Load (read) register value. */
     static __always_inline T load(void) {
       static_assert(access != Access::wo, "read access to a write-only register");
+#if 0
       return *value_ptr;
+#else
+      return *reinterpret_cast<volatile T *>(addr);
+#endif
     }
 
     /** Store (write) a register value. */
     static __always_inline void store(T const value) {
       static_assert(access != Access::ro, "write access to a read-only register");
+#if 0
       *value_ptr = value;
+#else
+      *reinterpret_cast<volatile T *>(addr) = value;
+#endif
     }
   };
 
