@@ -82,9 +82,11 @@ class Usart
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 
+public:
+  using USARTx = reg::USART<_usart_no>;
+
 protected:
 
-  using USARTx = reg::USART<_usart_no>;
   using rcc = _rcc;
 
   static typename USARTx::BRR::value_type baud_to_brr(unsigned baud_rate) {
