@@ -116,7 +116,8 @@ struct ResourceList : mpl::resource_list_impl<Args...>
   struct irq_resource {
     using type = combined_type< IrqResourceGroup<irqn> >;
     using irq_resource_group_type = IrqResourceGroup<irqn>;
-    static constexpr isr_t value = combined_type< IrqResourceGroup<irqn> >::value;
+    // this fails since combined_type can be of type "void":
+    // static constexpr isr_t value = combined_type< IrqResourceGroup<irqn> >::value;
   };
 
   /* Run configure() on all combined resource types.  */
@@ -125,8 +126,9 @@ struct ResourceList : mpl::resource_list_impl<Args...>
   }
 
   /* Compile-time consistency check of the resource list (calls static_assert() on errors) */
-  static constexpr void check() {
+  static constexpr bool check() {
     static_assert(resource_type_list::template assert_type<type>(), "ResourceList check failed.");
+    return true;
   }
 };
 
