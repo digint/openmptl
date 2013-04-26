@@ -32,13 +32,13 @@ struct B : Register< uint32_t, 0x2000, Access::rw, 0x44444444 > {};
 struct C : Register< uint8_t,  0x3000, Access::rw, 0 > {};
 struct D : Register< uint32_t, 0x4000, Access::rw, 0x55555555 > {};
 
-typedef SharedRegister< A, 0x00000011, 0x000000ff > test_a_0;
-typedef SharedRegister< A, 0x00001100, 0x0000ff00 > test_a_1;
-typedef SharedRegister< B, 0x00110000, 0x00ff0000 > test_b;
-typedef SharedRegister< A, 0x11000000, 0xff000000 > test_a_2;
-typedef SharedRegister< C, 0x10,       0xff       > test_c;
+typedef SharedRegister< reg::RegisterMask<A, 0x00000011, 0x000000ff> > test_a_0;
+typedef SharedRegister< reg::RegisterMask<A, 0x00001100, 0x0000ff00> > test_a_1;
+typedef SharedRegister< reg::RegisterMask<B, 0x00110000, 0x00ff0000> > test_b;
+typedef SharedRegister< reg::RegisterMask<A, 0x11000000, 0xff000000> > test_a_2;
+typedef SharedRegister< reg::RegisterMask<C, 0x10,       0xff      > > test_c;
 
-typedef SharedRegister< A, 0x00000000, 0x00000010 > anti_test_a_0; /* clears a bit which is set by test_a_0 */
+typedef SharedRegister< reg::RegisterMask<A, 0x00000000, 0x00000010> > anti_test_a_0; /* clears a bit which is set by test_a_0 */
 
 typedef UniqueResource< A > uniq_a;
 typedef UniqueResource< B > uniq_b;
@@ -70,6 +70,11 @@ void reg::RegisterReaction::react() { }
 
 int main()
 {
+
+  ResourceList< test_a_1, test_a_2 >::configure();
+
+
+#if 0
   /* check unique resources */
   list::check();
 
@@ -95,6 +100,7 @@ int main()
   assert(B::load() == 0x44114444);
   assert(C::load() == 0x10);
   assert(D::load() == 0x55555555);
+#endif
 
   return 0;
 }

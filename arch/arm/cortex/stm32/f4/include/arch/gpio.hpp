@@ -107,12 +107,12 @@ public:
     UniqueResource< Gpio<port, pin_no> >,
 
     // TODO: make sure the registers are only set if they differ from reset value. does this make sense?
-    SharedRegister< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double >,
-    SharedRegister< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        >,
-    SharedRegister< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double >,
-    SharedRegister< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double >,
-    SharedRegister< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       >,
-    SharedRegister< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       >
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       > >
     >;
 
   static void set() {

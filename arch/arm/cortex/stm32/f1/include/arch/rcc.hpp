@@ -58,61 +58,62 @@ public:
   }
 
   static void set_system_clock(void) {
+    /* reset CFGR, and set HPRE, PPRE1, PPRE2, PLLSRC, PLLXTPRE, PLLMUL */
     switch(cpu_clock_freq) {
     case 24_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 6 = 24 MHz               */
-      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
-                      RCC::CFGR::PPRE1   ::DIV1,
-                      RCC::CFGR::PPRE2   ::DIV1,
-                      RCC::CFGR::PLLSRC  ::HSE,
-                      RCC::CFGR::PLLXTPRE::HSE_DIV2,
-                      RCC::CFGR::PLLMUL  ::MUL6
-                      >();
+      RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
+                           RCC::CFGR::PPRE1   ::DIV1,
+                           RCC::CFGR::PPRE2   ::DIV1,
+                           RCC::CFGR::PLLSRC  ::HSE,
+                           RCC::CFGR::PLLXTPRE::HSE_DIV2,
+                           RCC::CFGR::PLLMUL  ::MUL6
+                           >();
       break;
     case 36_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 9 = 36 MHz               */
-      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
-                      RCC::CFGR::PPRE1   ::DIV1,
-                      RCC::CFGR::PPRE2   ::DIV1,
-                      RCC::CFGR::PLLSRC  ::HSE,
-                      RCC::CFGR::PLLXTPRE::HSE_DIV2,
-                      RCC::CFGR::PLLMUL  ::MUL9
-                      >();
+      RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
+                           RCC::CFGR::PPRE1   ::DIV1,
+                           RCC::CFGR::PPRE2   ::DIV1,
+                           RCC::CFGR::PLLSRC  ::HSE,
+                           RCC::CFGR::PLLXTPRE::HSE_DIV2,
+                           RCC::CFGR::PLLMUL  ::MUL9
+                           >();
       break;
     case 48_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 6 = 48 MHz                   */
-      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
-                      RCC::CFGR::PPRE1   ::DIV2,
-                      RCC::CFGR::PPRE2   ::DIV1,
-                      RCC::CFGR::PLLSRC  ::HSE,
-                      RCC::CFGR::PLLXTPRE::HSE_DIV1,
-                      RCC::CFGR::PLLMUL  ::MUL6
-                      >();
+      RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
+                           RCC::CFGR::PPRE1   ::DIV2,
+                           RCC::CFGR::PPRE2   ::DIV1,
+                           RCC::CFGR::PLLSRC  ::HSE,
+                           RCC::CFGR::PLLXTPRE::HSE_DIV1,
+                           RCC::CFGR::PLLMUL  ::MUL6
+                           >();
       break;
     case 56_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 7 = 56 MHz                   */
-      RCC::CFGR::set< RCC::CFGR::HPRE    ::DIV1,
-                      RCC::CFGR::PPRE1   ::DIV2,
-                      RCC::CFGR::PPRE2   ::DIV1,
-                      RCC::CFGR::PLLSRC  ::HSE,
-                      RCC::CFGR::PLLXTPRE::HSE_DIV1,
-                      RCC::CFGR::PLLMUL  ::MUL7
-                      >();
+      RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
+                           RCC::CFGR::PPRE1   ::DIV2,
+                           RCC::CFGR::PPRE2   ::DIV1,
+                           RCC::CFGR::PLLSRC  ::HSE,
+                           RCC::CFGR::PLLXTPRE::HSE_DIV1,
+                           RCC::CFGR::PLLMUL  ::MUL7
+                           >();
       break;
     case 72_mhz:
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 9 = 72 MHz                   */
-      RCC::CFGR::set<RCC::CFGR::HPRE    ::DIV1,
-                     RCC::CFGR::PPRE1   ::DIV2,
-                     RCC::CFGR::PPRE2   ::DIV1,
-                     RCC::CFGR::PLLSRC  ::HSE,
-                     RCC::CFGR::PLLXTPRE::HSE_DIV1,
-                     RCC::CFGR::PLLMUL  ::MUL9
-                     >();
+      RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
+                           RCC::CFGR::PPRE1   ::DIV2,
+                           RCC::CFGR::PPRE2   ::DIV1,
+                           RCC::CFGR::PLLSRC  ::HSE,
+                           RCC::CFGR::PLLXTPRE::HSE_DIV1,
+                           RCC::CFGR::PLLMUL  ::MUL9
+                           >();
       break;
     }
 
@@ -136,45 +137,44 @@ template<unsigned> struct Rcc_spi_clock_resources;
 template<unsigned> struct Rcc_usart_clock_resources;
 template<unsigned> struct Rcc_adc_clock_resources;
 
-using Rcc_rtc_clock_resources = SharedRegister<
-  reg::RCC::APB1ENR,
-  ( reg::RCC::APB1ENR::PWREN::value |
-    reg::RCC::APB1ENR::BKPEN::value )
+using Rcc_rtc_clock_resources = ResourceList<
+  SharedRegister<reg::RCC::APB1ENR::PWREN>,
+  SharedRegister<reg::RCC::APB1ENR::BKPEN>
   >;
 
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct Rcc_gpio_clock_resources<'A'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPAEN::value> { };
-template<> struct Rcc_gpio_clock_resources<'B'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPBEN::value> { };
-template<> struct Rcc_gpio_clock_resources<'C'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPCEN::value> { };
-template<> struct Rcc_gpio_clock_resources<'D'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPDEN::value> { };
-template<> struct Rcc_gpio_clock_resources<'E'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPEEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'A'> : SharedRegister<reg::RCC::APB2ENR::IOPAEN> { };
+template<> struct Rcc_gpio_clock_resources<'B'> : SharedRegister<reg::RCC::APB2ENR::IOPBEN> { };
+template<> struct Rcc_gpio_clock_resources<'C'> : SharedRegister<reg::RCC::APB2ENR::IOPCEN> { };
+template<> struct Rcc_gpio_clock_resources<'D'> : SharedRegister<reg::RCC::APB2ENR::IOPDEN> { };
+template<> struct Rcc_gpio_clock_resources<'E'> : SharedRegister<reg::RCC::APB2ENR::IOPEEN> { };
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-template<> struct Rcc_gpio_clock_resources<'F'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPFEN::value> { };
-template<> struct Rcc_gpio_clock_resources<'G'> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::IOPGEN::value> { };
+template<> struct Rcc_gpio_clock_resources<'F'> : SharedRegister<reg::RCC::APB2ENR::IOPFEN> { };
+template<> struct Rcc_gpio_clock_resources<'G'> : SharedRegister<reg::RCC::APB2ENR::IOPGEN> { };
 #endif
 
-template<> struct Rcc_spi_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::SPI1EN::value> { };
+template<> struct Rcc_spi_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::SPI1EN> { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-template<> struct Rcc_spi_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI2EN::value> { };
+template<> struct Rcc_spi_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR::SPI2EN> { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_CL)
-template<> struct Rcc_spi_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::SPI3EN::value> { };
+template<> struct Rcc_spi_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR::SPI3EN> { };
 #endif
 
-template<> struct Rcc_usart_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::USART1EN::value> { };
-template<> struct Rcc_usart_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART2EN::value> { };
+template<> struct Rcc_usart_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::USART1EN> { };
+template<> struct Rcc_usart_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR::USART2EN> { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-template<> struct Rcc_usart_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR, reg::RCC::APB1ENR::USART3EN::value> { };
+template<> struct Rcc_usart_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR::USART3EN> { };
 #endif
 
-template<> struct Rcc_adc_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC1EN::value> { };
+template<> struct Rcc_adc_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::ADC1EN> { };
 #if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL)
-template<> struct Rcc_adc_clock_resources<2> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC2EN::value> { };
+template<> struct Rcc_adc_clock_resources<2> : SharedRegister<reg::RCC::APB2ENR::ADC2EN> { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-template<> struct Rcc_adc_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR, reg::RCC::APB2ENR::ADC3EN::value> { };
+template<> struct Rcc_adc_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::ADC3EN> { };
 #endif
 
 

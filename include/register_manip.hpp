@@ -47,15 +47,15 @@ public:
   void __always_inline set(value_type const set_mask, value_type const clear_mask) { reg = (reg & ~clear_mask) | set_mask; }
   void __always_inline clear(value_type const value) { reg &= ~value; }
 
-  template<typename... Rb>
+  template<typename... Rm>
   void __always_inline clear(void) {
-    clear(mpl::reg_combined<value_type, Rb...>::clear_mask);
+    clear(T::template combined_mask<Rm...>::type::clear_mask);
   }
 
-  template<typename... Rc>
+  template<typename... Rm>
   void __always_inline set(void) {
-    using combined = mpl::reg_combined<value_type, Rc...>;
-    set( combined::set_mask, combined::cropped_clear_mask );
+    using combined_type = typename T::template combined_mask<Rm...>::type;
+    set( combined_type::set_mask, combined_type::cropped_clear_mask );
   }
 
 private:

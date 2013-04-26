@@ -208,8 +208,8 @@ public:
 
   using resources = ResourceList<
     typename base::resources,
-    SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
-    SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::CRL, crl_value, crl_mask > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::CRH, crh_value, crh_mask > >
     >;
 
   static bool active(void) {
@@ -255,8 +255,8 @@ public:
 
   using resources = ResourceList<
     typename base::resources,
-    SharedRegister< typename reg::GPIO<port>::CRL, crl_value, crl_mask >,
-    SharedRegister< typename reg::GPIO<port>::CRH, crh_value, crh_mask >
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::CRL, crl_value, crl_mask > >,
+    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::CRH, crh_value, crh_mask > >
     >;
 
   static void enable() {

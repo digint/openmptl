@@ -202,7 +202,7 @@ public:
        ADCx::CR2::CONT  ::value_from((uint32_t)cont_conv_mode));
 
     /* ADCx SQR1 config */
-    ADCx::SQR1::L::set(chan_seq_len::value);
+    ADCx::SQR1::L::set_from(chan_seq_len::value);
   }
 
   static void reset(void) {

@@ -33,34 +33,24 @@ struct SharedRegisterGroup : mpl::resource_group
 { };
 
 
-template<typename R, typename R::value_type _set_mask, typename R::value_type _clear_mask = 0 >
+template<typename R>
 struct SharedRegister
-: mpl::resource< SharedRegisterGroup<R>, SharedRegister<R, _set_mask, _clear_mask> >
+: mpl::resource< SharedRegisterGroup<typename R::reg_type>, SharedRegister<typename R::mask_type> >
 {
-  using reg_type = R;
-  using reg_value_type = typename R::value_type;
+  using mask_type = typename R::mask_type;
 
-  static constexpr reg_value_type set_mask   = _set_mask;
-  static constexpr reg_value_type clear_mask = _clear_mask;
-
-  /* Combine two SharedRegister of same reg_type:                      */
+  /* Combine two SharedRegister of same SharedRegisterGroup:           */
   /* Returns SharedRegister with or'ed set_mask and or'ed clear_mask.  */
   template<typename U>
   struct combine {
-    /* assert if we set a bit which was previously cleared (and vice versa) */
-    static_assert(!((U::set_mask & clear_mask) & (~set_mask)),    "set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour. (see compile message \"struct SharedRegister<reg, set_mask, clear_mask>::combine<SharedRegister<reg, set_mask, clear_mask> >\" above.)");
-    static_assert(!((set_mask & U::clear_mask) & (~U::set_mask)), "set/clear check failed: clearing a bit which was previously set leads to undefined behaviour. (see compile message \"struct SharedRegister<reg, set_mask, clear_mask>::combine<SharedRegister<reg, set_mask, clear_mask> >\" above.)");
-    /* assert types (this should never happen) */
-    static_assert(std::is_same<reg_type, typename U::reg_type>::value, "oops, combining values for different register...");
-
-    using type = SharedRegister<R, set_mask | U::set_mask, clear_mask | U::clear_mask>;
+    using type = SharedRegister< typename mask_type::template combine<typename U::mask_type>::type >;
   };
 
   /* Called by resource_type_list_impl::configure() on a combined */
   /* SharedRegister type. (which we are in this context, see "combine" above)  */
   static __always_inline void configure() {
-    if((set_mask != 0) || (clear_mask != 0))
-      R::set(set_mask, clear_mask);
+    //    if((R::set_mask != 0) || (R::clear_mask != 0))
+      R::set();
 
     // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register:
     // T::store((T::reset_value & ~combined_type<T>::clear_mask) | combined_type<T>::set_mask);

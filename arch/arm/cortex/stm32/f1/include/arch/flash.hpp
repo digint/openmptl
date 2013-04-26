@@ -49,7 +49,7 @@ public:
 
   static void set_latency(void) {
     static_assert(latency <= 2, "invalid FLASH::ACR::LATENCY value");
-    FLASH::ACR::LATENCY::set(latency);
+    FLASH::ACR::LATENCY::set_from(latency);
   }
 
   static void init(void) {

@@ -85,17 +85,37 @@ void unittest_register_manip()
   reg.store();
   assert(TEST::REG::load() == 0x005555df);
 
-  uint32_t set_mask           = mpl::reg_combined<uint32_t, TEST::REG::BITS_4_7::CONST_d>::set_mask;
-  uint32_t clear_mask         = mpl::reg_combined<uint32_t, TEST::REG::BITS_4_7::CONST_d>::clear_mask;
-  uint32_t cropped_clear_mask = mpl::reg_combined<uint32_t, TEST::REG::BITS_4_7::CONST_d>::cropped_clear_mask;
-  assert(set_mask           == 0x000000d0);
-  assert(clear_mask         == 0x000000f0);
-  assert(cropped_clear_mask == 0x00000020);
+  reg.clear<TEST::REG::BITS_0_3, TEST::REG::BITS_8_31>();
+  reg.store();
+  assert(TEST::REG::load() == 0x000000d0);
 }
 
 int main()
 {
   std::cout << "*** main ***" << std::endl; 
+
+  /* RegisterMask */
+  using combined_type = reg::RegisterMask<TEST::REG, 0xabcd0000>::combine<TEST::REG::BITS_4_7::CONST_d>::type;
+  static_assert(combined_type::set_mask           == 0xabcd00d0, "");
+  static_assert(combined_type::clear_mask         == 0xabcd00f0, "");
+  static_assert(combined_type::cropped_clear_mask == 0x00000020, "");
+
+  static_assert(reg::RegisterMask<TEST::REG, 0x11111111>::combine<
+                reg::RegisterMask<TEST::REG, 0x222200ef>
+                >::type::set_mask ==         0x333311ff, "");
+
+  static_assert(TEST::REG::combined_mask<
+                reg::RegisterMask<TEST::REG, 0x11111111>,
+                reg::RegisterMask<TEST::REG, 0x24824800>,
+                reg::RegisterMask<TEST::REG, 0x48011107>
+                >::type::set_mask ==         0x7d935917, "");
+
+#ifdef UNITTEST_MUST_FAIL
+  // fail: not same register
+  using combined_type_fail = reg::RegisterMask<TEST::REG2, 0xabcd0000>::bit_or<TEST::REG::BITS_4_7::CONST_d>::type;
+#endif
+
+
 
   /* Register */
   TEST::REG::store(0xffff0000);
@@ -126,13 +146,13 @@ int main()
 
   TEST::REG::BITS_0_3::set();
   assert(TEST::REG::BITS_0_3::get() == 0xf);
-  assert(TEST::REG::BITS_0_3::test(0xf) == true);
+  assert(TEST::REG::BITS_0_3::test_from(0xf) == true);
   assert(TEST::REG::BITS_4_7::test() == false);
-  assert(TEST::REG::BITS_4_7::test(0x0) == true);
+  assert(TEST::REG::BITS_4_7::test_from(0x0) == true);
   assert(TEST::REG::BITS_8_31::get() == 0xffff00);
 
-  TEST::REG::BITS_0_3::set(0xc);
-  assert(TEST::REG::BITS_0_3::test(0xc) == true);
+  TEST::REG::BITS_0_3::set_from(0xc);
+  assert(TEST::REG::BITS_0_3::test_from(0xc) == true);
   assert(TEST::REG::load() == 0xffff000c);
 
 #if 0
@@ -142,36 +162,36 @@ int main()
 #endif
 
   TEST::REG::store(0xffffffff);
-  TEST::REG::BITS_0_3::set(0x0);
-  TEST::REG::BITS_4_7::set(0xc);
+  TEST::REG::BITS_0_3::set_from(0x0);
+  TEST::REG::BITS_4_7::set_from(0xc);
   assert(TEST::REG::BITS_4_7::test() == true);
-  assert(TEST::REG::BITS_4_7::test(0xc) == true);
+  assert(TEST::REG::BITS_4_7::test_from(0xc) == true);
   assert(TEST::REG::BITS_0_3::test() == false);
 
   TEST::REG::BITS_4_7::set();
-  assert(TEST::REG::BITS_4_7::test(0xf) == true);
+  assert(TEST::REG::BITS_4_7::test_from(0xf) == true);
   assert(TEST::REG::BITS_0_3::test() == false);
 
   TEST::REG::store(0xffffffff);
   TEST::REG::BITS_4_7::clear();
   assert(TEST::REG::BITS_4_7::test() == false);
-  assert(TEST::REG::BITS_4_7::test(0x0) == true);
-  assert(TEST::REG::BITS_0_3::test(0xf) == true);
+  assert(TEST::REG::BITS_4_7::test_from(0x0) == true);
+  assert(TEST::REG::BITS_0_3::test_from(0xf) == true);
 
   TEST::REG::store(0xffffffff);
-  assert(TEST::REG::BITS_0_3::test(0xf) == true);
-  assert(TEST::REG::BITS_4_7::test(0xf) == true);
-  assert(TEST::REG::BITS_0_3::test(0x1) == false);
-  assert(TEST::REG::BITS_0_3::test(0xe) == false);
+  assert(TEST::REG::BITS_0_3::test_from(0xf) == true);
+  assert(TEST::REG::BITS_4_7::test_from(0xf) == true);
+  assert(TEST::REG::BITS_0_3::test_from(0x1) == false);
+  assert(TEST::REG::BITS_0_3::test_from(0xe) == false);
   assert(TEST::REG::BITS_8_31::get() == 0x00ffffff);
 
   TEST::REG::store(0x000000cc);
-  assert(TEST::REG::BITS_0_3::test(0x1) == false);
-  assert(TEST::REG::BITS_0_3::test(0xc) == true);
-  assert(TEST::REG::BITS_0_3::test(0xd) == false);
-  assert(TEST::REG::BITS_4_7::test(0xc) == true);
-  assert(TEST::REG::BITS_4_7::test(0xc0) == false);
-  assert(TEST::REG::BITS_4_7::test(0xd0) == false);
+  assert(TEST::REG::BITS_0_3::test_from(0x1) == false);
+  assert(TEST::REG::BITS_0_3::test_from(0xc) == true);
+  assert(TEST::REG::BITS_0_3::test_from(0xd) == false);
+  assert(TEST::REG::BITS_4_7::test_from(0xc) == true);
+  assert(TEST::REG::BITS_4_7::test_from(0xc0) == false);
+  assert(TEST::REG::BITS_4_7::test_from(0xd0) == false);
 
   /* RegisterConst */
 
@@ -217,6 +237,13 @@ int main()
 
   TEST::REG::store(0xffffffff);
   TEST::REG::set<TEST::REG::BITS_4_7::BIT_1, TEST::REG::BITS_0_3::CONST_d>();
+
+
+#ifdef UNITTEST_MUST_FAIL
+  // fail: clear() is private on RegisterConst
+  TEST::REG::BITS_0_3::CONST_d::clear();
+#endif
+
   assert(TEST::REG::load() == 0xffffff2d);
 
   TEST::REG::store(0xffffffff);
