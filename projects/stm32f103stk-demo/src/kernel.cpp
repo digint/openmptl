@@ -71,8 +71,11 @@ void Kernel::run(void)
   CycleCounter cycle_counter;
   char joytext_buf[16] = "              ";
   const char * joypos_text = "center";
-  Joystick::Position joypos = Joystick::Position::center;
-  Debouncer<Joystick::Position, time, 10> debouncer(joypos);
+  Debouncer< Joystick::Position,
+             joy::get_position,
+             time::get_systick,
+             time::systick::freq,
+             10 > joypos(Joystick::Position::center);
 
   /* define the screen item list */
 #ifdef OPENMPTL_USE_BOOST
@@ -113,8 +116,7 @@ void Kernel::run(void)
     cycle_counter.start();
 
     /* poll joystick */
-    debouncer.set(joy::get_position());
-    if(debouncer.get(joypos)) {
+    if(joypos.poll()) {
       switch(joypos) {
       case Joystick::Position::up:
         send_event(EvJoystickUp());

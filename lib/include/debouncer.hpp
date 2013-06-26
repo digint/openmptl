@@ -24,35 +24,51 @@
 /**
  * Debounce a value on a given time base
  *
- * NOTE: time_base must implement get_systick() function, returning a growing value
+ * NOTE: time_func() must return a growing value!
  */
-template<typename T, typename time_base, unsigned wait_time = 10>
+template< typename T,
+          T (*poll_func)(void),         // polling function
+          unsigned (*time_func)(void),  // timer get function (must return a growing value)
+          freq_t   time_freq,           // time_func frequency in hz
+          unsigned wait_time_ms = 50    // debounce time in milliseconds
+          >
 class Debouncer
 {
   T value;
   T current;
-  unsigned set_time = 0;
+  unsigned hold_time;
+
+  static constexpr unsigned wait_time_ticks = (((unsigned long long)time_freq * (unsigned long long)wait_time_ms) / 1000L);
 
 public:
 
-  Debouncer(T _value) : value(_value), current(_value) { };
+  Debouncer(T _value) : value(_value), current(_value), hold_time(0) { };
 
-  void set(T new_value) {
+  /**
+   * Feed debouncer with a new value.
+   * Returns true if the value has changed.
+   */
+  bool poll(void) {
+    T new_value = poll_func();
+    unsigned now = time_func();
     if(current != new_value) {
       current = new_value;
-      set_time = time_base::get_systick();
+      hold_time = now + wait_time_ticks;
     }
+
+    if((hold_time > now) || (value == current))
+      return false;
+
+    value = current;
+    return true;
   }
 
-  bool get(T & _value) {
-    bool changed = false;
-    if((value != current) && (time_base::get_systick() + wait_time > set_time)) {
-      value = current;
-      changed = true;
-    }
+  T get(void) const {
+    return value;
+  }
 
-    _value = value;
-    return changed;
+  operator T() const {
+    return get();
   }
 };
 
