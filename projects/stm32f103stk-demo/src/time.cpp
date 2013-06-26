@@ -22,13 +22,13 @@
 #include "time.hpp"
 #include "kernel.hpp"
 
-//systick_t time::systick_count;
+//systick_t SystemTime::systick_count;
 std::atomic<systick_t> SystemTime::systick_count;
 volatile unsigned int SystemTime::seconds;
 
 void SystemTime::systick_isr(void) {
   systick_count.fetch_add(1, std::memory_order_relaxed);
-  // time::systick_count++;
+  // systick_count++;
 }
 
 void SystemTime::rtc_isr() {

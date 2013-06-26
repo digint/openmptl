@@ -292,7 +292,7 @@ namespace reg
     }
 
     template<typename Front, typename... Args>
-    struct combined_mask {
+    struct combined_mask { // TODO: rename "accumulate" (maybe derive from "type" below, so that we can use it without ::type notation)
       static_assert(std::is_same<typename Front::reg_type, reg_type>::value, "template argument is not of same register type");
       using type = typename Front::template combine< typename combined_mask<Args...>::type >::type;
     };
