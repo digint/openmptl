@@ -212,7 +212,7 @@ $(OBJ_DIR)/%.o: %.cpp
 $(OBJ_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(OBJDIR)/%.o: %.S
+$(OBJ_DIR)/%.o: %.S
 	$(AS) -c $(ASFLAGS) -o $@ $<
 
 $(OBJ_DIR):
