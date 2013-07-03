@@ -29,11 +29,11 @@ TINYFSM_TOP    = ../../../tinyfsm
 OPENMPTL_ARCH  = arm/cortex/stm32/f4
 
 ifdef SIMULATION
-  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.0/x86_64-pc-linux-gnu-
+  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
   FLAGS       += -DDEBUG_REGISTER
 else
-  CROSS        = arm-none-eabi-
+  CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb
 endif
 
