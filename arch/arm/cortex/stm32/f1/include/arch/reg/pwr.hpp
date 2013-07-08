@@ -23,55 +23,56 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+
+/**
+ * Power control
+ */
+struct PWR
 {
+  static constexpr reg_addr_t base_addr = 0x40007000;
+
   /**
-   * Power control
+   * Power control register (PWR_CR)
    */
-  struct PWR
+  struct CR
+  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000000 >
   {
-    static constexpr reg_addr_t base_addr = 0x40007000;
+    using type = regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000000 >;
 
-    /**
-     * Power control register (PWR_CR)
-     */
-    struct CR
-    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000000 >
+    using LPDS  = regbits< type,  0,  1 >;    /**< Low Power Deep Sleep                    */
+    using PDDS  = regbits< type,  1,  1 >;    /**< Power Down Deep Sleep                   */
+    using CWUF  = regbits< type,  2,  1 >;    /**< Clear Wake-up Flag                      */
+    using CSBF  = regbits< type,  3,  1 >;    /**< Clear STANDBY Flag                      */
+    using PVDE  = regbits< type,  4,  1 >;    /**< Power Voltage Detector Enable           */
+
+    /** PVD Level Selection */
+    struct PLS  : public regbits< type,  5,  3 >
     {
-      using type = Register< uint32_t, base_addr + 0x0, Access::rw, 0x00000000 >;
-
-      using LPDS  = RegisterBits< type,  0,  1 >;    /**< Low Power Deep Sleep                    */
-      using PDDS  = RegisterBits< type,  1,  1 >;    /**< Power Down Deep Sleep                   */
-      using CWUF  = RegisterBits< type,  2,  1 >;    /**< Clear Wake-up Flag                      */
-      using CSBF  = RegisterBits< type,  3,  1 >;    /**< Clear STANDBY Flag                      */
-      using PVDE  = RegisterBits< type,  4,  1 >;    /**< Power Voltage Detector Enable           */
-
-      /** PVD Level Selection */
-      struct PLS  : public RegisterBits< type,  5,  3 >
-      {
-        template<unsigned int fraction>
-        struct VoltageThreshold
-        : public RegisterConst< bits_type, fraction - 2 >
-        { static_assert((fraction >= 2) && (fraction <= 9), "invalid fraction"); };
-      };
-
-      using DBP   = RegisterBits< type,  8,  1 >;    /**< Disable Backup Domain write protection  */
+      template<unsigned int fraction>
+      struct voltage_threshold
+      : public regval< bits_type, fraction - 2 >
+      { static_assert((fraction >= 2) && (fraction <= 9), "invalid fraction"); };
     };
 
-    /**
-     * Power control register (PWR_CR)
-     */
-    struct CSR
-    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
-    {
-      using type = Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >;
-
-      using WUF   = RegisterBits< type,  0,  1 >;  /**< Wake-Up Flag     */
-      using SBF   = RegisterBits< type,  1,  1 >;  /**< STANDBY Flag     */
-      using PVDO  = RegisterBits< type,  2,  1 >;  /**< PVD Output       */
-      using EWUP  = RegisterBits< type,  8,  1 >;  /**< Enable WKUP pin  */
-    };
+    using DBP   = regbits< type,  8,  1 >;    /**< Disable Backup Domain write protection  */
   };
-}
+
+  /**
+   * Power control register (PWR_CR)
+   */
+  struct CSR
+  : public regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >
+  {
+    using type = regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >;
+
+    using WUF   = regbits< type,  0,  1 >;  /**< Wake-Up Flag     */
+    using SBF   = regbits< type,  1,  1 >;  /**< STANDBY Flag     */
+    using PVDO  = regbits< type,  2,  1 >;  /**< PVD Output       */
+    using EWUP  = regbits< type,  8,  1 >;  /**< Enable WKUP pin  */
+  };
+};
+
+} } // namespace mptl::reg
 
 #endif // ARCH_REG_PWR_HPP_INCLUDED

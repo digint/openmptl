@@ -24,39 +24,47 @@
 #include <terminal.hpp>
 #include <arch/scb.hpp>
 
-namespace terminal_hooks
+namespace terminal_hooks {
+
+struct cpuid
+: public mptl::terminal_hook
 {
-  struct Cpuid
-  : public TerminalHook
-  {
-    static constexpr const char * cmd  = "cpuid";
-    static constexpr const char * desc = "prints the SCB::CPUID register";
-    void run(poorman_ostream<char> & cout) {
-      cout << reg::SCB::CPUID::load() << endl;
-    }
-  };
+  static constexpr const char * cmd  = "cpuid";
+  static constexpr const char * desc = "prints the SCB::CPUID register";
+  void run(poorman::ostream<char> & cout) {
+    using namespace poorman;
 
-  struct HeapEater
-  : public TerminalHook
-  {
-    static constexpr const char * cmd  = "heap";
-    static constexpr const char * desc = "allocate (leak) 1k on heap";
-    void run(poorman_ostream<char> &);
-  };
+    cout << mptl::reg::SCB::CPUID::load() << endl;
+  }
+};
 
-  struct NrfTest
-  : public TerminalHook
-  {
-    static constexpr const char * cmd  = "nrf";
-    static constexpr const char * desc = "test the NRF24L01 chip (spi)";
-    void run(poorman_ostream<char> &);
-  };
+struct heap_eater
+: public mptl::terminal_hook
+{
+  static constexpr const char * cmd  = "heap";
+  static constexpr const char * desc = "allocate (leak) 1k on heap";
+  void run(poorman::ostream<char> &);
+};
+
+struct nrf_test
+: public mptl::terminal_hook
+{
+  static constexpr const char * cmd  = "nrf";
+  static constexpr const char * desc = "test the NRF24L01 chip (spi)";
+  void run(poorman::ostream<char> &);
+};
 
 
-  // ----------------------------------------------------------------------------
-  // Terminal Commands
-  //
+// ----------------------------------------------------------------------------
+// Terminal Commands
+//
 
-  using commands = TerminalHookList< Cpuid, HeapEater, NrfTest >;
-}
-#endif
+using commands = mptl::terminal_hook_list<
+  cpuid,
+  heap_eater,
+  nrf_test
+  >;
+
+} // namespace terminal_hooks
+
+#endif // TERMINAL_HOOKS_HPP_INCLUDED

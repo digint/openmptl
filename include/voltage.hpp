@@ -21,10 +21,22 @@
 #ifndef VOLTAGE_HPP_INCLUDED
 #define VOLTAGE_HPP_INCLUDED
 
+namespace mptl {
+
 typedef unsigned int voltage_t;
+
+#if 0 // literals don't like namespaces...
 
 static constexpr voltage_t operator"" _volt(long double x) { return x * 1000; }
 
 //static_assert(1.0009_volt == 1000, "doubles are always rounded down");
+
+#endif
+
+static constexpr voltage_t volt(long double x) { return x * 1000; }
+
+static_assert(volt(1.0009) == 1000, "doubles are always rounded down");
+
+} // namespace mptl
 
 #endif // VOLTAGE_HPP_INCLUDED

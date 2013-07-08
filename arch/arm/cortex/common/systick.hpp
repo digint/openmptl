@@ -25,16 +25,23 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
-enum class SysTickClockSource {
+
+namespace mptl {
+
+namespace cfg { namespace systick {
+
+enum class clock_source {
   hclk,       /**< AHB clock (HCLK)               */
   hclk_div8   /**< AHB clock (HCLK) divided by 8  */
 };
 
+} } // namespace cfg::systick
+
 
 template<typename rcc,
          freq_t   _freq,   //< clock frequency in Hz
-         SysTickClockSource clock_source = SysTickClockSource::hclk_div8>
-class SysTick
+         cfg::systick::clock_source clock_source = cfg::systick::clock_source::hclk_div8>
+class systick
 {
   using SCB = reg::SCB;
 
@@ -42,7 +49,7 @@ public:
 
   static constexpr freq_t freq = _freq;
   static constexpr freq_t counter_freq = rcc::hclk_freq /
-    (clock_source == SysTickClockSource::hclk_div8 ? 8 : 1);
+    (clock_source == cfg::systick::clock_source::hclk_div8 ? 8 : 1);
 
   static constexpr uint32_t reload_value = counter_freq / freq;
   static_assert((reload_value >= 1) && (reload_value <= 0x00FFFFFF), "illegal reload value");
@@ -54,9 +61,9 @@ public:
    */
   static constexpr uint32_t ps_per_tick  = (1000 * 1000 * 1000) / (counter_freq / 1000);
 
-  typedef void resources;
+  using resources = void;
 
-  typedef irq::SysTick Irq; /**< System Tick Interrupt */
+  using irq = mptl::irq::systick; /**< System Tick Interrupt */
 
   static void set_reload(SCB::STRVR::value_type reload) {
     // assert((reload >= 1) && (reload <= 0xFFFFFF));
@@ -64,7 +71,7 @@ public:
   }
 
   static void set_clock_source(void) {
-    if(clock_source == SysTickClockSource::hclk) {
+    if(clock_source == cfg::systick::clock_source::hclk) {
       SCB::STCSR::CLKSOURCE::set();   // hclk
     } else {
       SCB::STCSR::CLKSOURCE::clear(); // hclk_div8
@@ -108,5 +115,7 @@ public:
   }
 
 };
+
+} // namespace mptl
 
 #endif // ARM_CORTEX_COMMON_SYSTICK_HPP_INCLUDED

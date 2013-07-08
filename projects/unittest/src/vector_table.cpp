@@ -22,6 +22,8 @@
 #include <arch/vector_table.hpp>
 #include <cassert>
 
+using namespace mptl;
+
 static unsigned int stack_top = 0;
 static int isr_test = 0;
 
@@ -29,32 +31,32 @@ static void default_isr(void) { isr_test = 0; }
 static void isr_42(void) { isr_test = 42; }
 
 /* Handler for irq number = 42 */
-typedef IrqResource< IrqBase<42>, isr_42 > irq42;
+typedef resource::irq< irq_base<42>, isr_42 > irq42;
 
 
-typedef ResourceList < irq42 > resource_list;
-typedef ResourceList < irq42, irq42 > resource_fail_list;
+typedef resource::list < irq42 > resource_list;
+typedef resource::list < irq42, irq42 > resource_fail_list;
 
 int main()
 {
-  VectorTable<&stack_top, resource_list, default_isr> vector_table;
+  vector_table<&stack_top, resource_list, default_isr> vt;
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: ResourceList contains a resource derived from unique_resource (-> irq42) which is not unique
-  VectorTable<&stack_top, resource_fail_list, default_isr> vector_table_fail;
+  // fail: resource::list<...> contains a resource derived from unique_resource (-> irq42) which is not unique
+  vector_table<&stack_top, resource_fail_list, default_isr> vt_fail;
 #endif
 
   resource_list::check();
   resource_list::configure();
 
-  isr_t *vt = vector_table.vector_table;
+  isr_t *isr_vector = vt.isr_vector;
 
-  assert((unsigned long)vt[0] == (unsigned long)&stack_top);
-  assert((unsigned long)vt[vector_table.irq_channel_offset + 41] == (unsigned long)default_isr);
-  assert((unsigned long)vt[vector_table.irq_channel_offset + 42] == (unsigned long)isr_42);
+  assert((unsigned long)isr_vector[0] == (unsigned long)&stack_top);
+  assert((unsigned long)isr_vector[vt.irq_channel_offset + 41] == (unsigned long)default_isr);
+  assert((unsigned long)isr_vector[vt.irq_channel_offset + 42] == (unsigned long)isr_42);
 
 
-  std::cout << "vector table size = " << vector_table.size << " (" <<
+  std::cout << "vector table size = " << vt.size << " (" <<
     "1 stack_top_ptr, " <<
     irq::numof_interrupt_channels << " irq_channels)" << std::endl;
 
@@ -62,10 +64,10 @@ int main()
   std::cout << "vector table dump" << std::endl;
   std::cout << "----------------------" << std::endl;
 
-  for(unsigned i = 0; i < vector_table.size; i++) {
+  for(unsigned i = 0; i < vt.size; i++) {
     std::cout << std::dec << std::setw(3) << i << " " <<
-      "(" << std::setw(3) << (int)i - (int)vector_table.irq_channel_offset << ")" <<
-      " :  0x" << std::hex << (unsigned long)vt[i] << std::endl;
+      "(" << std::setw(3) << (int)i - (int)vt.irq_channel_offset << ")" <<
+      " :  0x" << std::hex << (unsigned long)isr_vector[i] << std::endl;
   }
 
   return 0;

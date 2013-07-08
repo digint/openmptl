@@ -29,10 +29,10 @@
 template< typename T,
           T (*poll_func)(void),         // polling function
           unsigned (*time_func)(void),  // timer get function (must return a growing value)
-          freq_t   time_freq,           // time_func frequency in hz
+          unsigned int time_freq,       // time_func frequency in hz
           unsigned wait_time_ms = 50    // debounce time in milliseconds
           >
-class Debouncer
+class debouncer
 {
   T value;
   T current;
@@ -42,7 +42,7 @@ class Debouncer
 
 public:
 
-  Debouncer(T _value) : value(_value), current(_value), hold_time(0) { };
+  debouncer(T _value) : value(_value), current(_value), hold_time(0) { };
 
   /**
    * Feed debouncer with a new value.

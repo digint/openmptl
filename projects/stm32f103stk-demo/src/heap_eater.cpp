@@ -22,6 +22,8 @@
 
 #ifndef OPENMPTL_SIMULATION
 
+#include <cstring> // memset
+
 extern char *heap_ptr;
 #ifdef HEAP_FIXED_SIZE
 extern char *heap_end;
@@ -29,24 +31,27 @@ extern char *heap_end;
 register char *heap_end asm ("sp");  /* heap_end is current stack pointer */
 #endif
 
-struct A {
-  char buf[1024];
-  A() { for(int i = 0; i < 1024; i++) buf[i] = 42; };
+template<unsigned size>
+struct adams_buf {
+  char buf[size];
+  adams_buf() { std::memset(buf, 42, sizeof(buf)); }
 };
 
-A *heap_eater;
+using buf = adams_buf<1024>;
 
-void terminal_hooks::HeapEater::run(poorman_ostream<char> & cout) {
-  cout << "new A(): size=" << sizeof(A) << endl;
-  cout << "heap_ptr: old=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
-  heap_eater = new A();
-  cout << "heap_ptr: new=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << endl;
+buf *buf_p;
+
+void terminal_hooks::heap_eater::run(poorman::ostream<char> & cout) {
+  cout << "new buf(): size=" << sizeof(buf) << poorman::endl;
+  cout << "heap_ptr: old=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << poorman::endl;
+  buf_p = new buf();
+  cout << "heap_ptr: new=" << (unsigned)heap_ptr << " end=" << (unsigned)heap_end << poorman::endl;
 }
 
 #else ///// OPENMPTL_SIMULATION /////
 
-void terminal_hooks::HeapEater::run(poorman_ostream<char> & cout) {
-  cout << "OpenMPTL simulation: HeapEater dummy" << endl;
+void terminal_hooks::heap_eater::run(poorman::ostream<char> & cout) {
+  cout << "OpenMPTL simulation: HeapEater dummy" << poorman::endl;
 }
 
 #endif // OPENMPTL_SIMULATION

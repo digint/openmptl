@@ -23,20 +23,22 @@
 
 #include <compiler.h>
 
+namespace mptl {
+
 template<typename T>
-class RegisterManip
+class reg_manip
 {
 public:
   using value_type = typename T::value_type;
 
-  RegisterManip() : reg(T::load()) { }
-  RegisterManip(value_type val) : reg(val) { }
+  reg_manip() : reg(T::load()) { }
+  reg_manip(value_type val) : reg(val) { }
 
-  RegisterManip<T> operator|(const T & rhs) { return RegisterManip<T>(reg | rhs); }
+  reg_manip<T> operator|(const T & rhs) { return reg_manip<T>(reg | rhs); }
 
-  RegisterManip<T> & operator=(const RegisterManip<T> & rhs) { return *this; }
-  RegisterManip<T> & operator|=(value_type rhs) { this->reg |= rhs; return *this; }
-  RegisterManip<T> & operator&=(value_type rhs) { this->reg &= rhs; return *this; }
+  reg_manip<T> & operator=(const reg_manip<T> & rhs) { return *this; }
+  reg_manip<T> & operator|=(value_type rhs) { this->reg |= rhs; return *this; }
+  reg_manip<T> & operator&=(value_type rhs) { this->reg &= rhs; return *this; }
 
   constexpr operator value_type() { return reg; }
 
@@ -61,5 +63,7 @@ public:
 private:
   value_type reg;
 };
+
+} // namespace mptl
 
 #endif // REGISTER_MANIP_HPP_INCLUDED

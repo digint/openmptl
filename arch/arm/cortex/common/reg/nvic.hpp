@@ -23,52 +23,53 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+
+/**
+ *  NVIC (Nested Vectored Interrupt Controller) Register
+ *
+ * For details, see "Cortex-M3 Technical Reference Manual":
+ * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
+ */
+struct NVIC
 {
-  /**
-   *  NVIC (Nested Vectored Interrupt Controller) Register
-   *
-   * For details, see "Cortex-M3 Technical Reference Manual":
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct NVIC
-  {
-    /** Interrupt Controller Type Register */
-    using ICTR  = Register< uint32_t, 0xE000E004, Access::ro >;
+  /** Interrupt Controller Type Register */
+  using ICTR  = regdef< uint32_t, 0xE000E004, reg_access::ro >;
 
-    // TODO: The following registers are actually only 8bit wide.
-    //       Check if access is better using 32bit or 8bit pointer
+  // TODO: The following registers are actually only 8bit wide.
+  //       Check if access is better using 32bit or 8bit pointer
 
-    /** Interrupt Set-Enable Registers */
-    template<unsigned reg_index>
-    class ISER : public Register<uint32_t, 0xE000E100 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
+  /** Interrupt Set-Enable Registers */
+  template<unsigned reg_index>
+  class ISER : public regdef<uint32_t, 0xE000E100 + 4 * reg_index, reg_access::rw >
+  { static_assert(reg_index < 8, "invalid index for register"); };
 
-    /** Interrupt Set-Enable Registers */
-    template<unsigned reg_index>
-    class ICER : public Register<uint32_t, 0xE000E180 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
+  /** Interrupt Set-Enable Registers */
+  template<unsigned reg_index>
+  class ICER : public regdef<uint32_t, 0xE000E180 + 4 * reg_index, reg_access::rw >
+  { static_assert(reg_index < 8, "invalid index for register"); };
 
-    /** Interrupt Set-Pending Registers */
-    template<unsigned reg_index>
-    class ISPR : public Register<uint32_t, 0xE000E200 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
+  /** Interrupt Set-Pending Registers */
+  template<unsigned reg_index>
+  class ISPR : public regdef<uint32_t, 0xE000E200 + 4 * reg_index, reg_access::rw >
+  { static_assert(reg_index < 8, "invalid index for register"); };
 
-    /** Interrupt Clear-Pending Registers */
-    template<unsigned reg_index>
-    class ICPR : public Register<uint32_t, 0xE000E280 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 8, "invalid index for register"); };
+  /** Interrupt Clear-Pending Registers */
+  template<unsigned reg_index>
+  class ICPR : public regdef<uint32_t, 0xE000E280 + 4 * reg_index, reg_access::rw >
+  { static_assert(reg_index < 8, "invalid index for register"); };
 
-    /** Interrupt Active Bit Register */
-    template<unsigned reg_index>
-    class IABR : public Register<uint32_t, 0xE000E300 + 4 * reg_index, Access::ro >
-    { static_assert(reg_index < 8, "invalid index for register"); };
+  /** Interrupt Active Bit Register */
+  template<unsigned reg_index>
+  class IABR : public regdef<uint32_t, 0xE000E300 + 4 * reg_index, reg_access::ro >
+  { static_assert(reg_index < 8, "invalid index for register"); };
 
-   /** Interrupt Priority Register */
-    template<unsigned reg_index>
-    class IPR  : public Register<uint32_t, 0xE000E400 + 4 * reg_index, Access::rw >
-    { static_assert(reg_index < 60, "invalid index for register"); };
-  };
-}
+  /** Interrupt Priority Register */
+  template<unsigned reg_index>
+  class IPR  : public regdef<uint32_t, 0xE000E400 + 4 * reg_index, reg_access::rw >
+  { static_assert(reg_index < 60, "invalid index for register"); };
+};
+
+} } // namespace mptl::reg
 
 #endif // COMMON_ARM_CORTEX_REG_NVIC_HPP_INCLUDED

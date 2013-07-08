@@ -23,47 +23,47 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+/**
+ * Power control
+ */
+struct PWR
 {
+  static constexpr reg_addr_t base_addr = 0x40007000;
+
   /**
-   * Power control
+   * Power control register
    */
-  struct PWR
+  struct CR
+  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00004000 >
   {
-    static constexpr reg_addr_t base_addr = 0x40007000;
-
-    /**
-     * Power control register
-     */
-    struct CR
-    : public Register< uint32_t, base_addr + 0x0, Access::rw, 0x00004000 >
-    {
-      using VOS   = RegisterBits< type, 14,  1 >;  /**< Regulator voltage scaling output selection */
-      using FPDS  = RegisterBits< type,  9,  1 >;  /**< Flash power down in Stop mode              */
-      using DBP   = RegisterBits< type,  8,  1 >;  /**< Disable backup domain write protection     */
-      using PLS   = RegisterBits< type,  5,  3 >;  /**< PVD level selection                        */
-      using PVDE  = RegisterBits< type,  4,  1 >;  /**< Power voltage detector enable              */
-      using CSBF  = RegisterBits< type,  3,  1 >;  /**< Clear standby flag                         */
-      using CWUF  = RegisterBits< type,  2,  1 >;  /**< Clear wakeup flag                          */
-      using PDDS  = RegisterBits< type,  1,  1 >;  /**< Power down deepsleep                       */
-      using LPDS  = RegisterBits< type,  0,  1 >;  /**< Low-power deep sleep                       */
-    };
-
-    /**
-     * Power control/status register
-     */
-    struct CSR
-    : public Register< uint32_t, base_addr + 0x4, Access::rw, 0x00000000 >
-    {
-      using VOSRDY  = RegisterBits< type, 14,  1 >;  /**< Regulator voltage scaling output selection ready bit  */
-      using BRE     = RegisterBits< type,  9,  1 >;  /**< Backup regulator enable                               */
-      using EWUP    = RegisterBits< type,  8,  1 >;  /**< Enable WKUP pin                                       */
-      using BRR     = RegisterBits< type,  3,  1 >;  /**< Backup regulator ready                                */
-      using PVDO    = RegisterBits< type,  2,  1 >;  /**< PVD output                                            */
-      using SBF     = RegisterBits< type,  1,  1 >;  /**< Standby flag                                          */
-      using WUF     = RegisterBits< type,  0,  1 >;  /**< Wakeup flag                                           */
-    };
+    using VOS   = regbits< type, 14,  1 >;  /**< Regulator voltage scaling output selection */
+    using FPDS  = regbits< type,  9,  1 >;  /**< Flash power down in Stop mode              */
+    using DBP   = regbits< type,  8,  1 >;  /**< Disable backup domain write protection     */
+    using PLS   = regbits< type,  5,  3 >;  /**< PVD level selection                        */
+    using PVDE  = regbits< type,  4,  1 >;  /**< Power voltage detector enable              */
+    using CSBF  = regbits< type,  3,  1 >;  /**< Clear standby flag                         */
+    using CWUF  = regbits< type,  2,  1 >;  /**< Clear wakeup flag                          */
+    using PDDS  = regbits< type,  1,  1 >;  /**< Power down deepsleep                       */
+    using LPDS  = regbits< type,  0,  1 >;  /**< Low-power deep sleep                       */
   };
-}
+
+  /**
+   * Power control/status register
+   */
+  struct CSR
+  : public regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >
+  {
+    using VOSRDY  = regbits< type, 14,  1 >;  /**< Regulator voltage scaling output selection ready bit  */
+    using BRE     = regbits< type,  9,  1 >;  /**< Backup regulator enable                               */
+    using EWUP    = regbits< type,  8,  1 >;  /**< Enable WKUP pin                                       */
+    using BRR     = regbits< type,  3,  1 >;  /**< Backup regulator ready                                */
+    using PVDO    = regbits< type,  2,  1 >;  /**< PVD output                                            */
+    using SBF     = regbits< type,  1,  1 >;  /**< Standby flag                                          */
+    using WUF     = regbits< type,  0,  1 >;  /**< Wakeup flag                                           */
+  };
+};
+
+} } // namespace mptl::reg
 
 #endif // ARCH_REG_PWR_HPP_INCLUDED

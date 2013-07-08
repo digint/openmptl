@@ -26,21 +26,22 @@
 #include <isr.hpp>
 #include <type_traits>
 
+namespace mptl {
 
-////////////////////  IrqBase  ////////////////////
+////////////////////  irq_base  ////////////////////
 
 
 template<int _irqn>
-struct IrqBase {
+struct irq_base {
   static constexpr int irqn = _irqn;
 };
 
 
-////////////////////  CoreException  ////////////////////
+////////////////////  core_exception  ////////////////////
 
 
 template<int irqn>
-class CoreException : public IrqBase<irqn> {
+class core_exception : public irq_base<irqn> {
   static_assert(irqn < 0 && irqn > -16, "illegal core exception interrupt number");
 
 #if 0
@@ -49,46 +50,21 @@ public:
   static constexpr bool priority_available = irqn > -13;
 
   static typename std::enable_if<priority_available>::type set_priority(uint32_t priority) {
-    Scb::SetPriority<irqn>(priority);
+    scb::set_priority<irqn>(priority);
   }
 
   static typename std::enable_if<priority_available, uint32_t>::type get_priority(void) {
-    return Scb::GetPriority<irqn>();
+    return scb::set_priority<irqn>();
   }
 #endif
 };
 
-namespace irq
-{
-  /* Fixed core exceptions */
-  typedef CoreException<-15>  Reset;       // NOTE: priority is fixed to -3
-  typedef CoreException<-14>  NMI;         // NOTE: priority is fixed to -2
-  typedef CoreException<-13>  HardFault;   // NOTE: priority is fixed to -1
 
-  /* Settable core exceptions */
-  typedef CoreException<-12>  MemoryManagement;
-  typedef CoreException<-11>  BusFault;
-  typedef CoreException<-10>  UsageFault;
-  typedef CoreException<-5>   SVCall;
-  typedef CoreException<-4>   DebugMonitor;
-  typedef CoreException<-2>   PendSV;
-  typedef CoreException<-1>   SysTick;
-
-  static constexpr bool reserved_irqn(int irqn) {
-    return ((irqn == -3) ||
-            (irqn == -6) ||
-            (irqn == -7) ||
-            (irqn == -8) ||
-            (irqn == -9));
-  }
-}
-
-
-////////////////////  IrqChannel  ////////////////////
+////////////////////  irq_channel  ////////////////////
 
 
 template<int irqn>
-class IrqChannel : public IrqBase<irqn> {
+class irq_channel : public irq_base<irqn> {
   static_assert(irqn >= 0, "illegal irq channel interrupt number");
 
   static constexpr unsigned reg_index = (uint32_t)irqn >> 5;
@@ -135,5 +111,37 @@ public:
   }
 #endif
 };
+
+
+////////////////////  irq typedefs  ////////////////////
+
+
+namespace irq {
+
+/* Fixed core exceptions */
+using reset      = core_exception<-15>;  // NOTE: priority is fixed to -3
+using nmi        = core_exception<-14>;  // NOTE: priority is fixed to -2
+using hard_fault = core_exception<-13>;  // NOTE: priority is fixed to -1
+
+/* Settable core exceptions */
+using memory_management = core_exception<-12>;
+using bus_fault         = core_exception<-11>;
+using usage_fault       = core_exception<-10>;
+using sv_call           = core_exception<-5>;
+using debug_monitor     = core_exception<-4>;
+using pend_sv           = core_exception<-2>;
+using systick           = core_exception<-1>;
+
+static constexpr bool reserved_irqn(int irqn) {
+  return ((irqn == -3) ||
+          (irqn == -6) ||
+          (irqn == -7) ||
+          (irqn == -8) ||
+          (irqn == -9));
+}
+
+} // namespace irq
+
+} // namespace mptl
 
 #endif // ARM_CORTEX_COMMON_NVIC_HPP_INCLUDED

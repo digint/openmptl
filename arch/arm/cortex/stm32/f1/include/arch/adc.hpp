@@ -25,8 +25,12 @@
 #include <arch/reg/adc.hpp>
 #include <type_traits>
 
+namespace mptl {
+
+namespace cfg { namespace adc {
+
 /** Dual mode selection. */
-enum class AdcMode : uint32_t {
+enum class mode : uint32_t {
   independent              = 0,  /**<  0000: Independent mode.                                           */
   regr_injec_simult        = 1,  /**<  0001: Combined regular simultaneous + injected simultaneous mode  */
   reg_simult_alter_trig    = 2,  /**<  0010: Combined regular simultaneous + alternate trigger mode      */
@@ -43,7 +47,7 @@ enum class AdcMode : uint32_t {
  * In Scan mode, the inputs selected through the ADC_SQRx or
  * ADC_JSQRx registers are converted.
  */
-enum class AdcScanMode : uint32_t {
+enum class scan_mode : uint32_t {
   disabled = 0,  /**< 0: Scan mode disabled  */
   enabled = 1    /**< 1: Scan mode enabled   */
 };
@@ -52,7 +56,7 @@ enum class AdcScanMode : uint32_t {
  * Continuous conversion.
  * If set conversion takes place continuously.
  */
-enum class AdcContinuousConvMode : uint32_t {
+enum class continuous_conv_mode : uint32_t {
   single     = 0,  /**< 0: Single conversion mode      */
   continuous = 1   /**< 1: Continuous conversion mode  */
 };
@@ -62,10 +66,10 @@ enum class AdcContinuousConvMode : uint32_t {
  * Select the external event used to trigger the start of
  * conversion of a regular group:
  */
-namespace AdcExternalTrigConv
+namespace external_trig_conv
 {
   /* SWSTART */
-  struct SoftwareStart
+  struct software_start
   {
     template<unsigned adc_no>
     struct extsel : std::integral_constant<uint32_t, 7>
@@ -73,31 +77,31 @@ namespace AdcExternalTrigConv
   };
 
   /* CC */
-  template<unsigned timer, unsigned capture_compare>
-  struct CaptureCompare
+  template<unsigned timer, unsigned cc>
+  struct capture_compare
   {
     template<unsigned adc_no>
     struct extsel {
       static constexpr uint32_t value =
-        (adc_no  < 3) && (timer == 1) && (capture_compare == 1) ? 0 :
-        (adc_no  < 3) && (timer == 1) && (capture_compare == 2) ? 1 :
-        (adc_no  < 3) && (timer == 1) && (capture_compare == 3) ? 2 :
-        (adc_no  < 3) && (timer == 2) && (capture_compare == 1) ? 3 :
-        (adc_no  < 3) && (timer == 4) && (capture_compare == 4) ? 6 :
-        (adc_no == 3) && (timer == 3) && (capture_compare == 1) ? 0 :
-        (adc_no == 3) && (timer == 2) && (capture_compare == 3) ? 1 :
-        (adc_no == 3) && (timer == 1) && (capture_compare == 3) ? 2 :
-        (adc_no == 3) && (timer == 8) && (capture_compare == 1) ? 3 :
-        (adc_no == 3) && (timer == 5) && (capture_compare == 1) ? 5 :
-        (adc_no == 3) && (timer == 5) && (capture_compare == 3) ? 6 :
+        (adc_no  < 3) && (timer == 1) && (cc == 1) ? 0 :
+        (adc_no  < 3) && (timer == 1) && (cc == 2) ? 1 :
+        (adc_no  < 3) && (timer == 1) && (cc == 3) ? 2 :
+        (adc_no  < 3) && (timer == 2) && (cc == 1) ? 3 :
+        (adc_no  < 3) && (timer == 4) && (cc == 4) ? 6 :
+        (adc_no == 3) && (timer == 3) && (cc == 1) ? 0 :
+        (adc_no == 3) && (timer == 2) && (cc == 3) ? 1 :
+        (adc_no == 3) && (timer == 1) && (cc == 3) ? 2 :
+        (adc_no == 3) && (timer == 8) && (cc == 1) ? 3 :
+        (adc_no == 3) && (timer == 5) && (cc == 1) ? 5 :
+        (adc_no == 3) && (timer == 5) && (cc == 3) ? 6 :
         0xff;
-      static_assert((value & 0x7) == value, "invalid timer / capture_compare combination");
+      static_assert((value & 0x7) == value, "invalid timer / cc combination");
     };
   };
 
   /* TRGO */
   template<unsigned timer>
-  struct TriggerOutput
+  struct trigger_output
   {
     template<unsigned adc_no>
     struct extsel {
@@ -108,11 +112,11 @@ namespace AdcExternalTrigConv
         (adc_no  < 3) && (timer == 8) ? 6 :
 #endif
         0xff;
-      static_assert((value & 0x7) == value, "invalid timer / capture_compare combination");
+      static_assert((value & 0x7) == value, "invalid timer");
     };
   };
 
-  struct EXTI_line11
+  struct exti_line11
   {
     template<unsigned adc_no>
     struct extsel : std::integral_constant<uint32_t, 6>
@@ -123,7 +127,7 @@ namespace AdcExternalTrigConv
 }
 
 /** Data alignment */
-enum class AdcDataAlign : uint32_t {
+enum class data_align : uint32_t {
   right = 0,  /**< 0: Right Alignment  */
   left  = 1   /**< 1: Left Alignment   */
 };
@@ -144,7 +148,7 @@ enum class AdcDataAlign : uint32_t {
 /**
  * Channel x Sample time selection.
  */
-enum class AdcSampleTime {
+enum class sample_time {
   cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
   cycles_7_5   = 1,   /**< 001:   7.5 cycles  */
   cycles_13_5  = 2,   /**< 010:  13.5 cycles  */
@@ -157,29 +161,35 @@ enum class AdcSampleTime {
 
 /**< Regular channel sequence length 1<=n<=16 (SQR1[23:20] L) */
 template<unsigned len>
-struct AdcRegularChannelSequenceLength
+struct regular_channel_sequence_length
 : std::integral_constant<uint32_t, len - 1>
 {
   static_assert((len >= 1) && (len <= 16), "invalid ADC channel sequence length");
 };
 
-template<unsigned              adc_no,
-         AdcMode               mode           = AdcMode::independent,
-         AdcScanMode           scan_mode      = AdcScanMode::disabled,
-         AdcContinuousConvMode cont_conv_mode = AdcContinuousConvMode::single,
-         typename              ext_trig_conv  = AdcExternalTrigConv::CaptureCompare<1, 1>,
-         AdcDataAlign          data_align     = AdcDataAlign::right,
-         typename              chan_seq_len   = AdcRegularChannelSequenceLength<1>
+} } // namespace cfg::gpio
+
+
+////////////////////  adc  ////////////////////
+
+
+template<unsigned               adc_no,
+         cfg::adc::mode         mode           = cfg::adc::mode::independent,
+         cfg::adc::scan_mode    scan_mode      = cfg::adc::scan_mode::disabled,
+         cfg::adc::continuous_conv_mode cont_conv_mode = cfg::adc::continuous_conv_mode::single,
+         typename               ext_trig_conv  = cfg::adc::external_trig_conv::capture_compare<1, 1>,
+         cfg::adc::data_align   data_align     = cfg::adc::data_align::right,
+         typename               chan_seq_len   = cfg::adc::regular_channel_sequence_length<1>
          >
-class Adc
+class adc
 {
   static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
-  static_assert((adc_no == 1) || (mode == AdcMode::independent), "dual mode is only available for ADC1");
+  static_assert((adc_no == 1) || (mode == cfg::adc::mode::independent), "dual mode is only available for ADC1");
 
   using ADCx = reg::ADC<adc_no>;
 
 public:
-  typedef Rcc_adc_clock_resources<adc_no> resources;
+  typedef rcc_adc_clock_resources<adc_no> resources;
 
   static void configure(void) {
     /* ADCx CR1 config */
@@ -229,7 +239,7 @@ public:
   }
 
   // TODO: injected, AnalogWatchdogSingle
-  template<unsigned channel, unsigned rank, AdcSampleTime sample_time>
+  template<unsigned channel, unsigned rank, cfg::adc::sample_time sample_time>
   static void regular_channel_config(void) {
 
     static_assert(channel <= 17, "invalid channel");
@@ -286,6 +296,6 @@ public:
 
 };
 
+} // namespace mptl
+
 #endif // ADC_HPP_INCLUDED
-
-

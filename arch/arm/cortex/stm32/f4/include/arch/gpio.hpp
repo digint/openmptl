@@ -25,70 +25,76 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 
-enum class GpioResistorConfig {
+namespace mptl {
+
+namespace cfg { namespace gpio {
+
+enum class resistor {
   floating,       //< Floating input
   pull_up,        //< Input with pull-up
   pull_down       //< Input with pull-down
 };
 
-enum class GpioOutputType {
+enum class output_type {
   push_pull,      //< General purpose output push-pull (e.g. LED's)
   open_drain,     //< General purpose output open-drain
 };
 
-enum class GpioActiveState {
+enum class active_state {
   low,            //< pin is low-active
   high            //< pin is high-active
 };
 
-enum class GpioMode {
+enum class mode {
   input,
   output,
   alternate_function,
   analog
 };
 
+} } // namespace cfg::gpio
 
-////////////////////  Gpio  ////////////////////
+
+////////////////////  gpio  ////////////////////
 
 
 template<char port,
          unsigned pin_no,
-         GpioMode moder_cnf = GpioMode::input,
-         GpioOutputType otype_cnf = GpioOutputType::push_pull,
-         freq_t speed = 2_mhz,
-         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
+         cfg::gpio::mode moder_cfg = cfg::gpio::mode::input,
+         cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::push_pull,
+         freq_t speed = mhz(2),
+         cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
          unsigned alt_func_num = 0>
-class Gpio
+class gpio
 {
   static_assert((port >= 'A') && (port <= 'I'), "invalid GPIO port");
   static_assert(pin_no < 16, "invalid GPIO pin-no");
 
   static_assert(alt_func_num < 16, "illegal alternate function number");
 
-  static_assert((speed == 2_mhz) ||
-                (speed == 25_mhz) ||
-                (speed == 50_mhz) ||
-                (speed == 100_mhz),
-                "Illegal frequency for GpioOutput speed (allowed: 2_mhz, 25_mhz, 50_mhz, 100_mhz)");
+  static_assert((speed == mhz(2)) ||
+                (speed == mhz(25)) ||
+                (speed == mhz(50)) ||
+                (speed == mhz(100)),
+                "Illegal frequency for gpio output speed (allowed: mhz(2), mhz(25), mhz(50), mhz(100))");
 protected:
   static constexpr uint32_t pin_mask         = (uint32_t)0x1 << pin_no;
   static constexpr uint32_t pin_mask_double  = (uint32_t)0x3 << (pin_no * 2);
 
-  static constexpr uint32_t moder_value = (moder_cnf == GpioMode::output ? 1 :
-                                           moder_cnf == GpioMode::alternate_function ? 2 :
-                                           moder_cnf == GpioMode::analog ? 3 :
+  static constexpr uint32_t moder_value = (moder_cfg == cfg::gpio::mode::output ? 1 :
+                                           moder_cfg == cfg::gpio::mode::alternate_function ? 2 :
+                                           moder_cfg == cfg::gpio::mode::analog ? 3 :
                                            0) << (pin_no * 2);
 
-  static constexpr uint32_t otyper_value = (otype_cnf == GpioOutputType::open_drain) ? pin_mask : 0;
+  static constexpr uint32_t otyper_value = (otype_cfg == cfg::gpio::output_type::open_drain) ? pin_mask : 0;
 
-  static constexpr uint32_t ospeedr_value =  (speed == 25_mhz  ? 1 :
-                                              speed == 50_mhz  ? 2 :
-                                              speed == 100_mhz ? 3 :
+  static constexpr uint32_t ospeedr_value =  (speed == mhz(25)  ? 1 :
+                                              speed == mhz(50)  ? 2 :
+                                              speed == mhz(100) ? 3 :
                                               0) << (pin_no * 2) ;
 
-  static constexpr uint32_t pupdr_value =  (resistor_cnf == GpioResistorConfig::pull_up   ? 1 :
-                                            resistor_cnf == GpioResistorConfig::pull_down ? 2 :
+  static constexpr uint32_t pupdr_value =  (resistor_cfg == cfg::gpio::resistor::pull_up   ? 1 :
+                                            resistor_cfg == cfg::gpio::resistor::pull_down ? 2 :
                                             0x00) << (pin_no * 2) ;
 
   static constexpr uint32_t afrl_value = pin_no <  8 ? alt_func_num << ((pin_no % 8) * 4) : 0;
@@ -100,19 +106,19 @@ protected:
 
 public:
 
-  typedef Gpio<port, pin_no, moder_cnf, otype_cnf, speed, resistor_cnf, alt_func_num> type;
+  typedef gpio<port, pin_no, moder_cfg, otype_cfg, speed, resistor_cfg, alt_func_num> type;
 
-  using resources = ResourceList<
-    Rcc_gpio_clock_resources<port>,
-    UniqueResource< Gpio<port, pin_no> >,
+  using resources = resource::list<
+    rcc_gpio_clock_resources<port>,
+    resource::unique< gpio<port, pin_no> >,
 
     // TODO: make sure the registers are only set if they differ from reset value. does this make sense?
-    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double > >,
-    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        > >,
-    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double > >,
-    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double > >,
-    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       > >,
-    SharedRegister< reg::RegisterMask< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       > >
+    resource::reg_shared< regmask< typename reg::GPIO<port>::MODER,   moder_value,   pin_mask_double > >,
+    resource::reg_shared< regmask< typename reg::GPIO<port>::OTYPER,  otyper_value,  pin_mask        > >,
+    resource::reg_shared< regmask< typename reg::GPIO<port>::OSPEEDR, ospeedr_value, pin_mask_double > >,
+    resource::reg_shared< regmask< typename reg::GPIO<port>::PUPDR,   pupdr_value,   pin_mask_double > >,
+    resource::reg_shared< regmask< typename reg::GPIO<port>::AFRL,    afrl_value,    afrl_mask       > >,
+    resource::reg_shared< regmask< typename reg::GPIO<port>::AFRH,    afrh_value,    afrh_mask       > >
     >;
 
   static void set() {
@@ -132,71 +138,71 @@ public:
 };
 
 
-////////////////////  GpioInput  ////////////////////
+////////////////////  gpio_input  ////////////////////
 
 
 template<char port,
          unsigned pin_no,
-         GpioResistorConfig resistor_cnf,
-         GpioActiveState active_state = GpioActiveState::low>
-class GpioInput
-: public Gpio< port,
+         cfg::gpio::resistor resistor_cfg,
+         cfg::gpio::active_state active_state = cfg::gpio::active_state::low>
+class gpio_input
+: public gpio< port,
                pin_no,
-               GpioMode::input,
-               GpioOutputType::push_pull,
-               2_mhz,
-               resistor_cnf >
+               cfg::gpio::mode::input,
+               cfg::gpio::output_type::push_pull,
+               mhz(2),
+               resistor_cfg >
 {
-  typedef GpioInput<port, pin_no, resistor_cnf, active_state> type;
+  typedef gpio_input<port, pin_no, resistor_cfg, active_state> type;
 public:
   static bool active(void) {
     bool input = type::read_input_bit();
-    return active_state == GpioActiveState::low ? !input : input;
+    return active_state == cfg::gpio::active_state::low ? !input : input;
   }
 };
 
 
-////////////////////  GpioInputAF  ////////////////////
+////////////////////  gpio_input_af  ////////////////////
 
 
 template<char port,
          unsigned pin_no,
          unsigned alt_func_num,
-         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating
+         cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating
          >
-class GpioInputAF
-: public Gpio< port,
+class gpio_input_af
+: public gpio< port,
                pin_no,
-               GpioMode::alternate_function,
-               GpioOutputType::push_pull,
-               2_mhz,
-               resistor_cnf,
+               cfg::gpio::mode::alternate_function,
+               cfg::gpio::output_type::push_pull,
+               mhz(2),
+               resistor_cfg,
                alt_func_num >
 { };
 
 
-////////////////////  GpioOutput  ////////////////////
+////////////////////  gpio_output  ////////////////////
 
 
 template<char port,
          unsigned pin_no,
-         GpioOutputType otype_cnf,
-         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
-         freq_t speed = 50_mhz,
-         GpioActiveState active_state = GpioActiveState::low>
-class GpioOutput
-: public Gpio< port,
+         cfg::gpio::output_type otype_cfg,
+         cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
+         freq_t speed = mhz(50),
+         cfg::gpio::active_state active_state = cfg::gpio::active_state::low>
+class gpio_output
+: public gpio< port,
                pin_no,
-               GpioMode::output,
-               otype_cnf,
+               cfg::gpio::mode::output,
+               otype_cfg,
                speed,
-               resistor_cnf >
+               resistor_cfg >
 {
 public:
-  typedef GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;
+  typedef gpio_output<port, pin_no, otype_cfg, resistor_cfg, speed, active_state> type;
 
   static void enable() {
-    if(active_state == GpioActiveState::low) {
+    if(active_state == cfg::gpio::active_state::low) {
       type::reset();
     } else {
       type::set();
@@ -204,7 +210,7 @@ public:
   }
 
   static void disable() {
-    if(active_state == GpioActiveState::low) {
+    if(active_state == cfg::gpio::active_state::low) {
       type::set();
     } else {
       type::reset();
@@ -213,7 +219,7 @@ public:
 
   static bool active() {
     bool input = type::read_input_bit();
-    return active_state == GpioActiveState::low ? !input : input;
+    return active_state == cfg::gpio::active_state::low ? !input : input;
   }
 
   static void toggle() {
@@ -227,60 +233,60 @@ public:
 
   static bool latched() {
     bool output = type::read_output_bit();
-    return active_state == GpioActiveState::low ? !output : output;
+    return active_state == cfg::gpio::active_state::low ? !output : output;
   }
 };
 
 
-////////////////////  GpioOutputAF  ////////////////////
+////////////////////  gpio_output_af  ////////////////////
 
 
 template<char port,
          unsigned pin_no,
          unsigned alt_func_num,
-         GpioOutputType otype_cnf = GpioOutputType::open_drain,
-         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
-         freq_t speed = 50_mhz>
-class GpioOutputAF
-: public Gpio< port,
+         cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::open_drain,
+         cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
+         freq_t speed = mhz(50)>
+class gpio_output_af
+: public gpio< port,
                pin_no,
-               GpioMode::alternate_function,
-               otype_cnf,
+               cfg::gpio::mode::alternate_function,
+               otype_cfg,
                speed,
-               resistor_cnf,
+               resistor_cfg,
                alt_func_num >
 { };
 
 
-////////////////////  GpioAnalogIO  ////////////////////
+////////////////////  gpio_analog_io  ////////////////////
 
 
 template<char port,
          unsigned pin_no>
-class GpioAnalogIO
-: public Gpio< port,
+class gpio_analog_io
+: public gpio< port,
                pin_no,
-               GpioMode::analog,
-               GpioOutputType::push_pull,
-               2_mhz,
-               GpioResistorConfig::floating >
+               cfg::gpio::mode::analog,
+               cfg::gpio::output_type::push_pull,
+               mhz(2),
+               cfg::gpio::resistor::floating >
 {
   // TODO: get/set analog value
 };
 
 
-////////////////////  GpioLed  ////////////////////
+////////////////////  gpio_led  ////////////////////
 
 
 template<char port,
          unsigned pin_no,
-         GpioOutputType otype_cnf = GpioOutputType::push_pull,
-         GpioResistorConfig resistor_cnf = GpioResistorConfig::floating,
-         freq_t speed = 50_mhz,
-         GpioActiveState active_state = GpioActiveState::high>
-class GpioLed : public GpioOutput<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> {
+         cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::push_pull,
+         cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
+         freq_t speed = mhz(50),
+         cfg::gpio::active_state active_state = cfg::gpio::active_state::high>
+class gpio_led : public gpio_output<port, pin_no, otype_cfg, resistor_cfg, speed, active_state> {
 public:
-  typedef GpioLed<port, pin_no, otype_cnf, resistor_cnf, speed, active_state> type;
+  typedef gpio_led<port, pin_no, otype_cfg, resistor_cfg, speed, active_state> type;
 
   static void on() {
     type::enable();
@@ -290,6 +296,6 @@ public:
   }
 };
 
+} // namespace mptl
+
 #endif // GPIO_HPP_INCLUDED
-
-

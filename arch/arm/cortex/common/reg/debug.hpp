@@ -23,30 +23,31 @@
 
 #include <register.hpp>
 
-namespace reg
-{
-  /**
-   * Debug Register
-   *
-   * For details, see "Cortex-M3 Technical Reference Manual":
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct DEBUG
-  {
-    using DFSR   = Register<uint32_t, 0xE000ED30, Access::rw>;  /**< Debug Fault Status Register                   */
-    using DHCSR  = Register<uint32_t, 0xE000EDF0, Access::rw>;  /**< Debug Halting Control and Status Register     */
-    using DCRSR  = Register<uint32_t, 0xE000EDF4, Access::wo>;  /**< Debug Core Register Selector Register         */
-    using DCRDR  = Register<uint32_t, 0xE000EDF8, Access::rw>;  /**< Debug Core Register Data Register             */
+namespace mptl { namespace reg {
 
-    /**
-     * Debug Exception and Monitor Control Register
-     */
-    struct DEMCR
-    : public Register<uint32_t, 0xE000EDFC, Access::rw>
-    {
-      using TRCENA  = RegisterBits< type, 24,  1 >;   /**< Enable DWT */
-    };
+/**
+ * Debug Register
+ *
+ * For details, see "Cortex-M3 Technical Reference Manual":
+ * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
+ */
+struct DEBUG
+{
+  using DFSR   = regdef<uint32_t, 0xE000ED30, reg_access::rw>;  /**< Debug Fault Status Register                   */
+  using DHCSR  = regdef<uint32_t, 0xE000EDF0, reg_access::rw>;  /**< Debug Halting Control and Status Register     */
+  using DCRSR  = regdef<uint32_t, 0xE000EDF4, reg_access::wo>;  /**< Debug Core Register Selector Register         */
+  using DCRDR  = regdef<uint32_t, 0xE000EDF8, reg_access::rw>;  /**< Debug Core Register Data Register             */
+
+  /**
+   * Debug Exception and Monitor Control Register
+   */
+  struct DEMCR
+  : public regdef<uint32_t, 0xE000EDFC, reg_access::rw>
+  {
+    using TRCENA  = regbits< type, 24,  1 >;   /**< Enable DWT */
   };
-}
+};
+
+} } // namespace mptl::reg
 
 #endif // COMMON_ARM_CORTEX_REG_DEBUG_HPP_INCLUDED

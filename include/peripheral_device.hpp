@@ -21,15 +21,17 @@
 #ifndef PERIPHERAL_DEVICE_HPP_INCLUDED
 #define PERIPHERAL_DEVICE_HPP_INCLUDED
 
+namespace mptl {
+
 /**
  * Peripheral Device Class
  *
  * Template arguments:
- * - peripheral_type: e.g. SPI<0>
- * - peripheral_config_type: e.g. SpiDefaultConfig
+ * - peripheral_type: e.g. spi<0>
+ * - peripheral_config_type: e.g. spi_default_config
  */
 template<typename peripheral_type, typename peripheral_config_type >
-class PeripheralDevice
+class peripheral_device
 : public peripheral_type, public peripheral_config_type
 {
 public:
@@ -54,5 +56,7 @@ public:
     peripheral_type::enable();
   }
 };
+
+} // namespace mptl
 
 #endif // PERIPHERAL_DEVICE_HPP_INCLUDED

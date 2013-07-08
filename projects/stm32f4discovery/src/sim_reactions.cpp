@@ -36,30 +36,32 @@ static void systick_thread() {
   }
 }
 
-namespace reg {
-  void RegisterReaction::react() {
-    switch(addr) {
-    case RCC::CR::addr:
-      if(bits_set<RCC::CR::HSEON>()) {
-        RCC::CR::HSERDY::set();
-      }
-      if(bits_set<RCC::CR::PLLON>()) {
-        RCC::CR::PLLRDY::set();
-      }
-      break;
+namespace mptl {
 
-    case RCC::CFGR::addr:
-      if(bits_set<RCC::CFGR::SW::PLL>()) {
-        RCC::CFGR::SWS::PLL::set();
-      }
-      break;
+void reg_reaction::react() {
+  switch(addr) {
+  case reg::RCC::CR::addr:
+    if(bits_set<reg::RCC::CR::HSEON>()) {
+      reg::RCC::CR::HSERDY::set();
+    }
+    if(bits_set<reg::RCC::CR::PLLON>()) {
+      reg::RCC::CR::PLLRDY::set();
+    }
+    break;
 
-    case SCB::STCSR::addr:
-      if(bits_set<SCB::STCSR::TICKINT>()) {
-        std::thread(systick_thread).detach();
-      }
-    };
-  }
-} // namespace reg
+  case reg::RCC::CFGR::addr:
+    if(bits_set<reg::RCC::CFGR::SW::PLL>()) {
+      reg::RCC::CFGR::SWS::PLL::set();
+    }
+    break;
+
+  case reg::SCB::STCSR::addr:
+    if(bits_set<reg::SCB::STCSR::TICKINT>()) {
+      std::thread(systick_thread).detach();
+    }
+  };
+}
+
+} // namespace mptl
 
 #endif // OPENMPTL_SIMULATION

@@ -24,7 +24,7 @@
 OPENMPTL_TOP  = ../..
 
 #CROSS        = x86_64-pc-linux-gnu-
-CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.0/x86_64-pc-linux-gnu-
+CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
 
 # needed by some unittests
 OPENMPTL_ARCH = arm/cortex/stm32/f4
@@ -43,7 +43,7 @@ SRC_DIR     = src
 INCLUDE      += -I $(SRC_DIR)
 
 OBJ_DIR      = obj
-SRC_FAIL_DIR = mustfail_src
+SRC_FAIL_DIR = var
 
 SRCS         = $(wildcard $(addsuffix /*.cpp, $(SRC_DIR)))
 

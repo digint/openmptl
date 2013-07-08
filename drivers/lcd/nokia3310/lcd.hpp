@@ -26,9 +26,11 @@
 #include <arch/core.hpp>
 #include <peripheral_device.hpp>
 
+namespace mptl { namespace device {
+
 /* NOTE: font_width is the font INCLUDING character separator (e.g. use 6 for 8x5 font) */
 template<unsigned font_width>
-class LcdFont
+class lcd_font
 {
 private:
   static constexpr unsigned char_width = font_width - 1;
@@ -66,7 +68,7 @@ template< unsigned res_x,
           unsigned res_y,
           unsigned font_width = 6 /* NOTE: actual font width is 8x5, one bit is for character separator */
           >
-class Lcd
+class lcd_base
 {
 protected:
   static constexpr unsigned lcdbuf_size = ((res_x * res_y) / 8); /* 1 bit per pixel */
@@ -80,7 +82,7 @@ private:
 
 public:
 
-  using font = LcdFont<font_width>;
+  using font = lcd_font<font_width>;
 
   static constexpr unsigned resolution_x = res_x;
   static constexpr unsigned resolution_y = res_y;
@@ -147,22 +149,21 @@ template<typename spi_type,
          typename lcd_reset,
          typename lcd_e
          >
-class Lcd_Nokia3310 : public Lcd< 84, 48 >
+class nokia3310 : public lcd_base< 84, 48 >
 {
   struct spi_device_config
   {
-    static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::master;
-
-    static constexpr freq_t                     max_frequency    = 4_mhz;
-    static constexpr unsigned                   data_size        = 8;
-    static constexpr SpiClockPolarity           clk_pol          = SpiClockPolarity::high;
-    static constexpr SpiClockPhase              clk_phase        = SpiClockPhase::second_edge;
-    static constexpr SpiDataDirection           data_dir         = SpiDataDirection::one_line_tx;
-    static constexpr SpiSoftwareSlaveManagement ssm              = SpiSoftwareSlaveManagement::enabled;
-    static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
+    static constexpr mptl::cfg::spi::master_selection          master_selection = mptl::cfg::spi::master_selection::master;
+    static constexpr mptl::freq_t                              max_frequency    = mptl::mhz(4);
+    static constexpr unsigned                                  data_size        = 8;
+    static constexpr mptl::cfg::spi::clock_polarity            clk_pol          = mptl::cfg::spi::clock_polarity::high;
+    static constexpr mptl::cfg::spi::clock_phase               clk_phase        = mptl::cfg::spi::clock_phase::second_edge;
+    static constexpr mptl::cfg::spi::data_direction            data_dir         = mptl::cfg::spi::data_direction::one_line_tx;
+    static constexpr mptl::cfg::spi::software_slave_management ssm              = mptl::cfg::spi::software_slave_management::enabled;
+    static constexpr mptl::cfg::spi::frame_format              frame_format     = mptl::cfg::spi::frame_format::msb_first;
   };
 
-  using spi_device = PeripheralDevice< spi_type, spi_device_config >;
+  using spi_device = mptl::peripheral_device< spi_type, spi_device_config >;
 
   static void enable_slave_select(void) {
     lcd_e::enable();
@@ -188,7 +189,7 @@ class Lcd_Nokia3310 : public Lcd< 84, 48 >
 
 public:
 
-  using resources = ResourceList<
+  using resources = mptl::resource::list<
     typename spi_device::resources,
     typename lcd_ds::resources,
     typename lcd_reset::resources,
@@ -238,9 +239,9 @@ public:
 
     /* toggle display reset pin */
     lcd_reset::enable();
-    Core::nop(10000);
+    mptl::core::nop(10000);
     lcd_reset::disable();
-    Core::nop(10000);
+    mptl::core::nop(10000);
 
     enable();
 
@@ -265,5 +266,7 @@ public:
     init(default_contrast, default_temp_coeff, default_bias);
   }
 };
+
+} } // namespace mptl::device
 
 #endif // LCD_HPP_INCLUDED

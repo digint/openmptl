@@ -23,185 +23,186 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+
+/**
+ * Universal synchronous asynchronous receiver transmitter (USART),
+ * common to all stm32 processors.
+ *
+ * NOTE: We use std::uint_fast16_t to access the registers. This way
+ * we leave it up to the compiler to use either 16-bit or 32-bit
+ * integers for the access_type. More precicely: "use fastest
+ * unsigned integer type with width of at least 16 bits". In most
+ * situations the compiler toolchain (gcc-4.8) will choose 32bit
+ * integers for ARM / ARM-Thumb(2).
+ *
+ * TODO: move ^^^this^^^ text to the "register access" discussion.
+ */
+template<reg_addr_t base_addr>
+struct USART_common
 {
   /**
-   * Universal synchronous asynchronous receiver transmitter (USART),
-   * common to all stm32 processors.
-   *
-   * NOTE: We use std::uint_fast16_t to access the registers. This way
-   * we leave it up to the compiler to use either 16-bit or 32-bit
-   * integers for the access_type. More precicely: "use fastest
-   * unsigned integer type with width of at least 16 bits". In most
-   * situations the compiler toolchain (gcc-4.8) will choose 32bit
-   * integers for ARM / ARM-Thumb(2).
-   *
-   * TODO: move ^^^this^^^ text to the "register access" discussion.
+   * Status register
    */
-  template<reg_addr_t base_addr>
-  struct USART_Common
+  struct SR
+  : public regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >
   {
-    /**
-     * Status register
-     */
-    struct SR
-    : public Register< std::uint_fast16_t, base_addr + 0x00, Access::rw, 0x00c0 >
-    {
-      // TODO: document why it sucks to have to define reg_type here
-      // again.  This is required here (by the standard) because the
-      // template parameter "base_addr" is used as template-parameter
-      // in our Register<> base class:
-      //
-      //   Register< ..., base_addr + 0x00, ... >
-      //                  ^^^
-      // C++ Standard says that you should fully qualify
-      // name according to 14.6.2/3:
-      //
-      //   In the definition of a class template or a member of a
-      //   class template, if a base class of the class template
-      //   depends on a template-parameter, the base class scope is
-      //   not examined during unqualified name lookup either at the
-      //   point of definition of the class template or member or
-      //   during an instantiation of the class template or member.
-      //
-      // This all has to do with specialization: the Register<>
-      // template could be specialized later on, possibly making
-      // reg_type unavailable.
-      // 
-      // see discussion here: http://stackoverflow.com/questions/1643035/propagating-typedef-from-based-to-derived-class-for-template
-      //
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x00, Access::rw, 0x00c0 >;
+    // TODO: document why it sucks to have to define reg_type here
+    // again.  This is required here (by the standard) because the
+    // template parameter "base_addr" is used as template-parameter
+    // in our regdef<> base class:
+    //
+    //   regdef< ..., base_addr + 0x00, ... >
+    //                ^^^
+    // C++ Standard says that you should fully qualify
+    // name according to 14.6.2/3:
+    //
+    //   In the definition of a class template or a member of a
+    //   class template, if a base class of the class template
+    //   depends on a template-parameter, the base class scope is
+    //   not examined during unqualified name lookup either at the
+    //   point of definition of the class template or member or
+    //   during an instantiation of the class template or member.
+    //
+    // This all has to do with specialization: the regdef<>
+    // template could be specialized later on, possibly making
+    // reg_type unavailable.
+    // 
+    // see discussion here: http://stackoverflow.com/questions/1643035/propagating-typedef-from-based-to-derived-class-for-template
+    //
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >;
 
-      using CTS   = RegisterBits< reg_type,  9,  1 >;   /**< CTS flag                      */
-      using LBD   = RegisterBits< reg_type,  8,  1 >;   /**< LIN break detection flag      */
-      using TXE   = RegisterBits< reg_type,  7,  1 >;   /**< Transmit data register empty  */
-      using TC    = RegisterBits< reg_type,  6,  1 >;   /**< Transmission complete         */
-      using RXNE  = RegisterBits< reg_type,  5,  1 >;   /**< Read data register not empty  */
-      using IDLE  = RegisterBits< reg_type,  4,  1 >;   /**< IDLE line detected            */
-      using ORE   = RegisterBits< reg_type,  3,  1 >;   /**< Overrun error                 */
-      using NE    = RegisterBits< reg_type,  2,  1 >;   /**< Noise error flag              */
-      using FE    = RegisterBits< reg_type,  1,  1 >;   /**< Framing error                 */
-      using PE    = RegisterBits< reg_type,  0,  1 >;   /**< Parity error                  */
-    };
-
-    /**
-     * Data register
-     */
-    struct DR
-    : public Register< std::uint_fast16_t, base_addr + 0x04, Access::rw, 0x00000000 >
-    {
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x04, Access::rw, 0x00000000 >;
-
-      using bits_type = RegisterBits< reg_type,  0,  9 >;   /**< Data value  */
-    };
-
-    /**
-     * Baud rate register
-     */
-    struct BRR
-    : public Register< std::uint_fast16_t, base_addr + 0x08, Access::rw, 0x0000 >
-    {
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x08, Access::rw, 0x0000 >;
-
-      using DIV_Mantissa = RegisterBits< reg_type,  4, 12 >;   /**< mantissa of USARTDIV  */
-      using DIV_Fraction = RegisterBits< reg_type,  0,  4 >;   /**< fraction of USARTDIV  */
-    };
-
-    /**
-     * Control register 1
-     */
-    struct CR1
-    : public Register< std::uint_fast16_t, base_addr + 0x0c, Access::rw, 0x0000 >
-    {
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x0c, Access::rw, 0x0000 >;
-
-      using UE      = RegisterBits< reg_type, 13,  1 >;   /**< USART enable                            */
-      using M       = RegisterBits< reg_type, 12,  1 >;   /**< Word length                             */
-      using WAKE    = RegisterBits< reg_type, 11,  1 >;   /**< Wakeup method                           */
-      using PCE     = RegisterBits< reg_type, 10,  1 >;   /**< Parity control enable                   */
-      using PS      = RegisterBits< reg_type,  9,  1 >;   /**< Parity selection                        */
-      using PEIE    = RegisterBits< reg_type,  8,  1 >;   /**< PE interrupt enable                     */
-      using TXEIE   = RegisterBits< reg_type,  7,  1 >;   /**< TXE interrupt enable                    */
-      using TCIE    = RegisterBits< reg_type,  6,  1 >;   /**< Transmission complete interrupt enable  */
-      using RXNEIE  = RegisterBits< reg_type,  5,  1 >;   /**< RXNE interrupt enable                   */
-      using IDLEIE  = RegisterBits< reg_type,  4,  1 >;   /**< IDLE interrupt enable                   */
-      using TE      = RegisterBits< reg_type,  3,  1 >;   /**< Transmitter enable                      */
-      using RE      = RegisterBits< reg_type,  2,  1 >;   /**< Receiver enable                         */
-      using RWU     = RegisterBits< reg_type,  1,  1 >;   /**< Receiver wakeup                         */
-      using SBK     = RegisterBits< reg_type,  0,  1 >;   /**< Send break                              */
-    };
-
-    /**
-     * Control register 2
-     */
-    struct CR2
-    : public Register< std::uint_fast16_t, base_addr + 0x10, Access::rw, 0x0000 >
-    {
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x10, Access::rw, 0x0000 >;
-
-      using LINEN  = RegisterBits< reg_type, 14,  1 >;   /**< LIN mode enable                       */
-      using STOP   = RegisterBits< reg_type, 12,  2 >;   /**< STOP bits                             */
-      using CLKEN  = RegisterBits< reg_type, 11,  1 >;   /**< Clock enable                          */
-      using CPOL   = RegisterBits< reg_type, 10,  1 >;   /**< Clock polarity                        */
-      using CPHA   = RegisterBits< reg_type,  9,  1 >;   /**< Clock phase                           */
-      using LBCL   = RegisterBits< reg_type,  8,  1 >;   /**< Last bit clock pulse                  */
-      using LBDIE  = RegisterBits< reg_type,  6,  1 >;   /**< LIN break detection interrupt enable  */
-      using LBDL   = RegisterBits< reg_type,  5,  1 >;   /**< LIN break detection length            */
-      using ADD    = RegisterBits< reg_type,  0,  4 >;   /**< Address of the USART node             */
-    };
-
-    /**
-     * Control register 3
-     */
-    struct CR3
-    : public Register< std::uint_fast16_t, base_addr + 0x14, Access::rw, 0x0000 >
-    {
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x14, Access::rw, 0x0000 >;
-
-      using CTSIE  = RegisterBits< reg_type, 10,  1 >;   /**< CTS interrupt enable    */
-      using CTSE   = RegisterBits< reg_type,  9,  1 >;   /**< CTS enable              */
-      using RTSE   = RegisterBits< reg_type,  8,  1 >;   /**< RTS enable              */
-      using DMAT   = RegisterBits< reg_type,  7,  1 >;   /**< DMA enable transmitter  */
-      using DMAR   = RegisterBits< reg_type,  6,  1 >;   /**< DMA enable receiver     */
-      using SCEN   = RegisterBits< reg_type,  5,  1 >;   /**< Smartcard mode enable   */
-      using NACK   = RegisterBits< reg_type,  4,  1 >;   /**< Smartcard NACK enable   */
-      using HDSEL  = RegisterBits< reg_type,  3,  1 >;   /**< Half-duplex selection   */
-      using IRLP   = RegisterBits< reg_type,  2,  1 >;   /**< IrDA low-power          */
-      using IREN   = RegisterBits< reg_type,  1,  1 >;   /**< IrDA mode enable        */
-      using EIE    = RegisterBits< reg_type,  0,  1 >;   /**< Error interrupt enable  */
-    };
-
-    /**
-     * Guard time and prescaler register
-     */
-    struct GTPR
-    : public Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >
-    {
-      using reg_type = Register< std::uint_fast16_t, base_addr + 0x18, Access::rw, 0x0000 >;
-
-      using GT   = RegisterBits< reg_type,  8,  8 >;   /**< Guard time value  */
-      using PSC  = RegisterBits< reg_type,  0,  8 >;   /**< Prescaler value   */
-    };
+    using CTS   = regbits< reg_type,  9,  1 >;   /**< CTS flag                      */
+    using LBD   = regbits< reg_type,  8,  1 >;   /**< LIN break detection flag      */
+    using TXE   = regbits< reg_type,  7,  1 >;   /**< Transmit data register empty  */
+    using TC    = regbits< reg_type,  6,  1 >;   /**< Transmission complete         */
+    using RXNE  = regbits< reg_type,  5,  1 >;   /**< Read data register not empty  */
+    using IDLE  = regbits< reg_type,  4,  1 >;   /**< IDLE line detected            */
+    using ORE   = regbits< reg_type,  3,  1 >;   /**< Overrun error                 */
+    using NE    = regbits< reg_type,  2,  1 >;   /**< Noise error flag              */
+    using FE    = regbits< reg_type,  1,  1 >;   /**< Framing error                 */
+    using PE    = regbits< reg_type,  0,  1 >;   /**< Parity error                  */
   };
-
 
   /**
-   * Some architectures (e.g. stm32f4xx) provide oversampling and
-   * one-sample-bit mode.
+   * Data register
    */
-  template<reg_addr_t base_addr>
-  class USART_Common_Ext : public USART_Common<base_addr>
+  struct DR
+  : public regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >
   {
-    using base_type = USART_Common<base_addr>;
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >;
 
-  public:
-    struct CR1 : public base_type::CR1 {
-      using OVER8  = RegisterBits< typename base_type::CR1::type, 15,  1 >;   /**< Oversampling mode  */
-    };
-    struct CR3 : public base_type::CR3 {
-      using ONEBIT = RegisterBits< typename base_type::CR3::type, 11,  1 >;   /**< One sample bit method enable  */
-    };
+    using bits_type = regbits< reg_type,  0,  9 >;   /**< Data value  */
   };
-}
+
+  /**
+   * Baud rate register
+   */
+  struct BRR
+  : public regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >
+  {
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >;
+
+    using DIV_Mantissa = regbits< reg_type,  4, 12 >;   /**< mantissa of USARTDIV  */
+    using DIV_Fraction = regbits< reg_type,  0,  4 >;   /**< fraction of USARTDIV  */
+  };
+
+  /**
+   * Control register 1
+   */
+  struct CR1
+  : public regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >
+  {
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >;
+
+    using UE      = regbits< reg_type, 13,  1 >;   /**< USART enable                            */
+    using M       = regbits< reg_type, 12,  1 >;   /**< Word length                             */
+    using WAKE    = regbits< reg_type, 11,  1 >;   /**< Wakeup method                           */
+    using PCE     = regbits< reg_type, 10,  1 >;   /**< Parity control enable                   */
+    using PS      = regbits< reg_type,  9,  1 >;   /**< Parity selection                        */
+    using PEIE    = regbits< reg_type,  8,  1 >;   /**< PE interrupt enable                     */
+    using TXEIE   = regbits< reg_type,  7,  1 >;   /**< TXE interrupt enable                    */
+    using TCIE    = regbits< reg_type,  6,  1 >;   /**< Transmission complete interrupt enable  */
+    using RXNEIE  = regbits< reg_type,  5,  1 >;   /**< RXNE interrupt enable                   */
+    using IDLEIE  = regbits< reg_type,  4,  1 >;   /**< IDLE interrupt enable                   */
+    using TE      = regbits< reg_type,  3,  1 >;   /**< Transmitter enable                      */
+    using RE      = regbits< reg_type,  2,  1 >;   /**< Receiver enable                         */
+    using RWU     = regbits< reg_type,  1,  1 >;   /**< Receiver wakeup                         */
+    using SBK     = regbits< reg_type,  0,  1 >;   /**< Send break                              */
+  };
+
+  /**
+   * Control register 2
+   */
+  struct CR2
+  : public regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >
+  {
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >;
+
+    using LINEN  = regbits< reg_type, 14,  1 >;   /**< LIN mode enable                       */
+    using STOP   = regbits< reg_type, 12,  2 >;   /**< STOP bits                             */
+    using CLKEN  = regbits< reg_type, 11,  1 >;   /**< Clock enable                          */
+    using CPOL   = regbits< reg_type, 10,  1 >;   /**< Clock polarity                        */
+    using CPHA   = regbits< reg_type,  9,  1 >;   /**< Clock phase                           */
+    using LBCL   = regbits< reg_type,  8,  1 >;   /**< Last bit clock pulse                  */
+    using LBDIE  = regbits< reg_type,  6,  1 >;   /**< LIN break detection interrupt enable  */
+    using LBDL   = regbits< reg_type,  5,  1 >;   /**< LIN break detection length            */
+    using ADD    = regbits< reg_type,  0,  4 >;   /**< Address of the USART node             */
+  };
+
+  /**
+   * Control register 3
+   */
+  struct CR3
+  : public regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >
+  {
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >;
+
+    using CTSIE  = regbits< reg_type, 10,  1 >;   /**< CTS interrupt enable    */
+    using CTSE   = regbits< reg_type,  9,  1 >;   /**< CTS enable              */
+    using RTSE   = regbits< reg_type,  8,  1 >;   /**< RTS enable              */
+    using DMAT   = regbits< reg_type,  7,  1 >;   /**< DMA enable transmitter  */
+    using DMAR   = regbits< reg_type,  6,  1 >;   /**< DMA enable receiver     */
+    using SCEN   = regbits< reg_type,  5,  1 >;   /**< Smartcard mode enable   */
+    using NACK   = regbits< reg_type,  4,  1 >;   /**< Smartcard NACK enable   */
+    using HDSEL  = regbits< reg_type,  3,  1 >;   /**< Half-duplex selection   */
+    using IRLP   = regbits< reg_type,  2,  1 >;   /**< IrDA low-power          */
+    using IREN   = regbits< reg_type,  1,  1 >;   /**< IrDA mode enable        */
+    using EIE    = regbits< reg_type,  0,  1 >;   /**< Error interrupt enable  */
+  };
+
+  /**
+   * Guard time and prescaler register
+   */
+  struct GTPR
+  : public regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >
+  {
+    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >;
+
+    using GT   = regbits< reg_type,  8,  8 >;   /**< Guard time value  */
+    using PSC  = regbits< reg_type,  0,  8 >;   /**< Prescaler value   */
+  };
+};
+
+
+/**
+ * Some architectures (e.g. stm32f4xx) provide oversampling and
+ * one-sample-bit mode.
+ */
+template<reg_addr_t base_addr>
+class USART_common_ext : public USART_common<base_addr>
+{
+  using base_type = USART_common<base_addr>;
+
+public:
+  struct CR1 : public base_type::CR1 {
+    using OVER8  = regbits< typename base_type::CR1::type, 15,  1 >;   /**< Oversampling mode  */
+  };
+  struct CR3 : public base_type::CR3 {
+    using ONEBIT = regbits< typename base_type::CR3::type, 11,  1 >;   /**< One sample bit method enable  */
+  };
+};
+
+} } // namespace mptl::reg
 
 #endif // ARM_CORTEX_STM32_COMMON_REG_USART_HPP_INCLUDED

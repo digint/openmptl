@@ -41,10 +41,10 @@ void Kernel::init(void)
   resources::check();      /* check unique resources */
   resources::configure();  /* configure resources (set all shared register) */
 
-  led_green::off();
+  led_green ::off();
   led_orange::off();
-  led_red::off();
-  led_blue::off();
+  led_red   ::off();
+  led_blue  ::off();
 
   systick::init();
   systick::enable_interrupt();
@@ -52,14 +52,14 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  Terminal<usart_stream_device, terminal_hooks::commands> terminal;
+  mptl::terminal<usart_stream_device, terminal_hooks::commands> term;
 
-  terminal.open(tty0_device());
-  terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << flush;
+  term.open(tty0_device());
+  term.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 
   while(1)
   {
     /* poll terminal */
-    terminal.process_input();
+    term.process_input();
   }
 }

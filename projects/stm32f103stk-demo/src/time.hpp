@@ -30,13 +30,13 @@ typedef unsigned int systick_t;
 
 class SystemTime
 {
+protected:
   static std::atomic<systick_t> systick_count;
   // static systick_t systick_count;
 
   static volatile unsigned int seconds;
   // static std::atomic<unsigned int> seconds;
 
-protected:
   static void systick_isr(void);
   static void rtc_isr(void);
 
@@ -52,12 +52,12 @@ class Time : public SystemTime
 {
 
 public:
-  using rtc     = Rtc;
+  using rtc     = mptl::rtc;
   using systick = _systick;
 
-  using resources = ResourceList<
-    IrqResource< typename systick::Irq,   systick_isr >,
-    IrqResource< typename rtc::GlobalIrq, rtc_isr     >,
+  using resources = mptl::resource::list<
+    mptl::resource::irq< typename systick::irq,    systick_isr >,
+    mptl::resource::irq< typename rtc::irq_global, rtc_isr     >,
     typename systick::resources,
     rtc::resources
   >;
@@ -72,7 +72,7 @@ public:
   static void enable(void) {
     systick::enable_interrupt();
     rtc::enable_second_interrupt();
-    rtc::GlobalIrq::enable();
+    rtc::irq_global::enable();
   }
 
   static unsigned int get_rtc_seconds(void) {

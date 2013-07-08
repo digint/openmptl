@@ -24,13 +24,15 @@
 #include <arch/reg/pwr.hpp>
 #include <voltage.hpp>
 
+namespace mptl {
+
 template<typename  rcc,
-         voltage_t _system_voltage = 3.3_volt,
+         voltage_t _system_voltage = volt(3.3),
          bool      power_save = false>
-class Pwr
+class pwr
 {
-  static_assert(_system_voltage >= 1.8_volt && _system_voltage <= 3.6_volt, "unsupported system voltage");
-  static_assert(power_save == false || rcc::hclk_freq <= 144_mhz, "system clock frequency too high for power save feature");
+  static_assert(_system_voltage >= volt(1.8) && _system_voltage <= volt(3.6), "unsupported system voltage");
+  static_assert(power_save == false || rcc::hclk_freq <= mhz(144), "system clock frequency too high for power save feature");
 
   using PWR = reg::PWR;
 
@@ -53,5 +55,6 @@ public:
   }
 };
 
+} // namespace mptl
 
 #endif // PWR_HPP_INCLUDED

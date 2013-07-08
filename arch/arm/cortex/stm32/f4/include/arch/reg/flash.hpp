@@ -23,95 +23,96 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+
+/**
+ * FLASH
+ */
+struct FLASH
 {
+  static constexpr reg_addr_t base_addr = 0x40023C00;
+
   /**
-   * FLASH
+   * Flash access control register
    */
-  struct FLASH
+  struct ACR
+  : public regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x00000000 >
   {
-    static constexpr reg_addr_t base_addr = 0x40023C00;
+    using DCRST    = regbits< type, 12,  1 >;  /**< Data cache reset          */
+    using ICRST    = regbits< type, 11,  1 >;  /**< Instruction cache reset   */
+    using DCEN     = regbits< type, 10,  1 >;  /**< Data cache enable         */
+    using ICEN     = regbits< type,  9,  1 >;  /**< Instruction cache enable  */
+    using PRFTEN   = regbits< type,  8,  1 >;  /**< Prefetch enable           */
+    using LATENCY  = regbits< type,  0,  3 >;  /**< Latency                   */
+  };
 
-    /**
-     * Flash access control register
-     */
-    struct ACR
-    : public Register< uint32_t, base_addr + 0x00, Access::rw, 0x00000000 >
-    {
-      using DCRST    = RegisterBits< type, 12,  1 >;  /**< Data cache reset          */
-      using ICRST    = RegisterBits< type, 11,  1 >;  /**< Instruction cache reset   */
-      using DCEN     = RegisterBits< type, 10,  1 >;  /**< Data cache enable         */
-      using ICEN     = RegisterBits< type,  9,  1 >;  /**< Instruction cache enable  */
-      using PRFTEN   = RegisterBits< type,  8,  1 >;  /**< Prefetch enable           */
-      using LATENCY  = RegisterBits< type,  0,  3 >;  /**< Latency                   */
-    };
+  /**
+   * Flash key register
+   */
+  using KEYR     = regdef< uint32_t, base_addr + 0x04, reg_access::wo, 0x00000000 >;
 
-    /**
-     * Flash key register
-     */
-    using KEYR     = Register< uint32_t, base_addr + 0x04, Access::wo, 0x00000000 >;
+  /**
+   * Flash option key register
+   */
+  using OPTKEYR  = regdef< uint32_t, base_addr + 0x08, reg_access::wo, 0x00000000 >;
 
-    /**
-     * Flash option key register
-     */
-    using OPTKEYR  = Register< uint32_t, base_addr + 0x08, Access::wo, 0x00000000 >;
+  /**
+   * Status register
+   */
+  struct SR
+  : public regdef< uint32_t, base_addr + 0x0C, reg_access::rw, 0x00000000 >
+  {
+    using BSY     = regbits< type, 16,  1 >;  /**< Busy                           */
+    using PGSERR  = regbits< type,  7,  1 >;  /**< Programming sequence error     */
+    using PGPERR  = regbits< type,  6,  1 >;  /**< Programming parallelism error  */
+    using PGAERR  = regbits< type,  5,  1 >;  /**< Programming alignment error    */
+    using WRPERR  = regbits< type,  4,  1 >;  /**< Write protection error         */
+    using OPERR   = regbits< type,  1,  1 >;  /**< Operation error                */
+    using EOP     = regbits< type,  0,  1 >;  /**< End of operation               */
+  };
 
-    /**
-     * Status register
-     */
-    struct SR
-    : public Register< uint32_t, base_addr + 0x0C, Access::rw, 0x00000000 >
-    {
-      using BSY     = RegisterBits< type, 16,  1 >;  /**< Busy                           */
-      using PGSERR  = RegisterBits< type,  7,  1 >;  /**< Programming sequence error     */
-      using PGPERR  = RegisterBits< type,  6,  1 >;  /**< Programming parallelism error  */
-      using PGAERR  = RegisterBits< type,  5,  1 >;  /**< Programming alignment error    */
-      using WRPERR  = RegisterBits< type,  4,  1 >;  /**< Write protection error         */
-      using OPERR   = RegisterBits< type,  1,  1 >;  /**< Operation error                */
-      using EOP     = RegisterBits< type,  0,  1 >;  /**< End of operation               */
-    };
+  /**
+   * Control register
+   */
+  struct CR
+  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x80000000 >
+  {
+    using LOCK   = regbits< type, 31,  1 >;  /**< Lock                               */
+    using ERRIE  = regbits< type, 25,  1 >;  /**< Error interrupt enable             */
+    using EOPIE  = regbits< type, 24,  1 >;  /**< End of operation interrupt enable  */
+    using STRT   = regbits< type, 16,  1 >;  /**< Start                              */
+    using PSIZE  = regbits< type,  8,  2 >;  /**< Program size                       */
+    using SNB    = regbits< type,  3,  4 >;  /**< Sector number                      */
+    using MER    = regbits< type,  2,  1 >;  /**< Mass erase                         */
+    using SER    = regbits< type,  1,  1 >;  /**< Sector erase                       */
+    using PG     = regbits< type,  0,  1 >;  /**< Programming                        */
+  };
 
-    /**
-     * Control register
-     */
-    struct CR
-    : public Register< uint32_t, base_addr + 0x10, Access::rw, 0x80000000 >
-    {
-      using LOCK   = RegisterBits< type, 31,  1 >;  /**< Lock                               */
-      using ERRIE  = RegisterBits< type, 25,  1 >;  /**< Error interrupt enable             */
-      using EOPIE  = RegisterBits< type, 24,  1 >;  /**< End of operation interrupt enable  */
-      using STRT   = RegisterBits< type, 16,  1 >;  /**< Start                              */
-      using PSIZE  = RegisterBits< type,  8,  2 >;  /**< Program size                       */
-      using SNB    = RegisterBits< type,  3,  4 >;  /**< Sector number                      */
-      using MER    = RegisterBits< type,  2,  1 >;  /**< Mass erase                         */
-      using SER    = RegisterBits< type,  1,  1 >;  /**< Sector erase                       */
-      using PG     = RegisterBits< type,  0,  1 >;  /**< Programming                        */
-    };
-
-    /**
-     * Flash option control register
-     */
-    struct OPTCR
-    : public Register< uint32_t, base_addr + 0x14, Access::rw, 0x00000014 >
-    {
-      /** User option bytes  */
-      template<typename Rb>
+  /**
+   * Flash option control register
+   */
+  struct OPTCR
+  : public regdef< uint32_t, base_addr + 0x14, reg_access::rw, 0x00000014 >
+  {
+    /** User option bytes  */
+    template<typename Rb>
       struct __USER
       : public Rb
-      {
-        using WDG_SW      = RegisterConst< Rb, 0x1 >;
-        using NRST_STOP   = RegisterConst< Rb, 0x2 >; 
-        using NRST_STDBY  = RegisterConst< Rb, 0x4 >;
-      };
-
-      using NWRP     =          RegisterBits< type, 16, 12 >;    /**< Not write protect  */
-      using RDP      =          RegisterBits< type,  8,  8 >;    /**< Read protect       */
-      using USER     = __USER < RegisterBits< type,  5,  3 > >;  /**< User option bytes  */
-      using BOR_LEV  =          RegisterBits< type,  2,  2 >;    /**< BOR reset Level    */
-      using OPTSTRT  =          RegisterBits< type,  1,  1 >;    /**< Option start       */
-      using OPTLOCK  =          RegisterBits< type,  0,  1 >;    /**< Option lock        */
+    {
+      using WDG_SW      = regval< Rb, 0x1 >;
+      using NRST_STOP   = regval< Rb, 0x2 >; 
+      using NRST_STDBY  = regval< Rb, 0x4 >;
     };
+
+    using NWRP     =          regbits< type, 16, 12 >;    /**< Not write protect  */
+    using RDP      =          regbits< type,  8,  8 >;    /**< Read protect       */
+    using USER     = __USER < regbits< type,  5,  3 > >;  /**< User option bytes  */
+    using BOR_LEV  =          regbits< type,  2,  2 >;    /**< BOR reset Level    */
+    using OPTSTRT  =          regbits< type,  1,  1 >;    /**< Option start       */
+    using OPTLOCK  =          regbits< type,  0,  1 >;    /**< Option lock        */
   };
-}
+};
+
+} } // namespace mptl::reg
 
 #endif // ARCH_REG_FLASH_HPP_INCLUDED

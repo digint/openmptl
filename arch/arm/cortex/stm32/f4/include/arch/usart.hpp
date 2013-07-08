@@ -24,16 +24,19 @@
 #include <arch/gpio.hpp>
 #include "../../../common/usart.hpp"
 
+namespace mptl {
+
 // TODO: provide a matrix for the gpio port/pin_no
+// TODO: this goes to gpio.hpp (rename gpio_usart_rx)
 
 template< typename usart,
           char     port,
           unsigned pin_no >
-class UsartGpioRx
-: public GpioInputAF< port,
-                      pin_no,
-                      usart::usart_no <= 3 ? 7 : 8, // alt_func_num
-                      GpioResistorConfig::floating
+class usart_gpio_rx
+: public gpio_input_af< port,
+                        pin_no,
+                        usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+                        cfg::gpio::resistor::floating
                     >
 { };
 
@@ -41,15 +44,17 @@ class UsartGpioRx
 template< typename usart,
           char     port,
           unsigned pin_no >
-class UsartGpioTx
-: public GpioOutputAF< port,
-                       pin_no,
-                       usart::usart_no <= 3 ? 7 : 8, // alt_func_num
-                       GpioOutputType::push_pull,
-                       GpioResistorConfig::floating,
-                       50_mhz
+class usart_gpio_tx
+: public gpio_output_af< port,
+                         pin_no,
+                         usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+                         cfg::gpio::output_type::push_pull,
+                         cfg::gpio::resistor::floating,
+                         mhz(50)
                      >
 { };
+
+} // namespace mptl
 
 #endif // USART_HPP_INCLUDED
 

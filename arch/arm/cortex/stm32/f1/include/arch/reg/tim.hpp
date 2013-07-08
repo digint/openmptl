@@ -23,29 +23,30 @@
 
 #include "../../../../common/reg/tim.hpp"
 
-namespace reg
-{
-  template<unsigned tim_no>
-  class TIM
-  {
-    /* See available template specialisations below if the compiler asserts here! */
-    static_assert(tim_no == !tim_no, "unsupported TIM number");  // assertion needs to be dependent of template parameter
-  };
+namespace mptl { namespace reg {
 
-  template<> class TIM<  1 > : public TIM_Common< 0x40012c00 > { };
-  template<> class TIM<  2 > : public TIM_Common< 0x40000000 > { };
-  template<> class TIM<  3 > : public TIM_Common< 0x40000400 > { };
-  template<> class TIM<  4 > : public TIM_Common< 0x40000800 > { };
-  template<> class TIM<  5 > : public TIM_Common< 0x40000c00 > { };
-  template<> class TIM<  6 > : public TIM_Common< 0x40001000 > { };
-  template<> class TIM<  7 > : public TIM_Common< 0x40001400 > { };
-  template<> class TIM<  8 > : public TIM_Common< 0x40013400 > { };
-  template<> class TIM<  9 > : public TIM_Common< 0x40014c00 > { };
-  template<> class TIM< 10 > : public TIM_Common< 0x40015000 > { };
-  template<> class TIM< 11 > : public TIM_Common< 0x40015400 > { };
-  template<> class TIM< 12 > : public TIM_Common< 0x40001800 > { };
-  template<> class TIM< 13 > : public TIM_Common< 0x40001c00 > { };
-  template<> class TIM< 14 > : public TIM_Common< 0x40002000 > { };
-}
+template<unsigned tim_no>
+class TIM
+{
+  /* See available template specialisations below if the compiler asserts here! */
+  static_assert(tim_no == !tim_no, "unsupported TIM number");  // assertion needs to be dependent of template parameter
+};
+
+template<> class TIM<  1 > : public TIM_common< 0x40012c00 > { };
+template<> class TIM<  2 > : public TIM_common< 0x40000000 > { };
+template<> class TIM<  3 > : public TIM_common< 0x40000400 > { };
+template<> class TIM<  4 > : public TIM_common< 0x40000800 > { };
+template<> class TIM<  5 > : public TIM_common< 0x40000c00 > { };
+template<> class TIM<  6 > : public TIM_common< 0x40001000 > { };
+template<> class TIM<  7 > : public TIM_common< 0x40001400 > { };
+template<> class TIM<  8 > : public TIM_common< 0x40013400 > { };
+template<> class TIM<  9 > : public TIM_common< 0x40014c00 > { };
+template<> class TIM< 10 > : public TIM_common< 0x40015000 > { };
+template<> class TIM< 11 > : public TIM_common< 0x40015400 > { };
+template<> class TIM< 12 > : public TIM_common< 0x40001800 > { };
+template<> class TIM< 13 > : public TIM_common< 0x40001c00 > { };
+template<> class TIM< 14 > : public TIM_common< 0x40002000 > { };
+
+} } // namespace mptl::reg
 
 #endif // ARCH_REG_TIM_HPP_INCLUDED

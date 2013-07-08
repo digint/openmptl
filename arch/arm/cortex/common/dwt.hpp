@@ -24,7 +24,9 @@
 #include "reg/dwt.hpp"
 #include "reg/debug.hpp"
 
-class Dwt
+namespace mptl {
+
+class dwt
 {
   using DWT = reg::DWT;
 
@@ -50,37 +52,39 @@ public:
 
 
 /**
- * CycleCounter: Count processor clock cycles
+ * Cycle counter: Count processor clock cycles
  */
-class CycleCounter
+class cycle_counter // TODO: correct namespace
 {
   using DWT = reg::DWT;
-  using value_type = decltype(Dwt::cycle_counter_load());
+  using value_type = decltype(dwt::cycle_counter_load());
 
   value_type value;
 
 public:
 
-  CycleCounter(void) : value(0) {
-    Dwt::enable();
-    Dwt::cycle_counter_enable();
+  cycle_counter(void) : value(0) {
+    dwt::enable();
+    dwt::cycle_counter_enable();
   }
 
-  ~CycleCounter(void) {
-    Dwt::disable();
+  ~cycle_counter(void) {
+    dwt::disable();
   }
 
   void start(void) {
-    value = Dwt::cycle_counter_load();
+    value = dwt::cycle_counter_load();
   }
 
   void stop(void) {
-    value = Dwt::cycle_counter_load() - value;
+    value = dwt::cycle_counter_load() - value;
   }
 
   value_type get(void) {
     return value;
   }
 };
+
+} // namespace mptl
 
 #endif // ARM_CORTEX_COMMON_DWT_HPP_INCLUDED

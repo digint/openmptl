@@ -18,18 +18,21 @@
  *
  */
 
+#ifndef ISR_WRAP_HPP_INCLUDED
+#define ISR_WRAP_HPP_INCLUDED
 
-#ifndef IRQ_WRAP_HPP_INCLUDED
-#define IRQ_WRAP_HPP_INCLUDED
+namespace mptl {
 
-struct IsrWrap { // TODO: rename IsrWrap
+struct isr_wrap {
 // TODO: check virtual declaration
-  IsrWrap() { }
-  ~IsrWrap() { }
+  isr_wrap() { }
+  ~isr_wrap() { }
 };
 
-struct DefaultIsrWrap : public IsrWrap {
-  ~DefaultIsrWrap () { while(1); }
+struct default_isr_wrap : public isr_wrap {
+  ~default_isr_wrap () { while(1); }
 };
 
-#endif //IRQ_WRAP_HPP_INCLUDED
+} // namespace mptl
+
+#endif //ISR_WRAP_HPP_INCLUDED

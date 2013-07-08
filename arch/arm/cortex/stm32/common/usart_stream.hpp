@@ -24,8 +24,10 @@
 #include <arch/usart.hpp>
 #include <fifo.hpp>
 
+namespace mptl {
+
 template<typename usart>
-class UsartIrqTransport
+class usart_irq_transport
 {
   using SR = typename usart::USARTx::SR;
 
@@ -33,9 +35,9 @@ class UsartIrqTransport
 
 public:
 
-  UsartIrqTransport(void) : flags(SR::load()) { };
+  usart_irq_transport(void) : flags(SR::load()) { };
 
-  void process_io(Fifo<char> &rx_fifo, Fifo<char> &tx_fifo) {
+  void process_io(fifo<char> &rx_fifo, fifo<char> &tx_fifo) {
     if(flags & SR::RXNE::value) {
       uint32_t data = usart::receive(); /* implicitely clears RXNE flag */
       rx_fifo.push(data);
@@ -65,15 +67,15 @@ public:
 
 
 template<typename usart,
-         typename _fifo_type = RingBuffer<char, 256>,
+         typename _fifo_type = ring_buffer<char, 256>,
          bool     _crlf      = true,
          bool     debug_irqs = false>
-class UsartIrqStream
+class usart_irq_stream
 {
   using char_type = char;
 
   static void isr(void) {
-    UsartIrqTransport<usart> transport;
+    usart_irq_transport<usart> transport;
 
     if(debug_irqs) {
       irq_count++;
@@ -95,9 +97,9 @@ public:
   static volatile unsigned int irq_count;
   static volatile unsigned int irq_errors;
 
-  using resources = ResourceList<
+  using resources = resource::list<
     typename usart::resources,
-    IrqResource< typename usart::Irq, isr >
+    resource::irq< typename usart::irq, isr >
     >;
 
   static void flush() {
@@ -105,27 +107,27 @@ public:
   }
 
   /** NOTE: Make sure the device is setup (by calling
-   *        UsartDevice.configure()) before calling this function
+   *        usart_device.configure()) before calling this function
    */
   static void open(void) {
     usart::enable();
-    usart::Irq::enable();
+    usart::irq::enable();
     usart::enable_interrupt(true, false, true, false, false);
   }
 };
 
 template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int UsartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_count;
+volatile unsigned int usart_irq_stream<usart,  fifo_type, crlf, debug_irqs>::irq_count;
 template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int UsartIrqStream<usart,  fifo_type, crlf, debug_irqs>::irq_errors;
-
-template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-fifo_type UsartIrqStream<usart, fifo_type, crlf, debug_irqs>::rx_fifo;
+volatile unsigned int usart_irq_stream<usart,  fifo_type, crlf, debug_irqs>::irq_errors;
 
 template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-fifo_type UsartIrqStream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
+fifo_type usart_irq_stream<usart, fifo_type, crlf, debug_irqs>::rx_fifo;
+
+template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
+fifo_type usart_irq_stream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
 
 
+} // namespace mptl
 
 #endif // ARM_CORTEX_STM32_COMMON_USART_STREAM_HPP_INCLUDED
-

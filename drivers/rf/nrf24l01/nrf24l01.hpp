@@ -25,77 +25,82 @@
 #include <arch/spi.hpp>
 #include <peripheral_device.hpp>
 
-enum class NrfCommand : uint8_t {
-  r_rx_payload = 0x61,
-  w_tx_payload = 0xa0,
-  flush_tx     = 0xe1,
-  flush_rx     = 0xe2,
-  reuse_tx_pl  = 0xe3,
-  activate     = 0x50,
-  nop          = 0xff
-};
-
-enum class NrfRegister : uint8_t {
-  config       = 0x00,
-  en_aa        = 0x01,
-  en_rxaddr    = 0x02,
-  setup_aw     = 0x03,
-  setup_retr   = 0x04,
-  rf_ch        = 0x05,
-  rf_setup     = 0x06,
-  status       = 0x07,
-  observe_tx   = 0x08, 
-  cd           = 0x09,
-  rx_addr_p0   = 0x0a,
-  rx_addr_p1   = 0x0b,
-  rx_addr_p2   = 0x0c,
-  rx_addr_p3   = 0x0d,
-  rx_addr_p4   = 0x0e,
-  rx_addr_p5   = 0x0f,
-  tx_addr      = 0x10,
-  rx_pw_p0     = 0x11,
-  rx_pw_p1     = 0x12,
-  rx_pw_p2     = 0x13,
-  rx_pw_p3     = 0x14,
-  rx_pw_p4     = 0x15,
-  rx_pw_p5     = 0x16,
-  fifo_status  = 0x17,
-  dynpd        = 0x1c,
-  feature      = 0x1d
-};
-
-struct NrfAddress {
-  uint8_t buf[5];
-
-  NrfAddress(void) {
-    buf[0] = 0; buf[1] = 0; buf[2] = 0; buf[3] = 0; buf[4] = 0;
-  }
-  NrfAddress(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4, uint8_t p5) {
-    buf[0] = p1; buf[1] = p2; buf[2] = p3; buf[3] = p4; buf[4] = p5;
-  }
-};
+namespace mptl { namespace device {
 
 template<typename spi_type,
          typename nrf_ce,
          typename nrf_csn,  // nss
          typename nrf_irq
          >
-class Nrf24l01
+class nrf24l01
 {
-  struct spi_device_config
-  {
-    static constexpr SpiMasterSelection         master_selection = SpiMasterSelection::master;
+public:
 
-    static constexpr freq_t                     max_frequency    = 8_mhz;
-    static constexpr unsigned                   data_size        = 8;
-    static constexpr SpiClockPolarity           clk_pol          = SpiClockPolarity::low;
-    static constexpr SpiClockPhase              clk_phase        = SpiClockPhase::first_edge;
-    static constexpr SpiDataDirection           data_dir         = SpiDataDirection::two_lines_full_duplex;
-    static constexpr SpiSoftwareSlaveManagement ssm              = SpiSoftwareSlaveManagement::enabled;
-    static constexpr SpiFrameFormat             frame_format     = SpiFrameFormat::msb_first;
+  enum class dev_command : uint8_t {
+    r_rx_payload = 0x61,
+    w_tx_payload = 0xa0,
+    flush_tx     = 0xe1,
+    flush_rx     = 0xe2,
+    reuse_tx_pl  = 0xe3,
+    activate     = 0x50,
+    nop          = 0xff
   };
 
-  using spi_device = PeripheralDevice< spi_type, spi_device_config >;
+  enum class dev_register : uint8_t {
+    config       = 0x00,
+    en_aa        = 0x01,
+    en_rxaddr    = 0x02,
+    setup_aw     = 0x03,
+    setup_retr   = 0x04,
+    rf_ch        = 0x05,
+    rf_setup     = 0x06,
+    status       = 0x07,
+    observe_tx   = 0x08, 
+    cd           = 0x09,
+    rx_addr_p0   = 0x0a,
+    rx_addr_p1   = 0x0b,
+    rx_addr_p2   = 0x0c,
+    rx_addr_p3   = 0x0d,
+    rx_addr_p4   = 0x0e,
+    rx_addr_p5   = 0x0f,
+    tx_addr      = 0x10,
+    rx_pw_p0     = 0x11,
+    rx_pw_p1     = 0x12,
+    rx_pw_p2     = 0x13,
+    rx_pw_p3     = 0x14,
+    rx_pw_p4     = 0x15,
+    rx_pw_p5     = 0x16,
+    fifo_status  = 0x17,
+    dynpd        = 0x1c,
+    feature      = 0x1d
+  };
+
+  struct dev_address {
+    uint8_t buf[5];
+
+    dev_address(void) {
+      buf[0] = 0; buf[1] = 0; buf[2] = 0; buf[3] = 0; buf[4] = 0;
+    }
+    dev_address(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4, uint8_t p5) {
+      buf[0] = p1; buf[1] = p2; buf[2] = p3; buf[3] = p4; buf[4] = p5;
+    }
+  };
+
+private:
+
+  struct spi_device_config
+  {
+    static constexpr mptl::cfg::spi::master_selection          master_selection = mptl::cfg::spi::master_selection::master;
+    static constexpr mptl::freq_t                              max_frequency    = mptl::mhz(8);
+    static constexpr unsigned                                  data_size        = 8;
+    static constexpr mptl::cfg::spi::clock_polarity            clk_pol          = mptl::cfg::spi::clock_polarity::low;
+    static constexpr mptl::cfg::spi::clock_phase               clk_phase        = mptl::cfg::spi::clock_phase::first_edge;
+    static constexpr mptl::cfg::spi::data_direction            data_dir         = mptl::cfg::spi::data_direction::two_lines_full_duplex;
+    static constexpr mptl::cfg::spi::software_slave_management ssm              = mptl::cfg::spi::software_slave_management::enabled;
+    static constexpr mptl::cfg::spi::frame_format              frame_format     = mptl::cfg::spi::frame_format::msb_first;
+  };
+
+  using spi_device = mptl::peripheral_device< spi_type, spi_device_config >;
 
   /* Tcwh: CSN Inactive time: min. 50ns */
   /* Time between calls of disable() -> enable() */
@@ -127,48 +132,48 @@ class Nrf24l01
     return spi_device::writeread_blocking(data);
   }
 
-  static uint8_t writeread(NrfCommand cmd) {
+  static uint8_t writeread(dev_command cmd) {
     return writeread(static_cast<uint8_t>(cmd));
   }
 
-  static uint8_t read_cmd(NrfRegister reg) {
+  static uint8_t read_cmd(dev_register reg) {
     return static_cast<uint8_t>(reg) & 0x1f;
   }
-  static uint8_t write_cmd(NrfRegister reg) {
+  static uint8_t write_cmd(dev_register reg) {
     return (1 << 5) | (static_cast<uint8_t>(reg) & 0x1f);
   }
 public:
 
-  using resources = ResourceList<
+  using resources = mptl::resource::list<
     typename spi_device::resources,
     typename nrf_ce::resources,
     typename nrf_csn::resources,
     typename nrf_irq::resources
     >;
 
-  static uint8_t read_register(NrfRegister reg) {
+  static uint8_t read_register(dev_register reg) {
     uint8_t ret;
 
     enable_slave_select();
     writeread(read_cmd(reg));
-    ret = writeread(NrfCommand::nop);
+    ret = writeread(dev_command::nop);
     disable_slave_select();
     return ret;
   }
 
-  static void read_address_register(NrfRegister reg, NrfAddress & ret_addr) {
+  static void read_address_register(dev_register reg, dev_address & ret_addr) {
     enable_slave_select();
     writeread(read_cmd(reg));
     for (int i=0; i < 5; i++) {
-      ret_addr.buf[i] = writeread(NrfCommand::nop);
+      ret_addr.buf[i] = writeread(dev_command::nop);
     }
     disable_slave_select();
   }
 
-  static void write_address_register(NrfRegister reg, NrfAddress const & addr) {
-    if(reg == NrfRegister::rx_addr_p0 ||
-       reg == NrfRegister::rx_addr_p1 ||
-       reg == NrfRegister::tx_addr)
+  static void write_address_register(dev_register reg, dev_address const & addr) {
+    if(reg == dev_register::rx_addr_p0 ||
+       reg == dev_register::rx_addr_p1 ||
+       reg == dev_register::tx_addr)
     {
       enable_slave_select();
       writeread(write_cmd(reg));
@@ -179,7 +184,7 @@ public:
     }
   }
 
-  static uint8_t write_register(NrfRegister reg, uint8_t data) {
+  static uint8_t write_register(dev_register reg, uint8_t data) {
     uint8_t ret;
 
     enable_slave_select();
@@ -199,5 +204,7 @@ public:
     spi_device().reconfigure();
   }
 };
+
+} } // namespace mptl::device
 
 #endif // NRF24L01_HPP_INCLUDED

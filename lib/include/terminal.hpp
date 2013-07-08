@@ -21,27 +21,27 @@
 #ifndef TERMINAL_HPP_INCLUDED
 #define TERMINAL_HPP_INCLUDED
 
-#include <fifo.hpp>
+#include <fifo_stream.hpp>
 #include <cstring> // strcmp
 #include <type_traits>
 
+namespace mptl {
 
-namespace text
-{
-  static constexpr const char * term_cmd_notfound = ": command not found (type \"help\" for a list of available commands)";
-  static constexpr const char * term_cmd_list     = "List of commands:";
-}
+namespace i18n { namespace terminal {
+  static constexpr const char * cmd_notfound = ": command not found (type \"help\" for a list of available commands)";
+  static constexpr const char * cmd_list     = "List of commands:";
+} } // namespace i18n::terminal
 
 
 // ----------------------------------------------------------------------------
-// Terminal
+// terminal
 //
 
 template<typename stream_device_type, typename cmd_hooks>
-class Terminal
+class terminal
 {
   using char_type      = typename stream_device_type::fifo_type::char_type;
-  using tx_stream_type = FifoStream< typename stream_device_type::fifo_type, stream_device_type >;
+  using tx_stream_type = poorman::fifo_stream< typename stream_device_type::fifo_type, stream_device_type >;
 
   static constexpr std::size_t cmd_buf_size = 80;  // TODO: use cmd_hooks::cmd_buf_size, which is the maximum of all command sizes (can be computed at compile-time!)
 
@@ -56,7 +56,7 @@ public:
 
   using resources = typename stream_device_type::resources;
 
-  Terminal() : tx_stream(stream_device_type::tx_fifo) { }
+  terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
   template<typename device_type>  // TODO: more specific, only allow devices supported by stream_device class
   static void open(device_type const & device) {
@@ -93,15 +93,15 @@ public:
 
 
 // ----------------------------------------------------------------------------
-// TerminalHook
+// terminal_hook
 //
 
-struct TerminalHook {
+struct terminal_hook {
 };
 
 
 // ----------------------------------------------------------------------------
-// TerminalHookList
+// terminal_hook_list
 //
 
 namespace mpl
@@ -119,36 +119,36 @@ namespace mpl
 
 
 template<typename... Args>
-struct TerminalHookList;
+struct terminal_hook_list;
 
 template<>
-struct TerminalHookList<>
+struct terminal_hook_list<>
 {
   template<typename HL>
-  static void execute(const char * cmd_buf, poorman_ostream<char> & ostream) {
+  static void execute(const char * cmd_buf, poorman::ostream<char> & cout) {
     if(strcmp("help", cmd_buf) == 0) {
-      ostream << text::term_cmd_list << endl;
-      HL::template list<HL>(ostream);
+      cout << i18n::terminal::cmd_list << poorman::endl;
+      HL::template list<HL>(cout);
     }
     else {
-      ostream << cmd_buf << text::term_cmd_notfound << endl;
+      cout << cmd_buf << i18n::terminal::cmd_notfound << poorman::endl;
     }
   }
 
   template<typename HL>
-  static void list(poorman_ostream<char> &) { }
+  static void list(poorman::ostream<char> &) { }
 };
 
 template<typename T, typename... Args>
-struct TerminalHookList<T, Args...> {
+struct terminal_hook_list<T, Args...> {
 
   template<typename HL>
-  static void execute(const char * cmd_buf, poorman_ostream<char> & ostream) {
+  static void execute(const char * cmd_buf, poorman::ostream<char> & cout) {
     if(strcmp(T::cmd, cmd_buf) == 0) {
-      T().run(ostream);
+      T().run(cout);
     }
     else {
-      TerminalHookList<Args...>::template execute<HL>(cmd_buf, ostream);
+      terminal_hook_list<Args...>::template execute<HL>(cmd_buf, cout);
     }
   }
 
@@ -156,14 +156,16 @@ struct TerminalHookList<T, Args...> {
   static constexpr unsigned cmd_maxlen = mpl::max<8, strlen(T::cmd), strlen(Args::cmd)...>::value;
 
   template<typename HL>
-  static void list(poorman_ostream<char> & ostream) {
-    ostream << "   " << T::cmd;
+  static void list(poorman::ostream<char> & cout) {
+    cout << "   " << T::cmd;
     for(int n = HL::cmd_maxlen - strlen(T::cmd) + 3 ; n > 0; n--)
-      ostream.put(' ');
-    ostream << T::desc << endl;
+      cout.put(' ');
+    cout << T::desc << poorman::endl;
 
-    TerminalHookList<Args...>::template list<HL>(ostream);
+    terminal_hook_list<Args...>::template list<HL>(cout);
   }
 };
+
+} // namespace mptl
 
 #endif // TERMINAL_HPP_INCLUDED

@@ -23,10 +23,25 @@
 
 #include <arch/adc.hpp>
 
-class Joystick
+namespace mptl { namespace device {
+
+class joystick
 {
-  typedef GpioInput<'C', 6, GpioInputConfig::floating, GpioActiveState::high> button;
-  typedef Adc<1, AdcMode::independent, AdcScanMode::disabled, AdcContinuousConvMode::single, AdcExternalTrigConv::SoftwareStart, AdcDataAlign::right, AdcRegularChannelSequenceLength<1> > adc;
+  using button = mptl::gpio_input<
+    'C', 6,
+    mptl::cfg::gpio::input::floating,
+    mptl::cfg::gpio::active_state::high
+    >;
+
+  using adc = mptl::adc<
+    1,
+    mptl::cfg::adc::mode::independent,
+    mptl::cfg::adc::scan_mode::disabled,
+    mptl::cfg::adc::continuous_conv_mode::single,
+    mptl::cfg::adc::external_trig_conv::software_start,
+    mptl::cfg::adc::data_align::right,
+    mptl::cfg::adc::regular_channel_sequence_length<1>
+    >;
   
   static int get_value(void) {
     adc::enable_software_start_conversion();
@@ -36,35 +51,35 @@ class Joystick
 
 public:
 
-  typedef ResourceList< typename adc::resources,
-                        typename button::resources
-                        > resources;
+  using resources = mptl::resource::list<
+    typename adc::resources,
+    typename button::resources
+  >;
 
-
-  enum class Position { center, up, down, left, right };
+  enum class position { center, up, down, left, right };
 
   static void init(void) {
     adc::reset();
     adc::configure();
-    adc::regular_channel_config<15, 1, AdcSampleTime::cycles_55_5>();
+    adc::regular_channel_config<15, 1, mptl::cfg::adc::sample_time::cycles_55_5>();
     adc::enable();
   }
 
-  static Position get_position(void) {
+  static position get_position(void) {
     int value = get_value();
 
     int up_value    =  960;
     int down_value  =  190;
     int left_value  = 1990;
     int right_value =  470;
-    int diversion   =   30;
+    int threshold   =   30;
 
-    if((value > (up_value    - diversion)) && (value < (up_value    + diversion)) ) { return Position::up;    }
-    if((value > (down_value  - diversion)) && (value < (down_value  + diversion)) ) { return Position::down;  }
-    if((value > (left_value  - diversion)) && (value < (left_value  + diversion)) ) { return Position::left;  }
-    if((value > (right_value - diversion)) && (value < (right_value + diversion)) ) { return Position::right; }
+    if((value > (up_value    - threshold)) && (value < (up_value    + threshold)) ) { return position::up;    }
+    if((value > (down_value  - threshold)) && (value < (down_value  + threshold)) ) { return position::down;  }
+    if((value > (left_value  - threshold)) && (value < (left_value  + threshold)) ) { return position::left;  }
+    if((value > (right_value - threshold)) && (value < (right_value + threshold)) ) { return position::right; }
 
-    return Position::center;
+    return position::center;
   }
 
   static bool button_pressed(void) {
@@ -72,6 +87,6 @@ public:
   }
 };
 
+} } // namespace mptl::device
+
 #endif // JOYSTICK_HPP_INCLUDED
-
-

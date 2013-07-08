@@ -21,27 +21,29 @@
 #include "kernel.hpp"
 #include "terminal_hooks.hpp"
 
-namespace terminal_hooks
-{
-  void NrfTest::run(poorman_ostream<char> & cout) {
-    unsigned char c;
+namespace terminal_hooks {
 
-    using nrf = Kernel::nrf;
+void nrf_test::run(poorman::ostream<char> & cout) {
+  unsigned char c;
 
-    nrf::enable();
+  using namespace poorman;
+  using nrf = Kernel::nrf;
 
-    c = nrf::read_register(NrfRegister::status);
-    cout << "status=0x" << c << endl;
+  nrf::enable();
 
-    nrf::write_register(NrfRegister::config, 0x0B);
-    c = nrf::read_register(NrfRegister::config);
-    cout << "c=0x" << c << endl;
+  c = nrf::read_register(nrf::dev_register::status);
+  cout << "status=0x" << c << endl;
 
-    NrfAddress addr(5, 6, 7, 8, 9);
-    nrf::write_address_register(NrfRegister::rx_addr_p0, addr);
+  nrf::write_register(nrf::dev_register::config, 0x0B);
+  c = nrf::read_register(nrf::dev_register::config);
+  cout << "c=0x" << c << endl;
 
-    NrfAddress r_addr;
-    nrf::read_address_register(NrfRegister::rx_addr_p0, r_addr);
-    cout << "rx_addr_p0=0x" << r_addr.buf[0] << r_addr.buf[1] << r_addr.buf[2] << r_addr.buf[3] << r_addr.buf[4] << endl;
-  }
+  nrf::dev_address addr(5, 6, 7, 8, 9);
+  nrf::write_address_register(nrf::dev_register::rx_addr_p0, addr);
+
+  nrf::dev_address r_addr;
+  nrf::read_address_register(nrf::dev_register::rx_addr_p0, r_addr);
+  cout << "rx_addr_p0=0x" << r_addr.buf[0] << r_addr.buf[1] << r_addr.buf[2] << r_addr.buf[3] << r_addr.buf[4] << endl;
 }
+
+} // namespace terminal_hooks

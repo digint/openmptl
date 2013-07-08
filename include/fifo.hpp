@@ -22,58 +22,17 @@
 #define FIFO_HPP_INCLUDED
 
 #include <atomic>
-#include "poorman_ostream.hpp"
+
+namespace mptl {
 
 template<typename charT>
-class Fifo {
+class fifo {
 public:
   typedef charT char_type;
 
   virtual bool push(char_type c) = 0;
   virtual bool pushs(const char_type * c) = 0;
   virtual bool pop(char_type &c) = 0;
-};
-
-
-template<typename fifoT, typename deviceT>
-class FifoStream
-: public poorman_ostream<typename fifoT::char_type>
-{
-  fifoT & fifo;
-
-public:
-
-  FifoStream(fifoT & f) : fifo(f) { };
-
-  typedef typename fifoT::char_type char_type;
-
-  poorman_ostream<char_type> & put(char_type c) {
-    fifo.push(c);
-    return *this;
-  }
-
-  poorman_ostream<char_type> & write(const char_type* s, unsigned int count) {
-    fifo.pushs(s, count);
-    return *this;
-  }
-
-  poorman_ostream<char_type> & puts(const char_type* s) {
-    fifo.pushs(s);
-    return *this;
-  }
-
-  poorman_ostream<char_type> & flush() {
-    deviceT::flush();
-    return *this;
-  }
-
-  poorman_ostream<char_type> & endl() {
-    if(deviceT::crlf)
-      fifo.push('\r');
-    fifo.push('\n');
-    deviceT::flush();
-    return *this;
-  }
 };
 
 
@@ -85,7 +44,7 @@ public:
  * see: <http://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync>
  */
 template<typename T, unsigned int size>
-class RingBuffer : public Fifo<T> {
+class ring_buffer : public fifo<T> {
   std::atomic<unsigned int> atomic_write_index;
   std::atomic<unsigned int> atomic_read_index;
   T buf[size];
@@ -98,7 +57,7 @@ class RingBuffer : public Fifo<T> {
   }
 
 public:
-  RingBuffer() : atomic_write_index(0), atomic_read_index(0) {}
+  ring_buffer() : atomic_write_index(0), atomic_read_index(0) {}
 
   bool push(T data) {
     /* producer only: updates write_index after writing */
@@ -193,16 +152,16 @@ public:
 
 
 template<typename T, unsigned int size>
-class CountedRingBuffer : public RingBuffer<T, size> {
+class counted_ring_buffer : public ring_buffer<T, size> {
   unsigned int total;
   unsigned int overrun;
   unsigned int underrun;
 
 public:
-  CountedRingBuffer() : RingBuffer<T, size>(), overrun(0), underrun(0) {}
+  counted_ring_buffer() : ring_buffer<T, size>(), overrun(0), underrun(0) {}
 
   bool push(T c) {
-    if(RingBuffer<T, size>::push(c) == false) {
+    if(ring_buffer<T, size>::push(c) == false) {
       overrun++;
       return false;
     }
@@ -211,7 +170,7 @@ public:
   }
 
   bool pop(T &c) {
-    if(RingBuffer<T, size>::pop(c) == false) {
+    if(ring_buffer<T, size>::pop(c) == false) {
       underrun++;
       return false;
     }
@@ -223,5 +182,6 @@ public:
   unsigned int get_underrun(void) { return underrun; }
 };
 
+} // namespace mptl
 
 #endif // FIFO_HPP_INCLUDED

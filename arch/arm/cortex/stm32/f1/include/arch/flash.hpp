@@ -23,19 +23,21 @@
 
 #include <arch/reg/flash.hpp>
 
+namespace mptl {
+
 template<typename rcc,
          bool prefetch_buffer = true
          >
-class Flash
+class flash
 {
   using FLASH = reg::FLASH;
 
-  static_assert(rcc::hclk_freq <= 72_mhz, "unsupported system clock frequency");
+  static_assert(rcc::hclk_freq <= mhz(72), "unsupported system clock frequency");
 
   static constexpr FLASH::ACR::LATENCY::value_type latency =
-    ((rcc::hclk_freq <= 24_mhz)  ?  0  :
-     (rcc::hclk_freq <= 48_mhz)  ?  1  :
-     (rcc::hclk_freq <= 72_mhz)  ?  2  :
+    ((rcc::hclk_freq <= mhz(24))  ?  0  :
+     (rcc::hclk_freq <= mhz(48))  ?  1  :
+     (rcc::hclk_freq <= mhz(72))  ?  2  :
      -1 );
 
 public:
@@ -60,7 +62,6 @@ public:
   }
 };
 
+} // namespace mptl
 
 #endif // FLASH_HPP_INCLUDED
-
-

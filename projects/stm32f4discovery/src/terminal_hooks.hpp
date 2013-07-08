@@ -26,20 +26,23 @@
 
 namespace terminal_hooks
 {
-  struct Cpuid
-  : public TerminalHook
-  {
-    static constexpr const char * cmd  = "cpuid";
-    static constexpr const char * desc = "prints the SCB::CPUID register";
-    void run(poorman_ostream<char> & ostream) {
-      ostream << reg::SCB::CPUID::load() << endl;
-    }
-  };
 
-  // ----------------------------------------------------------------------------
-  // Terminal Commands
-  //
+struct cpuid
+: public mptl::terminal_hook
+{
+  static constexpr const char * cmd  = "cpuid";
+  static constexpr const char * desc = "prints the SCB::CPUID register";
+  void run(poorman::ostream<char> & cout) {
+    cout << mptl::reg::SCB::CPUID::load() << poorman::endl;
+  }
+};
 
-  using commands = TerminalHookList< Cpuid >;
-}
-#endif
+// ----------------------------------------------------------------------------
+// Terminal Commands
+//
+
+using commands = mptl::terminal_hook_list< cpuid >;
+
+} // namespace terminal_hooks
+
+#endif // TERMINAL_HOOKS_HPP_INCLUDED

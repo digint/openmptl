@@ -25,58 +25,60 @@
 #include <freq.hpp>
 #include <voltage.hpp>
 
+namespace mptl {
+
 template<typename rcc,
          typename pwr,
          bool prefetch_buffer = false,
          bool instruction_cache = true,
          bool data_cache = true
          >
-class Flash
+class flash
 {
-  static_assert((pwr::system_voltage >= 2.1_volt) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
+  static_assert((pwr::system_voltage >= volt(2.1)) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
 
   using FLASH = reg::FLASH;
 
-    static_assert(rcc::hclk_freq <= 168_mhz, "unsupported system clock frequency");
+  static_assert(rcc::hclk_freq <= mhz(168), "unsupported system clock frequency");
 
-    static constexpr FLASH::ACR::LATENCY::value_type latency =
-      (pwr::system_voltage <= 2.1_volt) ? 
-          ((rcc::hclk_freq <= 20_mhz)  ?  0  :
-           (rcc::hclk_freq <= 40_mhz)  ?  1  :
-           (rcc::hclk_freq <= 60_mhz)  ?  2  :
-           (rcc::hclk_freq <= 80_mhz)  ?  3  :
-           (rcc::hclk_freq <= 100_mhz) ?  4  :
-           (rcc::hclk_freq <= 120_mhz) ?  5  :
-           (rcc::hclk_freq <= 140_mhz) ?  6  :
-           (rcc::hclk_freq <= 160_mhz) ?  7  :
-           -1 ) :
-      (pwr::system_voltage <= 2.4_volt) ?
-          ((rcc::hclk_freq <= 22_mhz)  ?  0  :
-           (rcc::hclk_freq <= 44_mhz)  ?  1  :
-           (rcc::hclk_freq <= 66_mhz)  ?  2  :
-           (rcc::hclk_freq <= 88_mhz)  ?  3  :
-           (rcc::hclk_freq <= 110_mhz) ?  4  :
-           (rcc::hclk_freq <= 132_mhz) ?  5  :
-           (rcc::hclk_freq <= 154_mhz) ?  6  :
-           (rcc::hclk_freq <= 168_mhz) ?  7  :
-           -1 ) :
-      (pwr::system_voltage <= 2.7_volt) ?
-          ((rcc::hclk_freq <= 24_mhz)  ?  0  :
-           (rcc::hclk_freq <= 48_mhz)  ?  1  :
-           (rcc::hclk_freq <= 72_mhz)  ?  2  :
-           (rcc::hclk_freq <= 96_mhz)  ?  3  :
-           (rcc::hclk_freq <= 120_mhz) ?  4  :
-           (rcc::hclk_freq <= 144_mhz) ?  5  :
-           (rcc::hclk_freq <= 168_mhz) ?  6  :
-           -1 ) :
-      (pwr::system_voltage <= 3.6_volt) ?
-          ((rcc::hclk_freq <= 30_mhz)  ?  0  :
-           (rcc::hclk_freq <= 60_mhz)  ?  1  :
-           (rcc::hclk_freq <= 90_mhz)  ?  2  :
-           (rcc::hclk_freq <= 120_mhz) ?  3  :
-           (rcc::hclk_freq <= 150_mhz) ?  4  :
-           (rcc::hclk_freq <= 168_mhz) ?  5  :
-           -1 ) : -1;
+  static constexpr FLASH::ACR::LATENCY::value_type latency =
+    (pwr::system_voltage <= volt(2.1)) ? 
+    ((rcc::hclk_freq <= mhz(20))  ?  0  :
+     (rcc::hclk_freq <= mhz(40))  ?  1  :
+     (rcc::hclk_freq <= mhz(60))  ?  2  :
+     (rcc::hclk_freq <= mhz(80))  ?  3  :
+     (rcc::hclk_freq <= mhz(100)) ?  4  :
+     (rcc::hclk_freq <= mhz(120)) ?  5  :
+     (rcc::hclk_freq <= mhz(140)) ?  6  :
+     (rcc::hclk_freq <= mhz(160)) ?  7  :
+     -1 ) :
+    (pwr::system_voltage <= volt(2.4)) ?
+    ((rcc::hclk_freq <= mhz(22))  ?  0  :
+     (rcc::hclk_freq <= mhz(44))  ?  1  :
+     (rcc::hclk_freq <= mhz(66))  ?  2  :
+     (rcc::hclk_freq <= mhz(88))  ?  3  :
+     (rcc::hclk_freq <= mhz(110)) ?  4  :
+     (rcc::hclk_freq <= mhz(132)) ?  5  :
+     (rcc::hclk_freq <= mhz(154)) ?  6  :
+     (rcc::hclk_freq <= mhz(168)) ?  7  :
+     -1 ) :
+    (pwr::system_voltage <= volt(2.7)) ?
+    ((rcc::hclk_freq <= mhz(24))  ?  0  :
+     (rcc::hclk_freq <= mhz(48))  ?  1  :
+     (rcc::hclk_freq <= mhz(72))  ?  2  :
+     (rcc::hclk_freq <= mhz(96))  ?  3  :
+     (rcc::hclk_freq <= mhz(120)) ?  4  :
+     (rcc::hclk_freq <= mhz(144)) ?  5  :
+     (rcc::hclk_freq <= mhz(168)) ?  6  :
+     -1 ) :
+    (pwr::system_voltage <= volt(3.6)) ?
+    ((rcc::hclk_freq <= mhz(30))  ?  0  :
+     (rcc::hclk_freq <= mhz(60))  ?  1  :
+     (rcc::hclk_freq <= mhz(90))  ?  2  :
+     (rcc::hclk_freq <= mhz(120)) ?  3  :
+     (rcc::hclk_freq <= mhz(150)) ?  4  :
+     (rcc::hclk_freq <= mhz(168)) ?  5  :
+     -1 ) : -1;
 public:
 
   static void enable_prefetch_buffer(void) {
@@ -119,6 +121,7 @@ public:
   }
 };
 
+} // namespace mptl
 
 #endif // FLASH_HPP_INCLUDED
 

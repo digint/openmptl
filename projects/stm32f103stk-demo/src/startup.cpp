@@ -23,7 +23,7 @@
 
 /* Reset exception: triggered on system startup (system entry point). */
 void Kernel::reset_isr(void) {
-  Core::startup<rcc, flash>();
+  mptl::core::startup<rcc, flash>();
 
   Kernel::init();
   Kernel::run();
@@ -36,10 +36,10 @@ void Kernel::reset_isr(void) {
 extern const uint32_t _stack_top;  /* provided by linker script */
 
 /* Build the vector table:
- * - use irq handler from IsrResource<> in Kernel::resources
+ * - use irq handler from resource::irq<...> in Kernel::resources
  * - use Kernel::error_isr as default isr
  */
-VectorTable<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
+mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
 
 
 #else // OPENMPTL_SIMULATION

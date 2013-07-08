@@ -22,32 +22,36 @@
 #define RESOURCE_HPP_INCLUDED
 
 #include "resource_mpl.hpp"
+#include <isr.hpp>  // isr_t
 #include <type_traits>
 #include <compiler.h>
 
-////////////////////  SharedRegister  ////////////////////
+namespace mptl { namespace resource {
+
+
+////////////////////  reg_shared  ////////////////////
 
 
 template<typename T>
-struct SharedRegisterGroup : mpl::resource_group
+struct reg_shared_group : mpl::resource_group
 { };
 
 
 template<typename R>
-struct SharedRegister
-: mpl::resource< SharedRegisterGroup<typename R::reg_type>, SharedRegister<typename R::mask_type> >
+struct reg_shared
+: mpl::resource< reg_shared_group<typename R::reg_type>, reg_shared<typename R::mask_type> >
 {
   using mask_type = typename R::mask_type;
 
-  /* Combine two SharedRegister of same SharedRegisterGroup:           */
-  /* Returns SharedRegister with or'ed set_mask and or'ed clear_mask.  */
+  /* Combine two reg_shared of same reg_shared_group:              */
+  /* Returns reg_shared with or'ed set_mask and or'ed clear_mask.  */
   template<typename U>
   struct combine {
-    using type = SharedRegister< typename mask_type::template combine<typename U::mask_type>::type >;
+    using type = reg_shared< typename mask_type::template combine<typename U::mask_type>::type >;
   };
 
   /* Called by resource_type_list_impl::configure() on a combined */
-  /* SharedRegister type. (which we are in this context, see "combine" above)  */
+  /* reg_shared type. (which we are in this context, see "combine" above)  */
   static __always_inline void configure() {
     //    if((R::set_mask != 0) || (R::clear_mask != 0))
       R::set();
@@ -58,37 +62,37 @@ struct SharedRegister
 };
 
 
-////////////////////  UniqueResource  ////////////////////
+////////////////////  unique  ////////////////////
 
 
 template<typename T>
-struct UniqueResource
-: mpl::unique_resource< UniqueResource<T> >
+struct unique
+: mpl::unique_resource< unique<T> >
 { };
 
 
-////////////////////  IrqResource  ////////////////////
+////////////////////  irq  ////////////////////
 
 
 template<int irqn>
-struct IrqResourceGroup : mpl::resource_group
+struct irq_group : mpl::resource_group
 { };
 
 template<typename irq_type, isr_t isr>
-struct IrqResource
-: mpl::unique_resource< IrqResourceGroup<irq_type::irqn>, IrqResource<irq_type, isr> >
+struct irq
+: mpl::unique_resource< irq_group<irq_type::irqn>, irq<irq_type, isr> >
 {
   static constexpr isr_t value = isr;
 };
 
 
-////////////////////  ResourceList  ////////////////////
+////////////////////  list  ////////////////////
 
 
 template<typename... Args>
-struct ResourceList : mpl::resource_list_impl<Args...>
+struct list : mpl::resource_list_impl<Args...>
 {
-  using type = ResourceList<Args...>;
+  using type = list<Args...>;
 
   /* filtered_list, containing all resources of type T */
   template<typename T>
@@ -101,13 +105,13 @@ struct ResourceList : mpl::resource_list_impl<Args...>
   template<typename T>
   using combined_type = typename resource_filtered_list<T>::combined_type;
 
-  /* Returns Handler from ResourceList, or void if not found */
+  /* Returns Handler from list, or void if not found */
   template<int irqn>
   struct irq_resource {
-    using type = combined_type< IrqResourceGroup<irqn> >;
-    using irq_resource_group_type = IrqResourceGroup<irqn>;
+    using type = combined_type< irq_group<irqn> >;
+    using irq_resource_group_type = irq_group<irqn>;
     // this fails since combined_type can be of type "void":
-    // static constexpr isr_t value = combined_type< IrqResourceGroup<irqn> >::value;
+    // static constexpr isr_t value = combined_type< irq_group<irqn> >::value;
   };
 
   /* Run configure() on all combined resource types.  */
@@ -117,9 +121,11 @@ struct ResourceList : mpl::resource_list_impl<Args...>
 
   /* Compile-time consistency check of the resource list (calls static_assert() on errors) */
   static constexpr bool check() {
-    static_assert(resource_type_list::template assert_type<type>(), "ResourceList check failed.");
+    static_assert(resource_type_list::template assert_type<type>(), "resource::list check failed.");
     return true;
   }
 };
+
+} } // namespace mptl::resource
 
 #endif // RESOURCE_HPP_INCLUDED

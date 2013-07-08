@@ -23,7 +23,9 @@
 
 #include <arch/reg/pwr.hpp>
 
-class Pwr
+namespace mptl {
+
+class pwr
 {
 public:
 
@@ -34,5 +36,6 @@ public:
   }
 };
 
+} // namespace mptl
 
 #endif // PWR_HPP_INCLUDED

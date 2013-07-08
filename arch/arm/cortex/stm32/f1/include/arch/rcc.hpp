@@ -25,13 +25,15 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
-template<freq_t cpu_clock_freq = 72_mhz>
-class Rcc {
-  static_assert(cpu_clock_freq == 24_mhz ||
-                cpu_clock_freq == 36_mhz ||
-                cpu_clock_freq == 48_mhz ||
-                cpu_clock_freq == 56_mhz ||
-                cpu_clock_freq == 72_mhz,
+namespace mptl {
+
+template<freq_t cpu_clock_freq = mhz(72)>
+class rcc {
+  static_assert(cpu_clock_freq == mhz(24) ||
+                cpu_clock_freq == mhz(36) ||
+                cpu_clock_freq == mhz(48) ||
+                cpu_clock_freq == mhz(56) ||
+                cpu_clock_freq == mhz(72),
                 "unsupported system clock frequency");
 
   using RCC = reg::RCC;
@@ -40,7 +42,7 @@ public:
 
   /* Note: this is only valid for clocks setup by set_system_clock() function */
   static constexpr freq_t hclk_freq  = cpu_clock_freq;
-  static constexpr freq_t pclk1_freq = cpu_clock_freq <= 36_mhz ? cpu_clock_freq : cpu_clock_freq / 2;
+  static constexpr freq_t pclk1_freq = cpu_clock_freq <= mhz(36) ? cpu_clock_freq : cpu_clock_freq / 2;
   static constexpr freq_t pclk2_freq = cpu_clock_freq;
 
   static void enable_hse(void) {
@@ -60,7 +62,7 @@ public:
   static void set_system_clock(void) {
     /* reset CFGR, and set HPRE, PPRE1, PPRE2, PLLSRC, PLLXTPRE, PLLMUL */
     switch(cpu_clock_freq) {
-    case 24_mhz:
+    case mhz(24):
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 6 = 24 MHz               */
       RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
@@ -71,7 +73,7 @@ public:
                            RCC::CFGR::PLLMUL  ::MUL6
                            >();
       break;
-    case 36_mhz:
+    case mhz(36):
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK    */
       /* PLLCLK = 8MHz / 2 * 9 = 36 MHz               */
       RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
@@ -82,7 +84,7 @@ public:
                            RCC::CFGR::PLLMUL  ::MUL9
                            >();
       break;
-    case 48_mhz:
+    case mhz(48):
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 6 = 48 MHz                   */
       RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
@@ -93,7 +95,7 @@ public:
                            RCC::CFGR::PLLMUL  ::MUL6
                            >();
       break;
-    case 56_mhz:
+    case mhz(56):
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 7 = 56 MHz                   */
       RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
@@ -104,7 +106,7 @@ public:
                            RCC::CFGR::PLLMUL  ::MUL7
                            >();
       break;
-    case 72_mhz:
+    case mhz(72):
       /* HCLK = SYSCLK, PCLK2 = HCLK, PCLK1 = HCLK/2  */
       /* PLLCLK = 8MHz * 9 = 72 MHz                   */
       RCC::CFGR::reset_to< RCC::CFGR::HPRE    ::DIV1,
@@ -132,50 +134,51 @@ public:
 /*
  * Clock resource declaration (enable peripheral clocks)
  */
-template<char>     struct Rcc_gpio_clock_resources;
-template<unsigned> struct Rcc_spi_clock_resources;
-template<unsigned> struct Rcc_usart_clock_resources;
-template<unsigned> struct Rcc_adc_clock_resources;
+template<char>     struct rcc_gpio_clock_resources;
+template<unsigned> struct rcc_spi_clock_resources;
+template<unsigned> struct rcc_usart_clock_resources;
+template<unsigned> struct rcc_adc_clock_resources;
 
-using Rcc_rtc_clock_resources = ResourceList<
-  SharedRegister<reg::RCC::APB1ENR::PWREN>,
-  SharedRegister<reg::RCC::APB1ENR::BKPEN>
+using rcc_rtc_clock_resources = resource::list<
+  resource::reg_shared<reg::RCC::APB1ENR::PWREN>,
+  resource::reg_shared<reg::RCC::APB1ENR::BKPEN>
   >;
 
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct Rcc_gpio_clock_resources<'A'> : SharedRegister<reg::RCC::APB2ENR::IOPAEN> { };
-template<> struct Rcc_gpio_clock_resources<'B'> : SharedRegister<reg::RCC::APB2ENR::IOPBEN> { };
-template<> struct Rcc_gpio_clock_resources<'C'> : SharedRegister<reg::RCC::APB2ENR::IOPCEN> { };
-template<> struct Rcc_gpio_clock_resources<'D'> : SharedRegister<reg::RCC::APB2ENR::IOPDEN> { };
-template<> struct Rcc_gpio_clock_resources<'E'> : SharedRegister<reg::RCC::APB2ENR::IOPEEN> { };
+template<> struct rcc_gpio_clock_resources<'A'> : resource::reg_shared<reg::RCC::APB2ENR::IOPAEN> { };
+template<> struct rcc_gpio_clock_resources<'B'> : resource::reg_shared<reg::RCC::APB2ENR::IOPBEN> { };
+template<> struct rcc_gpio_clock_resources<'C'> : resource::reg_shared<reg::RCC::APB2ENR::IOPCEN> { };
+template<> struct rcc_gpio_clock_resources<'D'> : resource::reg_shared<reg::RCC::APB2ENR::IOPDEN> { };
+template<> struct rcc_gpio_clock_resources<'E'> : resource::reg_shared<reg::RCC::APB2ENR::IOPEEN> { };
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-template<> struct Rcc_gpio_clock_resources<'F'> : SharedRegister<reg::RCC::APB2ENR::IOPFEN> { };
-template<> struct Rcc_gpio_clock_resources<'G'> : SharedRegister<reg::RCC::APB2ENR::IOPGEN> { };
+template<> struct rcc_gpio_clock_resources<'F'> : resource::reg_shared<reg::RCC::APB2ENR::IOPFEN> { };
+template<> struct rcc_gpio_clock_resources<'G'> : resource::reg_shared<reg::RCC::APB2ENR::IOPGEN> { };
 #endif
 
-template<> struct Rcc_spi_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::SPI1EN> { };
+template<> struct rcc_spi_clock_resources<1> : resource::reg_shared<reg::RCC::APB2ENR::SPI1EN> { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-template<> struct Rcc_spi_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR::SPI2EN> { };
+template<> struct rcc_spi_clock_resources<2> : resource::reg_shared<reg::RCC::APB1ENR::SPI2EN> { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_CL)
-template<> struct Rcc_spi_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR::SPI3EN> { };
+template<> struct rcc_spi_clock_resources<3> : resource::reg_shared<reg::RCC::APB1ENR::SPI3EN> { };
 #endif
 
-template<> struct Rcc_usart_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::USART1EN> { };
-template<> struct Rcc_usart_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR::USART2EN> { };
+template<> struct rcc_usart_clock_resources<1> : resource::reg_shared<reg::RCC::APB2ENR::USART1EN> { };
+template<> struct rcc_usart_clock_resources<2> : resource::reg_shared<reg::RCC::APB1ENR::USART2EN> { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-template<> struct Rcc_usart_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR::USART3EN> { };
+template<> struct rcc_usart_clock_resources<3> : resource::reg_shared<reg::RCC::APB1ENR::USART3EN> { };
 #endif
 
-template<> struct Rcc_adc_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::ADC1EN> { };
+template<> struct rcc_adc_clock_resources<1> : resource::reg_shared<reg::RCC::APB2ENR::ADC1EN> { };
 #if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL)
-template<> struct Rcc_adc_clock_resources<2> : SharedRegister<reg::RCC::APB2ENR::ADC2EN> { };
+template<> struct rcc_adc_clock_resources<2> : resource::reg_shared<reg::RCC::APB2ENR::ADC2EN> { };
 #endif
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
-template<> struct Rcc_adc_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::ADC3EN> { };
+template<> struct rcc_adc_clock_resources<1> : resource::reg_shared<reg::RCC::APB2ENR::ADC3EN> { };
 #endif
 
+} // namespace mptl
 
 #endif // RCC_HPP_INCLUDED

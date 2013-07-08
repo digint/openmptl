@@ -23,20 +23,21 @@
 
 #include "../../../../common/reg/usart.hpp"
 
-namespace reg
-{
-  template<unsigned usart_no>
-  class USART
-  {
-    /* See available template specialisations below if the compiler asserts here! */
-    static_assert(usart_no == !usart_no, "unsupported USART number");  // assertion needs to be dependent of template parameter
-  };
+namespace mptl { namespace reg {
 
-  template<> class USART<1> : public USART_Common< 0x40013800 > { };
-  template<> class USART<2> : public USART_Common< 0x40004400 > { };
+template<unsigned usart_no>
+class USART
+{
+  /* See available template specialisations below if the compiler asserts here! */
+  static_assert(usart_no == !usart_no, "unsupported USART number");  // assertion needs to be dependent of template parameter
+};
+
+template<> class USART<1> : public USART_common< 0x40013800 > { };
+template<> class USART<2> : public USART_common< 0x40004400 > { };
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL)
-  template<> class USART<3> : public USART_Common< 0x40004800 > { };
+template<> class USART<3> : public USART_common< 0x40004800 > { };
 #endif
-}
+
+} } // namespace mptl::reg
 
 #endif // ARCH_REG_USART_HPP_INCLUDED

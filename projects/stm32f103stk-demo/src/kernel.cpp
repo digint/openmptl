@@ -30,21 +30,22 @@
 #include <terminal.hpp>
 #include <resource.hpp>
 #include <debouncer.hpp>
-#include <arch/dwt.hpp>  // CycleCounter
+#include <arch/dwt.hpp>  // cycle_counter
 
 
+//#define DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 #ifdef DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 /* Check the shared registers against fixed values.
  * You can always explicitely set the registers using this notation.
- * NOTE: combined_type<SharedRegisterGroup<X>> is of type SharedRegister<...>
+ * NOTE: combined_type<reg_shared_group<X>> is of type reg_shared<...>
  */
 #include <arch/reg/rcc.hpp>
 #include <arch/reg/gpio.hpp>
-static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::RCC::APB1ENR> >::set_mask == 0x18020000, "apb1enr");
-static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::RCC::APB2ENR> >::set_mask == 0x0000121c, "apb2enr");
 
-static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'>::CRL> >::set_mask == 0x34000000, "crl");
-static_assert(Kernel::resources::combined_type<SharedRegisterGroup<reg::GPIO<'C'>::CRH> >::set_mask == 0x00030383, "crh");
+static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::RCC::APB1ENR::reg_type   > >::mask_type::set_mask == 0x18020000, "apb1enr");
+static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::RCC::APB2ENR::reg_type   > >::mask_type::set_mask == 0x0000121c, "apb2enr");
+static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::GPIO<'C'>::CRL::reg_type > >::mask_type::set_mask == 0x34000000, "crl");
+static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::GPIO<'C'>::CRH::reg_type > >::mask_type::set_mask == 0x00020383, "crh");
 #endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 
 
@@ -68,14 +69,14 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  CycleCounter cycle_counter;
+  mptl::cycle_counter cycle_counter;
   char joytext_buf[16] = "              ";
   const char * joypos_text = "center";
-  Debouncer< Joystick::Position,
+  debouncer< joy::position,
              joy::get_position,
              time::get_systick,
              time::systick::freq,
-             10 > joypos(Joystick::Position::center);
+             10 > joypos(joy::position::center);
 
   /* define the screen item list */
 #ifdef OPENMPTL_USE_BOOST
@@ -105,9 +106,9 @@ void Kernel::run(void)
   Screen::set_item_list(item_list);
 
   /* open terminal and print welcome message */
-  Terminal<usart_stream_device, terminal_hooks::commands> terminal;
+  mptl::terminal<usart_stream_device, terminal_hooks::commands> terminal;
   terminal.open(tty0_device());
-  terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << flush;
+  terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 
   /* start kernel loop */
   fsm_list::start();
@@ -118,23 +119,23 @@ void Kernel::run(void)
     /* poll joystick */
     if(joypos.poll()) {
       switch(joypos) {
-      case Joystick::Position::up:
+      case joy::position::up:
         send_event(EvJoystickUp());
         joypos_text = "up";
         break;
-      case Joystick::Position::down:
+      case joy::position::down:
         send_event(EvJoystickDown());
         joypos_text = "down";
         break;
-      case Joystick::Position::left:
+      case joy::position::left:
         send_event(EvJoystickLeft());
         joypos_text = "left";
         break;
-      case Joystick::Position::right:
+      case joy::position::right:
         send_event(EvJoystickRight());
         joypos_text = "right";
         break;
-      case Joystick::Position::center:
+      case joy::position::center:
         send_event(EvJoystickCenter());
         joypos_text = "center";
         break;

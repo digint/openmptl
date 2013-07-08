@@ -28,51 +28,53 @@
 #include <ratio>
 #include "kernel.hpp"
 
-namespace reg {
-  void RegisterReaction::react() {
-    switch(addr) {
-    case RCC::CR::addr:
-      if(bits_set<RCC::CR::HSEON>()) {
-        RCC::CR::HSERDY::set();
-      }
-      if(bits_set<RCC::CR::PLLON>()) {
-        RCC::CR::PLLRDY::set();
-      }
-      break;
+namespace mptl {
 
-    case RCC::CFGR::addr:
-      if(bits_set<RCC::CFGR::SW::PLL>()) {
-        RCC::CFGR::SWS::PLL::set();
-      }
-      break;
+void reg_reaction::react() {
+  switch(addr) {
+  case reg::RCC::CR::addr:
+    if(bits_set<reg::RCC::CR::HSEON>()) {
+      reg::RCC::CR::HSERDY::set();
+    }
+    if(bits_set<reg::RCC::CR::PLLON>()) {
+      reg::RCC::CR::PLLRDY::set();
+    }
+    break;
 
-    case RCC::BDCR::addr:
-      if(bits_set<reg::RCC::BDCR::RTCEN>()) {
-        reg::RCC::BDCR::LSERDY::set();
-        reg::RTC::CRL::RSF::set();
-      }
-      break;
+  case reg::RCC::CFGR::addr:
+    if(bits_set<reg::RCC::CFGR::SW::PLL>()) {
+      reg::RCC::CFGR::SWS::PLL::set();
+    }
+    break;
 
-    case RTC::CRL::addr:
-      if(bits_cleared<RTC::CRL::RSF>()) {
-        RTC::CRL::RSF::set();
-      }
-      break;
+  case reg::RCC::BDCR::addr:
+    if(bits_set<reg::RCC::BDCR::RTCEN>()) {
+      reg::RCC::BDCR::LSERDY::set();
+      reg::RTC::CRL::RSF::set();
+    }
+    break;
 
-    case ADC<1>::CR2::addr:
-      if(bits_set<ADC<1>::CR2::SWSTART>()) {
-        ADC<1>::SR::EOC::set(); // end of conversion
-      }
-      break;
+  case reg::RTC::CRL::addr:
+    if(bits_cleared<reg::RTC::CRL::RSF>()) {
+      reg::RTC::CRL::RSF::set();
+    }
+    break;
 
-    case SPI<1>::CR1::addr:
-      if(bits_set<SPI<1>::CR1::SPE>()) {  // spi enable
-        reg::SPI<1>::SR::TXE::set();
-        reg::SPI<1>::SR::RXNE::set();
-      }
-      break;
-    };
-  }
-} // namespace reg
+  case reg::ADC<1>::CR2::addr:
+    if(bits_set<reg::ADC<1>::CR2::SWSTART>()) {
+      reg::ADC<1>::SR::EOC::set(); // end of conversion
+    }
+    break;
+
+  case reg::SPI<1>::CR1::addr:
+    if(bits_set<reg::SPI<1>::CR1::SPE>()) {  // spi enable
+      reg::SPI<1>::SR::TXE::set();
+      reg::SPI<1>::SR::RXNE::set();
+    }
+    break;
+  };
+}
+
+} // namespace mptl
 
 #endif // OPENMPTL_SIMULATION

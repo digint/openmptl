@@ -25,7 +25,9 @@
 
 #include <crt.hpp>
 
-struct Core : public CoreAsm
+namespace mptl {
+
+struct core : public core_asm
 {
   template<typename rcc,
            typename flash,
@@ -42,5 +44,7 @@ struct Core : public CoreAsm
     crt::call_ctors();
   }
 };
+
+} // namespace mptl
 
 #endif // CORE_HPP_INCLUDED

@@ -23,27 +23,28 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+
+/**
+ * General-purpose and alternate-function I/Os (GPIOs and AFIOs)
+ */
+template<char reg_name>
+struct GPIO
 {
-  /**
-   * General-purpose and alternate-function I/Os (GPIOs and AFIOs)
-   */
-  template<char reg_name>
-  struct GPIO
-  {
-    static_assert((reg_name >= 'A') && (reg_name <= 'G'), "invalid index for register");
+  static_assert((reg_name >= 'A') && (reg_name <= 'G'), "invalid index for register");
 
-    static constexpr unsigned    gpio_no   = reg_name - 'A';
-    static constexpr reg_addr_t  base_addr = 0x40010800 + gpio_no * 0x0400;
+  static constexpr unsigned    gpio_no   = reg_name - 'A';
+  static constexpr reg_addr_t  base_addr = 0x40010800 + gpio_no * 0x0400;
 
-    using CRL   = Register< uint32_t, base_addr + 0x00, Access::rw, 0x44444444 >;  /**< Port configuration register low    */
-    using CRH   = Register< uint32_t, base_addr + 0x04, Access::rw, 0x44444444 >;  /**< Port configuration register high   */
-    using IDR   = Register< uint32_t, base_addr + 0x08, Access::ro, 0x00000000 >;  /**< Port input data register           */
-    using ODR   = Register< uint32_t, base_addr + 0x0c, Access::rw, 0x00000000 >;  /**< Port output data register          */
-    using BSRR  = Register< uint32_t, base_addr + 0x10, Access::wo, 0x00000000 >;  /**< Port bit set/reset register        */
-    using BRR   = Register< uint32_t, base_addr + 0x14, Access::wo, 0x00000000 >;  /**< Port bit reset register            */
-    using LCKR  = Register< uint32_t, base_addr + 0x18, Access::rw, 0x00000000 >;  /**< Port configuration lock register   */
-  };
-}
+  using CRL   = regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x44444444 >;  /**< Port configuration register low    */
+  using CRH   = regdef< uint32_t, base_addr + 0x04, reg_access::rw, 0x44444444 >;  /**< Port configuration register high   */
+  using IDR   = regdef< uint32_t, base_addr + 0x08, reg_access::ro, 0x00000000 >;  /**< Port input data register           */
+  using ODR   = regdef< uint32_t, base_addr + 0x0c, reg_access::rw, 0x00000000 >;  /**< Port output data register          */
+  using BSRR  = regdef< uint32_t, base_addr + 0x10, reg_access::wo, 0x00000000 >;  /**< Port bit set/reset register        */
+  using BRR   = regdef< uint32_t, base_addr + 0x14, reg_access::wo, 0x00000000 >;  /**< Port bit reset register            */
+  using LCKR  = regdef< uint32_t, base_addr + 0x18, reg_access::rw, 0x00000000 >;  /**< Port configuration lock register   */
+};
+
+} } // namespace mptl::reg
 
 #endif // ARCH_REG_GPIO_HPP_INCLUDED

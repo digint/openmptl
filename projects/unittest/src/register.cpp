@@ -22,8 +22,8 @@
 #include <register_manip.hpp>
 #include <cassert>
 
-namespace reg
-{
+namespace mptl { namespace reg {
+
 class TEST
 {
   static constexpr reg_addr_t base_addr = 0x1234;
@@ -36,41 +36,42 @@ class TEST
     struct __CONST
     : public Rb
     {
-      typedef RegisterConst< Rb, 0x0 > CONST_0;
-      typedef RegisterConst< Rb, 0x1 > BIT_0;
-      typedef RegisterConst< Rb, 0x2 > BIT_1;
-      typedef RegisterConst< Rb, 0x3 > BIT_0_1;
-      typedef RegisterConst< Rb, 0xd > CONST_d;
+      typedef regval< Rb, 0x0 > CONST_0;
+      typedef regval< Rb, 0x1 > BIT_0;
+      typedef regval< Rb, 0x2 > BIT_1;
+      typedef regval< Rb, 0x3 > BIT_0_1;
+      typedef regval< Rb, 0xd > CONST_d;
     };
 
 
   public:
 
-    typedef __CONST < RegisterBits< R,  0,  4 > > BITS_0_3;
-    typedef __CONST < RegisterBits< R,  4,  4 > > BITS_4_7;
-    typedef              RegisterBits< R,  8, 24 >   BITS_8_31;
+    typedef __CONST < regbits< R,  0,  4 > > BITS_0_3;
+    typedef __CONST < regbits< R,  4,  4 > > BITS_4_7;
+    typedef           regbits< R,  8, 24 >   BITS_8_31;
 
   };
 
 public:
-  typedef __REG < Register< uint32_t, base_addr + 0x00, Access::rw, 0x55555555 > > REG;
+  typedef __REG < regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x55555555 > > REG;
 
   struct REG2
-  : public Register< uint32_t, base_addr + 0x10, Access::rw, 0xaaaaaaaa >
+  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >
   {
-    typedef Register< uint32_t, base_addr + 0x10, Access::rw, 0xaaaaaaaa > reg_type;
+    typedef regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa > reg_type;
 
-    typedef RegisterBits< reg_type, 0,  8 > BITS_0_7;
+    typedef regbits< reg_type, 0,  8 > BITS_0_7;
   };
 };
 
-  template<> struct AddressMap< 0x00001234 > { static constexpr const char * name_str = "TEST::REG"; };
-}
+template<> struct address_map< 0x00001234 > { static constexpr const char * name_str = "TEST::REG"; };
 
+} } //namespace mptl::reg
+
+using namespace mptl;
 using namespace reg;
 
-
-void reg::RegisterReaction::react() { }
+void reg_reaction::react() { }
 
 void unittest_register_manip()
 {
@@ -78,7 +79,7 @@ void unittest_register_manip()
 
   TEST::REG::reset();
 
-  RegisterManip<TEST::REG> reg;
+  reg_manip<TEST::REG> reg;
   reg |= 0xff;
   reg &= 0x00ffffff;
   reg.set<TEST::REG::BITS_4_7::CONST_d>();
@@ -94,30 +95,30 @@ int main()
 {
   std::cout << "*** main ***" << std::endl; 
 
-  /* RegisterMask */
-  using combined_type = reg::RegisterMask<TEST::REG, 0xabcd0000>::combine<TEST::REG::BITS_4_7::CONST_d>::type;
+  /* regmask */
+  using combined_type = regmask<TEST::REG, 0xabcd0000>::combine<TEST::REG::BITS_4_7::CONST_d>::type;
   static_assert(combined_type::set_mask           == 0xabcd00d0, "");
   static_assert(combined_type::clear_mask         == 0xabcd00f0, "");
   static_assert(combined_type::cropped_clear_mask == 0x00000020, "");
 
-  static_assert(reg::RegisterMask<TEST::REG, 0x11111111>::combine<
-                reg::RegisterMask<TEST::REG, 0x222200ef>
+  static_assert(regmask<TEST::REG, 0x11111111>::combine<
+                regmask<TEST::REG, 0x222200ef>
                 >::type::set_mask ==         0x333311ff, "");
 
   static_assert(TEST::REG::combined_mask<
-                reg::RegisterMask<TEST::REG, 0x11111111>,
-                reg::RegisterMask<TEST::REG, 0x24824800>,
-                reg::RegisterMask<TEST::REG, 0x48011107>
+                regmask<TEST::REG, 0x11111111>,
+                regmask<TEST::REG, 0x24824800>,
+                regmask<TEST::REG, 0x48011107>
                 >::type::set_mask ==         0x7d935917, "");
 
 #ifdef UNITTEST_MUST_FAIL
   // fail: not same register
-  using combined_type_fail = reg::RegisterMask<TEST::REG2, 0xabcd0000>::bit_or<TEST::REG::BITS_4_7::CONST_d>::type;
+  using combined_type_fail = regmask<TEST::REG2, 0xabcd0000>::combine<TEST::REG::BITS_4_7::CONST_d>::type;
 #endif
 
 
 
-  /* Register */
+  /* regdef */
   TEST::REG::store(0xffff0000);
   assert(TEST::REG::test(0x000f0000) == 0x000f0000);
   assert(TEST::REG::test(0x0000c000) == 0x00000000);
@@ -137,7 +138,7 @@ int main()
   TEST::REG::reset();
   assert(TEST::REG::load() == 0x55555555);
 
-  /* RegisterBits */
+  /* regbits */
 
   TEST::REG::store(0xffff0000);
   assert(TEST::REG::BITS_0_3::test() == false);
@@ -157,7 +158,7 @@ int main()
 
 #if 0
   TEST::REG::store(0);
-  TEST::REG::BITS_4_7::set(0xff);  // illegal, but not checked by RegisterBits
+  TEST::REG::BITS_4_7::set(0xff);  // illegal, but not checked by regbits
   assert(TEST::REG::load() == 0x000000f0); // fails, since the bits were overwritten by illegal set() above
 #endif
 
@@ -193,7 +194,7 @@ int main()
   assert(TEST::REG::BITS_4_7::test_from(0xc0) == false);
   assert(TEST::REG::BITS_4_7::test_from(0xd0) == false);
 
-  /* RegisterConst */
+  /* regval */
 
   TEST::REG::store(0xffffff0f);
   assert(TEST::REG::BITS_4_7::CONST_0::test() == true);
@@ -225,7 +226,7 @@ int main()
 
 #ifdef UNITTEST_MUST_FAIL
   // fail: value=0x1f does not fit into bits of R=TEST::REG::BITS_4_7
-  reg::RegisterConst<TEST::REG::BITS_4_7, 0x1f>::set();
+  regval<TEST::REG::BITS_4_7, 0x1f>::set();
 #endif
 
 
@@ -240,7 +241,7 @@ int main()
 
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: clear() is private on RegisterConst
+  // fail: clear() is private on regval
   TEST::REG::BITS_0_3::CONST_d::clear();
 #endif
 
@@ -258,7 +259,7 @@ int main()
 
 #ifdef UNITTEST_MUST_FAIL
   // clearing bits from different register
-  // fail: template arguments are not of same Register<> type
+  // fail: template arguments are not of same regdef<> type
   TEST::REG::clear<TEST::REG2::BITS_0_7>();
 #endif
 

@@ -23,15 +23,19 @@
 
 #include "../../../common/spi.hpp"
 
+namespace mptl {
+
 // TODO: provide a matrix for the gpio port/pin_no
 
 template< char port,
           unsigned pin_no >
-class SpiGpio
-: public GpioOutput< port,
-                     pin_no,
-                     GpioOutputConfig::alt_push_pull
+class spi_gpio
+: public gpio_output< port,
+                      pin_no,
+                      cfg::gpio::output::alt_push_pull
                      >
 { };
+
+} // namespace mptl
 
 #endif // SPI_HPP_INCLUDED

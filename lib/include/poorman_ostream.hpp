@@ -23,8 +23,10 @@
 
 #include <type_traits>
 
+namespace poorman {
+
 template<typename charT>
-class poorman_ostream
+class ostream
 {
   static char nibble(unsigned val) {
     val &= 0xf;
@@ -34,17 +36,17 @@ class poorman_ostream
 public:
   typedef charT char_type;
 
-  virtual poorman_ostream & put(char_type c) = 0;
-  virtual poorman_ostream & puts(const char_type* s) = 0;
-  virtual poorman_ostream & write(const char_type* s, unsigned int count) = 0;
-  virtual poorman_ostream & flush() = 0;
-  virtual poorman_ostream & endl() = 0;
-  //  virtual poorman_ostream & widen(char_type c) { };  // TODO: implement in terminal_ostream
+  virtual ostream & put(char_type c) = 0;
+  virtual ostream & puts(const char_type* s) = 0;
+  virtual ostream & write(const char_type* s, unsigned int count) = 0;
+  virtual ostream & flush() = 0;
+  virtual ostream & endl() = 0;
+  //  virtual ostream & widen(char_type c) { };  // TODO: implement in terminal_ostream
 
   /** hexadecimal output of any integral type */
   template<typename valT>
-  typename std::enable_if<std::is_integral<valT>::value, poorman_ostream &>::type
-  friend operator <<(poorman_ostream & st, valT val)
+  typename std::enable_if<std::is_integral<valT>::value, ostream &>::type
+  friend operator <<(ostream & st, valT val)
   {
     for(int i = sizeof(valT) * 8 - 4; i >= 0; i -= 4) {
       st.put(nibble(val >> i));
@@ -52,26 +54,28 @@ public:
     return st;
   }
 
-  friend poorman_ostream & operator<<(poorman_ostream & st, const char * s) {
+  friend ostream & operator<<(ostream & st, const char * s) {
     st.puts(s);
     return st;
   }
 
-  poorman_ostream& operator<<(poorman_ostream& (*func)(poorman_ostream&)) {
+  ostream& operator<<(ostream& (*func)(ostream&)) {
     return func(*this);
   }
 };
 
 /** manipulator, flushes the output stream */
 template<typename charT>
-inline poorman_ostream<charT> & flush(poorman_ostream<charT> & st) {
+inline ostream<charT> & flush(ostream<charT> & st) {
   return st.flush();
 }
 
 /** manipulator, outputs newline and flushes the output stream */
 template<typename charT>
-inline poorman_ostream<charT> & endl(poorman_ostream<charT> & st) {
+inline ostream<charT> & endl(ostream<charT> & st) {
   return st.endl();
 }
+
+} // namespace poorman
 
 #endif // POORMAN_OSTREAM_HPP_INCLUDED

@@ -25,10 +25,11 @@
 #include <arch/pwr.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/rtc.hpp>
-#include <irq_wrap.hpp>
+#include <isr_wrap.hpp>
 
+namespace mptl {
 
-class Rtc
+class rtc
 {
   using RTC = reg::RTC;
 
@@ -46,8 +47,8 @@ private:
 
 public:
 
-  using GlobalIrq = irq::RTC;       /**< RTC global Interrupt                   */
-  using AlarmIrq  = irq::RTCAlarm;  /**< RTC Alarm through EXTI Line Interrupt  */
+  using irq_global = irq::rtc;        /**< RTC global Interrupt                   */
+  using irq_alarm  = irq::rtc_alarm;  /**< RTC Alarm through EXTI Line Interrupt  */
 
   static void wait_sync(void) {
     while(reg::RCC::BDCR::LSERDY::test() == false);
@@ -118,18 +119,18 @@ public:
     // return ((uint32_t)RTC::DIVH::bits_type::test() << 16 ) | (uint32_t)RTC::DIVL::bits_type::test();
   }
 
-  struct StaticIsrWrap : public IsrWrap {
-    StaticIsrWrap() { clear_second_flag(); }
+  struct static_isr_wrap : public isr_wrap {
+    static_isr_wrap() { clear_second_flag(); }
   };
-  struct AlarmIsrWrap : public IsrWrap {
-    AlarmIsrWrap() { clear_alarm_flag(); }
+  struct alarm_isr_wrap : public isr_wrap {
+    alarm_isr_wrap() { clear_alarm_flag(); }
   };
 
-  typedef Rcc_rtc_clock_resources resources;
+  using resources = rcc_rtc_clock_resources;
 
   static void init(void) {
     /* Disable backup domain write protection */
-    Pwr::disable_backup_domain_write_protection();
+    pwr::disable_backup_domain_write_protection();
 
     /* Backup domain software reset */
     reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
@@ -156,7 +157,6 @@ public:
   }
 };
 
+} // namespace mptl
 
 #endif // RTC_HPP_INCLUDED
-
-

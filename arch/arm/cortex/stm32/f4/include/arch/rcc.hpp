@@ -25,9 +25,11 @@
 #include <resource.hpp>
 #include <freq.hpp>
 
-template<freq_t cpu_clock_freq = 168_mhz>
-class Rcc {
-  static_assert(cpu_clock_freq == 168_mhz || cpu_clock_freq == 120_mhz, "unsupported cpu clock frequency");
+namespace mptl {
+
+template<freq_t cpu_clock_freq = mhz(168)>
+class rcc {
+  static_assert(cpu_clock_freq == mhz(168) || cpu_clock_freq == mhz(120), "unsupported cpu clock frequency");
 
   using RCC = reg::RCC;
 
@@ -52,11 +54,11 @@ public:
 
   /* Note: this is only valid for clocks setup by set_system_clock() function */
   static constexpr freq_t hclk_freq  = cpu_clock_freq;
-  static constexpr freq_t pclk1_freq = ( hclk_freq == 120_mhz ? 30_mhz :
-                                         hclk_freq == 168_mhz ? 42_mhz :
+  static constexpr freq_t pclk1_freq = ( hclk_freq == mhz(120) ? mhz(30) :
+                                         hclk_freq == mhz(168) ? mhz(42) :
                                          0 );
-  static constexpr freq_t pclk2_freq = ( hclk_freq == 120_mhz ? 60_mhz :
-                                         hclk_freq == 168_mhz ? 84_mhz :
+  static constexpr freq_t pclk2_freq = ( hclk_freq == mhz(120) ? mhz(60) :
+                                         hclk_freq == mhz(168) ? mhz(84) :
                                          0 );
 
   static void enable_hse(void) {
@@ -91,10 +93,10 @@ public:
                         RCC::CFGR::PPRE2::DIV2>();
 
     switch(hclk_freq) {
-    case 120_mhz:
+    case mhz(120):
       RCC::PLLCFGR::store(pllcfgr_hse<8, 240, 2, 5>::value);
       break;
-    case 168_mhz:
+    case mhz(168):
       RCC::PLLCFGR::store(pllcfgr_hse<8, 336, 2, 7>::value);
       break;
     }
@@ -112,25 +114,27 @@ public:
 };
 
 /* Clock resource declarations (enable peripheral clocks) */
-template<char>     struct Rcc_gpio_clock_resources;
-template<unsigned> struct Rcc_usart_clock_resources;
+template<char>     struct rcc_gpio_clock_resources;
+template<unsigned> struct rcc_usart_clock_resources;
 
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct Rcc_gpio_clock_resources<'A'> : SharedRegister<reg::RCC::AHB1ENR::GPIOAEN> { };
-template<> struct Rcc_gpio_clock_resources<'B'> : SharedRegister<reg::RCC::AHB1ENR::GPIOBEN> { };
-template<> struct Rcc_gpio_clock_resources<'C'> : SharedRegister<reg::RCC::AHB1ENR::GPIOCEN> { };
-template<> struct Rcc_gpio_clock_resources<'D'> : SharedRegister<reg::RCC::AHB1ENR::GPIODEN> { };
-template<> struct Rcc_gpio_clock_resources<'E'> : SharedRegister<reg::RCC::AHB1ENR::GPIOEEN> { };
-template<> struct Rcc_gpio_clock_resources<'F'> : SharedRegister<reg::RCC::AHB1ENR::GPIOFEN> { };
-template<> struct Rcc_gpio_clock_resources<'G'> : SharedRegister<reg::RCC::AHB1ENR::GPIOGEN> { };
-template<> struct Rcc_gpio_clock_resources<'H'> : SharedRegister<reg::RCC::AHB1ENR::GPIOHEN> { };
-template<> struct Rcc_gpio_clock_resources<'I'> : SharedRegister<reg::RCC::AHB1ENR::GPIOIEN> { };
+template<> struct rcc_gpio_clock_resources<'A'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOAEN> { };
+template<> struct rcc_gpio_clock_resources<'B'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOBEN> { };
+template<> struct rcc_gpio_clock_resources<'C'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOCEN> { };
+template<> struct rcc_gpio_clock_resources<'D'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIODEN> { };
+template<> struct rcc_gpio_clock_resources<'E'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOEEN> { };
+template<> struct rcc_gpio_clock_resources<'F'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOFEN> { };
+template<> struct rcc_gpio_clock_resources<'G'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOGEN> { };
+template<> struct rcc_gpio_clock_resources<'H'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOHEN> { };
+template<> struct rcc_gpio_clock_resources<'I'> : resource::reg_shared<reg::RCC::AHB1ENR::GPIOIEN> { };
 
-template<> struct Rcc_usart_clock_resources<1> : SharedRegister<reg::RCC::APB2ENR::USART1EN> { };
-template<> struct Rcc_usart_clock_resources<2> : SharedRegister<reg::RCC::APB1ENR::USART2EN> { };
-template<> struct Rcc_usart_clock_resources<3> : SharedRegister<reg::RCC::APB1ENR::USART3EN> { };
-template<> struct Rcc_usart_clock_resources<6> : SharedRegister<reg::RCC::APB2ENR::USART6EN> { };
+template<> struct rcc_usart_clock_resources<1> : resource::reg_shared<reg::RCC::APB2ENR::USART1EN> { };
+template<> struct rcc_usart_clock_resources<2> : resource::reg_shared<reg::RCC::APB1ENR::USART2EN> { };
+template<> struct rcc_usart_clock_resources<3> : resource::reg_shared<reg::RCC::APB1ENR::USART3EN> { };
+template<> struct rcc_usart_clock_resources<6> : resource::reg_shared<reg::RCC::APB2ENR::USART6EN> { };
+
+} // namespace mptl
 
 #endif // RCC_HPP_INCLUDED

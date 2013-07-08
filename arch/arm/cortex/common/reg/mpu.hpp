@@ -23,28 +23,29 @@
 
 #include <register.hpp>
 
-namespace reg
+namespace mptl { namespace reg {
+
+/**
+ *  MPU (Memory Protection Unit) Register
+ *
+ * For details, see "Cortex-M3 Technical Reference Manual":
+ * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
+ */
+struct MPU
 {
-  /**
-   *  MPU (Memory Protection Unit) Register
-   *
-   * For details, see "Cortex-M3 Technical Reference Manual":
-   * <http://infocenter.arm.com/help/topic/com.arm.doc.subset.cortexm.m3/index.html>
-   */
-  struct MPU
-  {
-    using TYPE     = Register< uint32_t, 0xE000ED90, Access::ro, 0x00000800 >;  /**< MPU Type Register                        */
-    using CTRL     = Register< uint32_t, 0xE000ED94, Access::rw             >;  /**< MPU Control Register                     */
-    using RNR      = Register< uint32_t, 0xE000ED98, Access::rw             >;  /**< MPU Region Number Register               */
-    using RBAR     = Register< uint32_t, 0xE000ED9C, Access::rw             >;  /**< MPU Region Base Address Register         */
-    using RASR     = Register< uint32_t, 0xE000EDA0, Access::rw             >;  /**< MPU Region Attribute and Size Register   */
-    using RBAR_A1  = Register< uint32_t, 0xE000EDA4, Access::rw             >;  /**< MPU alias registers                      */
-    using RASR_A1  = Register< uint32_t, 0xE000EDA8, Access::rw             >;  /**<                                          */
-    using RBAR_A2  = Register< uint32_t, 0xE000EDAC, Access::rw             >;  /**<                                          */
-    using RASR_A2  = Register< uint32_t, 0xE000EDB0, Access::rw             >;  /**<                                          */
-    using RBAR_A3  = Register< uint32_t, 0xE000EDB4, Access::rw             >;  /**<                                          */
-    using RASR_A3  = Register< uint32_t, 0xE000EDB8, Access::rw             >;  /**<                                          */
-  };
-}
+  using TYPE     = regdef< uint32_t, 0xE000ED90, reg_access::ro, 0x00000800 >;  /**< MPU Type Register                        */
+  using CTRL     = regdef< uint32_t, 0xE000ED94, reg_access::rw             >;  /**< MPU Control Register                     */
+  using RNR      = regdef< uint32_t, 0xE000ED98, reg_access::rw             >;  /**< MPU Region Number Register               */
+  using RBAR     = regdef< uint32_t, 0xE000ED9C, reg_access::rw             >;  /**< MPU Region Base Address Register         */
+  using RASR     = regdef< uint32_t, 0xE000EDA0, reg_access::rw             >;  /**< MPU Region Attribute and Size Register   */
+  using RBAR_A1  = regdef< uint32_t, 0xE000EDA4, reg_access::rw             >;  /**< MPU alias registers                      */
+  using RASR_A1  = regdef< uint32_t, 0xE000EDA8, reg_access::rw             >;  /**<                                          */
+  using RBAR_A2  = regdef< uint32_t, 0xE000EDAC, reg_access::rw             >;  /**<                                          */
+  using RASR_A2  = regdef< uint32_t, 0xE000EDB0, reg_access::rw             >;  /**<                                          */
+  using RBAR_A3  = regdef< uint32_t, 0xE000EDB4, reg_access::rw             >;  /**<                                          */
+  using RASR_A3  = regdef< uint32_t, 0xE000EDB8, reg_access::rw             >;  /**<                                          */
+};
+
+} } // namespace mptl::reg
 
 #endif // COMMON_ARM_CORTEX_REG_MPU_HPP_INCLUDED

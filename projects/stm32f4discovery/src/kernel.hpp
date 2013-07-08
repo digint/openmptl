@@ -35,26 +35,26 @@
 
 struct Kernel
 {
-  using rcc     = Rcc< 168_mhz >;
-  using pwr     = Pwr< rcc, 3.3_volt, false >;
-  using flash   = Flash< rcc, pwr >;
+  using rcc           = mptl::rcc< mptl::mhz(168) >;
+  using pwr           = mptl::pwr< rcc, mptl::volt(3.3), false >;
+  using flash         = mptl::flash< rcc, pwr >;
 
-  using systick = SysTick< rcc, 1_khz, SysTickClockSource::hclk >;
+  using systick       = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
 
-  using usart         = Usart< 2, rcc >;
-  using usart_gpio_tx = UsartGpioTx< usart, 'A', 2 >;
-  using usart_gpio_rx = UsartGpioRx< usart, 'A', 3 >;
+  using usart         = mptl::usart< 2, rcc >;
+  using usart_gpio_tx = mptl::usart_gpio_tx< usart, 'A', 2 >;
+  using usart_gpio_rx = mptl::usart_gpio_rx< usart, 'A', 3 >;
 
-  struct usart_tty0_config : UsartDefaultConfig {
+  struct usart_tty0_config : mptl::cfg::usart::preset {
     static constexpr unsigned baud_rate = 115200;
   };
-  using tty0_device         = PeripheralDevice< usart, usart_tty0_config >;
-  using usart_stream_device = UsartIrqStream< usart, RingBuffer<char, 512> >;
+  using tty0_device   = mptl::peripheral_device< usart, usart_tty0_config >;
+  using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512> >;
 
-  using led_green  = GpioLed< 'D', 12 >;
-  using led_orange = GpioLed< 'D', 13 >;
-  using led_red    = GpioLed< 'D', 14 >;
-  using led_blue   = GpioLed< 'D', 15 >;
+  using led_green     = mptl::gpio_led< 'D', 12 >;
+  using led_orange    = mptl::gpio_led< 'D', 13 >;
+  using led_red       = mptl::gpio_led< 'D', 14 >;
+  using led_blue      = mptl::gpio_led< 'D', 15 >;
 
   /* Reset exception: triggered on system startup (system entry point). */
   static void __naked reset_isr(void);
@@ -69,13 +69,13 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
-  using resources = ResourceList<
-    IrqResource< typename irq::Reset       , reset_isr   >,
-    IrqResource< typename systick::Irq     , systick_isr >,
-    IrqResource< typename irq::NMI         , null_isr    >,
-    IrqResource< typename irq::SVCall      , null_isr    >,
-    IrqResource< typename irq::DebugMonitor, null_isr    >,
-    IrqResource< typename irq::PendSV      , null_isr    >,
+  using resources = mptl::resource::list<
+    mptl::resource::irq< typename mptl::irq::reset        , reset_isr   >,
+    mptl::resource::irq< typename systick::irq            , systick_isr >,
+    mptl::resource::irq< typename mptl::irq::nmi          , null_isr    >,
+    mptl::resource::irq< typename mptl::irq::sv_call      , null_isr    >,
+    mptl::resource::irq< typename mptl::irq::debug_monitor, null_isr    >,
+    mptl::resource::irq< typename mptl::irq::pend_sv      , null_isr    >,
 
     systick::resources,
     led_green::resources,

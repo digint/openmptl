@@ -21,7 +21,9 @@
 #ifndef ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 #define ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 
-struct CoreAsm
+namespace mptl {
+
+struct core_asm
 {
   static void enable_irq()        { __asm volatile ("cpsie i"); }  /**< global interrupt enable   */
   static void disable_irq()       { __asm volatile ("cpsid i"); }  /**< global interrupt disable  */
@@ -40,5 +42,7 @@ struct CoreAsm
 
   static void nop(unsigned value) { while(value--) nop(); }
 };
+
+} // namespace mptl
 
 #endif // ARM_CORTEX_COMMON_CORE_HPP_INCLUDED

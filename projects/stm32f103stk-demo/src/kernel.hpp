@@ -37,44 +37,55 @@
 
 struct Kernel
 {
-  using rcc   = Rcc< 72_mhz >;
-  using flash = Flash< rcc >;
+  using rcc     = mptl::rcc< mptl::mhz(72) >;
+  using flash   = mptl::flash< rcc >;
 
-  using systick = SysTick<rcc, 100_hz, SysTickClockSource::hclk>;
+  using systick = mptl::systick< rcc, mptl::hz(100), mptl::cfg::systick::clock_source::hclk >;
 
-  using usart         = Usart<2, rcc>;
-  using usart_gpio_tx = UsartGpioTx< 'A', 2 >;
-  using usart_gpio_rx = UsartGpioRx< 'A', 3 >;
+  using usart         = mptl::usart< 2, rcc >;
+  using usart_gpio_tx = mptl::usart_gpio_tx< 'A', 2 >;
+  using usart_gpio_rx = mptl::usart_gpio_rx< 'A', 3 >;
 
-  struct usart_tty0_config : UsartDefaultConfig
+  struct usart_tty0_config : mptl::cfg::usart::preset
   {
     static constexpr unsigned baud_rate = 115200;
 
-    /* Note: UartDevice is derived from this class. This means you can  */
-    /*       easily declare a dynamic baud_rate like this:              */
+    /* Note: tty0_device is derived from this class. This means you can  */
+    /*       easily declare a dynamic baud_rate like this:               */
     // unsigned baud_rate;
   };
-  using tty0_device         = PeripheralDevice< usart, usart_tty0_config >;
-  using usart_stream_device = UsartIrqStream< usart, RingBuffer<char, 512>, true, true >; /* irq debug enabled */
+  using tty0_device         = mptl::peripheral_device< usart, usart_tty0_config >;
+  using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */
 
-  using spi       = Spi< rcc, 1 >;
-  using spi_sck   = SpiGpio< 'A', 5 >;
-  using spi_miso  = SpiGpio< 'A', 6 >;
-  using spi_mosi  = SpiGpio< 'A', 7 >;
+  using spi       = mptl::spi< rcc, 1 >;
+  using spi_sck   = mptl::spi_gpio< 'A', 5 >;
+  using spi_miso  = mptl::spi_gpio< 'A', 6 >;
+  using spi_mosi  = mptl::spi_gpio< 'A', 7 >;
 
-  using lcd_ds    = GpioOutput< 'B', 2,  GpioOutputConfig::push_pull >;  //< low=command, high=data
-  using lcd_reset = GpioOutput< 'C', 7,  GpioOutputConfig::push_pull >;  //< reset pin (active low)
-  using lcd_e     = GpioOutput< 'C', 10, GpioOutputConfig::push_pull >;  //< display controller spi enable (active low)
-  using lcd       = Lcd_Nokia3310< spi, lcd_ds, lcd_reset, lcd_e >;
+  using lcd = mptl::device::nokia3310<
+    spi,
+    mptl::gpio_output< 'B', 2,  mptl::cfg::gpio::output::push_pull >,  //< lcd_ds: low=command, high=data
+    mptl::gpio_output< 'C', 7,  mptl::cfg::gpio::output::push_pull >,  //< lcd_reset: reset pin (active low)
+    mptl::gpio_output< 'C', 10, mptl::cfg::gpio::output::push_pull >   //< lcd_e: display controller spi enable (active low)
+    >;
 
-  using nrf_ce    = GpioOutput< 'C', 8, GpioOutputConfig::push_pull >;  //< chip enable
-  using nrf_csn   = GpioOutput< 'A', 4, GpioOutputConfig::push_pull >;  //< spi enable (active low)
-  using nrf_irq   = GpioInput < 'C', 9, GpioInputConfig::pull_down >;   //< IRQ
-  using nrf       = Nrf24l01< spi, nrf_ce, nrf_csn, nrf_irq >;
+  using nrf = mptl::device::nrf24l01<
+    spi,
+    mptl::gpio_output< 'C', 8, mptl::cfg::gpio::output::push_pull >,  //< nrf_ce: chip enable
+    mptl::gpio_output< 'A', 4, mptl::cfg::gpio::output::push_pull >,  //< nrf_csn: spi enable (active low)
+    mptl::gpio_input < 'C', 9, mptl::cfg::gpio::input::pull_down >    //< nrf_irq: IRQ
+    >;
 
-  using joy       = Joystick;
-  using led       = GpioLed< 'C', 12, GpioOutputConfig::push_pull, 50_mhz, GpioActiveState::low >;
-  using time      = Time< systick >;
+  using joy = mptl::device::joystick;
+
+  using led = mptl::gpio_led<
+    'C', 12,
+    mptl::cfg::gpio::output::push_pull,
+    mptl::mhz(2),
+    mptl::cfg::gpio::active_state::low
+    >;
+
+  using time = Time< systick >;
 
   /* Reset core exception: triggered on system startup (system entry point). */
   static void  __naked reset_isr(void);
@@ -86,8 +97,8 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
-  using resources = ResourceList<
-    IrqResource< typename irq::Reset, reset_isr >,
+  using resources = mptl::resource::list<
+    mptl::resource::irq< typename mptl::irq::reset, reset_isr >,
 
     time::resources,
     joy::resources,

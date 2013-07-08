@@ -19,4 +19,3 @@
  */
 
 #include "../../../common/usart_stream.hpp"
-

@@ -21,6 +21,10 @@
 #ifndef ISR_HPP_INCLUDED
 #define ISR_HPP_INCLUDED
 
+namespace mptl {
+
 typedef void( *const isr_t )( void );
+
+} // namespace mptl
 
 #endif // ISR_HPP_INCLUDED

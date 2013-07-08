@@ -25,8 +25,10 @@
 
 #if 0  // TODO: fixme
 
+namespace mptl {
+
 template<unsigned priority_bits>
-class Scb
+class scb
 {
   using SCB = reg::SCB;
 
@@ -56,6 +58,8 @@ public:
     return((uint32_t)(SCB::SHPR<((uint32_t)irqn & 0xf)-4>::load() >> (8 - priority_bits)));
   }
 };
+
+} // namespace mptl
 
 #endif
 
