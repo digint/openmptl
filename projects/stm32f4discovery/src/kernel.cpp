@@ -54,7 +54,7 @@ void Kernel::run(void)
 {
   mptl::terminal<usart_stream_device, terminal_hooks::commands> term;
 
-  term.open(tty0_device());
+  term.open();
   term.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 
   while(1)

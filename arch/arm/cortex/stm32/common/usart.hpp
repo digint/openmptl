@@ -83,8 +83,8 @@ struct preset
 ////////////////////  usart  ////////////////////
 
 
-template< unsigned _usart_no, typename _rcc >
-class usart
+template< unsigned _usart_no, typename _rcc, typename CFG >
+class usart : public cfg::usart::preset
 {
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
@@ -105,40 +105,36 @@ protected:
     return (mant << 4) | (fraq & 0x0f);
   };
 
-  template<typename usart_config_type>
-  static constexpr typename USARTx::CR1::value_type cr1_set_mask(usart_config_type const & cfg)
+  static constexpr typename USARTx::CR1::value_type cr1_set_mask()
   {
     return
-      (cfg.word_length == 9            ? USARTx::CR1::M::value   : 0) |
-      (cfg.parity == cfg::usart::parity::even ? USARTx::CR1::PCE::value : 0) |
-      (cfg.parity == cfg::usart::parity::odd  ? (USARTx::CR1::PCE::value | USARTx::CR1::PS::value) : 0) |
-      (cfg.enable_tx                   ? USARTx::CR1::TE::value  : 0) |
-      (cfg.enable_rx                   ? USARTx::CR1::RE::value  : 0) ;
+      (CFG::word_length == 9            ? USARTx::CR1::M::value   : 0) |
+      (CFG::parity == cfg::usart::parity::even ? USARTx::CR1::PCE::value : 0) |
+      (CFG::parity == cfg::usart::parity::odd  ? (USARTx::CR1::PCE::value | USARTx::CR1::PS::value) : 0) |
+      (CFG::enable_tx                   ? USARTx::CR1::TE::value  : 0) |
+      (CFG::enable_rx                   ? USARTx::CR1::RE::value  : 0) ;
   }
 
-  template<typename usart_config_type>
-  static constexpr typename USARTx::CR2::value_type cr2_set_mask(usart_config_type const & cfg)
+  static constexpr typename USARTx::CR2::value_type cr2_set_mask()
   {
     return
-      USARTx::CR2::STOP::value_from((typename USARTx::CR2::value_type)cfg.stop_bits) |
-      (cfg.clock_enable                     ? USARTx::CR2::CLKEN::value : 0) |
-      (cfg.cpol == cfg::usart::clock_polarity::high ? USARTx::CR2::CPOL::value  : 0) |
-      (cfg.cpha == cfg::usart::clock_phase::second  ? USARTx::CR2::CPHA::value  : 0) |
-      (cfg.lbcl                             ? USARTx::CR2::LBCL::value  : 0) ;
+      USARTx::CR2::STOP::value_from((typename USARTx::CR2::value_type)CFG::stop_bits) |
+      (CFG::clock_enable                     ? USARTx::CR2::CLKEN::value : 0) |
+      (CFG::cpol == cfg::usart::clock_polarity::high ? USARTx::CR2::CPOL::value  : 0) |
+      (CFG::cpha == cfg::usart::clock_phase::second  ? USARTx::CR2::CPHA::value  : 0) |
+      (CFG::lbcl                             ? USARTx::CR2::LBCL::value  : 0) ;
   }
 
-  template<typename usart_config_type>
-  static constexpr typename USARTx::CR3::value_type cr3_set_mask(usart_config_type const & cfg)
+  static constexpr typename USARTx::CR3::value_type cr3_set_mask()
   {
     return
-      ((cfg.flow_control == cfg::usart::flow_control::rts || cfg.flow_control == cfg::usart::flow_control::rts_cts) ? USARTx::CR3::RTSE::value : 0 ) |
-      ((cfg.flow_control == cfg::usart::flow_control::cts || cfg.flow_control == cfg::usart::flow_control::rts_cts) ? USARTx::CR3::CTSE::value : 0 ) ;
+      ((CFG::flow_control == cfg::usart::flow_control::rts || CFG::flow_control == cfg::usart::flow_control::rts_cts) ? USARTx::CR3::RTSE::value : 0 ) |
+      ((CFG::flow_control == cfg::usart::flow_control::cts || CFG::flow_control == cfg::usart::flow_control::rts_cts) ? USARTx::CR3::CTSE::value : 0 ) ;
   }
 
-  template<typename usart_config_type>
-  static constexpr typename USARTx::CR3::value_type brr_set_mask(usart_config_type const & cfg)
+  static constexpr typename USARTx::CR3::value_type brr_set_mask()
   {
-    return baud_to_brr(cfg.baud_rate);
+    return baud_to_brr(CFG::baud_rate);
   }
 
 public:
@@ -200,13 +196,12 @@ public:
   static void disable_tx_interrupt(void) { USARTx::CR1::TXEIE::clear(); }
 
   /* NOTE: this implicitely clears all other bits, including "usart enable" (CR1::UE) ! */
-  template<typename usart_config_type>
-  static void configure(usart_config_type const & cfg)
+  static void configure()
   {
-    USARTx::CR1::store(cr1_set_mask(cfg));
-    USARTx::CR2::store(cr2_set_mask(cfg));
-    USARTx::CR3::store(cr3_set_mask(cfg));
-    USARTx::BRR::store(brr_set_mask(cfg));
+    USARTx::CR1::store(cr1_set_mask());
+    USARTx::CR2::store(cr2_set_mask());
+    USARTx::CR3::store(cr3_set_mask());
+    USARTx::BRR::store(brr_set_mask());
   }
 };
 

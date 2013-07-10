@@ -70,7 +70,7 @@ template<typename usart,
          typename _fifo_type = ring_buffer<char, 256>,
          bool     _crlf      = true,
          bool     debug_irqs = false>
-class usart_irq_stream
+class usart_irq_stream : public usart
 {
   using char_type = char;
 

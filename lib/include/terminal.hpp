@@ -58,9 +58,8 @@ public:
 
   terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
-  template<typename device_type>  // TODO: more specific, only allow devices supported by stream_device class
-  static void open(device_type const & device) {
-    device.configure();
+  static void open() {
+    stream_device_type::configure();
     stream_device_type::open();
   }
 
