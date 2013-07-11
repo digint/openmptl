@@ -41,20 +41,13 @@ struct Kernel
 
   using systick       = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
 
-#if 0
-  struct usart_tty0_config : mptl::cfg::usart::preset {
-    static constexpr unsigned baud_rate = 115200;
-  };
-  using usart =  mptl::usart< 2, rcc, usart_tty0_config >;
-#else
-  struct usart : public mptl::usart< 2, rcc, usart > {
-    static constexpr unsigned baud_rate = 115200;
-    //    static unsigned baud_rate;
-  };
-#endif
+  using usart = mptl::usart<
+    2, rcc,
+    mptl::cfg::usart::baud_rate< 115200 >,
+    mptl::cfg::usart::gpio_rx< 'A', 3 >,
+    mptl::cfg::usart::gpio_tx< 'A', 2 >
+    >;
 
-  using usart_gpio_tx = mptl::usart_gpio_tx< usart, 'A', 2 >;
-  using usart_gpio_rx = mptl::usart_gpio_rx< usart, 'A', 3 >;
   using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512> >;
 
   using led_green     = mptl::gpio_led< 'D', 12 >;
@@ -88,8 +81,6 @@ struct Kernel
     led_orange::resources,
     led_red::resources,
     led_blue::resources,
-    usart_gpio_rx::resources,
-    usart_gpio_tx::resources,
     usart_stream_device::resources
     >;
 };

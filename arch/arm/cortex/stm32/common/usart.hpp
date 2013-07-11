@@ -31,50 +31,226 @@ namespace mptl {
 
 namespace cfg { namespace usart {
 
-enum class stop_bits {
-  stop_bits_1   = 0,
-  stop_bits_0_5 = 1,
-  stop_bits_2   = 2,
-  stop_bits_1_5 = 3
-};
-
-enum class parity {
-  disabled,
-  even,
-  odd
-};
-
-enum class flow_control {
-  disabled,
-  rts,
-  cts,
-  rts_cts
-};
-
-enum class clock_polarity {
-  low,
-  high
-};
-
-enum class clock_phase {
-  first,   /* The first clock transition is the first data capture edge.  */
-  second   /* The second clock transition is the first data capture edge. */
+struct config_base {
+  template<typename usart> using cr1_mask_type = regmask< typename usart::USARTx::CR1, 0, 0 >;
+  template<typename usart> using cr2_mask_type = regmask< typename usart::USARTx::CR2, 0, 0 >;
+  template<typename usart> using cr3_mask_type = regmask< typename usart::USARTx::CR3, 0, 0 >;
+  template<typename usart> using brr_mask_type = regmask< typename usart::USARTx::BRR, 0, 0 >;
+  template<typename usart> using resources = void;
 };
 
 
-struct preset
+template<unsigned value>
+struct baud_rate
+: public config_base
 {
-  static constexpr unsigned                   baud_rate    = 9600;
-  static constexpr unsigned                   word_length  = 8;  /* supported: 8 and 9 bits */
-  static constexpr cfg::usart::parity         parity       = cfg::usart::parity::disabled;
-  static constexpr cfg::usart::stop_bits      stop_bits    = cfg::usart::stop_bits::stop_bits_1;
-  static constexpr cfg::usart::flow_control   flow_control = cfg::usart::flow_control::disabled;
-  static constexpr bool                       enable_rx    = true;
-  static constexpr bool                       enable_tx    = true;
-  static constexpr bool                       clock_enable = false;
-  static constexpr cfg::usart::clock_polarity cpol         = cfg::usart::clock_polarity::low;
-  static constexpr cfg::usart::clock_phase    cpha         = cfg::usart::clock_phase::first;
-  static constexpr bool                       lbcl         = false;
+  template<typename usart>
+  struct brr_mask_type_impl {
+    static constexpr unsigned pclk = (usart::usart_no == 1 ? usart::rcc::pclk2_freq : usart::rcc::pclk1_freq );
+    static constexpr unsigned div  = (pclk * 25) / (4 * value);
+    static constexpr unsigned mant = div / 100;
+    static constexpr unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
+
+    // using type = regmask< typename usart::USARTx::BRR, (mant << 4) | (fraq & 0x0f), 0xffff >;
+    using type = typename usart::USARTx::BRR::template combined_mask<
+      regval< typename usart::USARTx::BRR::DIV_Mantissa, mant>,
+      regval< typename usart::USARTx::BRR::DIV_Fraction, fraq>
+      >::type;
+  };
+
+  template<typename usart>
+  using brr_mask_type = typename brr_mask_type_impl<usart>::type;
+};
+
+
+struct enable_rx
+: public config_base
+{
+  template<typename usart>
+  using cr1_mask_type = regval< typename usart::USARTx::CR1::RE, 1 >;
+};
+
+
+struct enable_tx
+: public config_base
+{
+  template<typename usart>
+  using cr1_mask_type = regval< typename usart::USARTx::CR1::TE, 1 >;
+};
+
+
+template<unsigned value>
+struct word_length
+: public config_base
+{
+  static_assert((value == 8) || (value == 9), "illegal word_length (supported values: 8, 9)");
+  template<typename usart>
+  using cr1_mask_type = regval< typename usart::USARTx::CR1::M, (value == 9) ? 1 : 0 >;
+};
+
+
+namespace parity
+{
+  struct even
+  : public config_base
+  {
+    template<typename usart>
+    using cr1_mask_type = typename usart::USARTx::CR1::template combined_mask<
+      regval< typename usart::USARTx::CR1::PCE, 1 >,
+      regval< typename usart::USARTx::CR1::PS,  0 >
+      >::type;
+  };
+
+  struct odd
+  : public config_base
+  {
+    template<typename usart>
+    using cr1_mask_type = typename usart::USARTx::CR1::template combined_mask<
+      regval< typename usart::USARTx::CR1::PCE, 1 >,
+      regval< typename usart::USARTx::CR1::PS,  1 >
+      >::type;
+  };
+
+  struct disabled
+  : public config_base
+  {
+    template<typename usart>
+    using cr1_mask_type = typename usart::USARTx::CR1::template combined_mask<
+      regval< typename usart::USARTx::CR1::PCE, 0 >,
+      regval< typename usart::USARTx::CR1::PS,  0 >
+      >::type;
+  };
+} // namespace parity
+
+
+template<unsigned a, unsigned b = 0>
+struct stop_bits
+: public config_base
+{
+  static_assert(((a == 1) && (b == 0)) ||
+                ((a == 0) && (b == 5)) ||
+                ((a == 2) && (b == 0)) ||
+                ((a == 1) && (b == 5)),
+                "illegal stop_bits (supported values: 1, 0.5, 2, 1.5)");
+
+  template<typename usart>
+  using cr2_mask_type = regval< typename usart::USARTx::CR2::STOP,
+    ((a == 1) && (b == 0)) ? 0 :
+    ((a == 0) && (b == 5)) ? 1 :
+    ((a == 2) && (b == 0)) ? 2 :
+    ((a == 1) && (b == 5)) ? 3 : 0xff
+    >;
+};
+
+
+struct clock_enable
+: public config_base
+{
+  template<typename usart>
+  using cr2_mask_type = regval< typename usart::USARTx::CR2::CLKEN, 1 >;
+};
+
+
+namespace clock_polarity
+{
+  struct high
+  : public config_base
+  {
+    template<typename usart>
+    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPOL, 1 >;
+  };
+
+  struct low
+  : public config_base
+  {
+    template<typename usart>
+    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPOL, 0 >;
+  };
+} // namespace clock_polarity
+
+
+namespace clock_phase
+{
+  /** The first clock transition is the first data capture edge.  */
+  struct first_edge
+  : public config_base
+  {
+    template<typename usart>
+    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPHA, 0 >;
+  };
+
+  /** The second clock transition is the first data capture edge. */
+  struct second_edge
+  : public config_base
+  {
+    template<typename usart>
+    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPHA, 1 >;
+  };
+} // namespace clock_phase
+
+
+struct last_bit_clock_pulse
+: public config_base
+{
+  template<typename usart>
+  using cr2_mask_type = regval< typename usart::USARTx::CR2::LBCL, 1 >;
+};
+
+
+namespace flow_control
+{
+  struct rts
+  : public config_base
+  {
+    template<typename usart>
+    using cr3_mask_type = regval< typename usart::USARTx::CR3::RTSE, 1 >;
+  };
+
+  struct cts
+  : public config_base
+  {
+    template<typename usart>
+    using cr3_mask_type = regval< typename usart::USARTx::CR3::CTSE, 1 >;
+  };
+} // namespace flow_control
+
+
+/** 
+ * Provide GPIO port/pin_no for RX (used for configuration of the GPIO registers).
+ * NOTE: this implicitely sets the enable_rx option!
+ */
+// TODO: provide a matrix for the gpio port/pin_no
+template<char port, unsigned pin_no>
+struct gpio_rx
+: public enable_rx
+{
+  template<typename usart>
+  using resources = typename gpio_input_af<
+    port,
+    pin_no,
+    (usart::usart_no <= 3) ? 7 : 8, // alt_func_num
+    cfg::gpio::resistor::floating
+  >::resources;
+};
+
+
+/** 
+ * Provide GPIO port/pin_no for TX (used for configuration of the GPIO registers).
+ * NOTE: this implicitely sets the enable_tx option!
+ */
+template<char port, unsigned pin_no>
+struct gpio_tx
+: public enable_tx
+{
+  template<typename usart>
+  using resources = typename gpio_output_af<
+    port,
+    pin_no,
+    usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+    cfg::gpio::output_type::push_pull,
+    cfg::gpio::resistor::floating,
+    mhz(50)
+  >::resources;
 };
 
 } } // namespace cfg::usart
@@ -83,65 +259,42 @@ struct preset
 ////////////////////  usart  ////////////////////
 
 
-template< unsigned _usart_no, typename _rcc, typename CFG >
-class usart : public cfg::usart::preset
+template< unsigned _usart_no, typename _rcc, typename... CFG >
+class usart
 {
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 
+  using type = usart<_usart_no, _rcc>;
+
 public:
-  using USARTx = reg::USART<_usart_no>;
+  static constexpr unsigned usart_no = _usart_no;
 
-protected:
-
+  using USARTx = reg::USART<usart_no>;
   using rcc = _rcc;
 
-  static typename USARTx::BRR::value_type baud_to_brr(unsigned baud_rate) {
-    unsigned pclk = (_usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-    unsigned div  = (pclk * 25) / (4 * baud_rate);
-    unsigned mant = div / 100;
-    unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
-
-    return (mant << 4) | (fraq & 0x0f);
-  };
-
-  static constexpr typename USARTx::CR1::value_type cr1_set_mask()
-  {
-    return
-      (CFG::word_length == 9            ? USARTx::CR1::M::value   : 0) |
-      (CFG::parity == cfg::usart::parity::even ? USARTx::CR1::PCE::value : 0) |
-      (CFG::parity == cfg::usart::parity::odd  ? (USARTx::CR1::PCE::value | USARTx::CR1::PS::value) : 0) |
-      (CFG::enable_tx                   ? USARTx::CR1::TE::value  : 0) |
-      (CFG::enable_rx                   ? USARTx::CR1::RE::value  : 0) ;
-  }
-
-  static constexpr typename USARTx::CR2::value_type cr2_set_mask()
-  {
-    return
-      USARTx::CR2::STOP::value_from((typename USARTx::CR2::value_type)CFG::stop_bits) |
-      (CFG::clock_enable                     ? USARTx::CR2::CLKEN::value : 0) |
-      (CFG::cpol == cfg::usart::clock_polarity::high ? USARTx::CR2::CPOL::value  : 0) |
-      (CFG::cpha == cfg::usart::clock_phase::second  ? USARTx::CR2::CPHA::value  : 0) |
-      (CFG::lbcl                             ? USARTx::CR2::LBCL::value  : 0) ;
-  }
-
-  static constexpr typename USARTx::CR3::value_type cr3_set_mask()
-  {
-    return
-      ((CFG::flow_control == cfg::usart::flow_control::rts || CFG::flow_control == cfg::usart::flow_control::rts_cts) ? USARTx::CR3::RTSE::value : 0 ) |
-      ((CFG::flow_control == cfg::usart::flow_control::cts || CFG::flow_control == cfg::usart::flow_control::rts_cts) ? USARTx::CR3::CTSE::value : 0 ) ;
-  }
-
-  static constexpr typename USARTx::CR3::value_type brr_set_mask()
-  {
-    return baud_to_brr(CFG::baud_rate);
-  }
-
-public:
-
-  static constexpr unsigned usart_no = _usart_no;
-  using resources = rcc_usart_clock_resources<usart_no>;
   using irq = irq::usart<usart_no>;
+
+  using resources = resource::list<
+    rcc_usart_clock_resources<usart_no>,
+    typename CFG::template resources< type >...,
+    resource::reg_shared< typename CFG::template cr1_mask_type< type > >...,
+    resource::reg_shared< typename CFG::template cr2_mask_type< type > >...,
+    resource::reg_shared< typename CFG::template cr3_mask_type< type > >...,
+    resource::reg_shared< typename CFG::template brr_mask_type< type > >...
+    >;
+
+  /**
+   * Set the USART registers.
+   * NOTE: this implicitely clears all other bits, including "usart enable" (CR1::UE) !
+   */
+  static void configure()
+  {
+    USARTx::CR1::template reset_to< CFG::template cr1_mask_type<type>... >();
+    USARTx::CR2::template reset_to< CFG::template cr2_mask_type<type>... >();
+    USARTx::CR3::template reset_to< CFG::template cr3_mask_type<type>... >();
+    USARTx::BRR::template reset_to< CFG::template brr_mask_type<type>... >();
+  }
 
   static void send(typename USARTx::DR::value_type data) {
     /* Implicitely clears the TXE bit in the SR register.  */
@@ -194,15 +347,6 @@ public:
 
   static void enable_tx_interrupt(void)  { USARTx::CR1::TXEIE::set(); }
   static void disable_tx_interrupt(void) { USARTx::CR1::TXEIE::clear(); }
-
-  /* NOTE: this implicitely clears all other bits, including "usart enable" (CR1::UE) ! */
-  static void configure()
-  {
-    USARTx::CR1::store(cr1_set_mask());
-    USARTx::CR2::store(cr2_set_mask());
-    USARTx::CR3::store(cr3_set_mask());
-    USARTx::BRR::store(brr_set_mask());
-  }
 };
 
 } // namespace mptl
