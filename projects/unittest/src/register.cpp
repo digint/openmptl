@@ -36,31 +36,31 @@ class TEST
     struct __CONST
     : public Rb
     {
-      typedef regval< Rb, 0x0 > CONST_0;
-      typedef regval< Rb, 0x1 > BIT_0;
-      typedef regval< Rb, 0x2 > BIT_1;
-      typedef regval< Rb, 0x3 > BIT_0_1;
-      typedef regval< Rb, 0xd > CONST_d;
+      using CONST_0 = regval< Rb, 0x0 >;
+      using BIT_0   = regval< Rb, 0x1 >;
+      using BIT_1   = regval< Rb, 0x2 >;
+      using BIT_0_1 = regval< Rb, 0x3 >;
+      using CONST_d = regval< Rb, 0xd >;
     };
 
 
   public:
 
-    typedef __CONST < regbits< R,  0,  4 > > BITS_0_3;
-    typedef __CONST < regbits< R,  4,  4 > > BITS_4_7;
-    typedef           regbits< R,  8, 24 >   BITS_8_31;
+    using BITS_0_3  = __CONST < regbits< R,  0,  4 > >;
+    using BITS_4_7  = __CONST < regbits< R,  4,  4 > >;
+    using BITS_8_31 =           regbits< R,  8, 24 >;
 
   };
 
 public:
-  typedef __REG < regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x55555555 > > REG;
+  using REG = __REG < regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x55555555 > >;
 
   struct REG2
   : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >
   {
-    typedef regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa > reg_type;
+    using reg_type = regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >;
 
-    typedef regbits< reg_type, 0,  8 > BITS_0_7;
+    using BITS_0_7 = regbits< reg_type, 0,  8 >;
   };
 };
 
@@ -105,11 +105,29 @@ int main()
                 regmask<TEST::REG, 0x222200ef>
                 >::type::set_mask ==         0x333311ff, "");
 
-  static_assert(TEST::REG::combined_mask<
+  static_assert(TEST::REG::accumulate<
                 regmask<TEST::REG, 0x11111111>,
                 regmask<TEST::REG, 0x24824800>,
                 regmask<TEST::REG, 0x48011107>
                 >::type::set_mask ==         0x7d935917, "");
+
+  using merged_reg = typename reglist<
+    regmask<TEST::REG, 0x11111111>,
+    regmask<TEST::REG, 0x24824800>,
+    regmask<TEST::REG2, 0xffffffff>, // this is filtered out
+    regmask<TEST::REG, 0x48011107>
+    >::filter<TEST::REG>::accumulate::type;
+  static_assert(merged_reg::set_mask == 0x7d935917, "");
+
+#ifdef UNITTEST_MUST_FAIL
+  // fail: template argument is not of same regdef<> type
+  using merge_fail = TEST::REG::accumulate<
+    regmask<TEST::REG, 0x11111111>,
+    regmask<TEST::REG, 0x24824800>,
+    regmask<TEST::REG2, 0xffffffff>, // this asserts
+    regmask<TEST::REG, 0x48011107>
+    >::type;
+#endif
 
 #ifdef UNITTEST_MUST_FAIL
   // fail: not same register
