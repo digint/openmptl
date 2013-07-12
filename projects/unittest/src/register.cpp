@@ -116,7 +116,7 @@ int main()
     regmask<TEST::REG, 0x24824800>,
     regmask<TEST::REG2, 0xffffffff>, // this is filtered out
     regmask<TEST::REG, 0x48011107>
-    >::filter<TEST::REG>::merge::type;
+    >::filter<TEST::REG>::type::merge::type;
   static_assert(merged_reg::set_mask == 0x7d935917, "");
 
 #ifdef UNITTEST_MUST_FAIL

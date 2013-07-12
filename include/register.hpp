@@ -268,7 +268,10 @@ struct neutralize_foreign_regtype {
 #endif
 
 template<typename... Args>
-struct merge_impl;
+struct merge_impl {
+  /* note: assertion needs to be dependent of template parameter */
+  static_assert(sizeof...(Args), "cannot merge an empty argument list");
+};
 
 template<typename Front, typename... Args>
 struct merge_impl<Front, Args...> {
@@ -331,10 +334,14 @@ struct reglist
   using type = reglist<Rm...>;
 
   template<typename T>
-  using append = reglist<Rm..., T>;
+  struct append {
+    using type = reglist<Rm..., T>;
+  };
 
   template<typename reg_type>
-  using filter = typename mpl::make_filtered_list< reglist<>, typename reg_type::reg_type, Rm... >::type;
+  struct filter {
+    using type = typename mpl::make_filtered_list< reglist<>, typename reg_type::reg_type, Rm... >::type;
+  };
 
   struct merge {
     using type = typename mpl::merge_impl<Rm...>::type;
@@ -390,28 +397,30 @@ public:
 #endif
 
   /* clear register bits (or'ed clear_mask of regmask Rm) */
-  template<typename... Rm>
+  template<typename Rm0, typename... Rm>
   static __always_inline void clear(void) {
-    merge<Rm...>::type::clear();
+    merge<Rm0, Rm...>::type::clear();
   }
 
   /* set constants */
-  template<typename... Rm>
+  template<typename Rm0, typename... Rm>
   static __always_inline void set(void) {
-    merge<Rm...>::type::set();
+    merge<Rm0, Rm...>::type::set();
   }
 
   /* set value, masked by clear_mask of regmask (Rm) */
-  template<typename... Rm>
+  template<typename Rm0, typename... Rm>
   static __always_inline void set(value_type const value) {
-    set(value, merge<Rm...>::type::clear_mask);
+    set(value, merge<Rm0, Rm...>::type::clear_mask);
   }
 
   /* reset register, and set constants (results in single store()) */
   template<typename... Rm>
   static __always_inline void reset_to(void) {
-    using Rma = typename merge<Rm...>::type;
-    type::store((reset_value & ~Rma::cropped_clear_mask) | Rma::set_mask);
+    /* add a neutral regmask to the merge list, in order to handle empty template arguments correctly */
+    using neutral_regmask = regmask< reg_type, 0, 0 >;
+    using merged_regmask = typename merge<neutral_regmask, Rm...>::type;
+    type::store((reset_value & ~merged_regmask::cropped_clear_mask) | merged_regmask::set_mask);
   }
 };
 
