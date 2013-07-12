@@ -32,10 +32,7 @@ namespace mptl {
 namespace cfg { namespace usart {
 
 struct config_base {
-  template<typename usart> using cr1_mask_type = regmask< typename usart::USARTx::CR1, 0, 0 >;
-  template<typename usart> using cr2_mask_type = regmask< typename usart::USARTx::CR2, 0, 0 >;
-  template<typename usart> using cr3_mask_type = regmask< typename usart::USARTx::CR3, 0, 0 >;
-  template<typename usart> using brr_mask_type = regmask< typename usart::USARTx::BRR, 0, 0 >;
+  template<typename usart> using regmask_type = void;
   template<typename usart> using resources = void;
 };
 
@@ -45,21 +42,21 @@ struct baud_rate
 : public config_base
 {
   template<typename usart>
-  struct brr_mask_type_impl {
+  struct regmask_type_impl {
     static constexpr unsigned pclk = (usart::usart_no == 1 ? usart::rcc::pclk2_freq : usart::rcc::pclk1_freq );
     static constexpr unsigned div  = (pclk * 25) / (4 * value);
     static constexpr unsigned mant = div / 100;
     static constexpr unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
 
     // using type = regmask< typename usart::USARTx::BRR, (mant << 4) | (fraq & 0x0f), 0xffff >;
-    using type = typename usart::USARTx::BRR::template combined_mask<
+    using type = typename usart::USARTx::BRR::template merge<
       regval< typename usart::USARTx::BRR::DIV_Mantissa, mant>,
       regval< typename usart::USARTx::BRR::DIV_Fraction, fraq>
       >::type;
   };
 
   template<typename usart>
-  using brr_mask_type = typename brr_mask_type_impl<usart>::type;
+  using regmask_type = typename regmask_type_impl<usart>::type;
 };
 
 
@@ -67,7 +64,7 @@ struct enable_rx
 : public config_base
 {
   template<typename usart>
-  using cr1_mask_type = regval< typename usart::USARTx::CR1::RE, 1 >;
+  using regmask_type = regval< typename usart::USARTx::CR1::RE, 1 >;
 };
 
 
@@ -75,7 +72,7 @@ struct enable_tx
 : public config_base
 {
   template<typename usart>
-  using cr1_mask_type = regval< typename usart::USARTx::CR1::TE, 1 >;
+  using regmask_type = regval< typename usart::USARTx::CR1::TE, 1 >;
 };
 
 
@@ -85,7 +82,7 @@ struct word_length
 {
   static_assert((value == 8) || (value == 9), "illegal word_length (supported values: 8, 9)");
   template<typename usart>
-  using cr1_mask_type = regval< typename usart::USARTx::CR1::M, (value == 9) ? 1 : 0 >;
+  using regmask_type = regval< typename usart::USARTx::CR1::M, (value == 9) ? 1 : 0 >;
 };
 
 
@@ -95,7 +92,7 @@ namespace parity
   : public config_base
   {
     template<typename usart>
-    using cr1_mask_type = typename usart::USARTx::CR1::template combined_mask<
+    using regmask_type = typename usart::USARTx::CR1::template combined_mask<
       regval< typename usart::USARTx::CR1::PCE, 1 >,
       regval< typename usart::USARTx::CR1::PS,  0 >
       >::type;
@@ -105,7 +102,7 @@ namespace parity
   : public config_base
   {
     template<typename usart>
-    using cr1_mask_type = typename usart::USARTx::CR1::template combined_mask<
+    using regmask_type = typename usart::USARTx::CR1::template combined_mask<
       regval< typename usart::USARTx::CR1::PCE, 1 >,
       regval< typename usart::USARTx::CR1::PS,  1 >
       >::type;
@@ -115,7 +112,7 @@ namespace parity
   : public config_base
   {
     template<typename usart>
-    using cr1_mask_type = typename usart::USARTx::CR1::template combined_mask<
+    using regmask_type = typename usart::USARTx::CR1::template combined_mask<
       regval< typename usart::USARTx::CR1::PCE, 0 >,
       regval< typename usart::USARTx::CR1::PS,  0 >
       >::type;
@@ -134,7 +131,7 @@ struct stop_bits
                 "illegal stop_bits (supported values: 1, 0.5, 2, 1.5)");
 
   template<typename usart>
-  using cr2_mask_type = regval< typename usart::USARTx::CR2::STOP,
+  using regmask_type = regval< typename usart::USARTx::CR2::STOP,
     ((a == 1) && (b == 0)) ? 0 :
     ((a == 0) && (b == 5)) ? 1 :
     ((a == 2) && (b == 0)) ? 2 :
@@ -147,7 +144,7 @@ struct clock_enable
 : public config_base
 {
   template<typename usart>
-  using cr2_mask_type = regval< typename usart::USARTx::CR2::CLKEN, 1 >;
+  using regmask_type = regval< typename usart::USARTx::CR2::CLKEN, 1 >;
 };
 
 
@@ -157,14 +154,14 @@ namespace clock_polarity
   : public config_base
   {
     template<typename usart>
-    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPOL, 1 >;
+    using regmask_type = regval< typename usart::USARTx::CR2::CPOL, 1 >;
   };
 
   struct low
   : public config_base
   {
     template<typename usart>
-    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPOL, 0 >;
+    using regmask_type = regval< typename usart::USARTx::CR2::CPOL, 0 >;
   };
 } // namespace clock_polarity
 
@@ -176,7 +173,7 @@ namespace clock_phase
   : public config_base
   {
     template<typename usart>
-    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPHA, 0 >;
+    using regmask_type = regval< typename usart::USARTx::CR2::CPHA, 0 >;
   };
 
   /** The second clock transition is the first data capture edge. */
@@ -184,7 +181,7 @@ namespace clock_phase
   : public config_base
   {
     template<typename usart>
-    using cr2_mask_type = regval< typename usart::USARTx::CR2::CPHA, 1 >;
+    using regmask_type = regval< typename usart::USARTx::CR2::CPHA, 1 >;
   };
 } // namespace clock_phase
 
@@ -193,7 +190,7 @@ struct last_bit_clock_pulse
 : public config_base
 {
   template<typename usart>
-  using cr2_mask_type = regval< typename usart::USARTx::CR2::LBCL, 1 >;
+  using regmask_type = regval< typename usart::USARTx::CR2::LBCL, 1 >;
 };
 
 
@@ -203,14 +200,14 @@ namespace flow_control
   : public config_base
   {
     template<typename usart>
-    using cr3_mask_type = regval< typename usart::USARTx::CR3::RTSE, 1 >;
+    using regmask_type = regval< typename usart::USARTx::CR3::RTSE, 1 >;
   };
 
   struct cts
   : public config_base
   {
     template<typename usart>
-    using cr3_mask_type = regval< typename usart::USARTx::CR3::CTSE, 1 >;
+    using regmask_type = regval< typename usart::USARTx::CR3::CTSE, 1 >;
   };
 } // namespace flow_control
 
@@ -278,11 +275,26 @@ public:
   using resources = resource::list<
     rcc_usart_clock_resources<usart_no>,
     typename CFG::template resources< type >...,
-    resource::reg_shared< typename CFG::template cr1_mask_type< type > >...,
-    resource::reg_shared< typename CFG::template cr2_mask_type< type > >...,
-    resource::reg_shared< typename CFG::template cr3_mask_type< type > >...,
-    resource::reg_shared< typename CFG::template brr_mask_type< type > >...
+    resource::reg_shared< typename CFG::template regmask_type< type > >...
     >;
+
+  /**
+   * Set register reg_type to its default value, combined with the
+   * merged CFG::regmask_type classes.
+   */
+  // TODO: this goes to some periph base class (maybe with __always_inline ?)
+  template<typename reg_type>
+  static void configure_reg() {
+    using neutral_regmask = regmask< reg_type, 0, 0 >;
+
+    /* Filter CFG by reg_type, append neutral regmask, and merge it */
+    using reglist_type = reglist<typename CFG::template regmask_type<type>...>;
+    using filtered = typename reglist_type::template filter<reg_type>::type;
+    using filtered_neutral = typename filtered::template append< neutral_regmask >::type;
+    using merged_regmask_type = typename filtered_neutral::merge::type;
+
+    reg_type::template reset_to< merged_regmask_type >();
+  }
 
   /**
    * Set the USART registers.
@@ -290,10 +302,10 @@ public:
    */
   static void configure()
   {
-    USARTx::CR1::template reset_to< CFG::template cr1_mask_type<type>... >();
-    USARTx::CR2::template reset_to< CFG::template cr2_mask_type<type>... >();
-    USARTx::CR3::template reset_to< CFG::template cr3_mask_type<type>... >();
-    USARTx::BRR::template reset_to< CFG::template brr_mask_type<type>... >();
+    configure_reg<typename USARTx::CR1>();
+    configure_reg<typename USARTx::CR2>();
+    configure_reg<typename USARTx::CR3>();
+    configure_reg<typename USARTx::BRR>();
   }
 
   static void send(typename USARTx::DR::value_type data) {
