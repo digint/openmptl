@@ -90,6 +90,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <register_backend.hpp>
+#include <register_list.hpp>
 #include <compiler.h>
 
 namespace mptl {
@@ -254,100 +255,6 @@ public:
 
 ////////////////////  regdef  ////////////////////
 
-namespace mpl {
-#if 0
-template<typename reg_type, typename T>
-struct neutralize_foreign_regtype {
-  using neutral_type = regmask< reg_type, 0, 0 >;
-  using type = typename std::conditional<
-    std::is_same<typename T::reg_type, reg_type>::value,
-    T,
-    neutral_type
-    >::type;
-};
-#endif
-
-template<typename... Args>
-struct merge_impl {
-  /* note: assertion needs to be dependent of template parameter */
-  static_assert(sizeof...(Args), "cannot merge an empty argument list");
-};
-
-template<typename Front, typename... Args>
-struct merge_impl<Front, Args...> {
-  using type = typename Front::template merge< typename merge_impl<Args...>::type >::type;
-};
-
-template<typename Front>
-struct merge_impl<Front> {
-  using type = Front;
-};
-
-#if 0
-template<typename reg_type, typename Front, typename... Args>
-struct merge_filtered_impl {
-  /* don't merge "Front" if it is not of our regdef<> type */
-  using neutral_type = regmask< reg_type, 0, 0 >;
-  using front = typename mpl::neutralize_foreign_regtype<reg_type, Front>::type;
-  using type = typename front::template merge< typename merge_filtered_impl<reg_type, Args...>::type >::type;
-};
-template<typename reg_type, typename Front>
-struct merge_filtered_impl<reg_type, Front> {
-  using type = typename mpl::neutralize_foreign_regtype<reg_type, Front>::type;
-};
-#endif
-
-
-template<typename list_type, typename reg_type, typename... Args>
-struct make_filtered_list;
-
-template<typename list_type, typename reg_type, typename... Args>
-struct make_filtered_list<list_type, reg_type, void, Args...> {
-  /* filter out "void" list member */
-  using type = typename make_filtered_list<list_type, reg_type, Args...>::type;
-};
-
-template<typename list_type, typename reg_type, typename Head, typename... Args>
-struct make_filtered_list<list_type, reg_type, Head, Args...> {
-  using type = typename make_filtered_list<
-    typename std::conditional<
-      std::is_same<typename Head::reg_type, reg_type>::value,
-      typename list_type::template append<Head>::type,
-      list_type
-      >::type,
-    reg_type,
-    Args...
-    >::type;
-};
-
-template<typename list_type, typename reg_type>
-struct make_filtered_list<list_type, reg_type> {
-  using type = list_type;
-};
-
-} // namespace mpl
-
-
-template<typename... Rm>
-struct reglist
-{
-  using type = reglist<Rm...>;
-
-  template<typename T>
-  struct append {
-    using type = reglist<Rm..., T>;
-  };
-
-  template<typename reg_type>
-  struct filter {
-    using type = typename mpl::make_filtered_list< reglist<>, typename reg_type::reg_type, Rm... >::type;
-  };
-
-  struct merge {
-    using type = typename mpl::merge_impl<Rm...>::type;
-  };
-};
-
 
 template< typename   T,
           reg_addr_t addr,
@@ -385,16 +292,11 @@ public:
     type::store(reset_value);
   }
 
-  template<typename... Rm>
+  template<typename Rm0, typename... Rm>
   struct merge {
-    using type = typename reglist<Rm...>::merge::type;
+    using type = typename reglist<Rm0, Rm...>::merge::type;
     static_assert(std::is_same<typename type::reg_type, reg_type>::value, "merged template arguments have different regdef<> type");
   };
-
-#if 0
-  template<typename... Rm>
-  using merge_filtered = typename reglist<Rm...>::template merge_filtered<reg_type>::type;
-#endif
 
   /* clear register bits (or'ed clear_mask of regmask Rm) */
   template<typename Rm0, typename... Rm>
