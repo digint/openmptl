@@ -40,7 +40,7 @@ namespace mptl { namespace resource { namespace mpl {
  * - T (group_type): resource group type. Acts as filter for resource_type_list. This type (T)
  *                   MUST provide the configure() and assert_type() functions.
  *
- * - R (type): resource type, MUST provide combine<> type and configure() function.
+ * - R (type): resource type, MUST provide merge<> type and configure() function.
  */
 template<typename T, typename R = T>
 struct resource {
@@ -65,11 +65,11 @@ struct resource {
   static __always_inline void configure() { }
 
   template<typename U>
-  struct combine {
+  struct merge {
     /* always assert, this class must be implemented. */
     using type = R;
     static_assert(std::is_void<T>::value && std::is_void<R>::value,
-                  "resource::list<> contains a resource which does not implement the combine functor.");
+                  "resource::list<> contains a resource which does not implement the merge functor.");
   };
 };
 
@@ -89,18 +89,18 @@ struct ASSERTION_RESOURCE_IS_NOT_UNIQUE {
 template<typename T, typename R = T>
 struct unique_resource : resource< T, R > {
   template<typename U>
-  struct combine {
+  struct merge {
     using type = typename ASSERTION_RESOURCE_IS_NOT_UNIQUE<T, R>::type;
   };
 
   template<typename Rl>
   static constexpr bool assert_type() {
-    /* We check for "Rl::combined_type<type>::type here", and assert    */
-    /* in "combine" above. The reason for this is to get nicer          */
+    /* We check for "Rl::merged_type<type>::type here", and assert    */
+    /* in "merge" above. The reason for this is to get nicer          */
     /* compiler messages than if we were just asserting for             */
     /* "Rl::resource_filtered_list<type>::size <= 1" (which is also     */
     /* correct).                                                        */
-    return !std::is_void<typename Rl::template combined_type<T>::type >::value;
+    return !std::is_void<typename Rl::template merged_type<T>::type >::value;
   }
 };
 
@@ -122,16 +122,16 @@ struct filtered_list_impl;
 
 template<typename Head, typename... Args>
 struct filtered_list_impl<Head, Args...>  {
-  using combined_type = typename Head::template combine<typename filtered_list_impl<Args...>::combined_type>::type;
+  using merged_type = typename Head::template merge<typename filtered_list_impl<Args...>::merged_type>::type;
 };
 template<typename Head>
 struct filtered_list_impl<Head> {
-  using combined_type = typename Head::type;
+  using merged_type = typename Head::type;
 };
 template<>
 struct filtered_list_impl<> {
-  /* combined_type is void for empty filtered list */
-  using combined_type = void;
+  /* merged_type is void for empty filtered list */
+  using merged_type = void;
 };
 
 template<typename... Args>
@@ -162,7 +162,7 @@ struct make_filtered_list_impl<T, Filter> {
 };
 
 /* Creates a filtered_list<...>: list of resource class types,               */
-/* providing combined_type (e.g. or'ed  register values for reg_shared). */
+/* providing merged_type (e.g. or'ed  register values for reg_shared). */
 template<typename Filter, typename... Args>
 struct make_filtered_list
 : make_filtered_list_impl< mpl::filtered_list<>, Filter, Args... >
@@ -185,8 +185,8 @@ struct resource_type_list_impl<Head, Args...>  {
 
   template<typename Rl>
   static __always_inline void configure() {
-    //typename Rl::template resource_filtered_list<Head>::combined_type().configure();
-    Rl::template resource_filtered_list<Head>::combined_type::configure();
+    //typename Rl::template resource_filtered_list<Head>::merged_type().configure();
+    Rl::template resource_filtered_list<Head>::merged_type::configure();
     resource_type_list_impl<Args...>::template configure<Rl>();
   }
 

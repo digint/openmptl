@@ -151,7 +151,7 @@ public:
   }
 
   template<typename Rm >
-  struct combine { // TODO: rename "merge"
+  struct merge {
     static_assert(std::is_same<typename Rm::reg_type, reg_type>::value, "template argument is not of same regdef<> type");
 
     /* assert if we set a bit which was previously cleared (and vice versa) */
@@ -268,28 +268,28 @@ struct neutralize_foreign_regtype {
 #endif
 
 template<typename... Args>
-struct accumulate_impl;
+struct merge_impl;
 
 template<typename Front, typename... Args>
-struct accumulate_impl<Front, Args...> {
-  using type = typename Front::template combine< typename accumulate_impl<Args...>::type >::type;
+struct merge_impl<Front, Args...> {
+  using type = typename Front::template merge< typename merge_impl<Args...>::type >::type;
 };
 
 template<typename Front>
-struct accumulate_impl<Front> {
+struct merge_impl<Front> {
   using type = Front;
 };
 
 #if 0
 template<typename reg_type, typename Front, typename... Args>
-struct accumulate_filtered_impl {
-  /* don't accumulate "Front" if it is not of our regdef<> type */
+struct merge_filtered_impl {
+  /* don't merge "Front" if it is not of our regdef<> type */
   using neutral_type = regmask< reg_type, 0, 0 >;
   using front = typename mpl::neutralize_foreign_regtype<reg_type, Front>::type;
-  using type = typename front::template combine< typename accumulate_filtered_impl<reg_type, Args...>::type >::type;
+  using type = typename front::template merge< typename merge_filtered_impl<reg_type, Args...>::type >::type;
 };
 template<typename reg_type, typename Front>
-struct accumulate_filtered_impl<reg_type, Front> {
+struct merge_filtered_impl<reg_type, Front> {
   using type = typename mpl::neutralize_foreign_regtype<reg_type, Front>::type;
 };
 #endif
@@ -336,8 +336,8 @@ struct reglist
   template<typename reg_type>
   using filter = typename mpl::make_filtered_list< reglist<>, typename reg_type::reg_type, Rm... >::type;
 
-  struct accumulate {
-    using type = typename mpl::accumulate_impl<Rm...>::type;
+  struct merge {
+    using type = typename mpl::merge_impl<Rm...>::type;
   };
 };
 
@@ -379,38 +379,38 @@ public:
   }
 
   template<typename... Rm>
-  struct accumulate {
-    using type = typename reglist<Rm...>::accumulate::type;
+  struct merge {
+    using type = typename reglist<Rm...>::merge::type;
     static_assert(std::is_same<typename type::reg_type, reg_type>::value, "merged template arguments have different regdef<> type");
   };
 
 #if 0
   template<typename... Rm>
-  using accumulate_filtered = typename reglist<Rm...>::template accumulate_filtered<reg_type>::type;
+  using merge_filtered = typename reglist<Rm...>::template merge_filtered<reg_type>::type;
 #endif
 
   /* clear register bits (or'ed clear_mask of regmask Rm) */
   template<typename... Rm>
   static __always_inline void clear(void) {
-    accumulate<Rm...>::type::clear();
+    merge<Rm...>::type::clear();
   }
 
   /* set constants */
   template<typename... Rm>
   static __always_inline void set(void) {
-    accumulate<Rm...>::type::set();
+    merge<Rm...>::type::set();
   }
 
   /* set value, masked by clear_mask of regmask (Rm) */
   template<typename... Rm>
   static __always_inline void set(value_type const value) {
-    set(value, accumulate<Rm...>::type::clear_mask);
+    set(value, merge<Rm...>::type::clear_mask);
   }
 
   /* reset register, and set constants (results in single store()) */
   template<typename... Rm>
   static __always_inline void reset_to(void) {
-    using Rma = typename accumulate<Rm...>::type;
+    using Rma = typename merge<Rm...>::type;
     type::store((reset_value & ~Rma::cropped_clear_mask) | Rma::set_mask);
   }
 };

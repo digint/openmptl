@@ -51,13 +51,13 @@ public:
 
   template<typename... Rm>
   void __always_inline clear(void) {
-    clear(T::template accumulate<Rm...>::type::clear_mask);
+    clear(T::template merge<Rm...>::type::clear_mask);
   }
 
   template<typename... Rm>
   void __always_inline set(void) {
-    using combined_type = typename T::template accumulate<Rm...>::type;
-    set( combined_type::set_mask, combined_type::cropped_clear_mask );
+    using merged_type = typename T::template merge<Rm...>::type;
+    set( merged_type::set_mask, merged_type::cropped_clear_mask );
   }
 
 private:

@@ -96,16 +96,16 @@ int main()
   std::cout << "*** main ***" << std::endl; 
 
   /* regmask */
-  using combined_type = regmask<TEST::REG, 0xabcd0000>::combine<TEST::REG::BITS_4_7::CONST_d>::type;
-  static_assert(combined_type::set_mask           == 0xabcd00d0, "");
-  static_assert(combined_type::clear_mask         == 0xabcd00f0, "");
-  static_assert(combined_type::cropped_clear_mask == 0x00000020, "");
+  using merged_type = regmask<TEST::REG, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
+  static_assert(merged_type::set_mask           == 0xabcd00d0, "");
+  static_assert(merged_type::clear_mask         == 0xabcd00f0, "");
+  static_assert(merged_type::cropped_clear_mask == 0x00000020, "");
 
-  static_assert(regmask<TEST::REG, 0x11111111>::combine<
+  static_assert(regmask<TEST::REG, 0x11111111>::merge<
                 regmask<TEST::REG, 0x222200ef>
                 >::type::set_mask ==         0x333311ff, "");
 
-  static_assert(TEST::REG::accumulate<
+  static_assert(TEST::REG::merge<
                 regmask<TEST::REG, 0x11111111>,
                 regmask<TEST::REG, 0x24824800>,
                 regmask<TEST::REG, 0x48011107>
@@ -116,12 +116,12 @@ int main()
     regmask<TEST::REG, 0x24824800>,
     regmask<TEST::REG2, 0xffffffff>, // this is filtered out
     regmask<TEST::REG, 0x48011107>
-    >::filter<TEST::REG>::accumulate::type;
+    >::filter<TEST::REG>::merge::type;
   static_assert(merged_reg::set_mask == 0x7d935917, "");
 
 #ifdef UNITTEST_MUST_FAIL
   // fail: template argument is not of same regdef<> type
-  using merge_fail = TEST::REG::accumulate<
+  using merge_fail = TEST::REG::merge<
     regmask<TEST::REG, 0x11111111>,
     regmask<TEST::REG, 0x24824800>,
     regmask<TEST::REG2, 0xffffffff>, // this asserts
@@ -131,7 +131,7 @@ int main()
 
 #ifdef UNITTEST_MUST_FAIL
   // fail: not same register
-  using combined_type_fail = regmask<TEST::REG2, 0xabcd0000>::combine<TEST::REG::BITS_4_7::CONST_d>::type;
+  using merged_type_fail = regmask<TEST::REG2, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
 #endif
 
 

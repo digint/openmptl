@@ -43,21 +43,21 @@ struct reg_shared
 {
   using mask_type = typename R::mask_type;
 
-  /* Combine two reg_shared of same reg_shared_group:              */
+  /* Merge two reg_shared of same reg_shared_group:              */
   /* Returns reg_shared with or'ed set_mask and or'ed clear_mask.  */
   template<typename U>
-  struct combine {
-    using type = reg_shared< typename mask_type::template combine<typename U::mask_type>::type >;
+  struct merge {
+    using type = reg_shared< typename mask_type::template merge<typename U::mask_type>::type >;
   };
 
-  /* Called by resource_type_list_impl::configure() on a combined */
-  /* reg_shared type. (which we are in this context, see "combine" above)  */
+  /* Called by resource_type_list_impl::configure() on a merged */
+  /* reg_shared type. (which we are in this context, see "merge" above)  */
   static __always_inline void configure() {
     //    if((R::set_mask != 0) || (R::clear_mask != 0))
       R::set();
 
     // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register:
-    // T::store((T::reset_value & ~combined_type<T>::clear_mask) | combined_type<T>::set_mask);
+    // T::store((T::reset_value & ~merged_type<T>::clear_mask) | merged_type<T>::set_mask);
   }
 };
 
@@ -101,20 +101,20 @@ struct list : mpl::resource_list_impl<Args...>
   /* resource_type_list, containing all resource types (unique) */
   using resource_type_list = typename mpl::make_resource_type_list<Args...>::type;
 
-  /* Combined resource type */
+  /* Merged resource type */
   template<typename T>
-  using combined_type = typename resource_filtered_list<T>::combined_type;
+  using merged_type = typename resource_filtered_list<T>::merged_type;
 
   /* Returns Handler from list, or void if not found */
   template<int irqn>
   struct irq_resource {
-    using type = combined_type< irq_group<irqn> >;
+    using type = merged_type< irq_group<irqn> >;
     using irq_resource_group_type = irq_group<irqn>;
-    // this fails since combined_type can be of type "void":
-    // static constexpr isr_t value = combined_type< irq_group<irqn> >::value;
+    // this fails since merged_type can be of type "void":
+    // static constexpr isr_t value = merged_type< irq_group<irqn> >::value;
   };
 
-  /* Run configure() on all combined resource types.  */
+  /* Run configure() on all merged resource types.  */
   static void configure() {
     resource_type_list::template configure<type>();
   }
