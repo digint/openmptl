@@ -22,6 +22,48 @@
 #define USART_HPP_INCLUDED
 
 #include "../../../common/usart.hpp"
+namespace mptl { namespace cfg { namespace usart {
+
+/** 
+ * Provide GPIO port/pin_no for RX (used for configuration of the GPIO registers).
+ * NOTE: this implicitely sets the enable_rx option!
+ */
+// TODO: provide a matrix for the gpio port/pin_no
+template<char port, unsigned pin_no>
+struct gpio_rx
+: public enable_rx
+{
+  template<typename usart>
+  using resources = typename gpio_input_af<
+    port,
+    pin_no,
+    (usart::usart_no <= 3) ? 7 : 8, // alt_func_num
+    cfg::gpio::resistor::floating
+  >::resources;
+};
+
+
+/** 
+ * Provide GPIO port/pin_no for TX (used for configuration of the GPIO registers).
+ * NOTE: this implicitely sets the enable_tx option!
+ */
+template<char port, unsigned pin_no>
+struct gpio_tx
+: public enable_tx
+{
+  template<typename usart>
+  using resources = typename gpio_output_af<
+    port,
+    pin_no,
+    usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+    cfg::gpio::output_type::push_pull,
+    cfg::gpio::resistor::floating,
+    mhz(50)
+  >::resources;
+};
+
+} } } // namespace cfg::usart
+
 
 #endif // USART_HPP_INCLUDED
 
