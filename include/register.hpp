@@ -185,7 +185,7 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
   using bits_type  = type;
   using reg_type   = typename R::reg_type;
   using value_type = typename R::value_type;
-  using mask_type  = regmask<R, ((1ul << width) - 1) << offset>;  // TODO: should be private/protected
+  using mask_type  = regmask<R, ((1ul << width) - 1) << offset>;
 
   static constexpr value_type value = mask_type::set_mask;
 
