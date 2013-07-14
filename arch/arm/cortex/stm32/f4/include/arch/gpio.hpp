@@ -22,6 +22,8 @@
 #define GPIO_HPP_INCLUDED
 
 #include <resource.hpp>
+#include <periph.hpp>
+#include <cfg_list.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 #include <type_traits>
@@ -29,11 +31,6 @@
 namespace mptl {
 
 namespace cfg { namespace gpio {
-
-struct config_base {
-  template<typename usart> using regmask_type = void;
-  template<typename gpio_type> using resources = void;
-};
 
 namespace mode
 {
@@ -175,7 +172,7 @@ struct alt_func_num
 //          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
 //          unsigned alt_func_num = 0>
 template< char port, unsigned _pin_no, typename... CFG >
-class gpio
+class gpio // : public periph  // TODO
 {
   static_assert((port >= 'A') && (port <= 'I'), "invalid GPIO port");
   static_assert(_pin_no < 16, "invalid GPIO pin-no");
@@ -188,28 +185,7 @@ public:
   static constexpr unsigned pin_no = _pin_no;
   using GPIOx = reg::GPIO<port>;
   using type  = gpio<port, pin_no, CFG...>;
-
-
-
-// TODO: move to mpl
-  template<typename T, typename Head, typename... Args>
-  struct contains {
-    static constexpr bool value = ( std::is_base_of<T, Head>::value ||
-                                    contains<T, Args...>::value );
-  };
-  template<typename T,typename... Args>
-  struct contains<T, void, Args...> {
-    /* ignore void */
-    static constexpr bool value = contains<T, Args...>::value;
-  };
-  template<typename T, typename Head>
-  struct contains<T, Head> {
-    static constexpr bool value = std::is_base_of<T, Head>::value;
-  };
-  static constexpr bool is_low_active = contains<cfg::gpio::active_state::low, CFG...>::value;
-
-
-
+  using cfg_list = periph_config_list<CFG...>;
 
   using resources = resource::list<
     rcc_gpio_clock_resources<port>,
@@ -217,6 +193,8 @@ public:
     typename CFG::template resources< type >...,
     resource::reg_shared< typename CFG::template regmask_type< type > >...
     >;
+
+  static constexpr bool is_low_active = cfg_list::template contains< cfg::gpio::active_state::low >::value;
 
   // TODO: this goes to some periph base class (maybe with __always_inline ?)
   template<typename reg_type>

@@ -26,16 +26,12 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
 #include <type_traits>
+#include <resource.hpp>
+#include <cfg_list.hpp>
 
 namespace mptl {
 
 namespace cfg { namespace usart {
-
-struct config_base {
-  template<typename usart> using regmask_type = void;
-  template<typename usart> using resources = void;
-};
-
 
 template<unsigned value>
 struct baud_rate
@@ -232,6 +228,7 @@ public:
   using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;
+  using cfg_list = periph_config_list<CFG...>;
 
   using resources = resource::list<
     rcc_usart_clock_resources<usart_no>,

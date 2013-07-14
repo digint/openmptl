@@ -29,7 +29,6 @@
 #include <arch/gpio.hpp>
 #include <arch/usart.hpp>
 #include <arch/usart_stream.hpp>
-#include <peripheral_device.hpp>
 #include <resource.hpp>
 #include <compiler.h>
 

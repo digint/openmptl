@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef PERIPHERAL_DEVICE_HPP_INCLUDED
-#define PERIPHERAL_DEVICE_HPP_INCLUDED
+#ifndef PERIPH_HPP_INCLUDED
+#define PERIPH_HPP_INCLUDED
 
 namespace mptl {
 
@@ -30,33 +30,30 @@ namespace mptl {
  * - peripheral_type: e.g. spi<0>
  * - peripheral_config_type: e.g. spi_default_config
  */
-template<typename peripheral_type, typename peripheral_config_type >
-class peripheral_device
-: public peripheral_type, public peripheral_config_type
+class periph
 {
 public:
-
-  using resources = typename peripheral_type::resources;
+  //  using cfg_list = periph_config<CFG...>;
 
   /**
-   * Configure peripheral.
+   * Configure peripheral device.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   void configure(void) const {
-    peripheral_type::configure(*this);
+    //!!!    periph_type::configure(*this);
   }
 
   /**
-   * Reconfigure and enable peripheral.
+   * Reconfigure and enable peripheral device.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   void reconfigure(void) const {
-    peripheral_type::disable();
+    //!!!    periph_type::disable();
     configure();
-    peripheral_type::enable();
+    //!!!    periph_type::enable();
   }
 };
 
 } // namespace mptl
 
-#endif // PERIPHERAL_DEVICE_HPP_INCLUDED
+#endif // PERIPH_HPP_INCLUDED
