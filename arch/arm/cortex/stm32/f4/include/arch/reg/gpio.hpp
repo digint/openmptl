@@ -22,6 +22,7 @@
 #define ARCH_REG_GPIO_HPP_INCLUDED
 
 #include <register.hpp>
+#include <type_traits>
 
 namespace mptl { namespace reg {
 
@@ -57,6 +58,27 @@ struct GPIO
   using LCKR     = regdef< uint32_t, base_addr + 0x1c, reg_access::rw                >;  /**< GPIO port configuration lock register */
   using AFRL     = regdef< uint32_t, base_addr + 0x20, reg_access::rw                >;  /**< GPIO alternate function low register  */
   using AFRH     = regdef< uint32_t, base_addr + 0x24, reg_access::rw                >;  /**< GPIO alternate function high register */
+
+  template<unsigned pin_no> using MODERx   = regbits< MODER  , pin_no * 2      , 2 >;
+  template<unsigned pin_no> using OTYPERx  = regbits< OTYPER , pin_no          , 1 >;
+  template<unsigned pin_no> using OSPEEDRx = regbits< OSPEEDR, pin_no * 2      , 2 >;
+  template<unsigned pin_no> using PUPDRx   = regbits< PUPDR  , pin_no * 2      , 2 >;
+  template<unsigned pin_no> using IDRx     = regbits< IDR    , pin_no          , 1 >;
+  template<unsigned pin_no> using ODRx     = regbits< ODR    , pin_no          , 1 >;
+  template<unsigned pin_no> using AFRLx    = regbits< AFRL   , pin_no * 4      , 4 >; /** pin_no = [0..7]   */
+  template<unsigned pin_no> using AFRHx    = regbits< AFRH   , (pin_no % 8) * 4, 4 >; /** pin_no = [8..15]  */
+
+  /**
+   * GPIO alternate function: returns AFRLx or AFRHx type dependent on pin_no.
+   *
+   * NOTE: this is not from the reference manual 
+   */
+  // TODO: use (and check) this in gpio.hpp!:
+  template<unsigned pin_no> using AFRx = typename std::conditional<
+    (pin_no < 8),
+    AFRLx<pin_no>,
+    AFRHx<pin_no>
+  >::type;
 };
 
 } } // namespace mptl::reg

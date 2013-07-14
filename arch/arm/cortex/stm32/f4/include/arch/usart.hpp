@@ -37,7 +37,7 @@ struct gpio_rx
   using resources = typename gpio_input_af<
     port,
     pin_no,
-    (usart::usart_no <= 3) ? 7 : 8, // alt_func_num
+    cfg::gpio::alt_func_num< (usart::usart_no <= 3) ? 7 : 8 >,
     cfg::gpio::resistor::floating
   >::resources;
 };
@@ -55,10 +55,10 @@ struct gpio_tx
   using resources = typename gpio_output_af<
     port,
     pin_no,
-    usart::usart_no <= 3 ? 7 : 8, // alt_func_num
+    cfg::gpio::alt_func_num< (usart::usart_no <= 3) ? 7 : 8 >,
     cfg::gpio::output_type::push_pull,
     cfg::gpio::resistor::floating,
-    mhz(50)
+    cfg::gpio::speed< mhz(50) >
   >::resources;
 };
 
