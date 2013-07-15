@@ -96,6 +96,9 @@
 namespace mptl {
 
 
+struct regmask_base { };
+
+
 ////////////////////  regmask  ////////////////////
 
 
@@ -103,7 +106,7 @@ template< typename R,    /* regdef<> type */
           typename R::value_type _set_mask,
           typename R::value_type _clear_mask = _set_mask
           >
-class regmask
+class regmask : regmask_base
 {
   static_assert(std::is_same<typename R::type, typename R::reg_type>::value, "template argument R is not of type: regdef<>");
   static_assert((_set_mask | _clear_mask) == _clear_mask, "clear_mask does not cover all bits of set_mask");
@@ -159,7 +162,7 @@ public:
    * Merge set_mask and clear_mask with the values of another regmask
    * type (Rm).
    */
-  template<typename Rm >
+  template<typename Rm>
   struct merge {
     static_assert(std::is_same<typename Rm::reg_type, reg_type>::value, "template argument is not of same regdef<> type");
 
@@ -168,6 +171,7 @@ public:
     static_assert(!((set_mask & Rm::clear_mask) & (~Rm::set_mask)), "set/clear check failed: clearing a bit which was previously set leads to undefined behaviour.");
 
     using type = regmask<reg_type, (set_mask | Rm::set_mask), (clear_mask | Rm::clear_mask)>;
+    //    using type = typename regmask_merge<mask_type, Rm>::type;
   };
 };
 
@@ -333,6 +337,31 @@ public:
     type::store((reset_value & ~merged_regmask::cropped_clear_mask) | merged_regmask::set_mask);
   }
 };
+
+
+namespace mpl {
+
+template<typename T0, typename T1>  // TODO: variadic args
+struct regmask_merge {
+  static_assert(std::is_same<typename T0::reg_type, typename T1::reg_type>::value, "template argument is not of same regdef<> type");
+
+  /* assert if we set a bit which was previously cleared (and vice versa) */
+  static_assert(!((T1::set_mask & T0::clear_mask) & (~T0::set_mask)), "set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour.");
+  static_assert(!((T0::set_mask & T1::clear_mask) & (~T1::set_mask)), "set/clear check failed: clearing a bit which was previously set leads to undefined behaviour.");
+
+  using type = regmask<typename T0::reg_type, (T0::set_mask | T1::set_mask), (T0::clear_mask | T1::clear_mask)>;
+};
+template<typename T0>
+struct regmask_merge<T0, void> {
+  using type = T0;
+};
+template<typename T1>
+struct regmask_merge<void, T1> {
+  using type = T1;
+};
+
+} // namespace mpl
+
 
 } // namespace mptl
 
