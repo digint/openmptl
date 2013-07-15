@@ -138,6 +138,10 @@ public:
   static constexpr value_type cropped_clear_mask = clear_mask & ~set_mask;
 
   static __always_inline void set() {
+#ifdef CONFIG_REALLY_RELY_ON_REGDEF_RESET_VALUES
+    // TODO: improvement: check for clear_mask covering ALL bits of
+    // our reg_type. if yes, use store() instead!
+#endif
     if((set_mask != 0) || (clear_mask != 0))  /* evaluated at compile-time */
       reg_type::set(set_mask, cropped_clear_mask);
   }
@@ -151,6 +155,10 @@ public:
     return set_mask == 0;
   }
 
+  /**
+   * Merge set_mask and clear_mask with the values of another regmask
+   * type (Rm).
+   */
   template<typename Rm >
   struct merge {
     static_assert(std::is_same<typename Rm::reg_type, reg_type>::value, "template argument is not of same regdef<> type");
