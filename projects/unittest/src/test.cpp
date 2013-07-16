@@ -27,6 +27,7 @@
 
 using namespace mptl;
 
+#if 0
 struct foreign_type { };
 
 struct A : regdef< uint32_t, 0x1000, reg_access::rw, 0 > {};
@@ -44,69 +45,33 @@ using list = resource::list<
   >;
 
 
-struct X : resource::typelist_element { };
-struct Y : resource::typelist_element { };
-struct Z : resource::typelist_element { };
-
-
 using list2 = resource::list<
   regmask<B, 0x11000000, 0xff000000>
   >;
 
 // using list3 = resource::list_cat< list, list2 >;
 
+#endif
+
+struct X : resource::typelist_element { };
+struct Y : resource::typelist_element { };
+struct Z : resource::typelist_element { };
+
+
 using list4 = resource::list< void, X, void, Y, void >;
-using list5 = resource::list< Z, list4, void >;
-using list6 = list5::append< list4 >;
+using list5 = resource::list< Z, list4, void, Z >;
+using list6 = list4::append< list5 >;
 
 // Hint: template debugging:
 template<typename T> struct incomplete;
-incomplete<list5::sane_type> debug;
+incomplete<list6> debug;
 
 void reg_reaction::react() { }
-
-struct regmask_filter
-{
-  template<typename T>
-  using filter = std::is_base_of<regmask_base, T>;
-};
-
-
-struct merge_transformation
-{
-  template<typename Rm>
-  struct filter_reg_type
-  {
-    template<typename T>
-    using filter = std::is_same<typename Rm::reg_type, typename T::reg_type>;
-  };
-
-  template<typename R, typename list_type>
-  struct transform {
-    using filtered_list = typename list_type::template filter< filter_reg_type<R> >::type;
-    using type = typename filtered_list::merge::type;
-  };
-};
-
-struct reg_reset_to
-{
-  template<typename list_element_type>
-  static void command(void) {  // TODO: __always_inline
-    list_element_type::reg_type::template reset_to< list_element_type >();
-  }
-};
 
 
 int main()
 {
 #if 0
-  using filtered_list = typename list3::filter<regmask_filter>::type;
-  using merged_type_list = filtered_list::template transform<merge_transformation>::type;
-  using unique_merged_type_list = typename merged_type_list::uniq::type;
-#endif
- 
-
-#if 1
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);
   assert(C::load() == 0);

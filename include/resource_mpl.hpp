@@ -45,22 +45,22 @@ struct list_cat_impl<L, R> {
 };
 
 
-////////////////////  expand  ////////////////////
+////////////////////  make_sane_list  ////////////////////
 
 
 template<typename list_type, typename... Tp>
-struct expand;
+struct make_sane_list;
 template<typename list_type>
-struct expand<list_type> {
+struct make_sane_list<list_type> {
   using type = list_type;
 };
 template<typename list_type, typename... Tp>
-struct expand<list_type, void, Tp...> {
-  using type = typename expand<list_type, Tp...>::type;
+struct make_sane_list<list_type, void, Tp...> {
+  using type = typename make_sane_list<list_type, Tp...>::type;
 };
 template<typename list_type, typename T0, typename... Tp>
-struct expand<list_type, T0, Tp...> {
-  using type = typename expand<typename list_type::template append<T0>, Tp...>::type;
+struct make_sane_list<list_type, T0, Tp...> {
+  using type = typename make_sane_list<typename list_type::template append<T0>, Tp...>::type;
 };
 
 

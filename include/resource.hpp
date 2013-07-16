@@ -44,21 +44,33 @@ template<typename L, typename... R>
 using list_cat = typename mpl::list_cat_impl<L, R...>::type;
 
 
-////////////////////  resource::list  ////////////////////
+////////////////////  sane_list  ////////////////////
+
 
 struct reglist_base
 {
   template<typename T, typename... U>
   struct _reglist_append {
-    using type = typename T::template push_front< U... >::sane_type;
+    using type = typename T::template push_front< U... >::type;
   };
 };
 
 
+/**
+ * NOTE: Don't use this class directly, use resource::list instead, which
+ * wraps into a sane_list.
+ *
+ * NOTE: This class treats all Tp identical, which means that
+ * "sane_list< A, sane_list<B> >" will not expand to sane_list<A, B>.
+ */
 template<typename... Tp>
-class list : public reglist_base
+class sane_list : public reglist_base
 {
-protected:
+  friend class reglist_base;
+  template<typename... T> friend class mpl::make_sane_list;
+  template<typename... T> friend class mpl::make_unique_list;
+
+private:
 
   template<typename T>
   struct is_base_of {
@@ -66,31 +78,39 @@ protected:
     using filter = std::is_base_of< T, Tf >;
   };
 
-public:
-  using type = list< Tp... >;
-  using sane_type = typename mpl::expand< list<>, Tp... >::type;
+  /* private, since "list::push_front< typelist< X > >" would not be a sane list */
+  template<typename... T>
+  using push_front = sane_list< T..., Tp... >;
 
+  /* private, since "list::push_back< typelist< X > >" would not be a sane list */
+  template<typename... T>
+  using push_back = sane_list< Tp..., T... >;
+
+public:
+  using type = sane_list< Tp... >;
+
+  /**
+   * Type trait, providing ::value. True if the list contains an
+   * element of type T, false otherwise.
+   */
   template<typename T>
   struct contains {
     static constexpr bool value = mpl::contains_impl< T, Tp... >::value;
   };
 
-  template<typename... T>
-  using push_back = list< Tp..., T... >;
-
-  template<typename... T>
-  using push_front = list< T..., Tp... >;
-
+  /**
+   * Append an element (derived from typelist_element) or another
+   * sane_list to the list.
+   */
   template<typename T>
   using append = typename T::template _reglist_append<T, Tp...>::type;
-
 
   /**
    * Generic filter, takes a condition_type type trait as argument (which must
    * provide "::type::value").
    */
   template<typename condition_type>
-  using filter = typename mpl::make_filtered_list< list<>, condition_type, Tp... >::type;
+  using filter = typename mpl::make_filtered_list< sane_list<>, condition_type, Tp... >::type;
 
   /**
    * Provides a list holding only elements with types are of class T,
@@ -103,16 +123,16 @@ public:
    * Provides a list filtered to hold at most one element of identical
    * type.
    *
-   * NOTE: this has nothing to do with the resource::unique<> class.
+   * NOTE: this is not related with the resource::unique<> class.
    */
-  using filter_unique = typename mpl::make_unique_list< list<>, Tp... >::type;
+  using filter_unique = typename mpl::make_unique_list< sane_list<>, Tp... >::type;
 
   /**
    * Provides a list, where each element Tp is replaced by:
    * "T::map<Tp, type>::type", where "type" is our list class type.
    */
   template<typename T>
-  using map = list< typename T::template map< Tp, type >::type... >;
+  using map = sane_list< typename T::template map< Tp, type >::type... >;
 
   /**
    * Provides the first element in list, or void if the list is
@@ -152,23 +172,32 @@ public:
 };
 
 
-#if 0
+////////////////////  list  ////////////////////
+
+
+/**
+ * MPL-style list, holding type traits.
+ * Automatically expands to sane_list.
+ *
+ * Example: the expression "list<A,void,list<B>>" is of type "sane_list<A,B>".
+ */
 template<typename... Tp>
-class list
-: public list_base,
-  public typename mpl::expand< list_impl<>, Tp... >::type
-{
-};
-#endif
+using list = typename mpl::make_sane_list< sane_list<>, Tp... >::type;
 
 
+////////////////////  typelist_element  ////////////////////
+
+
+/**
+ * Base type for all elements which want to be part of the
+ * self-expanding typelist.
+ */
 struct typelist_element {
   template<typename T, typename... Tp>
   struct _reglist_append {
-    using type = list<Tp..., T>;
+    using type = sane_list<Tp..., T>;
   };
 };
-
 
 } } // namespace mptl::resource
 
