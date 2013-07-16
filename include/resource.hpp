@@ -41,13 +41,7 @@ struct unique : mpl::unique_base
 
 
 template<typename L, typename... R>
-struct list_cat {
-  using type = typename L::type::template append_list< typename list_cat< typename R::type... >::type >::type;
-};
-template<typename L, typename R>
-struct list_cat<L, R> {
-  using type = typename L::type::template append_list< typename R::type >::type;
-};
+using list_cat = typename mpl::list_cat_impl<L, R...>::type;
 
 
 ////////////////////  resource::list  ////////////////////

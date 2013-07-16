@@ -32,6 +32,19 @@
 namespace mptl { namespace resource { namespace mpl {
 
 
+////////////////////  list_cat_impl  ////////////////////
+
+
+template<typename L, typename... R>
+struct list_cat_impl {
+  using type = typename L::type::template append_list< typename list_cat_impl< typename R::type... >::type >::type;
+};
+template<typename L, typename R>
+struct list_cat_impl<L, R> {
+  using type = typename L::type::template append_list< typename R::type >::type;
+};
+
+
 ////////////////////  make_filtered_list  ////////////////////
 
 
