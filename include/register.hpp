@@ -96,7 +96,11 @@
 namespace mptl {
 
 
-struct regmask_base { };
+/**
+ * Base class for regmask class. Used for filtering in resource::list.
+ */
+struct regmask_base
+{ };
 
 
 ////////////////////  regmask  ////////////////////
@@ -141,7 +145,7 @@ public:
   static constexpr value_type cropped_clear_mask = clear_mask & ~set_mask;
 
   static __always_inline void set() {
-#ifdef CONFIG_REALLY_RELY_ON_REGDEF_RESET_VALUES
+#ifndef CONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
     // TODO: improvement: check for clear_mask covering ALL bits of
     // our reg_type. if yes, use store() instead!
 #endif
@@ -366,6 +370,7 @@ public:
 ////////////////////  reg_configure  ////////////////////
 
 
+// TODO: better namespace for this
 namespace resource
 {
   namespace filter
@@ -412,17 +417,14 @@ namespace resource
       list_element_type::reg_type::template reset_to< list_element_type >();
     }
   };
+
+  struct reg_set {
+    template<typename list_element_type>
+    static void __always_inline command(void) {
+      list_element_type::set();
+    }
+  };
 } // namespace resource
-
-
-template<typename list_type>
-static void reg_configure() {
-    using regmask_list = typename list_type::template filter_type< regmask_base >::type;
-    using merged_list  = typename regmask_list::template map< resource::map_merged_regmask >::type;
-    using unique_merged_list = typename merged_list::filter_unique::type;
-
-    unique_merged_list::template for_each< resource::reg_reset_to >();
-}
 
 } // namespace mptl
 

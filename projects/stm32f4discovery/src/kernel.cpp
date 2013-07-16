@@ -18,8 +18,8 @@
  *
  */
 
+#include <arch/core.hpp>
 #include <terminal.hpp>
-#include <resource.hpp>
 #include "terminal_hooks.hpp"
 #include "kernel.hpp"
 
@@ -38,9 +38,8 @@ void Kernel::systick_isr() {
 
 void Kernel::init(void)
 {
-  //  resources::check();      /* check unique resources */
-  //  resources::configure();  /* configure resources (set all shared register) */
-  mptl::reg_configure<resources>();
+  resources::check();  /* check unique resources */
+  mptl::core::configure<resources>();  /* set all register from Kernel::resources<> */
 
   led_green ::off();
   led_orange::off();

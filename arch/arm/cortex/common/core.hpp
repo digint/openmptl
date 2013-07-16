@@ -21,6 +21,9 @@
 #ifndef ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 #define ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 
+#include <register.hpp>
+#include <resource.hpp>
+
 namespace mptl {
 
 struct core_asm
@@ -41,6 +44,26 @@ struct core_asm
   static void clrex()             { __asm volatile ("clrex"); }
 
   static void nop(unsigned value) { while(value--) nop(); }
+};
+
+
+struct core_config
+{
+  /**
+   * Call regdef::reset_to() on each distinct merged regmask from list.
+   */
+  template<typename list_type>
+  static void configure() {
+    using regmask_list = typename list_type::template filter_type< regmask_base >::type;
+    using merged_list  = typename regmask_list::template map< resource::map_merged_regmask >::type;
+    using unique_merged_list = typename merged_list::filter_unique::type;
+
+#ifdef CONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
+    unique_merged_list::template for_each< resource::reg_set >();
+#else
+    unique_merged_list::template for_each< resource::reg_reset_to >();
+#endif
+}
 };
 
 } // namespace mptl

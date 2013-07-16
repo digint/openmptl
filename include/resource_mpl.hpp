@@ -133,6 +133,40 @@ struct unique_element_impl<T> {
   using type = T;
 };
 
+
+////////////////////  unique_check_impl  ////////////////////
+
+
+struct unique_base
+{ };
+
+/**
+ * Returns the first element in list, or void if list is
+ * empty. Asserts if more than one element is in list.
+ */
+template<typename Tp>
+struct unique_check_impl {
+
+  template<typename T>
+  struct filter_real_type {
+    template<typename Tf>
+    using filter = std::is_same< typename T::real_type, typename Tf::real_type >;
+  };
+
+  struct map_unique {
+    template<typename T, typename list_type>
+    struct map {
+      /* filter list by real_type, and map to unique_element */
+      using filtered_list = typename list_type::template filter_type< filter_real_type<T> >::type;
+      using type = typename filtered_list::unique_element::type;
+    };
+  };
+
+  using filtered_list = typename Tp::template filter_type< unique_base >::type;
+  using type = typename filtered_list::template map< map_unique >::type;
+  static constexpr bool value = std::is_void<type>::value;
+};
+
 } } } // namespace mptl::resource::mpl
 
 #endif // RESOURCE_MPL_HPP_INCLUDED

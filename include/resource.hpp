@@ -31,8 +31,10 @@ namespace mptl { namespace resource {
 
 
 template<typename T>
-struct unique
-{ };
+struct unique : mpl::unique_base
+{
+  using real_type = T;
+};
 
 
 ////////////////////  list_cat  ////////////////////
@@ -132,6 +134,16 @@ public:
   template<typename T>
   static void for_each(void) {
     mpl::for_each_impl<T, Tp...>::command();
+  }
+
+  /**
+   * Check if elements derived from resource::unique class are really
+   * unique in the list.
+   */
+  static bool check(void) {
+    using unique_check = typename mpl::unique_check_impl< type >;
+    // TODO: fix this
+    return true;
   }
 };
 
