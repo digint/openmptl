@@ -55,10 +55,11 @@ template<typename... Tp>
 class list
 {
 protected:
-  template<typename filter_type>
+
+  template<typename T>
   struct is_base_of {
-    template<typename T>
-    using filter = std::is_base_of< filter_type, T >;
+    template<typename Tf>
+    using filter = std::is_base_of< T, Tf >;
   };
 
 public:
@@ -101,28 +102,36 @@ public:
   using filter_unique = typename mpl::make_unique_list< list<>, Tp... >::type;
 
   /**
-   * Provides a list, where each element is replaced by:
-   * "transform_type::transform<T, list_type>::type".
+   * Provides a list, where each element Tp is replaced by:
+   * "T::map<Tp, type>::type", where "type" is our list class type.
    */
-  template<typename transform_type>
-  using transform = list< typename transform_type::template transform< Tp, type >::type... >;
-
-  struct merge {
-    using type = typename mpl::merge_impl< Tp... >::type;
-  };
+  template<typename T>
+  using map = list< typename T::template map< Tp, type >::type... >;
 
   /**
-   * Provides "type", holding the first element in list, or void if
-   * list is empty. Asserts at compile-time if the list holds more
+   * Provides the first element in list, or void if the list is
+   * empty. Asserts at compile-time that the list does not hold more
    * than one element.
    */
   struct unique_element {
     using type = typename mpl::unique_element_impl<Tp...>::type;
   };
 
-  template<typename cmd_type>
+  /**
+   * Provides a type defined by T::pack<...>::type, by passing all elements
+   * to: "T::pack<Tp...>".
+   */
+  template<typename T>
+  struct pack {
+    using type = typename T::template pack< Tp... >::type;
+  };
+
+  /**
+   * Calls static function T::command() for each element Tp.
+   */
+  template<typename T>
   static void for_each(void) {
-    mpl::for_each_impl<cmd_type, Tp...>::command();
+    mpl::for_each_impl<T, Tp...>::command();
   }
 };
 

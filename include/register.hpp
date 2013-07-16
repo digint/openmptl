@@ -228,6 +228,30 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
 };
 
 
+////////////////////  merged_regmask  ////////////////////
+
+
+template<typename... Tp>
+struct merged_regmask;
+
+template<>
+struct merged_regmask<> {
+  using type = void;
+};
+template<typename Tp>
+struct merged_regmask<Tp> {
+  using type = Tp;
+};
+template<typename... Tp>
+struct merged_regmask<void, Tp...> {
+  using type = typename merged_regmask<Tp...>::type;
+};
+template<typename T0, typename... Tp>
+struct merged_regmask<T0, Tp...> {
+  using type = typename T0::mask_type::template merge< typename merged_regmask<Tp...>::type >::type;
+};
+
+
 ////////////////////  regval  ////////////////////
 
 
@@ -306,7 +330,7 @@ public:
 
   template<typename Rm0, typename... Rm>
   struct merge {
-    using type = typename resource::list<Rm0, Rm...>::merge::type; // TODO: don't use resource here (circular depend)
+    using type = typename merged_regmask<Rm0, Rm...>::type;
     static_assert(std::is_same<typename type::reg_type, reg_type>::value, "merged template arguments have different regdef<> type");
   };
 
@@ -338,65 +362,66 @@ public:
   }
 };
 
-#if 0
-namespace mpl {
 
-template<typename T0, typename T1>  // TODO: variadic args
-struct regmask_merge {
-  static_assert(std::is_same<typename T0::reg_type, typename T1::reg_type>::value, "template argument is not of same regdef<> type");
+////////////////////  reg_configure  ////////////////////
 
-  /* assert if we set a bit which was previously cleared (and vice versa) */
-  static_assert(!((T1::set_mask & T0::clear_mask) & (~T0::set_mask)), "set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour.");
-  static_assert(!((T0::set_mask & T1::clear_mask) & (~T1::set_mask)), "set/clear check failed: clearing a bit which was previously set leads to undefined behaviour.");
 
-  using type = regmask<typename T0::reg_type, (T0::set_mask | T1::set_mask), (T0::clear_mask | T1::clear_mask)>;
-};
-template<typename T0>
-struct regmask_merge<T0, void> {
-  using type = T0;
-};
-template<typename T1>
-struct regmask_merge<void, T1> {
-  using type = T1;
-};
+namespace resource
+{
+  namespace filter
+  {
+    /**
+     * Provides a list, whose types all share the same underlying
+     * reg_type = Tp
+     */
+    template<typename Tp>
+    struct reg_type {
+      template<typename Tf>
+      using filter = std::is_same< typename Tp::reg_type, typename Tf::reg_type >;
+    };
+  } // namespace filter
 
-} // namespace mpl
-#endif
 
-// TODO: namespace
-  struct filter_regmask {
-    template<typename T>
-    using filter = std::is_base_of< regmask_base, T >;
+  /**
+   * Packs elements to a merged_regmask. Note that merged_regmask<>
+   * asserts at compile-time that the underlying reg_types are
+   * identical.
+   */
+  struct pack_merged_regmask {
+    template<typename... Tp>
+    struct pack {
+      using type = typename merged_regmask<Tp...>::type;
+    };
   };
 
-  template<typename Rm>
-  struct filter_reg_type {
-    template<typename T>
-    using filter = std::is_same< typename Rm::reg_type, typename T::reg_type >;
-  };
-
-  struct merge_transformation {
+  /**
+   * Map each element in list to a merged_regmask of all elements in
+   * list having the same reg_type.
+   */
+  struct map_merged_regmask {
     template<typename T, typename list_type>
-    struct transform {
-      using filtered_list = typename list_type::template filter< filter_reg_type<T> >::type;
-      using type = typename filtered_list::merge::type;
+    struct map {
+      using filtered_list = typename list_type::template filter< filter::reg_type<T> >::type;
+      using type = typename filtered_list::template pack< pack_merged_regmask >::type;
     };
   };
 
   struct reg_reset_to {
     template<typename list_element_type>
-    static void command(void) {  // TODO: __always_inline
+    static void __always_inline command(void) {
       list_element_type::reg_type::template reset_to< list_element_type >();
     }
   };
+} // namespace resource
+
 
 template<typename list_type>
 static void reg_configure() {
-    using filtered_list = typename list_type::template filter< filter_regmask >::type;
-    using merged_type_list = typename filtered_list::template transform<merge_transformation>::type;
-    using unique_merged_type_list = typename merged_type_list::filter_unique::type;
+    using regmask_list = typename list_type::template filter_type< regmask_base >::type;
+    using merged_list  = typename regmask_list::template map< resource::map_merged_regmask >::type;
+    using unique_merged_list = typename merged_list::filter_unique::type;
 
-    unique_merged_type_list::template for_each< reg_reset_to >();
+    unique_merged_list::template for_each< resource::reg_reset_to >();
 }
 
 } // namespace mptl

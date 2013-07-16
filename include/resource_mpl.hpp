@@ -31,22 +31,9 @@
 
 namespace mptl { namespace resource { namespace mpl {
 
-template<typename... Args>
-struct merge_impl {
-  /* note: assertion needs to be dependent of template parameter */
-  // static_assert(sizeof...(Args), "cannot merge an empty argument list");
-  using type = void;
-};
 
-template<typename Front, typename... Args>
-struct merge_impl<Front, Args...> {
-  using type = typename Front::template merge< typename merge_impl<Args...>::type >::type;
-};
+////////////////////  make_filtered_list  ////////////////////
 
-template<typename Front>
-struct merge_impl<Front> {
-  using type = Front;
-};
 
 template<typename list_type, typename condition_type, typename... Args>
 struct make_filtered_list;
@@ -76,6 +63,9 @@ struct make_filtered_list<list_type, condition_type> {
 };
 
 
+////////////////////  make_unique_list  ////////////////////
+
+
 template<typename list_type, typename... Args>
 struct make_unique_list;
 
@@ -95,6 +85,9 @@ struct make_unique_list<list_type, Head, Args...> {
 };
 
 
+////////////////////  for_each_impl  ////////////////////
+
+
 template<typename cmd_type, typename... Args>
 struct for_each_impl {
   static void command() { }
@@ -108,6 +101,9 @@ struct for_each_impl<cmd_type, Head, Args...> {
 };
 
 
+////////////////////  contains_impl  ////////////////////
+
+
 template<typename T, typename... Args>
 struct contains_impl {
   static constexpr bool value = false;
@@ -118,6 +114,9 @@ struct contains_impl<T, Head, Args...>
   static constexpr bool value = ( std::is_same<Head, T>::value ||
                                   contains_impl<T, Args...>::value );
 };
+
+
+////////////////////  unique_element_impl  ////////////////////
 
 
 /**

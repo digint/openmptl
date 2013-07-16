@@ -258,7 +258,7 @@ public:
 
     /* Filter CFG by reg_type, append neutral regmask, and merge it */
     using list_type = resource::list<typename CFG::template regmask_type<type>...>;
-    using filtered = typename list_type::template filter< mptl::filter_reg_type<reg_type> >::type;
+    using filtered = typename list_type::template filter< resource::filter::reg_type<reg_type> >::type;
     using filtered_neutral = typename filtered::template push_back< neutral_regmask >::type;
     using merged_regmask_type = typename filtered_neutral::merge::type;
 
