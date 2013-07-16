@@ -18,6 +18,7 @@
  *
  */
 
+#include <arch/core.hpp>
 #include <resource.hpp>
 #include <register.hpp>
 
@@ -27,7 +28,9 @@
 
 using namespace mptl;
 
-#if 0
+void reg_reaction::react() { }
+
+#if 1
 struct foreign_type { };
 
 struct A : regdef< uint32_t, 0x1000, reg_access::rw, 0 > {};
@@ -35,9 +38,8 @@ struct B : regdef< uint32_t, 0x2000, reg_access::rw, 0x44444444 > {};
 struct C : regdef< uint8_t,  0x3000, reg_access::rw, 0 > {};
 struct D : regdef< uint32_t, 0x4000, reg_access::rw, 0x55555555 > {};
 
-using list = resource::list<
+using list = typelist<
   regmask<A, 0x00000011, 0x000000ff>,
-  foreign_type,
   regmask<A, 0x00001100, 0x0000ff00>,
   regmask<B, 0x00110000, 0x00ff0000>,
   regmask<A, 0x11000000, 0xff000000>,
@@ -45,7 +47,7 @@ using list = resource::list<
   >;
 
 
-using list2 = resource::list<
+using list2 = typelist<
   regmask<B, 0x11000000, 0xff000000>
   >;
 
@@ -53,25 +55,26 @@ using list2 = resource::list<
 
 #endif
 
-struct X : resource::typelist_element { };
-struct Y : resource::typelist_element { };
-struct Z : resource::typelist_element { };
+struct X : typelist_element { };
+struct Y : typelist_element { };
+struct Z : typelist_element { };
 
 
-using list4 = resource::list< void, X, void, Y, void >;
-using list5 = resource::list< Z, list4, void, Z >;
-using list6 = list4::append< list5 >;
+using list4 = typelist< void, X, void, Y, void >;
+using list5 = typelist< Z, list4, void, Z >;
+/* NOTE: append<> is not allowed, see note about friends in typelist.hpp */
+using list6 = list4::append< list5 >; 
 
 // Hint: template debugging:
+#if 0
 template<typename T> struct incomplete;
-incomplete<list6> debug;
-
-void reg_reaction::react() { }
+incomplete<list5> debug;
+#endif
 
 
 int main()
 {
-#if 0
+#if 1
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);
   assert(C::load() == 0);
@@ -81,7 +84,7 @@ int main()
   /* set all shared register from list */
   unique_merged_type_list::template for_each< reg_reset_to >();
 #else
-  reg_configure<list>();
+  mptl::core::configure<list>();
 #endif
 
   assert(A::load() == 0x11001111);

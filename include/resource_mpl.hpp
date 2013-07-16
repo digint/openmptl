@@ -29,11 +29,12 @@
 //template<typename T> struct incomplete;
 //incomplete<bad_type> debug;
 
-namespace mptl { namespace resource { namespace mpl {
+namespace mptl { namespace mpl {
 
 
 ////////////////////  list_cat_impl  ////////////////////
 
+#if 0 // disabled: use typelist< Tp... > instead.
 
 template<typename L, typename... R>
 struct list_cat_impl {
@@ -44,23 +45,45 @@ struct list_cat_impl<L, R> {
   using type = typename L::type::template append_list< typename R::type >::type;
 };
 
+#endif // disabled
 
-////////////////////  make_sane_list  ////////////////////
+
+////////////////////  make_typelist  ////////////////////
 
 
+/**
+ * Create a typelist by successively adding elements to the provided
+ * "list_type<Tp...>".
+ *
+ * NOTE: this removes any void types in the list.
+ *
+ * NOTE: used in combination with "sane_typelist<Tp...>::append<T>"
+ * and the "_typelist_append<T, Tp...>" types to automatically unfold
+ * lists of lists. (meditate a bit...)
+ *
+ * Usage:
+ *
+ *     mpl::make_typelist< list_type<>, Tp... >::type;
+ *
+ * Template arguments:
+ *
+ *   - list_type<>: must implement the "append< Tp >" trait.
+ *   - Tp...      : any type derived by typelist_element.
+ *
+ */
 template<typename list_type, typename... Tp>
-struct make_sane_list;
+struct make_typelist;
 template<typename list_type>
-struct make_sane_list<list_type> {
+struct make_typelist<list_type> {
   using type = list_type;
 };
 template<typename list_type, typename... Tp>
-struct make_sane_list<list_type, void, Tp...> {
-  using type = typename make_sane_list<list_type, Tp...>::type;
+struct make_typelist<list_type, void, Tp...> {
+  using type = typename make_typelist<list_type, Tp...>::type;
 };
 template<typename list_type, typename T0, typename... Tp>
-struct make_sane_list<list_type, T0, Tp...> {
-  using type = typename make_sane_list<typename list_type::template append<T0>, Tp...>::type;
+struct make_typelist<list_type, T0, Tp...> {
+  using type = typename make_typelist<typename list_type::template append<T0>, Tp...>::type;
 };
 
 
@@ -199,6 +222,6 @@ struct unique_check_impl {
   static constexpr bool value = std::is_void<type>::value;
 };
 
-} } } // namespace mptl::resource::mpl
+} } // namespace mptl::mpl
 
 #endif // RESOURCE_MPL_HPP_INCLUDED

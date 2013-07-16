@@ -24,53 +24,47 @@
 #include <type_traits>
 #include "resource_mpl.hpp"
 
-namespace mptl { namespace resource {
+namespace mptl {
 
-
-////////////////////  unique  ////////////////////
-
-
-template<typename T>
-struct unique : mpl::unique_base
-{
-  using real_type = T;
-};
-
-
-////////////////////  list_cat  ////////////////////
-
-
-template<typename L, typename... R>
-using list_cat = typename mpl::list_cat_impl<L, R...>::type;
-
-
-////////////////////  sane_list  ////////////////////
-
-
-struct reglist_base
-{
-  template<typename T, typename... U>
-  struct _reglist_append {
-    using type = typename T::template push_front< U... >::type;
-  };
-};
+////////////////////  sane_typelist  ////////////////////
 
 
 /**
  * NOTE: Don't use this class directly, use resource::list instead, which
- * wraps into a sane_list.
+ * wraps into a sane_typelist.
  *
  * NOTE: This class treats all Tp identical, which means that
- * "sane_list< A, sane_list<B> >" will not expand to sane_list<A, B>.
+ * "sane_typelist< A, sane_typelist<B> >" will not expand to sane_typelist<A, B>.
+ *
  */
 template<typename... Tp>
-class sane_list : public reglist_base
+class sane_typelist
 {
-  friend class reglist_base;
-  template<typename... T> friend class mpl::make_sane_list;
-  template<typename... T> friend class mpl::make_unique_list;
-
-private:
+  /**
+   * firends are *DISABLED* by default, this is subject to change.
+   *
+   * friends, hmpf. needed to hide the "_typelist_append<T, Tp...>"
+   * traits from the list element types. We try to be nice and don't
+   * pollute the namespace of every type derived from the
+   * typelist_element class.
+   *
+   * But then, we hide the append<> trait from the user. well, he
+   * still can use "list<list<A>, B>" instead of
+   * "list<A>::append<B>". (which is usually all you need for mpl)
+   *
+   * If you know of a nicer way to unfold "typelist<A,typelist<B>>" into
+   * "typelist<A,B>", please contact me!
+   *
+   * TODO: note about boost and why we don't use it here.
+   */
+#ifdef CONFIG_USE_FRIENDS
+  template<typename...>                       friend class  sane_typelist;
+  template<typename, typename...>             friend struct mpl::make_typelist;
+  template<typename, typename... T>           friend struct mpl::make_unique_list;
+  template<typename, typename, typename... T> friend struct mpl::make_filtered_list;
+#else
+public: // see note about friends above
+#endif
 
   template<typename T>
   struct is_base_of {
@@ -78,16 +72,37 @@ private:
     using filter = std::is_base_of< T, Tf >;
   };
 
+  template<typename T, typename... U>
+  struct _typelist_append {
+    using type = typename T::template push_front< U... >::type;
+  };
+
   /* private, since "list::push_front< typelist< X > >" would not be a sane list */
   template<typename... T>
-  using push_front = sane_list< T..., Tp... >;
+  using push_front = sane_typelist< T..., Tp... >;
 
   /* private, since "list::push_back< typelist< X > >" would not be a sane list */
   template<typename... T>
-  using push_back = sane_list< Tp..., T... >;
+  using push_back = sane_typelist< Tp..., T... >;
 
 public:
-  using type = sane_list< Tp... >;
+
+  using type = sane_typelist< Tp... >;
+
+  /**
+   * Append an element (derived from typelist_element) or another
+   * sane_typelist to the list.
+   *
+   * Note that the append<> trait is required by the list_type<> in:
+   *
+   *     mpl::make_typelist< list_type, Tp... >
+   *
+   * which sanitizes and performss recursive unfolding (e.g. unfold
+   * list of lists using the "::append<>" trait to successively
+   * add elements to the (initially empty) list provided.
+   */
+  template<typename T>
+  using append = typename T::template _typelist_append<T, Tp...>::type;
 
   /**
    * Type trait, providing ::value. True if the list contains an
@@ -99,18 +114,11 @@ public:
   };
 
   /**
-   * Append an element (derived from typelist_element) or another
-   * sane_list to the list.
-   */
-  template<typename T>
-  using append = typename T::template _reglist_append<T, Tp...>::type;
-
-  /**
    * Generic filter, takes a condition_type type trait as argument (which must
    * provide "::type::value").
    */
   template<typename condition_type>
-  using filter = typename mpl::make_filtered_list< sane_list<>, condition_type, Tp... >::type;
+  using filter = typename mpl::make_filtered_list< sane_typelist<>, condition_type, Tp... >::type;
 
   /**
    * Provides a list holding only elements with types are of class T,
@@ -125,14 +133,14 @@ public:
    *
    * NOTE: this is not related with the resource::unique<> class.
    */
-  using filter_unique = typename mpl::make_unique_list< sane_list<>, Tp... >::type;
+  using filter_unique = typename mpl::make_unique_list< sane_typelist<>, Tp... >::type;
 
   /**
    * Provides a list, where each element Tp is replaced by:
    * "T::map<Tp, type>::type", where "type" is our list class type.
    */
   template<typename T>
-  using map = sane_list< typename T::template map< Tp, type >::type... >;
+  using map = sane_typelist< typename T::template map< Tp, type >::type... >;
 
   /**
    * Provides the first element in list, or void if the list is
@@ -177,12 +185,12 @@ public:
 
 /**
  * MPL-style list, holding type traits.
- * Automatically expands to sane_list.
+ * Automatically expands to sane_typelist.
  *
- * Example: the expression "list<A,void,list<B>>" is of type "sane_list<A,B>".
+ * Example: the expression "typelist<A,void,typelist<B>>" is of type "sane_typelist<A,B>".
  */
 template<typename... Tp>
-using list = typename mpl::make_sane_list< sane_list<>, Tp... >::type;
+using typelist = typename mpl::make_typelist< sane_typelist<>, Tp... >::type;
 
 
 ////////////////////  typelist_element  ////////////////////
@@ -192,13 +200,41 @@ using list = typename mpl::make_sane_list< sane_list<>, Tp... >::type;
  * Base type for all elements which want to be part of the
  * self-expanding typelist.
  */
-struct typelist_element {
+class typelist_element {
+#ifdef CONFIG_USE_FRIENDS
+  template<typename...>                       friend class  sane_typelist;
+  template<typename, typename...>             friend struct mpl::make_typelist;
+  template<typename, typename... T>           friend struct mpl::make_unique_list;
+  template<typename, typename, typename... T> friend struct mpl::make_filtered_list;
+#else
+public: // see note about friends above
+#endif
   template<typename T, typename... Tp>
-  struct _reglist_append {
-    using type = sane_list<Tp..., T>;
+  struct _typelist_append {
+    using type = sane_typelist<Tp..., T>;
   };
 };
 
-} } // namespace mptl::resource
+
+////////////////////  unique  ////////////////////
+
+
+template<typename T>
+struct unique : typelist_element, mpl::unique_base
+{
+  using real_type = T;
+};
+
+
+////////////////////  list_cat  ////////////////////
+
+#if 0 // disabled: use typelist< Tp... > instead.
+
+template<typename L, typename... R>
+using list_cat = typename mpl::list_cat_impl<L, R...>::type;
+
+#endif // disabled
+
+} // namespace mptl
 
 #endif // RESOURCE_HPP_INCLUDED

@@ -18,6 +18,7 @@
  *
  */
 
+#include <arch/core.hpp>
 #include <resource.hpp>
 #include <register.hpp>
 
@@ -32,42 +33,42 @@ struct B : regdef< uint32_t, 0x2000, reg_access::rw, 0x44444444 > {};
 struct C : regdef< uint8_t,  0x3000, reg_access::rw, 0 > {};
 struct D : regdef< uint32_t, 0x4000, reg_access::rw, 0x55555555 > {};
 
-typedef resource::reg_shared< regmask<A, 0x00000011, 0x000000ff> > test_a_0;
-typedef resource::reg_shared< regmask<A, 0x00001100, 0x0000ff00> > test_a_1;
-typedef resource::reg_shared< regmask<B, 0x00110000, 0x00ff0000> > test_b;
-typedef resource::reg_shared< regmask<A, 0x11000000, 0xff000000> > test_a_2;
-typedef resource::reg_shared< regmask<C, 0x10,       0xff      > > test_c;
+using test_a_0 = regmask< A, 0x00000011, 0x000000ff >;
+using test_a_1 = regmask< A, 0x00001100, 0x0000ff00 >;
+using test_b   = regmask< B, 0x00110000, 0x00ff0000 >;
+using test_a_2 = regmask< A, 0x11000000, 0xff000000 >;
+using test_c   = regmask< C, 0x10,       0xff       >;
 
-typedef resource::reg_shared< regmask<A, 0x00000000, 0x00000010> > anti_test_a_0; /* clears a bit which is set by test_a_0 */
+using anti_test_a_0 = regmask< A, 0x00000000, 0x00000010 >; /* clears a bit which is set by test_a_0 */
 
-typedef resource::unique< A > uniq_a;
-typedef resource::unique< B > uniq_b;
-typedef resource::unique< C > uniq_c;
-typedef resource::unique< D > uniq_d;
+using uniq_a = unique< A >;
+using uniq_b = unique< B >;
+using uniq_c = unique< C >;
+using uniq_d = unique< D >;
 
-typedef resource::list <
+using list = typelist <
   void,
   uniq_a,
-  resource::list<
-    resource::list<
+  typelist<
+    typelist<
       test_a_0,
       test_a_1,
       test_b
       >
     >,
   test_a_1,
-  resource::list<
+  typelist<
     uniq_b
     >,
   uniq_c,
   uniq_d,
   void,
-  resource::list<
+  typelist<
     void
     >,
-  resource::list<
+  typelist<
     test_b,
-    resource::list<
+    typelist<
       test_a_2
       >,
     void,
@@ -75,10 +76,10 @@ typedef resource::list <
     >,
   test_c,
   void
-  > list;
+  >;
 
-typedef resource::list < list, uniq_c > uniq_fail_list;
-typedef resource::list < anti_test_a_0, list > bitmask_fail_list;
+using uniq_fail_list    = typelist < list, uniq_c >;
+using bitmask_fail_list = typelist < anti_test_a_0, list >;
 
 void reg_reaction::react() { }
 
@@ -88,7 +89,7 @@ int main()
   list::check();
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: resource::list contains a resource derived from unique_resource (-> uniq_c) which is not unique.
+  // fail: typelist contains a resource derived from unique_resource (-> uniq_c) which is not unique.
   uniq_fail_list::check();
 #endif
 
@@ -103,7 +104,7 @@ int main()
   assert(D::load() == 0x55555555);
 
   /* set all shared register from list */
-  list::configure();
+  mptl::core::configure<list>();
 
   assert(A::load() == 0x11001111);
   assert(B::load() == 0x44114444);

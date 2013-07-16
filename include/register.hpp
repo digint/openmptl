@@ -100,6 +100,7 @@ namespace mptl {
  * Base class for regmask class. Used for filtering in resource::list.
  */
 struct regmask_base
+: public typelist_element // TODO: think about deriving from a tag_type, or template args for switching unique tag.
 { };
 
 
@@ -110,7 +111,7 @@ template< typename R,    /* regdef<> type */
           typename R::value_type _set_mask,
           typename R::value_type _clear_mask = _set_mask
           >
-class regmask : regmask_base
+class regmask : public regmask_base
 {
   static_assert(std::is_same<typename R::type, typename R::reg_type>::value, "template argument R is not of type: regdef<>");
   static_assert((_set_mask | _clear_mask) == _clear_mask, "clear_mask does not cover all bits of set_mask");
