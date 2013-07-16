@@ -46,9 +46,17 @@ using list_cat = typename mpl::list_cat_impl<L, R...>::type;
 
 ////////////////////  resource::list  ////////////////////
 
+struct reglist_base
+{
+  template<typename T, typename... U>
+  struct _reglist_append {
+    using type = typename T::template push_front< U... >::sane_type;
+  };
+};
+
 
 template<typename... Tp>
-class list
+class list : public reglist_base
 {
 protected:
 
@@ -60,6 +68,7 @@ protected:
 
 public:
   using type = list< Tp... >;
+  using sane_type = typename mpl::expand< list<>, Tp... >::type;
 
   template<typename T>
   struct contains {
@@ -69,11 +78,12 @@ public:
   template<typename... T>
   using push_back = list< Tp..., T... >;
 
-  template<typename T>
-  using append_list = typename T::template push_front< Tp... >;
-
   template<typename... T>
   using push_front = list< T..., Tp... >;
+
+  template<typename T>
+  using append = typename T::template _reglist_append<T, Tp...>::type;
+
 
   /**
    * Generic filter, takes a condition_type type trait as argument (which must
@@ -140,6 +150,25 @@ public:
     return true;
   }
 };
+
+
+#if 0
+template<typename... Tp>
+class list
+: public list_base,
+  public typename mpl::expand< list_impl<>, Tp... >::type
+{
+};
+#endif
+
+
+struct typelist_element {
+  template<typename T, typename... Tp>
+  struct _reglist_append {
+    using type = list<Tp..., T>;
+  };
+};
+
 
 } } // namespace mptl::resource
 

@@ -45,6 +45,25 @@ struct list_cat_impl<L, R> {
 };
 
 
+////////////////////  expand  ////////////////////
+
+
+template<typename list_type, typename... Tp>
+struct expand;
+template<typename list_type>
+struct expand<list_type> {
+  using type = list_type;
+};
+template<typename list_type, typename... Tp>
+struct expand<list_type, void, Tp...> {
+  using type = typename expand<list_type, Tp...>::type;
+};
+template<typename list_type, typename T0, typename... Tp>
+struct expand<list_type, T0, Tp...> {
+  using type = typename expand<typename list_type::template append<T0>, Tp...>::type;
+};
+
+
 ////////////////////  make_filtered_list  ////////////////////
 
 

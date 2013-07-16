@@ -44,13 +44,24 @@ using list = resource::list<
   >;
 
 
+struct X : resource::typelist_element { };
+struct Y : resource::typelist_element { };
+struct Z : resource::typelist_element { };
+
 
 using list2 = resource::list<
   regmask<B, 0x11000000, 0xff000000>
   >;
 
-using list3 = resource::list_cat< list, list2 >;
+// using list3 = resource::list_cat< list, list2 >;
 
+using list4 = resource::list< void, X, void, Y, void >;
+using list5 = resource::list< Z, list4, void >;
+using list6 = list5::append< list4 >;
+
+// Hint: template debugging:
+template<typename T> struct incomplete;
+incomplete<list5::sane_type> debug;
 
 void reg_reaction::react() { }
 
