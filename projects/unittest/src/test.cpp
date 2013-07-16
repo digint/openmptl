@@ -20,7 +20,6 @@
 
 #include <resource.hpp>
 #include <register.hpp>
-#include <register_list.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -35,7 +34,7 @@ struct B : regdef< uint32_t, 0x2000, reg_access::rw, 0x44444444 > {};
 struct C : regdef< uint8_t,  0x3000, reg_access::rw, 0 > {};
 struct D : regdef< uint32_t, 0x4000, reg_access::rw, 0x55555555 > {};
 
-using list = reglist<
+using list = resource::list<
   regmask<A, 0x00000011, 0x000000ff>,
   foreign_type,
   regmask<A, 0x00001100, 0x0000ff00>,
@@ -44,49 +43,56 @@ using list = reglist<
   regmask<C, 0x10,       0xff      >
   >;
 
+
+
+using list2 = resource::list<
+  regmask<B, 0x11000000, 0xff000000>
+  >;
+
+using list3 = resource::list_cat< list, list2 >;
+
+
 void reg_reaction::react() { }
 
 struct regmask_filter
 {
   template<typename T>
-  struct filter {
-    static constexpr bool value = std::is_base_of<regmask_base, T>::value;
-  };
+  using filter = std::is_base_of<regmask_base, T>;
 };
 
 
 struct merge_transformation
 {
   template<typename Rm>
-  struct filter_condition
+  struct filter_reg_type
   {
     template<typename T>
-    struct filter {
-      static constexpr bool value = std::is_same<typename Rm::reg_type, typename T::reg_type>::value;
-    };
+    using filter = std::is_same<typename Rm::reg_type, typename T::reg_type>;
   };
 
-  template<typename R, typename reglist_type>
+  template<typename R, typename list_type>
   struct transform {
-    using filtered_list = typename reglist_type::template filter< filter_condition<R> >::type;
+    using filtered_list = typename list_type::template filter< filter_reg_type<R> >::type;
     using type = typename filtered_list::merge::type;
   };
 };
 
-struct reset_register_new
+struct reg_reset_to
 {
-  template<typename R, typename reglist_type>
-  static void shoot(void) {
-    R::reg_type::template reset_to< R >();
+  template<typename list_element_type>
+  static void command(void) {  // TODO: __always_inline
+    list_element_type::reg_type::template reset_to< list_element_type >();
   }
 };
 
 
 int main()
 {
-  using filtered_list = list::filter<regmask_filter>::type;
+#if 0
+  using filtered_list = typename list3::filter<regmask_filter>::type;
   using merged_type_list = filtered_list::template transform<merge_transformation>::type;
   using unique_merged_type_list = typename merged_type_list::uniq::type;
+#endif
  
 
 #if 1
@@ -95,8 +101,12 @@ int main()
   assert(C::load() == 0);
   assert(D::load() == 0x55555555);
 
+#if 0
   /* set all shared register from list */
-  unique_merged_type_list::template execute<reset_register_new>();
+  unique_merged_type_list::template for_each< reg_reset_to >();
+#else
+  reg_configure<list>();
+#endif
 
   assert(A::load() == 0x11001111);
   assert(B::load() == 0x44114444);

@@ -21,45 +21,103 @@
 #ifndef RESOURCE_HPP_INCLUDED
 #define RESOURCE_HPP_INCLUDED
 
-#include "resource_mpl.hpp"
 #include <isr.hpp>  // isr_t
 #include <type_traits>
-#include <compiler.h>
 
 namespace mptl { namespace resource {
 
+namespace mpl {
 
-////////////////////  reg_shared  ////////////////////
+template<typename... Args>
+struct merge_impl {
+  /* note: assertion needs to be dependent of template parameter */
+  // static_assert(sizeof...(Args), "cannot merge an empty argument list");
+  using type = void;
+};
+
+template<typename Front, typename... Args>
+struct merge_impl<Front, Args...> {
+  using type = typename Front::template merge< typename merge_impl<Args...>::type >::type;
+};
+
+template<typename Front>
+struct merge_impl<Front> {
+  using type = Front;
+};
+
+template<typename list_type, typename condition_type, typename... Args>
+struct make_filtered_list;
+
+template<typename list_type, typename condition_type, typename... Args>
+struct make_filtered_list<list_type, condition_type, void, Args...> {
+  /* filter out "void" list member */
+  using type = typename make_filtered_list<list_type, condition_type, Args...>::type;
+};
+
+template<typename list_type, typename condition_type, typename Head, typename... Args>
+struct make_filtered_list<list_type, condition_type, Head, Args...> {
+  using type = typename make_filtered_list<
+    typename std::conditional<
+      condition_type::template filter<Head>::type::value,
+      typename list_type::template push_back<Head>,
+      list_type
+      >::type,
+    condition_type,
+    Args...
+    >::type;
+};
+
+template<typename list_type, typename condition_type>
+struct make_filtered_list<list_type, condition_type> {
+  using type = list_type;
+};
 
 
-template<typename T>
-struct reg_shared_group : mpl::resource_group
-{ };
+template<typename list_type, typename... Args>
+struct make_unique_list;
+
+template<typename list_type>
+struct make_unique_list<list_type> {
+  using type = list_type;
+};
+template<typename list_type, typename Head, typename... Args>
+struct make_unique_list<list_type, Head, Args...> {
+  using type = typename make_unique_list<
+    typename std::conditional<
+      list_type::template contains<Head>::value,
+      list_type,
+      typename list_type::template push_back<Head>
+      >::type,
+    Args...>::type;
+};
 
 
-template<typename R>
-struct reg_shared
-: mpl::resource< reg_shared_group<typename R::reg_type>, reg_shared<typename R::mask_type> >
-{
-  using mask_type = typename R::mask_type;
-
-  /* Merge two reg_shared of same reg_shared_group:              */
-  /* Returns reg_shared with or'ed set_mask and or'ed clear_mask.  */
-  template<typename U>
-  struct merge {
-    using type = reg_shared< typename mask_type::template merge<typename U::mask_type>::type >;
-  };
-
-  /* Called by resource_type_list_impl::configure() on a merged */
-  /* reg_shared type. (which we are in this context, see "merge" above)  */
-  static __always_inline void configure() {
-    //    if((R::set_mask != 0) || (R::clear_mask != 0))
-      R::set();
-
-    // TODO: implement something like reset_register(), since on startup we don't care about the actual value of the register:
-    // T::store((T::reset_value & ~merged_type<T>::clear_mask) | merged_type<T>::set_mask);
+template<typename cmd_type, typename... Args>
+struct for_each_impl {
+  static void command() { }
+};
+template<typename cmd_type, typename Head, typename... Args>
+struct for_each_impl<cmd_type, Head, Args...> {
+  static void command() {
+    cmd_type::template command<Head>();
+    for_each_impl<cmd_type, Args...>::command();
   }
 };
+
+
+template<typename T, typename... Args>
+struct contains_impl {
+  static constexpr bool value = false;
+};
+template<typename T, typename Head, typename... Args>
+struct contains_impl<T, Head, Args...>
+{
+  static constexpr bool value = ( std::is_same<Head, T>::value ||
+                                  contains_impl<T, Args...>::value );
+};
+
+
+} // namespace mpl
 
 
 ////////////////////  unique  ////////////////////
@@ -67,62 +125,86 @@ struct reg_shared
 
 template<typename T>
 struct unique
-: mpl::unique_resource< unique<T> >
 { };
 
 
 ////////////////////  irq  ////////////////////
 
 
-template<int irqn>
-struct irq_group : mpl::resource_group
+struct irq_base
 { };
 
-template<typename irq_type, isr_t isr>
-struct irq
-: mpl::unique_resource< irq_group<irq_type::irqn>, irq<irq_type, isr> >
+template<typename _irq_type, isr_t isr>
+struct irq : irq_base
 {
+  using irq_type = _irq_type;
   static constexpr isr_t value = isr;
 };
 
 
-////////////////////  list  ////////////////////
+////////////////////  filter  ////////////////////
 
+namespace filter {
 
-template<typename... Args>
-struct list : mpl::resource_list_impl<Args...>
-{
-  using type = list<Args...>;
-
-  /* filtered_list, containing all resources of type T */
-  template<typename T>
-  using resource_filtered_list = typename mpl::make_filtered_list<T, Args...>::type;
-
-  /* resource_type_list, containing all resource types (unique) */
-  using resource_type_list = typename mpl::make_resource_type_list<Args...>::type;
-
-  /* Merged resource type */
-  template<typename T>
-  using merged_type = typename resource_filtered_list<T>::merged_type;
-
-  /* Returns Handler from list, or void if not found */
-  template<int irqn>
-  struct irq_resource {
-    using type = merged_type< irq_group<irqn> >;
-    using irq_resource_group_type = irq_group<irqn>;
-    // this fails since merged_type can be of type "void":
-    // static constexpr isr_t value = merged_type< irq_group<irqn> >::value;
+  template<typename filter_type>
+  struct is_base_of {
+    template<typename T>
+    using filter = std::is_base_of< filter_type, T >;
   };
 
-  /* Run configure() on all merged resource types.  */
-  static void configure() {
-    resource_type_list::template configure<type>();
-  }
+} // namespace filter
 
-  /* Compile-time consistency check of the resource list (calls static_assert() on errors) */
-  static constexpr bool check() {
-    static_assert(resource_type_list::template assert_type<type>(), "resource::list check failed.");
-    return true;
+
+////////////////////  resource::list  ////////////////////
+
+
+template<typename L, typename... R>
+struct list_cat {
+  using type = typename L::type::template append_list< typename list_cat< typename R::type... >::type >::type;
+};
+template<typename L, typename R>
+struct list_cat<L, R> {
+  using type = typename L::type::template append_list< typename R::type >::type;
+};
+
+
+template<typename... Rm>
+class list
+{
+protected:
+
+public:
+  using type = list< Rm... >;
+
+  template<typename T>
+  struct contains {
+    static constexpr bool value = mpl::contains_impl< T, Rm... >::value;
+  };
+
+  template<typename... T>
+  using push_back = list< Rm..., T... >;
+
+  template<typename T>
+  using append_list = typename T::template push_front< Rm... >;
+
+  template<typename... T>
+  using push_front = list< T..., Rm... >;
+
+  using uniq = typename mpl::make_unique_list< list<>, Rm... >::type;
+
+  template<typename condition_type>
+  using filter = typename mpl::make_filtered_list< list<>, condition_type, Rm... >::type;
+
+  template<typename T>
+  using transform = list< typename T::template transform< Rm, type >::type... >;
+
+  struct merge {
+    using type = typename mpl::merge_impl< Rm... >::type;
+  };
+
+  template<typename cmd_type>
+  static void for_each(void) {
+    mpl::for_each_impl<cmd_type, Rm...>::command();
   }
 };
 

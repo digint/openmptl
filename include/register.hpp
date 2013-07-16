@@ -90,7 +90,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <register_backend.hpp>
-#include <register_list.hpp>
+#include <resource.hpp>
 #include <compiler.h>
 
 namespace mptl {
@@ -306,7 +306,7 @@ public:
 
   template<typename Rm0, typename... Rm>
   struct merge {
-    using type = typename reglist<Rm0, Rm...>::merge::type;
+    using type = typename resource::list<Rm0, Rm...>::merge::type; // TODO: don't use resource here (circular depend)
     static_assert(std::is_same<typename type::reg_type, reg_type>::value, "merged template arguments have different regdef<> type");
   };
 
@@ -338,7 +338,7 @@ public:
   }
 };
 
-
+#if 0
 namespace mpl {
 
 template<typename T0, typename T1>  // TODO: variadic args
@@ -361,7 +361,43 @@ struct regmask_merge<void, T1> {
 };
 
 } // namespace mpl
+#endif
 
+// TODO: namespace
+  struct filter_regmask {
+    template<typename T>
+    using filter = std::is_base_of< regmask_base, T >;
+  };
+
+  template<typename Rm>
+  struct filter_reg_type {
+    template<typename T>
+    using filter = std::is_same< typename Rm::reg_type, typename T::reg_type >;
+  };
+
+  struct merge_transformation {
+    template<typename R, typename list_type>
+    struct transform {
+      using filtered_list = typename list_type::template filter< filter_reg_type<R> >::type;
+      using type = typename filtered_list::merge::type;
+    };
+  };
+
+  struct reg_reset_to {
+    template<typename list_element_type>
+    static void command(void) {  // TODO: __always_inline
+      list_element_type::reg_type::template reset_to< list_element_type >();
+    }
+  };
+
+template<typename list_type>
+static void reg_configure() {
+    using filtered_list = typename list_type::template filter< filter_regmask >::type;
+    using merged_type_list = typename filtered_list::template transform<merge_transformation>::type;
+    using unique_merged_type_list = typename merged_type_list::uniq::type;
+
+    unique_merged_type_list::template for_each< reg_reset_to >();
+}
 
 } // namespace mptl
 
