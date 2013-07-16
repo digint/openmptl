@@ -61,7 +61,7 @@ public:
    */
   static constexpr uint32_t ps_per_tick  = (1000 * 1000 * 1000) / (counter_freq / 1000);
 
-  using resources = resource::list<>;
+  using resources = typelist<>; // TODO: revert to old void-style!!!
 
   using irq = mptl::irq::systick; /**< System Tick Interrupt */
 

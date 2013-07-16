@@ -185,21 +185,22 @@ public:
   static constexpr unsigned pin_no = _pin_no;
   using GPIOx = reg::GPIO<port>;
   using type  = gpio<port, pin_no, CFG...>;
-  using cfg_list = periph_config_list<CFG...>;
+  using cfg_list = periph_config_list<CFG...>;   // TODO: typelist
 
-#if 0
-  using resources = resource::list<
+#if 1
+  using resources = typelist<
     rcc_gpio_clock_resources<port>,
-    resource::unique< gpio<port, pin_no> >,
+    // TODO: unique type
+    //    resource::unique< gpio<port, pin_no> >,
     typename CFG::template resources< type >...,
-    resource::reg_shared< typename CFG::template regmask_type< type > >...
+    typename CFG::template regmask_type< type >...
     >;
 #else
-  using cfg_resources = resource::list<
+  using cfg_resources = typelist<
     typename CFG::template regmask_type< type >...
     >;
 
-  using resources = typename resource::list_cat<
+  using resources = typename typelist_cat<
     rcc_gpio_clock_resources<port>,
     typename CFG::template resources< type >...,
     cfg_resources

@@ -67,7 +67,7 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
-  using irq_resources = mptl::resource::list<
+  using irq_resources = mptl::typelist<
     mptl::irq_handler< typename mptl::irq::reset        , reset_isr   >,
     mptl::irq_handler< typename systick::irq            , systick_isr >,
     mptl::irq_handler< typename mptl::irq::nmi          , null_isr    >,
@@ -76,7 +76,7 @@ struct Kernel
     mptl::irq_handler< typename mptl::irq::pend_sv      , null_isr    >
     >;
 
-  using resources = mptl::resource::list_cat<
+  using resources = mptl::typelist<
     irq_resources,
     systick::resources,
     led_green::resources,

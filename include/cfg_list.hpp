@@ -29,7 +29,7 @@ namespace cfg {
 
   struct config_base {
     template<typename T> using regmask_type = void;
-    template<typename T> using resources = resource::list<>;
+    template<typename T> using resources = void;
   };
 
 } // namespace cfg

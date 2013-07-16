@@ -236,15 +236,15 @@ public:
     typename CFG::template regmask_type< type >...
     >;
 #else
-  using cfg_resources = resource::list<
+  using cfg_resources = typelist<
     typename CFG::template regmask_type< type >...
     >;
 
-  using resources = typename resource::list_cat<
+  using resources = typelist<
     rcc_usart_clock_resources<usart_no>,
     typename CFG::template resources< type >...,
     cfg_resources
-    >::type;
+    >;
 #endif
 
   /**
@@ -257,7 +257,7 @@ public:
     using neutral_regmask = regmask< reg_type, 0, 0 >;
 
     /* Filter CFG by reg_type, append neutral regmask, and merge it */
-    using list_type = resource::list<typename CFG::template regmask_type<type>...>;
+    using list_type = typelist<typename CFG::template regmask_type<type>...>;
     using filtered = typename list_type::template filter< resource::filter::reg_type<reg_type> >::type;
     using filtered_neutral = typename filtered::template push_back< neutral_regmask >::type;
     using merged_regmask_type = typename filtered_neutral::merge::type;
@@ -271,7 +271,7 @@ public:
    */
   static void configure()
   {
-    // TODO: the goal here is to use "resource::list<CFG::resources<type>...>::merged_type" here
+    // TODO: the goal here is to use "typelist<CFG::resources<type>...>::merged_type" here
     configure_reg<typename USARTx::CR1>();
     configure_reg<typename USARTx::CR2>();
     configure_reg<typename USARTx::CR3>();

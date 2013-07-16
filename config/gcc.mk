@@ -1,7 +1,7 @@
 CC           = $(CROSS)gcc
-CXX          = $(CROSS)clang++
+CXX          = $(CROSS)g++
 AS           = $(CROSS)gcc -x assembler-with-cpp
-LD           = $(CROSS)clang++
+LD           = $(CROSS)g++
 OBJCOPY      = $(CROSS)objcopy
 OBJDUMP      = $(CROSS)objdump
 SIZE         = $(CROSS)size -B -d

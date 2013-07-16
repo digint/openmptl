@@ -120,20 +120,20 @@ template<unsigned> struct rcc_usart_clock_resources;
 /*
  * Clock resource specialisation (enable peripheral clocks)
  */
-template<> struct rcc_gpio_clock_resources<'A'> : resource::list< reg::RCC::AHB1ENR::GPIOAEN > { };
-template<> struct rcc_gpio_clock_resources<'B'> : resource::list< reg::RCC::AHB1ENR::GPIOBEN > { };
-template<> struct rcc_gpio_clock_resources<'C'> : resource::list< reg::RCC::AHB1ENR::GPIOCEN > { };
-template<> struct rcc_gpio_clock_resources<'D'> : resource::list< reg::RCC::AHB1ENR::GPIODEN > { };
-template<> struct rcc_gpio_clock_resources<'E'> : resource::list< reg::RCC::AHB1ENR::GPIOEEN > { };
-template<> struct rcc_gpio_clock_resources<'F'> : resource::list< reg::RCC::AHB1ENR::GPIOFEN > { };
-template<> struct rcc_gpio_clock_resources<'G'> : resource::list< reg::RCC::AHB1ENR::GPIOGEN > { };
-template<> struct rcc_gpio_clock_resources<'H'> : resource::list< reg::RCC::AHB1ENR::GPIOHEN > { };
-template<> struct rcc_gpio_clock_resources<'I'> : resource::list< reg::RCC::AHB1ENR::GPIOIEN > { };
+template<> struct rcc_gpio_clock_resources<'A'> : typelist< reg::RCC::AHB1ENR::GPIOAEN > { };
+template<> struct rcc_gpio_clock_resources<'B'> : typelist< reg::RCC::AHB1ENR::GPIOBEN > { };
+template<> struct rcc_gpio_clock_resources<'C'> : typelist< reg::RCC::AHB1ENR::GPIOCEN > { };
+template<> struct rcc_gpio_clock_resources<'D'> : typelist< reg::RCC::AHB1ENR::GPIODEN > { };
+template<> struct rcc_gpio_clock_resources<'E'> : typelist< reg::RCC::AHB1ENR::GPIOEEN > { };
+template<> struct rcc_gpio_clock_resources<'F'> : typelist< reg::RCC::AHB1ENR::GPIOFEN > { };
+template<> struct rcc_gpio_clock_resources<'G'> : typelist< reg::RCC::AHB1ENR::GPIOGEN > { };
+template<> struct rcc_gpio_clock_resources<'H'> : typelist< reg::RCC::AHB1ENR::GPIOHEN > { };
+template<> struct rcc_gpio_clock_resources<'I'> : typelist< reg::RCC::AHB1ENR::GPIOIEN > { };
 
-template<> struct rcc_usart_clock_resources<1> : resource::list< reg::RCC::APB2ENR::USART1EN > { };
-template<> struct rcc_usart_clock_resources<2> : resource::list< reg::RCC::APB1ENR::USART2EN > { };
-template<> struct rcc_usart_clock_resources<3> : resource::list< reg::RCC::APB1ENR::USART3EN > { };
-template<> struct rcc_usart_clock_resources<6> : resource::list< reg::RCC::APB2ENR::USART6EN > { };
+template<> struct rcc_usart_clock_resources<1> : typelist< reg::RCC::APB2ENR::USART1EN > { };
+template<> struct rcc_usart_clock_resources<2> : typelist< reg::RCC::APB1ENR::USART2EN > { };
+template<> struct rcc_usart_clock_resources<3> : typelist< reg::RCC::APB1ENR::USART3EN > { };
+template<> struct rcc_usart_clock_resources<6> : typelist< reg::RCC::APB2ENR::USART6EN > { };
 
 } // namespace mptl
 
