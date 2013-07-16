@@ -41,10 +41,10 @@ using test_c   = regmask< C, 0x10,       0xff       >;
 
 using anti_test_a_0 = regmask< A, 0x00000000, 0x00000010 >; /* clears a bit which is set by test_a_0 */
 
-using uniq_a = unique< A >;
-using uniq_b = unique< B >;
-using uniq_c = unique< C >;
-using uniq_d = unique< D >;
+using uniq_a = typelist_unique_element< A >;
+using uniq_b = typelist_unique_element< B >;
+using uniq_c = typelist_unique_element< C >;
+using uniq_d = typelist_unique_element< D >;
 
 using list = typelist <
   void,
@@ -89,7 +89,8 @@ int main()
   list::check();
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: typelist contains a resource derived from unique_resource (-> uniq_c) which is not unique.
+  // fail: typelist contains a resource derived from
+  // typelist_unique_element (-> uniq_c) which is not unique.
   uniq_fail_list::check();
 #endif
 

@@ -67,9 +67,18 @@ public: // see note about friends above
 #endif
 
   template<typename T>
-  struct is_base_of {
+  struct filter_element_tag {
     template<typename Tf>
-    using filter = std::is_base_of< T, Tf >;
+    using filter = std::is_same<
+      typename T::__typelist_tag_type,
+      typename Tf::_typelist_tag_type
+      >;
+  };
+
+  template<typename T>
+  struct filter_is_base_of {
+    template<typename Tf>
+    using filter = std::is_base_of<T, Tf>;
   };
 
   template<typename T, typename... U>
@@ -125,7 +134,11 @@ public:
    * or derived from class T.
    */
   template<typename T>
-  using filter_type = typename filter< is_base_of< T > >::type;
+  using filter_type = typename filter< filter_is_base_of< T > >::type;
+
+  // TODO
+  template<typename T>
+  using filter_tag = typename filter< filter_element_tag< T > >::type;
 
   /**
    * Provides a list filtered to hold at most one element of identical
@@ -209,6 +222,7 @@ class typelist_element {
 #else
 public: // see note about friends above
 #endif
+
   template<typename T, typename... Tp>
   struct _typelist_append {
     using type = sane_typelist<Tp..., T>;
@@ -219,10 +233,11 @@ public: // see note about friends above
 ////////////////////  unique  ////////////////////
 
 
-template<typename T>
-struct unique : typelist_element, mpl::unique_base
+template<typename unique_type>
+struct typelist_unique_element : typelist_element
 {
-  using real_type = T;
+  /* tag type, used in reglist::filter_type<> */
+  using _typelist_unique_type = unique_type;
 };
 
 

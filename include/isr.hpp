@@ -27,11 +27,12 @@ namespace mptl {
 
 typedef void( *const isr_t )( void );
 
-struct irq_handler_base
+struct irq_handler_tag
 { };
 
 template<typename _irq_type, isr_t isr>
-struct irq_handler : irq_handler_base, resource::unique<_irq_type>
+struct irq_handler
+: typlist_unique_element< irq_handler_tag >
 {
   using irq_type = _irq_type;
   static constexpr isr_t value = isr;
