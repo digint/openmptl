@@ -62,26 +62,17 @@ namespace mpl
   struct make_vector_table
   {
     static constexpr int irqn = (N - 1) + irqn_offset;
-    struct default_irq_resource {
+    using irq_handler = resource::irq_handler<resource_list, irqn>;
+
+    struct irq_handler_default {
       static constexpr isr_t value = default_isr;
     };
 
-    /* get irq resource type from resource_list */
-    struct filter_irqn {
-      template<typename T>
-      using filter = std::integral_constant< bool, (T::irq_type::irqn == irqn) >;
-    };
-    using filter_irq    = resource::filter::is_base_of< typename resource::irq_base >;
-    using irq_type_list = typename resource_list::template filter< filter_irq >::type;
-    using irqn_list     = typename irq_type_list::template filter< filter_irqn >::type;
-    using merged_type   = typename irqn_list::merge::type; // TODO: implement list::unique_type<>, rename
-
     static constexpr isr_t isr = irq::reserved_irqn(irqn) ? nullptr :
-      std::conditional<  /* handler from resource::irq<irqn> in resource::list if present */
-      //        std::is_void<typename resource_list::template irq_resource<irqn>::type>::value,
-        std::is_void< merged_type >::value,
-        default_irq_resource,
-        merged_type
+      std::conditional<  /* handler from resource::irq_handler<irqn> in resource::list if present */
+        std::is_void< irq_handler >::value,
+        irq_handler_default,
+        irq_handler
       >::type::value;
 
     using type = typename make_vector_table<

@@ -21,103 +21,10 @@
 #ifndef RESOURCE_HPP_INCLUDED
 #define RESOURCE_HPP_INCLUDED
 
-#include <isr.hpp>  // isr_t
 #include <type_traits>
+#include "resource_mpl.hpp"
 
 namespace mptl { namespace resource {
-
-namespace mpl {
-
-template<typename... Args>
-struct merge_impl {
-  /* note: assertion needs to be dependent of template parameter */
-  // static_assert(sizeof...(Args), "cannot merge an empty argument list");
-  using type = void;
-};
-
-template<typename Front, typename... Args>
-struct merge_impl<Front, Args...> {
-  using type = typename Front::template merge< typename merge_impl<Args...>::type >::type;
-};
-
-template<typename Front>
-struct merge_impl<Front> {
-  using type = Front;
-};
-
-template<typename list_type, typename condition_type, typename... Args>
-struct make_filtered_list;
-
-template<typename list_type, typename condition_type, typename... Args>
-struct make_filtered_list<list_type, condition_type, void, Args...> {
-  /* filter out "void" list member */
-  using type = typename make_filtered_list<list_type, condition_type, Args...>::type;
-};
-
-template<typename list_type, typename condition_type, typename Head, typename... Args>
-struct make_filtered_list<list_type, condition_type, Head, Args...> {
-  using type = typename make_filtered_list<
-    typename std::conditional<
-      condition_type::template filter<Head>::type::value,
-      typename list_type::template push_back<Head>,
-      list_type
-      >::type,
-    condition_type,
-    Args...
-    >::type;
-};
-
-template<typename list_type, typename condition_type>
-struct make_filtered_list<list_type, condition_type> {
-  using type = list_type;
-};
-
-
-template<typename list_type, typename... Args>
-struct make_unique_list;
-
-template<typename list_type>
-struct make_unique_list<list_type> {
-  using type = list_type;
-};
-template<typename list_type, typename Head, typename... Args>
-struct make_unique_list<list_type, Head, Args...> {
-  using type = typename make_unique_list<
-    typename std::conditional<
-      list_type::template contains<Head>::value,
-      list_type,
-      typename list_type::template push_back<Head>
-      >::type,
-    Args...>::type;
-};
-
-
-template<typename cmd_type, typename... Args>
-struct for_each_impl {
-  static void command() { }
-};
-template<typename cmd_type, typename Head, typename... Args>
-struct for_each_impl<cmd_type, Head, Args...> {
-  static void command() {
-    cmd_type::template command<Head>();
-    for_each_impl<cmd_type, Args...>::command();
-  }
-};
-
-
-template<typename T, typename... Args>
-struct contains_impl {
-  static constexpr bool value = false;
-};
-template<typename T, typename Head, typename... Args>
-struct contains_impl<T, Head, Args...>
-{
-  static constexpr bool value = ( std::is_same<Head, T>::value ||
-                                  contains_impl<T, Args...>::value );
-};
-
-
-} // namespace mpl
 
 
 ////////////////////  unique  ////////////////////
@@ -128,34 +35,7 @@ struct unique
 { };
 
 
-////////////////////  irq  ////////////////////
-
-
-struct irq_base
-{ };
-
-template<typename _irq_type, isr_t isr>
-struct irq : irq_base
-{
-  using irq_type = _irq_type;
-  static constexpr isr_t value = isr;
-};
-
-
-////////////////////  filter  ////////////////////
-
-namespace filter {
-
-  template<typename filter_type>
-  struct is_base_of {
-    template<typename T>
-    using filter = std::is_base_of< filter_type, T >;
-  };
-
-} // namespace filter
-
-
-////////////////////  resource::list  ////////////////////
+////////////////////  list_cat  ////////////////////
 
 
 template<typename L, typename... R>
@@ -168,43 +48,81 @@ struct list_cat<L, R> {
 };
 
 
-template<typename... Rm>
+////////////////////  resource::list  ////////////////////
+
+
+template<typename... Tp>
 class list
 {
 protected:
+  template<typename filter_type>
+  struct is_base_of {
+    template<typename T>
+    using filter = std::is_base_of< filter_type, T >;
+  };
 
 public:
-  using type = list< Rm... >;
+  using type = list< Tp... >;
 
   template<typename T>
   struct contains {
-    static constexpr bool value = mpl::contains_impl< T, Rm... >::value;
+    static constexpr bool value = mpl::contains_impl< T, Tp... >::value;
   };
 
   template<typename... T>
-  using push_back = list< Rm..., T... >;
+  using push_back = list< Tp..., T... >;
 
   template<typename T>
-  using append_list = typename T::template push_front< Rm... >;
+  using append_list = typename T::template push_front< Tp... >;
 
   template<typename... T>
-  using push_front = list< T..., Rm... >;
+  using push_front = list< T..., Tp... >;
 
-  using uniq = typename mpl::make_unique_list< list<>, Rm... >::type;
-
+  /**
+   * Generic filter, takes a condition_type type trait as argument (which must
+   * provide "::type::value").
+   */
   template<typename condition_type>
-  using filter = typename mpl::make_filtered_list< list<>, condition_type, Rm... >::type;
+  using filter = typename mpl::make_filtered_list< list<>, condition_type, Tp... >::type;
 
+  /**
+   * Provides a list holding only elements with types are of class T,
+   * or derived from class T.
+   */
   template<typename T>
-  using transform = list< typename T::template transform< Rm, type >::type... >;
+  using filter_type = typename filter< is_base_of< T > >::type;
+
+  /**
+   * Provides a list filtered to hold at most one element of identical
+   * type.
+   *
+   * NOTE: this has nothing to do with the resource::unique<> class.
+   */
+  using filter_unique = typename mpl::make_unique_list< list<>, Tp... >::type;
+
+  /**
+   * Provides a list, where each element is replaced by:
+   * "transform_type::transform<T, list_type>::type".
+   */
+  template<typename transform_type>
+  using transform = list< typename transform_type::template transform< Tp, type >::type... >;
 
   struct merge {
-    using type = typename mpl::merge_impl< Rm... >::type;
+    using type = typename mpl::merge_impl< Tp... >::type;
+  };
+
+  /**
+   * Provides "type", holding the first element in list, or void if
+   * list is empty. Asserts at compile-time if the list holds more
+   * than one element.
+   */
+  struct unique_element {
+    using type = typename mpl::unique_element_impl<Tp...>::type;
   };
 
   template<typename cmd_type>
   static void for_each(void) {
-    mpl::for_each_impl<cmd_type, Rm...>::command();
+    mpl::for_each_impl<cmd_type, Tp...>::command();
   }
 };
 

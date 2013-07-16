@@ -376,9 +376,9 @@ struct regmask_merge<void, T1> {
   };
 
   struct merge_transformation {
-    template<typename R, typename list_type>
+    template<typename T, typename list_type>
     struct transform {
-      using filtered_list = typename list_type::template filter< filter_reg_type<R> >::type;
+      using filtered_list = typename list_type::template filter< filter_reg_type<T> >::type;
       using type = typename filtered_list::merge::type;
     };
   };
@@ -394,7 +394,7 @@ template<typename list_type>
 static void reg_configure() {
     using filtered_list = typename list_type::template filter< filter_regmask >::type;
     using merged_type_list = typename filtered_list::template transform<merge_transformation>::type;
-    using unique_merged_type_list = typename merged_type_list::uniq::type;
+    using unique_merged_type_list = typename merged_type_list::filter_unique::type;
 
     unique_merged_type_list::template for_each< reg_reset_to >();
 }

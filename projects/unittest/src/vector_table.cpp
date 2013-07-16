@@ -18,7 +18,7 @@
  *
  */
 
-#include <resource_mpl.hpp>
+#include <resource.hpp>
 #include <arch/vector_table.hpp>
 #include <cassert>
 
@@ -31,11 +31,10 @@ static void default_isr(void) { isr_test = 0; }
 static void isr_42(void) { isr_test = 42; }
 
 /* Handler for irq number = 42 */
-typedef resource::irq< irq_base<42>, isr_42 > irq42;
+using irq42 = irq_handler< irq_base<42>, isr_42 >;
 
-
-typedef resource::list < irq42 > resource_list;
-typedef resource::list < irq42, irq42 > resource_fail_list;
+using resource_list      = resource::list < irq42 >;
+using resource_fail_list = resource::list < irq42, irq42 >;
 
 int main()
 {
@@ -46,8 +45,8 @@ int main()
   vector_table<&stack_top, resource_fail_list, default_isr> vt_fail;
 #endif
 
-  resource_list::check();
-  resource_list::configure();
+  //  resource_list::check();
+  //  resource_list::configure();
 
   isr_t *isr_vector = vt.isr_vector;
 

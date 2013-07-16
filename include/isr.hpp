@@ -21,9 +21,43 @@
 #ifndef ISR_HPP_INCLUDED
 #define ISR_HPP_INCLUDED
 
+#include <resource.hpp>
+
 namespace mptl {
 
 typedef void( *const isr_t )( void );
+
+struct irq_handler_base
+{ };
+
+template<typename _irq_type, isr_t isr>
+struct irq_handler : irq_handler_base, resource::unique<_irq_type>
+{
+  using irq_type = _irq_type;
+  static constexpr isr_t value = isr;
+};
+
+
+namespace resource
+{
+  namespace filter
+  {
+    template<int _irqn>
+    struct irqn {
+      template<typename T>
+      using filter = std::integral_constant< bool, (T::irq_type::irqn == _irqn) >;
+    };
+  } // namespace filter
+
+  template<typename list_type>
+  using irq_handler_list = typename list_type::template filter_type< irq_handler_base >::type;
+
+  template<typename list_type, int irqn>
+  using irqn_list = typename irq_handler_list<list_type>::template filter< resource::filter::irqn< irqn > >::type;
+
+  template<typename list_type, int irqn>
+  using irq_handler = typename irqn_list<list_type, irqn>::unique_element::type;
+} // namespace resource
 
 } // namespace mptl
 

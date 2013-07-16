@@ -31,229 +31,107 @@
 
 namespace mptl { namespace resource { namespace mpl {
 
+template<typename... Args>
+struct merge_impl {
+  /* note: assertion needs to be dependent of template parameter */
+  // static_assert(sizeof...(Args), "cannot merge an empty argument list");
+  using type = void;
+};
 
-////////////////////  resource  ////////////////////
+template<typename Front, typename... Args>
+struct merge_impl<Front, Args...> {
+  using type = typename Front::template merge< typename merge_impl<Args...>::type >::type;
+};
+
+template<typename Front>
+struct merge_impl<Front> {
+  using type = Front;
+};
+
+template<typename list_type, typename condition_type, typename... Args>
+struct make_filtered_list;
+
+template<typename list_type, typename condition_type, typename... Args>
+struct make_filtered_list<list_type, condition_type, void, Args...> {
+  /* filter out "void" list member */
+  using type = typename make_filtered_list<list_type, condition_type, Args...>::type;
+};
+
+template<typename list_type, typename condition_type, typename Head, typename... Args>
+struct make_filtered_list<list_type, condition_type, Head, Args...> {
+  using type = typename make_filtered_list<
+    typename std::conditional<
+      condition_type::template filter<Head>::type::value,
+      typename list_type::template push_back<Head>,
+      list_type
+      >::type,
+    condition_type,
+    Args...
+    >::type;
+};
+
+template<typename list_type, typename condition_type>
+struct make_filtered_list<list_type, condition_type> {
+  using type = list_type;
+};
+
+
+template<typename list_type, typename... Args>
+struct make_unique_list;
+
+template<typename list_type>
+struct make_unique_list<list_type> {
+  using type = list_type;
+};
+template<typename list_type, typename Head, typename... Args>
+struct make_unique_list<list_type, Head, Args...> {
+  using type = typename make_unique_list<
+    typename std::conditional<
+      list_type::template contains<Head>::value,
+      list_type,
+      typename list_type::template push_back<Head>
+      >::type,
+    Args...>::type;
+};
+
+
+template<typename cmd_type, typename... Args>
+struct for_each_impl {
+  static void command() { }
+};
+template<typename cmd_type, typename Head, typename... Args>
+struct for_each_impl<cmd_type, Head, Args...> {
+  static void command() {
+    cmd_type::template command<Head>();
+    for_each_impl<cmd_type, Args...>::command();
+  }
+};
+
+
+template<typename T, typename... Args>
+struct contains_impl {
+  static constexpr bool value = false;
+};
+template<typename T, typename Head, typename... Args>
+struct contains_impl<T, Head, Args...>
+{
+  static constexpr bool value = ( std::is_same<Head, T>::value ||
+                                  contains_impl<T, Args...>::value );
+};
+
 
 /**
- * Template arguments:
- *
- * - T (group_type): resource group type. Acts as filter for resource_type_list. This type (T)
- *                   MUST provide the configure() and assert_type() functions.
- *
- * - R (type): resource type, MUST provide merge<> type and configure() function.
+ * Returns the first element in list, or void if list is
+ * empty. Asserts if more than one element is in list.
  */
-template<typename T, typename R = T>
-struct resource {
-  using group_type = T;
-  using type = R;
-
-  /* Append resource R to the filtered_list (Tf) if Filter matches our type (T). */
-  template<typename Tf, typename Filter>
-  using append_filtered_list = typename std::conditional<
-    std::is_same<Filter, group_type>::value,
-    typename Tf::template append<type>,
-    Tf>::type;
-
-  /* Append type T to the resource_type_list (Tu) if resource_type_list does not yet hold our type (T). */
-  template<typename Tu>
-  using append_resource_type_list = typename std::conditional<
-    Tu::template contains<group_type>::value,
-    Tu,
-    typename Tu::template append<group_type>
-    >::type;
-
-  static __always_inline void configure() { }
-
-  template<typename U>
-  struct merge {
-    /* always assert, this class must be implemented. */
-    using type = R;
-    static_assert(std::is_void<T>::value && std::is_void<R>::value,
-                  "resource::list<> contains a resource which does not implement the merge functor.");
-  };
+template<typename... T>
+struct unique_element_impl {
+  static_assert(sizeof...(T) <= 1, "list contains more than one element");
+  using type = void;
 };
-
-
-////////////////////  unique_resource  ////////////////////
-
-
-/* Note: This class is in capital letters so we can find it easily in the compile messages. */
-template<typename T, typename R>
-struct ASSERTION_RESOURCE_IS_NOT_UNIQUE {
-  /* always assert. combining unique resources means that two same types exist */
-  using type = R;
-  static_assert(std::is_void<T>::value && std::is_void<R>::value,
-                "resource::list<> contains a resource derived from resource::unique which is not unique. (see compile message \"struct mptl::resource::mpl::ASSERTION_RESOURCE_IS_NOT_UNIQUE<mptl::resource::unique< XXX >, mptl::resource::unique< XXX >, ... >\" above.)");
-};
-
-template<typename T, typename R = T>
-struct unique_resource : resource< T, R > {
-  template<typename U>
-  struct merge {
-    using type = typename ASSERTION_RESOURCE_IS_NOT_UNIQUE<T, R>::type;
-  };
-
-  template<typename Rl>
-  static constexpr bool assert_type() {
-    /* We check for "Rl::merged_type<type>::type here", and assert    */
-    /* in "merge" above. The reason for this is to get nicer          */
-    /* compiler messages than if we were just asserting for             */
-    /* "Rl::resource_filtered_list<type>::size <= 1" (which is also     */
-    /* correct).                                                        */
-    return !std::is_void<typename Rl::template merged_type<T>::type >::value;
-  }
-};
-
-
-////////////////////  resource_group  ////////////////////
-
-
-struct resource_group
-{
-  template<typename Rl> static constexpr bool assert_type() { return true; }
-};
-
-
-////////////////////  filtered_list  ////////////////////
-
-
-template<typename... Args>
-struct filtered_list_impl;
-
-template<typename Head, typename... Args>
-struct filtered_list_impl<Head, Args...>  {
-  using merged_type = typename Head::template merge<typename filtered_list_impl<Args...>::merged_type>::type;
-};
-template<typename Head>
-struct filtered_list_impl<Head> {
-  using merged_type = typename Head::type;
-};
-template<>
-struct filtered_list_impl<> {
-  /* merged_type is void for empty filtered list */
-  using merged_type = void;
-};
-
-template<typename... Args>
-struct filtered_list : filtered_list_impl<Args...> {
-  template<typename T>
-  using append = filtered_list<Args..., T>;
-  static constexpr std::size_t size = sizeof...(Args);
-};
-
-
-template<typename T, typename Filter, typename... Args>
-struct make_filtered_list_impl;
-
-template<typename T, typename Filter, typename... Args>
-struct make_filtered_list_impl<T, Filter, void, Args...> {
-  /* Ignore void resource */
-  using type = typename make_filtered_list_impl<T, Filter, Args...>::type;
-};
-
-template<typename T, typename Filter, typename Head, typename... Args>
-struct make_filtered_list_impl<T, Filter, Head, Args...> {
-  using type = typename make_filtered_list_impl<typename Head::template append_filtered_list<T, Filter>, Filter, Args...>::type;
-};
-
-template<typename T, typename Filter>
-struct make_filtered_list_impl<T, Filter> {
-  using type = T;
-};
-
-/* Creates a filtered_list<...>: list of resource class types,               */
-/* providing merged_type (e.g. or'ed  register values for reg_shared). */
-template<typename Filter, typename... Args>
-struct make_filtered_list
-: make_filtered_list_impl< mpl::filtered_list<>, Filter, Args... >
-{ };
-
-
-////////////////////  resource_type_list  ////////////////////
-
-
-template<typename... Args>
-struct resource_type_list_impl;
-
-template<typename Head, typename... Args>
-struct resource_type_list_impl<Head, Args...>  {
-  template<typename T>
-  struct contains {
-    static constexpr bool value = ( std::is_same<Head, T>::value ||
-                                    resource_type_list_impl<Args...>::template contains<T>::value );
-  };
-
-  template<typename Rl>
-  static __always_inline void configure() {
-    //typename Rl::template resource_filtered_list<Head>::merged_type().configure();
-    Rl::template resource_filtered_list<Head>::merged_type::configure();
-    resource_type_list_impl<Args...>::template configure<Rl>();
-  }
-
-  template<typename Rl>
-  static constexpr bool assert_type() {
-    return (Head::template assert_type<Rl>() &&
-            resource_type_list_impl<Args...>::template assert_type<Rl>() );
-  }
-};
-template<>
-struct resource_type_list_impl<> {
-  template<typename T>
-  using contains = std::false_type;
-
-  template<typename Rl> static void configure() { }
-  template<typename Rl> static constexpr bool assert_type() { return true; }
-};
-
-template<typename... Args>
-struct resource_type_list : resource_type_list_impl<Args...> {
-  template<typename T>
-  using append = resource_type_list<Args..., T>;
-
-  static constexpr std::size_t size = sizeof...(Args);
-};
-
-
-template<typename T, typename... Args>
-struct make_resource_type_list_impl;
-
-template<typename T, typename... Args>
-struct make_resource_type_list_impl<T, void, Args...> {
-  /* Ignore void resource */
-  using type = typename make_resource_type_list_impl<T, Args...>::type;
-};
-
-template<typename T, typename Head, typename... Args>
-struct make_resource_type_list_impl<T, Head, Args...> {
-  using type = typename make_resource_type_list_impl<typename Head::template append_resource_type_list<T>, Args...>::type;
-};
-
 template<typename T>
-struct make_resource_type_list_impl<T> {
+struct unique_element_impl<T> {
   using type = T;
-};
-
-/* Creates a resource_type_list<...>: list of unique resource types */
-template<typename... Args>
-struct make_resource_type_list
-: make_resource_type_list_impl< resource_type_list<>, Args... >
-{ };
-
-////////////////////  resource_list_impl  ////////////////////
-
-
-template<typename... Args>
-struct resource_list_impl
-{
-  /* Append a resource::list to a filtered_list. T Needed by             */
-  /* make_filtered_list_impl in order to unfold nested resource::list's  */
-  template<typename T, typename Filter>
-  using append_filtered_list = typename make_filtered_list_impl<T, Filter, Args...>::type;
-
-  /* Append a resource::list to a resource type list T. Needed by             */
-  /* make_resource_type_list_impl in order to unfold nested resource::list's  */
-  template<typename T>
-  using append_resource_type_list = typename make_resource_type_list_impl<T, Args...>::type;
 };
 
 } } } // namespace mptl::resource::mpl

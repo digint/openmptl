@@ -98,7 +98,7 @@ public:
   static volatile unsigned int irq_errors;
 
   using irq_resources = resource::list<
-    resource::irq< typename usart::irq, isr >
+    irq_handler< typename usart::irq, isr >
     >;
 
   using resources = typename resource::list_cat<
