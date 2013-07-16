@@ -67,21 +67,24 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
-  using resources = mptl::resource::list<
+  using irq_resources = mptl::resource::list<
     mptl::resource::irq< typename mptl::irq::reset        , reset_isr   >,
     mptl::resource::irq< typename systick::irq            , systick_isr >,
     mptl::resource::irq< typename mptl::irq::nmi          , null_isr    >,
     mptl::resource::irq< typename mptl::irq::sv_call      , null_isr    >,
     mptl::resource::irq< typename mptl::irq::debug_monitor, null_isr    >,
-    mptl::resource::irq< typename mptl::irq::pend_sv      , null_isr    >,
+    mptl::resource::irq< typename mptl::irq::pend_sv      , null_isr    >
+    >;
 
+  using resources = mptl::resource::list_cat<
+    irq_resources,
     systick::resources,
     led_green::resources,
     led_orange::resources,
     led_red::resources,
     led_blue::resources,
     usart_stream_device::resources
-    >;
+    >::type;
 };
 
 #endif // KERNEL_HPP_INCLUDED

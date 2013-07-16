@@ -38,8 +38,9 @@ void Kernel::systick_isr() {
 
 void Kernel::init(void)
 {
-  resources::check();      /* check unique resources */
-  resources::configure();  /* configure resources (set all shared register) */
+  //  resources::check();      /* check unique resources */
+  //  resources::configure();  /* configure resources (set all shared register) */
+  mptl::reg_configure<resources>();
 
   led_green ::off();
   led_orange::off();

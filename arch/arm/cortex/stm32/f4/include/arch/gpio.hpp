@@ -187,12 +187,26 @@ public:
   using type  = gpio<port, pin_no, CFG...>;
   using cfg_list = periph_config_list<CFG...>;
 
+#if 0
   using resources = resource::list<
     rcc_gpio_clock_resources<port>,
     resource::unique< gpio<port, pin_no> >,
     typename CFG::template resources< type >...,
     resource::reg_shared< typename CFG::template regmask_type< type > >...
     >;
+#else
+  using cfg_resources = resource::list<
+    typename CFG::template regmask_type< type >...
+    >;
+
+  using resources = typename resource::list_cat<
+    rcc_gpio_clock_resources<port>,
+    typename CFG::template resources< type >...,
+    cfg_resources
+  >::type::template push_back<
+      typename resource::unique< gpio<port, pin_no> >
+    >::type;
+#endif
 
   static constexpr bool is_low_active = cfg_list::template contains< cfg::gpio::active_state::low >::value;
 

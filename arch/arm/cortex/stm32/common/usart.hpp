@@ -230,11 +230,22 @@ public:
   using irq = irq::usart<usart_no>;
   using cfg_list = periph_config_list<CFG...>;
 
-  using resources = resource::list<
+#if 0
+  using resources = typename rcc_usart_clock_resources<usart_no>::template push_back<
+    typename CFG::template resources< type >...,
+    typename CFG::template regmask_type< type >...
+    >;
+#else
+  using cfg_resources = resource::list<
+    typename CFG::template regmask_type< type >...
+    >;
+
+  using resources = typename resource::list_cat<
     rcc_usart_clock_resources<usart_no>,
     typename CFG::template resources< type >...,
-    resource::reg_shared< typename CFG::template regmask_type< type > >...
-    >;
+    cfg_resources
+    >::type;
+#endif
 
   /**
    * Set register reg_type to its default value, combined with the
@@ -246,9 +257,9 @@ public:
     using neutral_regmask = regmask< reg_type, 0, 0 >;
 
     /* Filter CFG by reg_type, append neutral regmask, and merge it */
-    using reglist_type = reglist<typename CFG::template regmask_type<type>...>;
-    using filtered = typename reglist_type::template filter<reg_type>::type;
-    using filtered_neutral = typename filtered::template append< neutral_regmask >::type;
+    using list_type = resource::list<typename CFG::template regmask_type<type>...>;
+    using filtered = typename list_type::template filter< mptl::filter_reg_type<reg_type> >::type;
+    using filtered_neutral = typename filtered::template push_back< neutral_regmask >::type;
     using merged_regmask_type = typename filtered_neutral::merge::type;
 
     reg_type::template reset_to< merged_regmask_type >();
@@ -260,6 +271,7 @@ public:
    */
   static void configure()
   {
+    // TODO: the goal here is to use "resource::list<CFG::resources<type>...>::merged_type" here
     configure_reg<typename USARTx::CR1>();
     configure_reg<typename USARTx::CR2>();
     configure_reg<typename USARTx::CR3>();

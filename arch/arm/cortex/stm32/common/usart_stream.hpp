@@ -97,10 +97,14 @@ public:
   static volatile unsigned int irq_count;
   static volatile unsigned int irq_errors;
 
-  using resources = resource::list<
-    typename usart::resources,
+  using irq_resources = resource::list<
     resource::irq< typename usart::irq, isr >
     >;
+
+  using resources = typename resource::list_cat<
+    typename usart::resources,
+    irq_resources
+    >::type;
 
   static void flush() {
     usart::enable_tx_interrupt();
