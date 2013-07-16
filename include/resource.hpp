@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef RESOURCE_HPP_INCLUDED
+#ifndef RESOURCE_HPP_INCLUDED // TODO: move to "typelist.hpp"
 #define RESOURCE_HPP_INCLUDED
 
 #include <type_traits>

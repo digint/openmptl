@@ -62,14 +62,14 @@ namespace mpl
   struct make_vector_table
   {
     static constexpr int irqn = (N - 1) + irqn_offset;
-    using irq_handler = resource::irq_handler<resource_list, irqn>;
+    using irq_handler = mpl::unique_irq_handler<resource_list, irqn>;
 
     struct irq_handler_default {
       static constexpr isr_t value = default_isr;
     };
 
     static constexpr isr_t isr = irq::reserved_irqn(irqn) ? nullptr :
-      std::conditional<  /* handler from resource::irq_handler<irqn> in resource::list if present */
+      std::conditional<  /* handler from mpl::irq_handler<irqn> in resource::list if present */
         std::is_void< irq_handler >::value,
         irq_handler_default,
         irq_handler

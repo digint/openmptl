@@ -39,26 +39,32 @@ struct irq_handler : irq_handler_base
 };
 
 
-namespace resource
+namespace mpl
 {
-  namespace filter
-  {
-    template<int _irqn>
-    struct irqn {
-      template<typename T>
-      using filter = std::integral_constant< bool, (T::irq_type::irqn == _irqn) >;
-    };
-  } // namespace filter
+  template<int _irqn>
+  struct filter_irqn {
+    template<typename T>
+    using filter = std::integral_constant< bool, (T::irq_type::irqn == _irqn) >;
+  };
 
-  template<typename list_type>
-  using irq_handler_list = typename list_type::template filter_type< irq_handler_base >::type;
+  template<typename typelist_type>
+  using irq_handler_list = typename typelist_type::template filter_type< irq_handler_base >;
 
-  template<typename list_type, int irqn>
-  using irqn_list = typename irq_handler_list<list_type>::template filter< resource::filter::irqn< irqn > >::type;
+  template<typename typelist_type, int irqn>
+  using irqn_list = typename irq_handler_list<typelist_type>::template filter< filter_irqn< irqn > >::type;
 
-  template<typename list_type, int irqn>
-  using irq_handler = typename irqn_list<list_type, irqn>::unique_element::type;
-} // namespace resource
+
+  /**
+   * Provides the mptl::irq_handler<> type from a given typelist<> and
+   * irq number (int irqn). 
+   *
+   * NOTE: Asserts at compile-time (static_assert) that the returned
+   * irq_handler is unique in the typelist.
+   */
+  template<typename typelist_type, int irqn>
+  using unique_irq_handler = typename irqn_list<typelist_type, irqn>::unique_element::type;
+
+} // namespace mpl
 
 } // namespace mptl
 

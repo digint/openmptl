@@ -370,22 +370,17 @@ public:
 
 ////////////////////  reg_configure  ////////////////////
 
-
-// TODO: better namespace for this
-namespace resource
+namespace mpl
 {
-  namespace filter
-  {
-    /**
-     * Provides a list, whose types all share the same underlying
-     * reg_type = Tp
-     */
-    template<typename Tp>
-    struct reg_type {
-      template<typename Tf>
-      using filter = std::is_same< typename Tp::reg_type, typename Tf::reg_type >;
-    };
-  } // namespace filter
+  /**
+   * Provides a list, whose types all share the same underlying
+   * reg_type = Tp
+   */
+  template<typename Tp>
+  struct filter_reg_type {
+    template<typename Tf>
+    using filter = std::is_same< typename Tp::reg_type, typename Tf::reg_type >;
+  };
 
 
   /**
@@ -407,25 +402,25 @@ namespace resource
   struct map_merged_regmask {
     template<typename T, typename list_type>
     struct map {
-      using filtered_list = typename list_type::template filter< filter::reg_type<T> >::type;
+      using filtered_list = typename list_type::template filter< filter_reg_type<T> >::type;
       using type = typename filtered_list::template pack< pack_merged_regmask >::type;
     };
   };
 
-  struct reg_reset_to {
+  struct functor_reg_reset_to {
     template<typename list_element_type>
     static void __always_inline command(void) {
       list_element_type::reg_type::template reset_to< list_element_type >();
     }
   };
 
-  struct reg_set {
+  struct functor_reg_set {
     template<typename list_element_type>
     static void __always_inline command(void) {
       list_element_type::set();
     }
   };
-} // namespace resource
+} // namespace mpl
 
 } // namespace mptl
 
