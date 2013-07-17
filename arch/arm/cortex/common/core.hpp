@@ -57,14 +57,10 @@ struct core_config
    */
   template<typename list_type>
   static void configure() {
-    using regmask_list = typename list_type::template filter_type< regmask_base >;
-    using merged_list  = typename regmask_list::template map< mpl::map_merged_regmask >;
-    using unique_merged_list = typename merged_list::filter_unique::type;
-
 #ifdef CONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
-    unique_merged_list::template for_each< mpl::functor_reg_set >();
+    mpl::regmask_write<list_type, mpl::write_strategy::read_modify_write >();
 #else
-    unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
+    mpl::regmask_write<list_type, mpl::write_strategy::reset_to >();
 #endif
 }
 };

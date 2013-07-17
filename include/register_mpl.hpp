@@ -30,6 +30,13 @@
 namespace mptl { namespace mpl {
 
 /**
+ * Base class for regmask class. Used for filtering in resource::list.
+ */
+struct regmask_base
+: public typelist_element
+{ };
+
+/**
  * Merge all regmask types (Tp...) into a new regmask type of same
  * regdef_type. Silently ignores void types in Tp. Returns void type
  * on an empty list.
@@ -136,6 +143,31 @@ struct functor_reg_set {
     list_element_type::set();
   }
 };
+
+enum class write_strategy {
+  read_modify_write,
+  reset_to
+}; 
+
+/**
+ * Call regdef::reset_to() on each distinct merged regmask from list.
+ *
+ * Also see the "functor_reg_reset_to" documentation in
+ * register_mpl.hpp for a discussion about reset_to() and set().
+ */
+template< typename typelist_type,
+          write_strategy strategy = write_strategy::read_modify_write
+        >
+static void regmask_write() {
+  using regmask_list = typename typelist_type::template filter_type< regmask_base >;
+  using merged_list  = typename regmask_list::template map< mpl::map_merged_regmask >;
+  using unique_merged_list = typename merged_list::filter_unique::type;
+
+  if(strategy == write_strategy::read_modify_write)
+    unique_merged_list::template for_each< mpl::functor_reg_set >();
+  else
+    unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
+}
 
 } } // namespace mptl::mpl
 
