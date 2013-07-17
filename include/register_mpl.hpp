@@ -24,7 +24,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <register_backend.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <compiler.h>
 
 namespace mptl { namespace mpl {

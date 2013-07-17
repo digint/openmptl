@@ -112,7 +112,7 @@
 // required.
 
 
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <arch/rcc.hpp>
 #include <freq.hpp>
 #include <arch/reg/gpio.hpp>

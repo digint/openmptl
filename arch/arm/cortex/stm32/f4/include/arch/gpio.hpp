@@ -21,7 +21,7 @@
 #ifndef GPIO_HPP_INCLUDED
 #define GPIO_HPP_INCLUDED
 
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <periph.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>

@@ -18,11 +18,11 @@
  *
  */
 
-#ifndef RESOURCE_HPP_INCLUDED // TODO: move to "typelist.hpp"
-#define RESOURCE_HPP_INCLUDED
+#ifndef TYPELIST_HPP_INCLUDED
+#define TYPELIST_HPP_INCLUDED
 
 #include <type_traits>
-#include "resource_mpl.hpp"
+#include "typelist_mpl.hpp"
 
 namespace mptl {
 
@@ -30,7 +30,7 @@ namespace mptl {
 
 
 /**
- * NOTE: Don't use this class directly, use resource::list instead, which
+ * NOTE: Don't use this class directly, use typelist<> instead, which
  * wraps into a sane_typelist.
  *
  * NOTE: This class treats all Tp identical, which means that
@@ -144,7 +144,7 @@ public:
    * Provides a list filtered to hold at most one element of identical
    * type.
    *
-   * NOTE: this is not related with the resource::unique<> class.
+   * NOTE: this is not related with the typelist_unique_element<> class.
    */
   using filter_unique = typename mpl::make_unique_list< sane_typelist<>, Tp... >::type;
 
@@ -182,7 +182,7 @@ public:
   }
 
   /**
-   * Check if elements derived from resource::unique class are really
+   * Check if elements derived from typelist_unique_element class are really
    * unique in the list.
    */
   static bool check(void) {
@@ -252,4 +252,4 @@ using list_cat = typename mpl::list_cat_impl<L, R...>::type;
 
 } // namespace mptl
 
-#endif // RESOURCE_HPP_INCLUDED
+#endif // TYPELIST_HPP_INCLUDED

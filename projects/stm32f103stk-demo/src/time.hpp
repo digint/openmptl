@@ -23,7 +23,7 @@
 
 #include <arch/systick.hpp>
 #include <arch/rtc.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <atomic>
 
 typedef unsigned int systick_t;

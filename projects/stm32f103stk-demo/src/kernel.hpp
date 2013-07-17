@@ -31,7 +31,7 @@
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
 #include <peripheral_device.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <compiler.h>
 #include "time.hpp"
 

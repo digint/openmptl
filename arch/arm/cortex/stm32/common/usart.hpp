@@ -26,7 +26,7 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
 #include <type_traits>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <periph.hpp>
 
 namespace mptl {

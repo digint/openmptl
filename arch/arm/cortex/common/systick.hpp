@@ -22,7 +22,7 @@
 #define ARM_CORTEX_COMMON_SYSTICK_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <freq.hpp>
 
 

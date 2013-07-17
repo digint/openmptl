@@ -29,7 +29,7 @@
 #include <arch/gpio.hpp>
 #include <arch/usart.hpp>
 #include <arch/usart_stream.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <compiler.h>
 
 struct Kernel

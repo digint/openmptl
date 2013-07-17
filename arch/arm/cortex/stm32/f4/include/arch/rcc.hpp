@@ -22,7 +22,7 @@
 #define RCC_HPP_INCLUDED
 
 #include <arch/reg/rcc.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <freq.hpp>
 
 namespace mptl {

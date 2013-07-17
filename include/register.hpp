@@ -90,7 +90,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <register_backend.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <compiler.h>
 #include "register_mpl.hpp"
 

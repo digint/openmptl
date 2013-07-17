@@ -22,7 +22,7 @@
 #define ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 
 #include <register.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 
 namespace mptl {
 

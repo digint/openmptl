@@ -21,7 +21,7 @@
 #ifndef ISR_HPP_INCLUDED
 #define ISR_HPP_INCLUDED
 
-#include <resource.hpp>
+#include <typelist.hpp>
 
 namespace mptl {
 

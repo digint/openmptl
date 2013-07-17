@@ -22,7 +22,7 @@
 #define ARM_CORTEX_COMMON_VECTOR_TABLE_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <type_traits>
 #include <compiler.h>
 
