@@ -65,12 +65,37 @@ struct periph
   }
 #endif
 
+  /**
+   * Set register list_element_type (aka: regdef<>) to its default
+   * value, combined with the merged regmask<> types from the local
+   * regmask_list<>.
+   *
+   * 1. Filter the local regmask_list<> using the regdef<> (aka:
+   * list_element_type) type trait, by for_each<>() call (e.g. in
+   * configure() function below for each element in the
+   * cfg_reg_type_list).
+   *
+   * 2. Merges the regmask<> types from the filtered regmask_list<>.
+   *
+   * 3. Call:
+   *
+   *     list_element_type::reset_to< merged_regmask<> >();
+   *
+   */
   struct functor_reset_to_regmask_list {
     template<typename list_element_type>
     static void __always_inline command(void) {
-      using filtered_list = typename regmask_list::template filter< mpl::filter_reg_type<list_element_type> >::type;
-      using merged_type = typename filtered_list::template pack< mpl::pack_merged_regmask >::type;
-      list_element_type::template reset_to< merged_type >();
+      using filtered_list =
+        typename regmask_list::template filter<
+          mpl::filter_reg_type<list_element_type>
+        >::type;
+
+      using merged_regmask_type =
+        typename filtered_list::template pack<
+          mpl::pack_merged_regmask
+        >::type;
+
+      list_element_type::template reset_to< merged_regmask_type >();
     }
   };
 
