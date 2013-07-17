@@ -72,8 +72,17 @@ incomplete<list5> debug;
 #endif
 
 
+using merged = mpl::merged_regmask<
+  regmask<A, 0x00000011, 0x000000ff>,
+  regmask<A, 0x00001100, 0x0000ff00>,
+  void
+  >::type;
+
+
 int main()
 {
+  A::reset_to<merged>();
+
 #if 1
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);

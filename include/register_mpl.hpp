@@ -59,6 +59,10 @@ struct merged_regmask<void, Tp...> {
   using type = typename merged_regmask<Tp...>::type;
 };
 template<typename T0, typename... Tp>
+struct merged_regmask<T0, void, Tp...> {
+  using type = typename merged_regmask<T0, Tp...>::type;
+};
+template<typename T0, typename... Tp>
 struct merged_regmask<T0, Tp...> {
   using type = typename T0::mask_type::template merge< typename merged_regmask<Tp...>::type >::type;
 };
