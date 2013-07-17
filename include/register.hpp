@@ -96,6 +96,10 @@
 
 namespace mptl {
 
+#if 0 // TODO: provide comfort functions (map to _impl without ::type)
+template<typename... Tp>
+using merged_regmask = mpl::merged_regmask<Tp...>::type;
+#endif
 
 ////////////////////  regmask  ////////////////////
 
@@ -272,7 +276,7 @@ template< typename   T,
           reg_addr_t addr,
           reg_access access,
           T          _reset_value = 0 >
-class regdef : public regdef_backend<T, addr, access, _reset_value>
+class regdef : public regdef_backend<T, addr, access, _reset_value>, public typelist_element
 {
   /* private constructor: instantiation would only cause confusion with set/clear functions */
   regdef() {};

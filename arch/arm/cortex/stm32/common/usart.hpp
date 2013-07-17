@@ -215,6 +215,16 @@ namespace flow_control
 
 template< unsigned _usart_no, typename _rcc, typename... CFG >
 class usart
+: public periph<
+  usart<_usart_no, _rcc>,
+  typelist< 
+      typename reg::USART<_usart_no>::CR1,
+      typename reg::USART<_usart_no>::CR2,
+      typename reg::USART<_usart_no>::CR3,
+      typename reg::USART<_usart_no>::BRR
+    >,
+  CFG...
+  >
 {
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
@@ -228,9 +238,20 @@ public:
   using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;
-  using periph_type = periph< type, CFG... >;
+#if 0
+  using periph_type = periph<
+    usart<_usart_no, _rcc>,
+    typelist< 
+      typename reg::USART<_usart_no>::CR1,
+      typename reg::USART<_usart_no>::CR2,
+      typename reg::USART<_usart_no>::CR3,
+      typename reg::USART<_usart_no>::BRR
+      >,
+    CFG...
+    >;
   using cfg_list = typename periph_type::cfg_list;
   using regmask_list = typename periph_type::regmask_list;
+#endif
 
 #if 0
   using resources = typename rcc_usart_clock_resources<usart_no>::template push_back<
@@ -249,29 +270,12 @@ public:
     >;
 #endif
 
-  /**
-   * Set register reg_type to its default value, combined with the
-   * merged CFG::regmask_type classes.
-   */
-  // TODO: this goes to some periph base class (maybe with __always_inline ?)
-  // TODO: need unittest
-  template<typename reg_type>
-  static void configure_reg() {
-    using neutral_regmask = regmask< reg_type, 0, 0 >;
-
-    /* Filter CFG by reg_type, append neutral regmask, and merge it */
-    using filtered = typename regmask_list::template filter_type<reg_type>;
-    using filtered_neutral = typelist< filtered, neutral_regmask >;
-    using merged_list  = typename filtered_neutral::template map< mpl::map_merged_regmask >;
-    using unique_merged_list = typename merged_list::filter_unique::type;
-
-    unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
-  }
 
   /**
    * Set the USART registers.
    * NOTE: this implicitely clears all other bits, including "usart enable" (CR1::UE) !
    */
+#if 0
   static void configure()
   {
 #if 0
@@ -285,11 +289,12 @@ public:
 #endif
 
     // TODO: the goal here is to use "typelist<CFG::resources<type>...>::merged_type" here
-    configure_reg<typename USARTx::CR1>();
-    configure_reg<typename USARTx::CR2>();
-    configure_reg<typename USARTx::CR3>();
-    configure_reg<typename USARTx::BRR>();
+    periph_type::template configure_reg<typename USARTx::CR1>();
+    periph_type::template configure_reg<typename USARTx::CR2>();
+    periph_type::template configure_reg<typename USARTx::CR3>();
+    periph_type::template configure_reg<typename USARTx::BRR>();
   }
+#endif
 
   static void send(typename USARTx::DR::value_type data) {
     /* Implicitely clears the TXE bit in the SR register.  */

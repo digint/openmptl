@@ -21,10 +21,18 @@
 #ifndef PERIPH_HPP_INCLUDED
 #define PERIPH_HPP_INCLUDED
 
+#include "register.hpp"
+
 namespace mptl {
 
-#if 1
-template< typename Tp, typename... CFG >
+/**
+ * Peripheral Device Class
+ *
+ * Template arguments:
+ * - Tp     : derived type (real peripheral type), e.g. spi<0>
+ * - CFG... : configuration list: e.g. spi_default_config
+ */
+template< typename Tp, typename cfg_reg_type_list, typename... CFG >
 struct periph
 {
   using derived_type = Tp;
@@ -38,26 +46,40 @@ struct periph
     regmask_list,
     typename CFG::template resources< derived_type >...
     >;
-};
-#else
-/**
- * Peripheral Device Class
- *
- * Template arguments:
- * - peripheral_type: e.g. spi<0>
- * - peripheral_config_type: e.g. spi_default_config
- */
-class periph
-{
-public:
-  //  using cfg_list = periph_config<CFG...>;
+
+#if 0
+  /**
+   * Set register reg_type to its default value, combined with the
+   * merged CFG::regmask_type classes.
+   */
+  // TODO: need unittest
+  template<typename reg_type>
+  static void configure_reg() {
+    using neutral_regmask = regmask< reg_type, 0, 0 >;
+
+    /* Filter CFG by reg_type, append neutral regmask, and merge it */
+    using filtered = typename regmask_list::template filter_type<reg_type>;
+    using filtered_neutral = typelist< filtered, neutral_regmask >;
+
+    mpl::regmask_write< filtered_neutral, mpl::write_strategy::reset_to >();
+  }
+#endif
+
+  struct functor_reset_to_regmask_list {
+    template<typename list_element_type>
+    static void __always_inline command(void) {
+      using filtered_list = typename regmask_list::template filter< mpl::filter_reg_type<list_element_type> >::type;
+      using merged_type = typename filtered_list::template pack< mpl::pack_merged_regmask >::type;
+      list_element_type::template reset_to< merged_type >();
+    }
+  };
 
   /**
    * Configure peripheral device.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
-  void configure(void) const {
-    //!!!    periph_type::configure(*this);
+  static void configure(void) {
+    cfg_reg_type_list::template for_each< functor_reset_to_regmask_list >();
   }
 
   /**
@@ -70,7 +92,6 @@ public:
     //!!!    periph_type::enable();
   }
 };
-#endif
 
 } // namespace mptl
 
