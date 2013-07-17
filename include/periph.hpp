@@ -30,9 +30,13 @@ struct periph
   using derived_type = Tp;
   using cfg_list = typelist< CFG... >;
 
-  using resources = typelist<
-    typename CFG::template resources< derived_type >...,
+  using regmask_list = typelist<
     typename CFG::template regmask_type< derived_type >...
+    >;
+
+  using resources = typelist<
+    regmask_list,
+    typename CFG::template resources< derived_type >...
     >;
 };
 #else

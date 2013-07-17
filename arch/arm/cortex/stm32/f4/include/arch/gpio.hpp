@@ -187,6 +187,7 @@ public:
   using type  = gpio<port, pin_no, CFG...>;
   using periph_type = periph< type, CFG... >;
   using cfg_list = typename periph_type::cfg_list;
+  using regmask_list = typename periph_type::regmask_list;
 
 #if 1
   using resources = typelist<

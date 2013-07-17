@@ -228,8 +228,9 @@ public:
   using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;
-  //  using cfg_list = periph_config_list<CFG...>;
-  using cfg_list = typelist<CFG...>;
+  using periph_type = periph< type, CFG... >;
+  using cfg_list = typename periph_type::cfg_list;
+  using regmask_list = typename periph_type::regmask_list;
 
 #if 0
   using resources = typename rcc_usart_clock_resources<usart_no>::template push_back<
@@ -253,17 +254,18 @@ public:
    * merged CFG::regmask_type classes.
    */
   // TODO: this goes to some periph base class (maybe with __always_inline ?)
+  // TODO: need unittest
   template<typename reg_type>
   static void configure_reg() {
     using neutral_regmask = regmask< reg_type, 0, 0 >;
 
     /* Filter CFG by reg_type, append neutral regmask, and merge it */
-    using list_type = typelist<typename CFG::template regmask_type<type>...>;
-    using filtered = typename list_type::template filter_is_base_of<reg_type>;
-    using filtered_neutral = typename filtered::template push_back< neutral_regmask >::type;
-    using merged_regmask_type = typename filtered_neutral::merge::type;
+    using filtered = typename regmask_list::template filter_type<reg_type>;
+    using filtered_neutral = typelist< filtered, neutral_regmask >;
+    using merged_list  = typename filtered_neutral::template map< mpl::map_merged_regmask >;
+    using unique_merged_list = typename merged_list::filter_unique::type;
 
-    reg_type::template reset_to< merged_regmask_type >();
+    unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
   }
 
   /**
