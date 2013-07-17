@@ -172,6 +172,11 @@ struct alt_func_num
 //          unsigned alt_func_num = 0>
 template< char port, unsigned _pin_no, typename... CFG >
 class gpio
+: public periph_cfg<
+  gpio<port, _pin_no>,
+  //  rcc_gpio_clock_resources<port>, // TODO: make config object out of these
+  CFG...
+  >
 {
   static_assert((port >= 'A') && (port <= 'I'), "invalid GPIO port");
   static_assert(_pin_no < 16, "invalid GPIO pin-no");
@@ -183,40 +188,22 @@ public:
 
   static constexpr unsigned pin_no = _pin_no;
   using GPIOx = reg::GPIO<port>;
-  using type  = gpio<port, pin_no, CFG...>;
-  using periph_type = periph< type, CFG... >;
-  using cfg_list = typename periph_type::cfg_list;
-  using regmask_list = typename periph_type::regmask_list;
+  using type = gpio< port, pin_no >; // NOTE: no CFG... here, this is handled by periph subclass.
+  using periph_cfg_type = periph_cfg< type, CFG... >;
+  using cfg_list = typename periph_cfg_type::cfg_list;
 
-#if 1
   using resources = typelist<
     rcc_gpio_clock_resources<port>,
+#if 0
+    typename CFG::template resources< type >...,
+    typename CFG::template regmask_type< type >...
+#endif
+    typename periph_cfg_type::resources // TODO: add defaults to periph_config, then we can remove the whole list here!
     // TODO: unique type
     //    resource::unique< gpio<port, pin_no> >,
-    typename CFG::template resources< type >...,
-    typename CFG::template regmask_type< type >...
     >;
-#else
-  using cfg_resources = typelist<
-    typename CFG::template regmask_type< type >...
-    >;
-
-  using resources = typename typelist_cat<
-    rcc_gpio_clock_resources<port>,
-    typename CFG::template resources< type >...,
-    cfg_resources
-  >::type::template push_back<
-      typename resource::unique< gpio<port, pin_no> >
-    >::type;
-#endif
 
   static constexpr bool is_low_active = cfg_list::template contains< cfg::gpio::active_state::low >::value;
-
-  // TODO: this goes to some periph base class (maybe with __always_inline ?)
-  template<typename reg_type>
-  static void configure_reg() {
-// !!! TODO: not yet implemented!! (see usart.hpp)
-  }
 
   static void set() {
     GPIOx::BSRR::store(pin_mask);

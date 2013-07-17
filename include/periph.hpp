@@ -30,37 +30,45 @@ namespace cfg {
   struct config_base
   : typelist_element
   {
+    template<typename T> using resources    = void;
     template<typename T> using regmask_type = void;
-    template<typename T> using resources = void;
   };
 
 } // namespace cfg
 
+
 /**
- * Peripheral Device Class
+ * Peripheral resources class
  *
  * Template arguments:
  * - Tp     : derived type (real peripheral type), e.g. spi<0>
  * - CFG... : configuration list: e.g. spi_default_config
  */
-template< typename Tp, typename cfg_reg_type_list, typename... CFG >
-struct periph
+template< typename Tp, typename... CFG >
+struct periph_cfg
 {
   using derived_type = Tp;
   using cfg_list = typelist< CFG... >;
 
-  /**
-   * List of all regmask<> types from CFG.
-   */
-  using regmask_list = typelist<
+  using resources = typelist<
+    typename CFG::template resources< derived_type >...,
     typename CFG::template regmask_type< derived_type >...
     >;
+};
 
-  using resources = typelist<
-    regmask_list,
-    typename CFG::template resources< derived_type >...
-    >;
 
+/**
+ * Peripheral device class
+ *
+ * Template arguments:
+ * - Tp        : derived type (real peripheral type), e.g. spi<0>
+ * - type_list : typelist<regdef<>...> type, for resetting in configure() function
+ * - CFG...    : configuration list: e.g. spi_default_config
+ */
+template< typename Tp, typename cfg_reg_type_list, typename... CFG >
+class periph
+: public periph_cfg< Tp, CFG... >
+{
   /**
    * Set register list_element_type (aka: regdef<>) to its default
    * value, combined with the merged regmask<> types from the local
@@ -95,6 +103,18 @@ struct periph
       list_element_type::template reset_to< merged_regmask_type >();
     }
   };
+
+public:
+
+  using derived_type = Tp;
+  using cfg_list = typelist< CFG... >;
+
+  /**
+   * List of all regmask<> types from CFG.
+   */
+  using regmask_list = typelist<
+    typename CFG::template regmask_type< derived_type >...
+    >;
 
   /**
    * Configure peripheral device.

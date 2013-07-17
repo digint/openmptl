@@ -217,7 +217,7 @@ template< unsigned _usart_no, typename _rcc, typename... CFG >
 class usart
 : public periph<
   usart<_usart_no, _rcc>,
-  typelist< 
+  typelist<                  /* list of regdef<> register types to reset in configure() function */
       typename reg::USART<_usart_no>::CR1,
       typename reg::USART<_usart_no>::CR2,
       typename reg::USART<_usart_no>::CR3,
@@ -238,63 +238,12 @@ public:
   using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;
-#if 0
-  using periph_type = periph<
-    usart<_usart_no, _rcc>,
-    typelist< 
-      typename reg::USART<_usart_no>::CR1,
-      typename reg::USART<_usart_no>::CR2,
-      typename reg::USART<_usart_no>::CR3,
-      typename reg::USART<_usart_no>::BRR
-      >,
-    CFG...
-    >;
-  using cfg_list = typename periph_type::cfg_list;
-  using regmask_list = typename periph_type::regmask_list;
-#endif
-
-#if 0
-  using resources = typename rcc_usart_clock_resources<usart_no>::template push_back<
-    typename CFG::template resources< type >...,
-    typename CFG::template regmask_type< type >...
-    >;
-#else
-  using cfg_resources = typelist<
-    typename CFG::template regmask_type< type >...
-    >;
+  using periph_cfg_type = periph_cfg< type, CFG... >;
 
   using resources = typelist<
     rcc_usart_clock_resources<usart_no>,
-    typename CFG::template resources< type >...,
-    cfg_resources
+    typename periph_cfg_type::resources
     >;
-#endif
-
-
-  /**
-   * Set the USART registers.
-   * NOTE: this implicitely clears all other bits, including "usart enable" (CR1::UE) !
-   */
-#if 0
-  static void configure()
-  {
-#if 0
-    mpl::regmask_write<
-      cfg_list,
-      typename USARTx::CR1,
-      typename USARTx::CR2,
-      typename USARTx::CR3,
-      typename USARTx::BRR,
-      >();
-#endif
-
-    // TODO: the goal here is to use "typelist<CFG::resources<type>...>::merged_type" here
-    periph_type::template configure_reg<typename USARTx::CR1>();
-    periph_type::template configure_reg<typename USARTx::CR2>();
-    periph_type::template configure_reg<typename USARTx::CR3>();
-    periph_type::template configure_reg<typename USARTx::BRR>();
-  }
-#endif
 
   static void send(typename USARTx::DR::value_type data) {
     /* Implicitely clears the TXE bit in the SR register.  */
