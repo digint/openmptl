@@ -115,10 +115,19 @@ public:
 
   /**
    * Type trait, providing ::value. True if the list contains an
-   * element of type T, false otherwise.
+   * element of exact type T, false otherwise.
    */
   template<typename T>
   struct contains {
+    static constexpr bool value = mpl::contains_impl< T, Tp... >::value;
+  };
+
+  /**
+   * Type trait, providing ::value. True if the list contains an
+   * element of exact type T, false otherwise.
+   */
+  template<typename T>
+  struct contains_base_of {
     static constexpr bool value = mpl::contains_impl< T, Tp... >::value;
   };
 

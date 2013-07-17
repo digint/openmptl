@@ -158,7 +158,7 @@ struct for_each_impl<cmd_type, Head, Args...> {
 
 ////////////////////  contains_impl  ////////////////////
 
-
+/** uses std::is_same<> */
 template<typename T, typename... Args>
 struct contains_impl {
   static constexpr bool value = false;
@@ -166,8 +166,26 @@ struct contains_impl {
 template<typename T, typename Head, typename... Args>
 struct contains_impl<T, Head, Args...>
 {
-  static constexpr bool value = ( std::is_base_of<T, Head>::value ||
-                                  contains_impl<T, Args...>::value );
+  static constexpr bool value =
+    ( std::is_same<T, Head>::value ||
+      contains_impl<T, Args...>::value );
+};
+
+
+////////////////////  contains_base_of_impl  ////////////////////
+
+
+/** uses std::is_base_of<> */
+template<typename T, typename... Args>
+struct contains_base_of_impl {
+  static constexpr bool value = false;
+};
+template<typename T, typename Head, typename... Args>
+struct contains_base_of_impl<T, Head, Args...>
+{
+  static constexpr bool value =
+    ( std::is_base_of<T, Head>::value ||
+      contains_base_of_impl<T, Args...>::value );
 };
 
 
