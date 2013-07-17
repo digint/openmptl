@@ -21,13 +21,11 @@
 #ifndef ARM_CORTEX_STM32_COMMON_USART_HPP_INCLUDED
 #define ARM_CORTEX_STM32_COMMON_USART_HPP_INCLUDED
 
-#include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
-#include <type_traits>
-#include <typelist.hpp>
 #include <periph.hpp>
+#include <type_traits>
 
 namespace mptl {
 

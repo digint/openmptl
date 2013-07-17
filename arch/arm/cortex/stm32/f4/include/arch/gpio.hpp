@@ -21,10 +21,9 @@
 #ifndef GPIO_HPP_INCLUDED
 #define GPIO_HPP_INCLUDED
 
-#include <typelist.hpp>
-#include <periph.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
+#include <periph.hpp>
 #include <type_traits>
 
 namespace mptl {
@@ -47,7 +46,12 @@ namespace mode
     using regmask_type = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 1 >;
   };
 
-  struct alternate_function  // TODO: combine with alt_func_num
+  /**
+   * Alternate function mode selection
+   *
+   * NOTE: usually in combination with "alt_func_num<>".
+   */
+  struct alternate_function
   : public config_base
   {
     template<typename gpio_type>
@@ -142,20 +146,38 @@ namespace active_state
   { };
 } // namespace active_state
 
-/** Alternate function selection */
+
+
+/**
+ * Alternate function selection
+ *
+ * NOTE: usually in combination with "mode::alternate_function".
+ */
 template<unsigned value>
 struct alt_func_num
-: public config_base
+: public config_base // deriving from mode::alternate_function would introduce too much magic.
 {
   static_assert(value < 16, "illegal alternate function number");
 
   template<typename gpio_type>
-  using regmask_type = typename std::conditional<
+  using afr_regmask_type = typename std::conditional<
     gpio_type::pin_no < 8,
-    regval< typename gpio_type::GPIOx::template AFRLx<gpio_type::pin_no>, value >,
-    regval< typename gpio_type::GPIOx::template AFRHx<gpio_type::pin_no>, value >
-    >::type;
+      regval< typename gpio_type::GPIOx::template AFRLx<gpio_type::pin_no>, value >,
+      regval< typename gpio_type::GPIOx::template AFRHx<gpio_type::pin_no>, value >
+      >::type;
+
+#if 0  // deriving from mode::alternate_function would introduce too much magic.
+  template<typename gpio_type>
+  using regmask_type = typelist<
+    mode::alternate_function::regmask_type< gpio_type >, // derive from base
+    afr_regmask_type< gpio_type >                        // add own
+    >;
+#else
+  template<typename gpio_type>
+  using regmask_type = afr_regmask_type< gpio_type >;
+#endif
 };
+
 
 } } // namespace cfg::gpio
 
@@ -188,7 +210,7 @@ public:
 
   static constexpr unsigned pin_no = _pin_no;
   using GPIOx = reg::GPIO<port>;
-  using type = gpio< port, pin_no >; // NOTE: no CFG... here, this is handled by periph subclass.
+  using type = gpio< port, pin_no, CFG... >;
   using periph_cfg_type = periph_cfg< type, CFG... >;
   using cfg_list = typename periph_cfg_type::cfg_list;
 
@@ -253,23 +275,6 @@ public:
 };
 
 
-////////////////////  gpio_input_af  ////////////////////
-
-
-// template<char port,
-//          unsigned pin_no,
-//          unsigned alt_func_num,
-//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating
-//          >
-template<char port, unsigned pin_no, typename... CFG>
-class gpio_input_af
-: public gpio< port,
-               pin_no,
-               cfg::gpio::mode::alternate_function,
-               CFG... >
-{ };
-
-
 ////////////////////  gpio_output  ////////////////////
 
 
@@ -326,6 +331,32 @@ public:
 };
 
 
+////////////////////  gpio_input_af  ////////////////////
+
+
+// template<char port,
+//          unsigned pin_no,
+//          unsigned alt_func_num,
+//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating
+//          >
+#if 0  // deprecated: use gpio<mode::alt_func_num<>> instead.
+// TODO: reenable when we support default configuration
+template<char port, unsigned pin_no, typename... CFG>
+class gpio_input_af
+: public gpio< port,
+               pin_no,
+               cfg::gpio::mode::alternate_function,
+               CFG... >
+{
+#if 0  // we don't want that
+  using type = gpio_input_af<port, pin_no, CFG...>;
+  static_assert(type::cfg_list::template contains< cfg::gpio::mode::alternate_function >::value,
+                "gpio_input_af needs mode::alternate_function present in CFG template parameter");
+#endif
+};
+#endif // deprecated
+
+
 ////////////////////  gpio_output_af  ////////////////////
 
 
@@ -335,13 +366,24 @@ public:
 //          cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::open_drain,
 //          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
 //          freq_t speed = mhz(50)>
+#if 0  // deprecated: use gpio<mode::alt_func_num<>> instead.
+// TODO: reenable when we support default configuration
 template<char port, unsigned pin_no, typename... CFG>
 class gpio_output_af
 : public gpio< port,
                pin_no,
+#if 1 // we want this (TODO: really?)
                cfg::gpio::mode::alternate_function,
+#endif
                CFG...>
-{ };
+{
+#if 0  // we don't want that
+  using type = gpio_output_af<port, pin_no, CFG...>;
+  static_assert(type::cfg_list::template contains< cfg::gpio::mode::alternate_function >::value,
+                "gpio_output_af needs mode::alternate_function present in CFG template parameter");
+#endif
+};
+#endif // deprecated
 
 
 ////////////////////  gpio_analog_io  ////////////////////

@@ -166,7 +166,7 @@ struct contains_impl {
 template<typename T, typename Head, typename... Args>
 struct contains_impl<T, Head, Args...>
 {
-  static constexpr bool value = ( std::is_same<Head, T>::value ||
+  static constexpr bool value = ( std::is_base_of<T, Head>::value ||
                                   contains_impl<T, Args...>::value );
 };
 
