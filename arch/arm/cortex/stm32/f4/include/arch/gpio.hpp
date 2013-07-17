@@ -23,7 +23,6 @@
 
 #include <resource.hpp>
 #include <periph.hpp>
-#include <cfg_list.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 #include <type_traits>

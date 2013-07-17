@@ -25,6 +25,17 @@
 
 namespace mptl {
 
+namespace cfg {
+
+  struct config_base
+  : typelist_element
+  {
+    template<typename T> using regmask_type = void;
+    template<typename T> using resources = void;
+  };
+
+} // namespace cfg
+
 /**
  * Peripheral Device Class
  *
@@ -38,6 +49,9 @@ struct periph
   using derived_type = Tp;
   using cfg_list = typelist< CFG... >;
 
+  /**
+   * List of all regmask<> types from CFG.
+   */
   using regmask_list = typelist<
     typename CFG::template regmask_type< derived_type >...
     >;
@@ -46,24 +60,6 @@ struct periph
     regmask_list,
     typename CFG::template resources< derived_type >...
     >;
-
-#if 0
-  /**
-   * Set register reg_type to its default value, combined with the
-   * merged CFG::regmask_type classes.
-   */
-  // TODO: need unittest
-  template<typename reg_type>
-  static void configure_reg() {
-    using neutral_regmask = regmask< reg_type, 0, 0 >;
-
-    /* Filter CFG by reg_type, append neutral regmask, and merge it */
-    using filtered = typename regmask_list::template filter_type<reg_type>;
-    using filtered_neutral = typelist< filtered, neutral_regmask >;
-
-    mpl::regmask_write< filtered_neutral, mpl::write_strategy::reset_to >();
-  }
-#endif
 
   /**
    * Set register list_element_type (aka: regdef<>) to its default
@@ -82,6 +78,7 @@ struct periph
    *     list_element_type::reset_to< merged_regmask<> >();
    *
    */
+  // TODO: need unittest
   struct functor_reset_to_regmask_list {
     template<typename list_element_type>
     static void __always_inline command(void) {
@@ -103,6 +100,7 @@ struct periph
    * Configure peripheral device.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
+  //  void configure(void) const {
   static void configure(void) {
     cfg_reg_type_list::template for_each< functor_reset_to_regmask_list >();
   }
@@ -111,10 +109,11 @@ struct periph
    * Reconfigure and enable peripheral device.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
-  void reconfigure(void) const {
-    //!!!    periph_type::disable();
+  //  void reconfigure(void) const {
+  static void reconfigure(void) {
+    derived_type::disable();
     configure();
-    //!!!    periph_type::enable();
+    derived_type::enable();
   }
 };
 
