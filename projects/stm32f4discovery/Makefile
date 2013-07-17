@@ -122,9 +122,11 @@ OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 # commmon flags propagated to CFLAGS, CXXFLAGS, ASFLAGS (not LDFLAGS)
 FLAGS       += $(CPUFLAGS)
 FLAGS       += $(INCLUDE)
+ifndef CLANG
 FLAGS       += -Wa,-gdwarf-4
 FLAGS       += -MMD
 FLAGS       += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+endif
 
 # TODO: find out why this produces smaller code (+document)
 OPTIMIZER   += -ffunction-sections -fdata-sections  # Place each function or data item into its own section
@@ -204,7 +206,9 @@ $(HEX):	$(ELF)
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
 	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
+ifndef SIMULATION
 	$(SIZE) $@
+endif
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
