@@ -92,6 +92,7 @@
 #include <register_backend.hpp>
 #include <resource.hpp>
 #include <compiler.h>
+#include "register_mpl.hpp"
 
 namespace mptl {
 
@@ -100,7 +101,7 @@ namespace mptl {
  * Base class for regmask class. Used for filtering in resource::list.
  */
 struct regmask_base
-: public typelist_element // TODO: think about deriving from a tag_type, or template args for switching unique tag.
+: public typelist_element
 { };
 
 
@@ -235,30 +236,6 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
 };
 
 
-////////////////////  merged_regmask  ////////////////////
-
-
-template<typename... Tp>
-struct merged_regmask;
-
-template<>
-struct merged_regmask<> {
-  using type = void;
-};
-template<typename Tp>
-struct merged_regmask<Tp> {
-  using type = Tp;
-};
-template<typename... Tp>
-struct merged_regmask<void, Tp...> {
-  using type = typename merged_regmask<Tp...>::type;
-};
-template<typename T0, typename... Tp>
-struct merged_regmask<T0, Tp...> {
-  using type = typename T0::mask_type::template merge< typename merged_regmask<Tp...>::type >::type;
-};
-
-
 ////////////////////  regval  ////////////////////
 
 
@@ -337,7 +314,7 @@ public:
 
   template<typename Rm0, typename... Rm>
   struct merge {
-    using type = typename merged_regmask<Rm0, Rm...>::type;
+    using type = typename mpl::merged_regmask<Rm0, Rm...>::type;
     static_assert(std::is_same<typename type::reg_type, reg_type>::value, "merged template arguments have different regdef<> type");
   };
 
@@ -368,92 +345,6 @@ public:
     type::store((reset_value & ~merged_regmask::cropped_clear_mask) | merged_regmask::set_mask);
   }
 };
-
-
-////////////////////  reg_configure  ////////////////////
-
-namespace mpl // TODO: move to register_mpl.hpp
-{
-  /**
-   * Provides a list, whose types all share the same underlying
-   * reg_type = Tp
-   */
-  template<typename Tp>
-  struct filter_reg_type {
-    template<typename Tf>
-    using filter = std::is_same< typename Tp::reg_type, typename Tf::reg_type >;
-  };
-
-
-  /**
-   * Packs elements to a merged_regmask (aka: regmask<>).
-   *
-   * NOTE: merged_regmask<> asserts at compile-time that ALL the
-   * elements in Tp... are of same regdef_type.
-   */
-  struct pack_merged_regmask {
-    template<typename... Tp>
-    struct pack {
-      using type = typename merged_regmask<Tp...>::type;
-    };
-  };
-
-  /**
-   * Map each element in list to a merged_regmask of all elements in
-   * list having the same reg_type.
-   */
-  struct map_merged_regmask {
-    template<typename T, typename list_type>
-    struct map {
-      using filtered_list = typename list_type::template filter< filter_reg_type<T> >::type;
-      using type = typename filtered_list::template pack< pack_merged_regmask >::type;
-    };
-  };
-
-  /**
-   * Calls regdef_type::reset_to<>() on a given typelist element type.
-   *
-   * NOTE: list_element_type MUST provide the reset_to<>() static
-   * member (e.g. regmask<> type), so you might want to filter your
-   * typelist first.
-   *
-   * Sets a register to its reset value (regdef::reset_value), merged
-   * with the set/clear mask of the given regmask element type
-   * (list_element_type).
-   *
-   * This results in a single write (regdef_backend::store())
-   * instruction, NOT a read-modify-write!.
-   *
-   * Used e.g. in core::configure() on typelist::for_each<>() in order
-   * to reset all register from the accumulated resources list at once.
-   *
-   * See regdef::reset_to<>() documentation for more information.
-   */
-  struct functor_reg_reset_to {
-    template<typename list_element_type>
-    static void __always_inline command(void) {
-      list_element_type::reg_type::template reset_to< list_element_type >();
-    }
-  };
-
-  /**
-   * Analog to functor_reg_reset_to, but executes the
-   * regmask_type::set() static member function instead.
-   *
-   * Use this if you only WANT the register bits to keep their old
-   * value if not touched by set/clear mask of regmask<>.
-   *
-   * This results in a read-modify-write access and is thus much
-   * slower. Depending on register and/or processor type, you might
-   * want to choose this functor.
-   */
-  struct functor_reg_set {
-    template<typename list_element_type>
-    static void __always_inline command(void) {
-      list_element_type::set();
-    }
-  };
-} // namespace mpl
 
 } // namespace mptl
 
