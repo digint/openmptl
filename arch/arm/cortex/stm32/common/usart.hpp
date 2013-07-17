@@ -227,6 +227,8 @@ class usart
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 
+  // TODO: assert that all in CFG are usart_cfg_type
+
   using type = usart<_usart_no, _rcc>;
 
 public:

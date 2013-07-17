@@ -85,6 +85,7 @@ namespace output_type
   };
 } // namespace output_type
 
+
 /** I/O output speed */
 template<freq_t value>
 struct speed
@@ -105,6 +106,7 @@ struct speed
      0)
     >;
 };
+
 
 namespace resistor
 {
@@ -177,7 +179,6 @@ struct alt_func_num
   using regmask_type = afr_regmask_type< gpio_type >;
 #endif
 };
-
 
 } } // namespace cfg::gpio
 
