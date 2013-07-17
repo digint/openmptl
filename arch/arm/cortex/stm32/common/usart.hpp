@@ -228,7 +228,8 @@ public:
   using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;
-  using cfg_list = periph_config_list<CFG...>;
+  //  using cfg_list = periph_config_list<CFG...>;
+  using cfg_list = typelist<CFG...>;
 
 #if 0
   using resources = typename rcc_usart_clock_resources<usart_no>::template push_back<
@@ -271,6 +272,16 @@ public:
    */
   static void configure()
   {
+#if 0
+    mpl::regmask_write<
+      cfg_list,
+      typename USARTx::CR1,
+      typename USARTx::CR2,
+      typename USARTx::CR3,
+      typename USARTx::BRR,
+      >();
+#endif
+
     // TODO: the goal here is to use "typelist<CFG::resources<type>...>::merged_type" here
     configure_reg<typename USARTx::CR1>();
     configure_reg<typename USARTx::CR2>();

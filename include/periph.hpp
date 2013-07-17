@@ -23,6 +23,19 @@
 
 namespace mptl {
 
+#if 1
+template< typename Tp, typename... CFG >
+struct periph
+{
+  using derived_type = Tp;
+  using cfg_list = typelist< CFG... >;
+
+  using resources = typelist<
+    typename CFG::template resources< derived_type >...,
+    typename CFG::template regmask_type< derived_type >...
+    >;
+};
+#else
 /**
  * Peripheral Device Class
  *
@@ -53,6 +66,7 @@ public:
     //!!!    periph_type::enable();
   }
 };
+#endif
 
 } // namespace mptl
 

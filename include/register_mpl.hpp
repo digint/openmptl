@@ -156,7 +156,8 @@ enum class write_strategy {
  * register_mpl.hpp for a discussion about reset_to() and set().
  */
 template< typename typelist_type,
-          write_strategy strategy = write_strategy::read_modify_write
+  write_strategy strategy = write_strategy::read_modify_write,
+  typename... Tf
         >
 static void regmask_write() {
   using regmask_list = typename typelist_type::template filter_type< regmask_base >;

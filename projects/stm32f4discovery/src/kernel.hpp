@@ -52,7 +52,8 @@ struct Kernel
   using led_green     = mptl::gpio_led< 'D', 12 >;
   using led_orange    = mptl::gpio_led< 'D', 13 >;
   using led_red       = mptl::gpio_led< 'D', 14 >;
-  using led_blue      = mptl::gpio_led< 'D', 15 >;
+  /* Demonstrate the impact of active_state: */
+  using led_blue      = mptl::gpio_led< 'D', 15, mptl::cfg::gpio::active_state::low >;
 
   /* Reset exception: triggered on system startup (system entry point). */
   static void __naked reset_isr(void);

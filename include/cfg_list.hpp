@@ -27,40 +27,15 @@ namespace mptl {
 
 namespace cfg {
 
-  struct config_base {
+  struct config_base
+  : typelist_element
+  {
     template<typename T> using regmask_type = void;
     template<typename T> using resources = void;
   };
 
 } // namespace cfg
 
-template< typename... CFG >
-class periph_config_list
-{
-protected:
-  template<typename T, typename Head, typename... Args>
-  struct contains_impl {
-    static constexpr bool value = ( std::is_base_of<T, Head>::value ||
-                                    contains_impl<T, Args...>::value );
-  };
-  template<typename T, typename... Args>
-  struct contains_impl<T, void, Args...> {
-    /* ignore void */
-    static constexpr bool value = contains_impl<T, Args...>::value;
-  };
-  template<typename T, typename Head>
-  struct contains_impl<T, Head> {
-    static constexpr bool value = std::is_base_of<T, Head>::value;
-  };
-
-public:
-
-  template<typename T>
-  struct contains {
-    //    using type = contains<T>;
-    static constexpr bool value = contains_impl<T, CFG...>::value;
-  };
-};
 
 } // namespace mptl
 

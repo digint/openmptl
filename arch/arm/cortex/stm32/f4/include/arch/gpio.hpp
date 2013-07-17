@@ -172,7 +172,7 @@ struct alt_func_num
 //          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
 //          unsigned alt_func_num = 0>
 template< char port, unsigned _pin_no, typename... CFG >
-class gpio // : public periph  // TODO
+class gpio
 {
   static_assert((port >= 'A') && (port <= 'I'), "invalid GPIO port");
   static_assert(_pin_no < 16, "invalid GPIO pin-no");
@@ -185,7 +185,8 @@ public:
   static constexpr unsigned pin_no = _pin_no;
   using GPIOx = reg::GPIO<port>;
   using type  = gpio<port, pin_no, CFG...>;
-  using cfg_list = periph_config_list<CFG...>;   // TODO: typelist
+  using periph_type = periph< type, CFG... >;
+  using cfg_list = typename periph_type::cfg_list;
 
 #if 1
   using resources = typelist<

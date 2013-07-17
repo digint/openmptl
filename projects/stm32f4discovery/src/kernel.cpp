@@ -33,6 +33,7 @@ void Kernel::systick_isr() {
     systick_count = 1000;
     second++;
     led_green::toggle();
+    led_blue::toggle();
   }
 }
 
