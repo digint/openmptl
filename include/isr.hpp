@@ -47,15 +47,17 @@ namespace mpl
     using filter = std::integral_constant< bool, (T::irq_type::irqn == _irqn) >;
   };
 
+  /** typelist, filtered to only hold irq_handler_base type */
   template<typename typelist_type>
   using irq_handler_list = typename typelist_type::template filter_type< irq_handler_base >;
 
+  /** typelist, filtered to only hold irq_handler with given irq number (int irqn) */
   template<typename typelist_type, int irqn>
-  using irqn_list = typename irq_handler_list<typelist_type>::template filter< filter_irqn< irqn > >::type;
+  using irqn_list = typename irq_handler_list<typelist_type>::template filter< filter_irqn< irqn > >;
 
 
   /**
-   * Provides the mptl::irq_handler<> type from a given typelist<> and
+   * Provides the mptl::irq_handler<> element type from a given typelist<> and
    * irq number (int irqn). 
    *
    * NOTE: Asserts at compile-time (static_assert) that the returned

@@ -106,6 +106,8 @@ struct regmask_base
 
 ////////////////////  regmask  ////////////////////
 
+// TODO: global replace reg_type with regdef_type
+
 
 template< typename R,    /* regdef<> type */
           typename R::value_type _set_mask,
@@ -370,7 +372,7 @@ public:
 
 ////////////////////  reg_configure  ////////////////////
 
-namespace mpl
+namespace mpl // TODO: move to register_mpl.hpp
 {
   /**
    * Provides a list, whose types all share the same underlying
@@ -384,9 +386,10 @@ namespace mpl
 
 
   /**
-   * Packs elements to a merged_regmask. Note that merged_regmask<>
-   * asserts at compile-time that the underlying reg_types are
-   * identical.
+   * Packs elements to a merged_regmask (aka: regmask<>).
+   *
+   * NOTE: merged_regmask<> asserts at compile-time that ALL the
+   * elements in Tp... are of same regdef_type.
    */
   struct pack_merged_regmask {
     template<typename... Tp>
@@ -407,6 +410,25 @@ namespace mpl
     };
   };
 
+  /**
+   * Calls regdef_type::reset_to<>() on a given typelist element type.
+   *
+   * NOTE: list_element_type MUST provide the reset_to<>() static
+   * member (e.g. regmask<> type), so you might want to filter your
+   * typelist first.
+   *
+   * Sets a register to its reset value (regdef::reset_value), merged
+   * with the set/clear mask of the given regmask element type
+   * (list_element_type).
+   *
+   * This results in a single write (regdef_backend::store())
+   * instruction, NOT a read-modify-write!.
+   *
+   * Used e.g. in core::configure() on typelist::for_each<>() in order
+   * to reset all register from the accumulated resources list at once.
+   *
+   * See regdef::reset_to<>() documentation for more information.
+   */
   struct functor_reg_reset_to {
     template<typename list_element_type>
     static void __always_inline command(void) {
@@ -414,6 +436,17 @@ namespace mpl
     }
   };
 
+  /**
+   * Analog to functor_reg_reset_to, but executes the
+   * regmask_type::set() static member function instead.
+   *
+   * Use this if you only WANT the register bits to keep their old
+   * value if not touched by set/clear mask of regmask<>.
+   *
+   * This results in a read-modify-write access and is thus much
+   * slower. Depending on register and/or processor type, you might
+   * want to choose this functor.
+   */
   struct functor_reg_set {
     template<typename list_element_type>
     static void __always_inline command(void) {

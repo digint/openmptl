@@ -51,6 +51,9 @@ struct core_config
 {
   /**
    * Call regdef::reset_to() on each distinct merged regmask from list.
+   *
+   * Also see the "functor_reg_reset_to" documentation in
+   * register_mpl.hpp for a discussion about reset_to() and set().
    */
   template<typename list_type>
   static void configure() {
