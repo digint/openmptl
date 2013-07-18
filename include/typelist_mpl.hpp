@@ -25,6 +25,10 @@
 #include <cstdint>
 #include <compiler.h>
 
+#ifdef CONFIG_USE_STD_TUPLE
+#  include <tuple>
+#endif // CONFIG_USE_STD_TUPLE
+
 // Hint: template debugging:
 //template<typename T> struct incomplete;
 //incomplete<bad_type> debug;
@@ -138,6 +142,28 @@ struct make_unique_list<list_type, Head, Args...> {
       >::type,
     Args...>::type;
 };
+
+
+////////////////////  for_each_impl  ////////////////////
+
+
+#ifdef CONFIG_USE_STD_TUPLE  // experimental
+
+template<typename func_type, std::size_t N = 0, typename... Tp>
+inline typename std::enable_if<N == sizeof...(Tp), void>::type
+for_each(std::tuple<Tp...> &)
+{ }
+
+template<typename func_type, std::size_t N = 0, typename... Tp>
+inline typename std::enable_if<N < sizeof...(Tp), void>::type
+for_each(std::tuple<Tp...> & t)
+{
+  using ele_type = typename std::tuple_element<N, std::tuple<Tp...> >::type;
+
+  func_type::template command< ele_type >();
+  for_each<func_type, N+1, Tp...>(t);
+}
+#endif // CONFIG_USE_STD_TUPLE
 
 
 ////////////////////  for_each_impl  ////////////////////

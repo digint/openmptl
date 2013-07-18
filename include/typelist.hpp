@@ -102,6 +102,10 @@ public:
 
   using type = sane_typelist< Tp... >;
 
+#ifdef CONFIG_USE_STD_TUPLE
+  using tuple_type = std::tuple<Tp...>;
+#endif // CONFIG_USE_STD_TUPLE
+
   /**
    * Append an element (derived from typelist_element) or another
    * sane_typelist to the list.
@@ -191,7 +195,13 @@ public:
    */
   template<typename T>
   static void for_each(void) {
+#ifdef CONFIG_USE_STD_TUPLE
+    auto tup = tuple_type();
+    mpl::for_each<T>(tup);
+    // mpl::for_each<T>(tuple_type());
+#else
     mpl::for_each_impl<T, Tp...>::command();
+#endif // CONFIG_USE_STD_TUPLE
   }
 
   /**
@@ -203,10 +213,6 @@ public:
     // TODO: fix this
     return true;
   }
-
-#ifdef CONFIG_USE_STD_TUPLE
-  using tuple_type = std::tuple<Tp...>;
-#endif // CONFIG_USE_STD_TUPLE
 };
 
 

@@ -155,48 +155,6 @@ enum class write_strategy {
 }; 
 
 
-#ifdef CONFIG_USE_STD_TUPLE
-
-#include <tuple>
-
-template<class Tp, std::size_t N>
-struct tuple_regmask_reset_to {
-#if 0
-  static void command(const Tp& t) {
-    tuple_regmask_reset_to<Tp, N-1>::command(t);
-    std::get<N-1>(t).reset_to();
-  }
-#else
-  void operator()(const Tp& t) {
-    //    tuple_regmask_reset_to<Tp, N-1>()(t);
-    std::get<N-1>(t).reset_to();
-  }
-#endif
-};
-
-template<class Tp>
-struct tuple_regmask_reset_to<Tp, 0> {
-#if 0
-  static void command(const Tp&) { }
-#else
-  void operator()(const Tp&) { }
-#endif
-};
-
-template<class... Args>
-void reset_all(const std::tuple<Args...>& t) 
-{
-#if 0
-  tuple_regmask_reset_to<decltype(t), sizeof...(Args)>::command(t);
-#else
-  tuple_regmask_reset_to<decltype(t), sizeof...(Args)>()(t);
-#endif
-}
-
-#endif // CONFIG_USE_STD_TUPLE
-
-
-
 /**
  * Call regdef::reset_to() on each distinct merged regmask from list.
  *
@@ -212,14 +170,10 @@ static void regmask_write() {
   using merged_list  = typename regmask_list::template map< mpl::map_merged_regmask >;
   using unique_merged_list = typename merged_list::filter_unique::type;
 
-#ifdef CONFIG_USE_STD_TUPLE
-  reset_all(typename unique_merged_list::tuple_type());
-#else
   if(strategy == write_strategy::read_modify_write)
     unique_merged_list::template for_each< mpl::functor_reg_set >();
   else
     unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
-#endif // CONFIG_USE_STD_TUPLE
 }
 
 } } // namespace mptl::mpl

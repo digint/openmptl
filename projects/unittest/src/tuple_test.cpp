@@ -21,6 +21,7 @@
 #define CONFIG_USE_STD_TUPLE
 
 #include <typelist.hpp>
+#include <register.hpp>
 #include <arch/rcc.hpp>
 
 #include <iostream>
@@ -31,8 +32,6 @@ using namespace mptl;
 using namespace mptl::reg;
 
 void reg_reaction::react() { }
-
-#if 0
 
 // helper function to print a tuple of any size
 template<class Tp, std::size_t N>
@@ -57,36 +56,8 @@ struct tuple_regmask_reset_to<Tp, 1> {
 template<class... Args>
 void reset_all(const std::tuple<Args...> & t) 
 {
-  std::cout << "****** reset_all ******" << std::endl;
   tuple_regmask_reset_to<decltype(t), sizeof...(Args)>::command(t);
-  std::cout << "****** end reset_all ******" << std::endl;
 }
-#endif
-
-
-
-template<typename func_type, std::size_t N = 0, typename... Tp>
-inline typename std::enable_if<N == sizeof...(Tp), void>::type
-for_each(std::tuple<Tp...> & t)
-{ }
-
-template<typename func_type, std::size_t N = 0, typename... Tp>
-inline typename std::enable_if<N < sizeof...(Tp), void>::type
-for_each(std::tuple<Tp...> & t)
-{
-  using ele_type = typename std::tuple_element<N, std::tuple<Tp...> >::type;
-
-  func_type::template command< ele_type >();
-  for_each<func_type, N+1, Tp...>(t);
-}
-
-
-struct tuple_functor_reg_reset_to {
-  template<typename list_element_type>
-  static void __always_inline command(void) {
-    list_element_type::reset_to();
-  }
-};
 
 
 int main()
@@ -97,11 +68,16 @@ int main()
     RCC::CFGR::PPRE1::DIV4
     >;
 
+  std::cout << "****** for_each ******" << std::endl;
+
   auto tup = list::tuple_type();
+  mpl::for_each<mpl::functor_reg_reset_to>(tup);
 
-for_each<tuple_functor_reg_reset_to>(tup);
+  std::cout << "****** for_each (directy) ******" << std::endl;
 
-  std::cout << "====================" << std::endl;
+  list::for_each<mpl::functor_reg_reset_to>();
+
+  std::cout << "****** reset_all ******" << std::endl;
 
   reset_all(tup);
 }
