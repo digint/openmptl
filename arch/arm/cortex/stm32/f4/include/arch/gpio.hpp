@@ -37,14 +37,14 @@ namespace mode
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 0 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 0 >;
   };
 
   struct output
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 1 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 1 >;
   };
 
   /**
@@ -56,14 +56,14 @@ namespace mode
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 2 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 2 >;
   };
 
   struct analog
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 3 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template MODERx<gpio_type::pin_no>, 3 >;
   };
 } // namespace mode
 
@@ -74,7 +74,7 @@ namespace output_type
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template OTYPERx<gpio_type::pin_no>, 0 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template OTYPERx<gpio_type::pin_no>, 0 >;
   };
 
   /** General purpose output open-drain */
@@ -82,7 +82,7 @@ namespace output_type
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template OTYPERx<gpio_type::pin_no>, 1 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template OTYPERx<gpio_type::pin_no>, 1 >;
   };
 } // namespace output_type
 
@@ -99,7 +99,7 @@ struct speed
                 "Illegal frequency for gpio output speed (allowed: mhz(2), mhz(25), mhz(50), mhz(100))");
 
   template<typename gpio_type>
-  using regmask_type = regval<
+  using config_regmask = regval<
     typename gpio_type::GPIOx::template OSPEEDRx<gpio_type::pin_no>,
     (value == mhz(25)  ? 1 :
      value == mhz(50)  ? 2 :
@@ -116,7 +116,7 @@ namespace resistor
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template PUPDRx<gpio_type::pin_no>, 0 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template PUPDRx<gpio_type::pin_no>, 0 >;
   };
 
   /** Input with pull-up */
@@ -124,7 +124,7 @@ namespace resistor
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template PUPDRx<gpio_type::pin_no>, 1 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template PUPDRx<gpio_type::pin_no>, 1 >;
   };
 
   /** Input with pull-down */
@@ -132,7 +132,7 @@ namespace resistor
   : public config_base
   {
     template<typename gpio_type>
-    using regmask_type = regval< typename gpio_type::GPIOx::template PUPDRx<gpio_type::pin_no>, 2 >;
+    using config_regmask = regval< typename gpio_type::GPIOx::template PUPDRx<gpio_type::pin_no>, 2 >;
   };
 } // namespace resistor
 
@@ -163,7 +163,7 @@ struct alt_func_num
   static_assert(value < 16, "illegal alternate function number");
 
   template<typename gpio_type>
-  using afr_regmask_type = typename std::conditional<
+  using afr_config_regmask = typename std::conditional<
     gpio_type::pin_no < 8,
       regval< typename gpio_type::GPIOx::template AFRLx<gpio_type::pin_no>, value >,
       regval< typename gpio_type::GPIOx::template AFRHx<gpio_type::pin_no>, value >
@@ -171,13 +171,13 @@ struct alt_func_num
 
 #if 0  // deriving from mode::alternate_function would introduce too much magic.
   template<typename gpio_type>
-  using regmask_type = typelist<
-    mode::alternate_function::regmask_type< gpio_type >, // derive from base
-    afr_regmask_type< gpio_type >                        // add own
+  using config_regmask = typelist<
+    mode::alternate_function::config_regmask< gpio_type >, // derive from base
+    afr_config_regmask< gpio_type >                        // add own
     >;
 #else
   template<typename gpio_type>
-  using regmask_type = afr_regmask_type< gpio_type >;
+  using config_regmask = afr_config_regmask< gpio_type >;
 #endif
 };
 
@@ -213,7 +213,7 @@ public:
     rcc_gpio_clock_resources<port>,
 #if 0
     typename CFG::template resources< type >...,
-    typename CFG::template regmask_type< type >...
+    typename CFG::template config_regmask< type >...
 #endif
     typename periph_cfg_type::resources // TODO: add defaults to periph_config, then we can remove the whole list here!
     // TODO: unique type

@@ -30,8 +30,27 @@ namespace cfg {
   struct config_base
   : typelist_element
   {
-    template<typename T> using resources    = void;
-    template<typename T> using regmask_type = void;
+    /**
+     * Resources needed by this element. Added to peripheral device
+     * resources typelist.
+     *
+     * Defaults to void.
+     */
+    template<typename T> using resources = void;
+
+    /**
+     * Configuration portion. 
+     *
+     * regmask<> type, or typelist<regmask<>...> type defining the
+     * configuration of the peripheral device.
+     *
+     * Used by the configure() member function, in order to set
+     * corresponding register bits defined by the given regmask<>.
+     *
+     * Also appended to the periph class resources typelist.
+     * Defaults to void.
+     */
+    template<typename T> using config_regmask = void;
   };
 
 } // namespace cfg
@@ -52,7 +71,7 @@ struct periph_cfg
 
   using resources = typelist<
     typename CFG::template resources< derived_type >...,
-    typename CFG::template regmask_type< derived_type >...
+    typename CFG::template config_regmask< derived_type >...
     >;
 };
 
@@ -72,14 +91,14 @@ class periph
   /**
    * Set register list_element_type (aka: regdef<>) to its default
    * value, combined with the merged regmask<> types from the local
-   * regmask_list<>.
+   * config_list<>.
    *
-   * 1. Filter the local regmask_list<> using the regdef<> (aka:
+   * 1. Filter the local config_list<> using the regdef<> (aka:
    * list_element_type) type trait, by for_each<>() call (e.g. in
    * configure() function below for each element in the
    * cfg_reg_type_list).
    *
-   * 2. Merges the regmask<> types from the filtered regmask_list<>.
+   * 2. Merges the regmask<> types from the filtered config_list<>.
    *
    * 3. Call:
    *
@@ -87,11 +106,11 @@ class periph
    *
    */
   // TODO: need unittest
-  struct functor_reset_to_regmask_list {
+  struct functor_reset_to_config_list {
     template<typename list_element_type>
     static void __always_inline command(void) {
       using filtered_list =
-        typename regmask_list::template filter<
+        typename config_list::template filter<
           mpl::filter_reg_type<list_element_type>
         >::type;
 
@@ -112,24 +131,28 @@ public:
   /**
    * List of all regmask<> types from CFG.
    */
-  using regmask_list = typelist<
-    typename CFG::template regmask_type< derived_type >...
+  using config_list = typelist<
+    typename CFG::template config_regmask< derived_type >...
     >;
 
   /**
    * Configure peripheral device.
+   *
+   * Sets all registers listed in the cfg_reg_type_list (aka:
+   * typelist<>). Takes register default value, or'ed by set/clear
+   * mask of the merged config_regmask (aka: regmask<> or
+   * typelist<regmask<>...>) types from the CFG traits.
+   *
    * NOTE: make sure no communication is ongoing when calling this function.
    */
-  //  void configure(void) const {
   static void configure(void) {
-    cfg_reg_type_list::template for_each< functor_reset_to_regmask_list >();
+    cfg_reg_type_list::template for_each< functor_reset_to_config_list >();
   }
 
   /**
    * Reconfigure and enable peripheral device.
    * NOTE: make sure no communication is ongoing when calling this function.
    */
-  //  void reconfigure(void) const {
   static void reconfigure(void) {
     derived_type::disable();
     configure();

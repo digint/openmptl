@@ -36,7 +36,7 @@ struct baud_rate
 : public config_base
 {
   template<typename usart>
-  struct regmask_type_impl {
+  struct config_regmask_impl {
     static constexpr unsigned pclk = (usart::usart_no == 1 ? usart::rcc::pclk2_freq : usart::rcc::pclk1_freq );
     static constexpr unsigned div  = (pclk * 25) / (4 * value);
     static constexpr unsigned mant = div / 100;
@@ -50,7 +50,7 @@ struct baud_rate
   };
 
   template<typename usart>
-  using regmask_type = typename regmask_type_impl<usart>::type;
+  using config_regmask = typename config_regmask_impl<usart>::type;
 };
 
 
@@ -58,7 +58,7 @@ struct enable_rx
 : public config_base
 {
   template<typename usart>
-  using regmask_type = regval< typename usart::USARTx::CR1::RE, 1 >;
+  using config_regmask = regval< typename usart::USARTx::CR1::RE, 1 >;
 };
 
 
@@ -66,7 +66,7 @@ struct enable_tx
 : public config_base
 {
   template<typename usart>
-  using regmask_type = regval< typename usart::USARTx::CR1::TE, 1 >;
+  using config_regmask = regval< typename usart::USARTx::CR1::TE, 1 >;
 };
 
 
@@ -76,7 +76,7 @@ struct word_length
 {
   static_assert((value == 8) || (value == 9), "illegal word_length (supported values: 8, 9)");
   template<typename usart>
-  using regmask_type = regval< typename usart::USARTx::CR1::M, (value == 9) ? 1 : 0 >;
+  using config_regmask = regval< typename usart::USARTx::CR1::M, (value == 9) ? 1 : 0 >;
 };
 
 
@@ -86,7 +86,7 @@ namespace parity
   : public config_base
   {
     template<typename usart>
-    using regmask_type = typename usart::USARTx::CR1::template combined_mask<
+    using config_regmask = typename usart::USARTx::CR1::template combined_mask<
       regval< typename usart::USARTx::CR1::PCE, 1 >,
       regval< typename usart::USARTx::CR1::PS,  0 >
       >::type;
@@ -96,7 +96,7 @@ namespace parity
   : public config_base
   {
     template<typename usart>
-    using regmask_type = typename usart::USARTx::CR1::template combined_mask<
+    using config_regmask = typename usart::USARTx::CR1::template combined_mask<
       regval< typename usart::USARTx::CR1::PCE, 1 >,
       regval< typename usart::USARTx::CR1::PS,  1 >
       >::type;
@@ -106,7 +106,7 @@ namespace parity
   : public config_base
   {
     template<typename usart>
-    using regmask_type = typename usart::USARTx::CR1::template combined_mask<
+    using config_regmask = typename usart::USARTx::CR1::template combined_mask<
       regval< typename usart::USARTx::CR1::PCE, 0 >,
       regval< typename usart::USARTx::CR1::PS,  0 >
       >::type;
@@ -125,7 +125,7 @@ struct stop_bits
                 "illegal stop_bits (supported values: 1, 0.5, 2, 1.5)");
 
   template<typename usart>
-  using regmask_type = regval< typename usart::USARTx::CR2::STOP,
+  using config_regmask = regval< typename usart::USARTx::CR2::STOP,
     ((a == 1) && (b == 0)) ? 0 :
     ((a == 0) && (b == 5)) ? 1 :
     ((a == 2) && (b == 0)) ? 2 :
@@ -138,7 +138,7 @@ struct clock_enable
 : public config_base
 {
   template<typename usart>
-  using regmask_type = regval< typename usart::USARTx::CR2::CLKEN, 1 >;
+  using config_regmask = regval< typename usart::USARTx::CR2::CLKEN, 1 >;
 };
 
 
@@ -148,14 +148,14 @@ namespace clock_polarity
   : public config_base
   {
     template<typename usart>
-    using regmask_type = regval< typename usart::USARTx::CR2::CPOL, 1 >;
+    using config_regmask = regval< typename usart::USARTx::CR2::CPOL, 1 >;
   };
 
   struct low
   : public config_base
   {
     template<typename usart>
-    using regmask_type = regval< typename usart::USARTx::CR2::CPOL, 0 >;
+    using config_regmask = regval< typename usart::USARTx::CR2::CPOL, 0 >;
   };
 } // namespace clock_polarity
 
@@ -167,7 +167,7 @@ namespace clock_phase
   : public config_base
   {
     template<typename usart>
-    using regmask_type = regval< typename usart::USARTx::CR2::CPHA, 0 >;
+    using config_regmask = regval< typename usart::USARTx::CR2::CPHA, 0 >;
   };
 
   /** The second clock transition is the first data capture edge. */
@@ -175,7 +175,7 @@ namespace clock_phase
   : public config_base
   {
     template<typename usart>
-    using regmask_type = regval< typename usart::USARTx::CR2::CPHA, 1 >;
+    using config_regmask = regval< typename usart::USARTx::CR2::CPHA, 1 >;
   };
 } // namespace clock_phase
 
@@ -184,7 +184,7 @@ struct last_bit_clock_pulse
 : public config_base
 {
   template<typename usart>
-  using regmask_type = regval< typename usart::USARTx::CR2::LBCL, 1 >;
+  using config_regmask = regval< typename usart::USARTx::CR2::LBCL, 1 >;
 };
 
 
@@ -194,14 +194,14 @@ namespace flow_control
   : public config_base
   {
     template<typename usart>
-    using regmask_type = regval< typename usart::USARTx::CR3::RTSE, 1 >;
+    using config_regmask = regval< typename usart::USARTx::CR3::RTSE, 1 >;
   };
 
   struct cts
   : public config_base
   {
     template<typename usart>
-    using regmask_type = regval< typename usart::USARTx::CR3::CTSE, 1 >;
+    using config_regmask = regval< typename usart::USARTx::CR3::CTSE, 1 >;
   };
 } // namespace flow_control
 
