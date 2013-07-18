@@ -159,7 +159,6 @@ CFLAGS      += -pedantic
 CXXFLAGS    += $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
-
 CXXFLAGS    += -g
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
@@ -187,7 +186,7 @@ CXXFLAGS    += -pedantic
 #CXXFLAGS    += -Weffc++
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 
-ASFLAGS      = $(FLAGS)
+ASFLAGS     += $(FLAGS)
 
 LDFLAGS     += $(CPUFLAGS)
 LDFLAGS     += -fno-exceptions

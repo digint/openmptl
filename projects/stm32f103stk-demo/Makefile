@@ -54,13 +54,23 @@ OPENOCD_CONFIG = -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
 
 
 #------------------------------------------------------------------------------
+# experimental features
+#
+
+#FLAGS  += -DCONFIG_USE_STD_TUPLE
+#FLAGS  += -DCONFIG_USE_FRIENDS
+#FLAGS  += -DCONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
+
+
+#------------------------------------------------------------------------------
 # input/output setup
 #
 
 OBJ_DIR      = obj
 
-HEX          = $(PROJECT).hex
+BIN          = $(PROJECT)
 ELF          = $(PROJECT).elf
+HEX          = $(PROJECT).hex
 MAP          = $(PROJECT).map
 LSS          = $(PROJECT).lss
 
@@ -78,6 +88,7 @@ vpath %.S   $(SRC_DIRS)
 # build environment
 #
 include $(OPENMPTL_TOP)/config/gcc.mk
+include $(OPENMPTL_TOP)/config/clang.mk
 include $(OPENMPTL_TOP)/config/system.mk
 
 
@@ -136,9 +147,11 @@ OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 # commmon flags propagated to CFLAGS, CXXFLAGS, ASFLAGS (not LDFLAGS)
 FLAGS       += $(CPUFLAGS)
 FLAGS       += $(INCLUDE)
-FLAGS       += -Wa,-gdwarf-4
 FLAGS       += -MMD
-FLAGS       += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+ifndef CLANG
+  FLAGS     += -Wa,-gdwarf-4
+  FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+endif
 
 # TODO: find out why this produces smaller code (+document)
 OPTIMIZER   += -ffunction-sections -fdata-sections  # Place each function or data item into its own section
@@ -158,13 +171,15 @@ CFLAGS      += -Wcast-align
 CFLAGS      += -Wnested-externs
 CFLAGS      += -pedantic
 
-CXXFLAGS     = $(FLAGS)
+CXXFLAGS    += $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
 CXXFLAGS    += -g
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
-CXXFLAGS    += -funsigned-bitfields
+ifndef CLANG
+  CXXFLAGS  += -funsigned-bitfields
+endif
 CXXFLAGS    += -fshort-enums
 #CXXFLAGS    += -fomit-frame-pointer
 #CXXFLAGS    += -fno-elide-constructors
@@ -189,14 +204,14 @@ CXXFLAGS    += -pedantic
 #CXXFLAGS    += -Weffc++
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 
-ASFLAGS      = $(FLAGS)
+ASFLAGS     += $(FLAGS)
 
-LDFLAGS      = $(CPUFLAGS)
+LDFLAGS     += $(CPUFLAGS)
 LDFLAGS     += -fno-exceptions
 LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
-  LDFLAGS     += -pthread
+  LDFLAGS   += -pthread
 else
   LDFLAGS   += -nostartfiles
   LDFLAGS   += -Wl,-Map="$(MAP)",--cref
@@ -207,7 +222,11 @@ endif
 
 .PHONY: all clean
 
+ifdef SIMULATION
+all: $(OBJ_DIR) $(BIN)
+else
 all: $(OBJ_DIR) $(ELF)
+endif
 
 $(LSS): $(ELF)
 	@echo "--- generating $@"
@@ -222,6 +241,10 @@ $(ELF):	$(OBJS)
 	@echo "--- generating $@"
 	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
 	$(SIZE) $@
+
+$(BIN):	$(OBJS)
+	@echo "--- generating $@"
+	$(LD) $(OBJS) $(LDFLAGS) -o "$(BIN)"
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
@@ -242,6 +265,7 @@ clean:
 	$(RM) $(OBJ_DIR)/*.d
 	$(RM) $(OBJ_DIR)/*.lst
 
+	$(RM) $(BIN)
 	$(RM) $(HEX)
 	$(RM) $(ELF)
 	$(RM) $(MAP)
