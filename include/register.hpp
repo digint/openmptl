@@ -115,8 +115,10 @@ class regmask : public mpl::regmask_base
   static_assert(std::is_same<typename R::type, typename R::reg_type>::value, "template argument R is not of type: regdef<>");
   static_assert((_set_mask | _clear_mask) == _clear_mask, "clear_mask does not cover all bits of set_mask");
 
+#ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
   regmask() {};
+#endif // CONFIG_USE_STD_TUPLE
 
 public:
   using type       = regmask<typename R::reg_type, _set_mask, _clear_mask>;
@@ -162,6 +164,11 @@ public:
     return set_mask == 0;
   }
 
+  /* reset register, combined with set/clear mask (results in single store()) */
+  static __always_inline void reset_to(void) {
+    reg_type::store((reg_type::reset_value & ~cropped_clear_mask) | set_mask);
+  }
+
   /**
    * Merge set_mask and clear_mask with the values of another regmask
    * type (Rm).
@@ -193,8 +200,10 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
   static_assert(width >= 1, "invalid width");
   static_assert(offset + width <= sizeof(typename R::value_type) * 8, "invalid width/offset");
 
+#ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
   regbits() {};
+#endif // CONFIG_USE_STD_TUPLE
 
  public:
   using type       = regbits<typename R::reg_type, offset, width>;
@@ -241,8 +250,10 @@ class regval : public regmask<typename R::reg_type, R::value_from(_value), R::cl
 {
   static_assert(std::is_same<typename R::type, typename R::bits_type>::value, "template argument R is not of type: regbits<>");
 
+#ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
   regval() {};
+#endif // CONFIG_USE_STD_TUPLE
 
   /* NOTE: clear() is declared private. Clearing a contant value in
    * a register does not make sense. What you actually want to do to
@@ -278,8 +289,10 @@ template< typename   T,
           T          _reset_value = 0 >
 class regdef : public regdef_backend<T, addr, access, _reset_value>, public typelist_element
 {
+#ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
   regdef() {};
+#endif // CONFIG_USE_STD_TUPLE
 
 public:
   using type       = regdef<T, addr, access, _reset_value>;

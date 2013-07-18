@@ -24,6 +24,10 @@
 #include <type_traits>
 #include "typelist_mpl.hpp"
 
+#ifdef CONFIG_USE_STD_TUPLE
+#  include <tuple>
+#endif // CONFIG_USE_STD_TUPLE
+
 namespace mptl {
 
 ////////////////////  sane_typelist  ////////////////////
@@ -199,6 +203,10 @@ public:
     // TODO: fix this
     return true;
   }
+
+#ifdef CONFIG_USE_STD_TUPLE
+  using tuple_type = std::tuple<Tp...>;
+#endif // CONFIG_USE_STD_TUPLE
 };
 
 
