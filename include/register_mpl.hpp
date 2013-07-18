@@ -126,7 +126,8 @@ struct map_merged_regmask {
 struct functor_reg_reset_to {
   template<typename list_element_type>
   static void __always_inline command(void) {
-    list_element_type::reg_type::template reset_to< list_element_type >();
+    // list_element_type::reg_type::template reset_to< list_element_type >();
+    list_element_type::reset_to();
   }
 };
 
