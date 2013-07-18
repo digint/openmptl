@@ -55,26 +55,53 @@ struct tuple_regmask_reset_to<Tp, 1> {
 };
 
 template<class... Args>
-void reset_all(const std::tuple<Args...>& t) 
+void reset_all(const std::tuple<Args...> & t) 
 {
   std::cout << "****** reset_all ******" << std::endl;
   tuple_regmask_reset_to<decltype(t), sizeof...(Args)>::command(t);
   std::cout << "****** end reset_all ******" << std::endl;
 }
 #endif
- 
+
+
+
+template<typename func_type, std::size_t N = 0, typename... Tp>
+inline typename std::enable_if<N == sizeof...(Tp), void>::type
+for_each(std::tuple<Tp...> & t)
+{ }
+
+template<typename func_type, std::size_t N = 0, typename... Tp>
+inline typename std::enable_if<N < sizeof...(Tp), void>::type
+for_each(std::tuple<Tp...> & t)
+{
+  using ele_type = typename std::tuple_element<N, std::tuple<Tp...> >::type;
+
+  func_type::template command< ele_type >();
+  for_each<func_type, N+1, Tp...>(t);
+}
+
+
+struct tuple_functor_reg_reset_to {
+  template<typename list_element_type>
+  static void __always_inline command(void) {
+    list_element_type::reset_to();
+  }
+};
+
+
 int main()
 {
   using list = typelist<
+    RCC::AHB2ENR::OTGFSEN,
     RCC::PLLCFGR::PLLSRC,
     RCC::CFGR::PPRE1::DIV4
     >;
 
-#if 0
-  auto t1 = list::tuple_type();
-  reset_all(t1);
-#else
-  //  auto t1 = list::tuple_type();
-  reset_all(list::tuple_type());
-#endif
+  auto tup = list::tuple_type();
+
+for_each<tuple_functor_reg_reset_to>(tup);
+
+  std::cout << "====================" << std::endl;
+
+  reset_all(tup);
 }
