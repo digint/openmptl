@@ -37,6 +37,9 @@ else
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb
 endif
 
+ifdef CLANG
+  FLAGS       += -DCONFIG_CLANG
+endif
 
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER      = -Os
@@ -47,13 +50,22 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 
 
 #------------------------------------------------------------------------------
+# experimental features
+#
+
+#FLAGS  += -DCONFIG_USE_FRIENDS
+#FLAGS  += -DCONFIG_USE_STD_TUPLE
+#FLAGS  += -DCONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
+
+
+#------------------------------------------------------------------------------
 # input/output setup
 #
 
 OBJ_DIR      = obj
 
-HEX          = $(PROJECT).hex
 ELF          = $(PROJECT).elf
+HEX          = $(PROJECT).hex
 MAP          = $(PROJECT).map
 LSS          = $(PROJECT).lss
 
@@ -122,10 +134,10 @@ OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 # commmon flags propagated to CFLAGS, CXXFLAGS, ASFLAGS (not LDFLAGS)
 FLAGS       += $(CPUFLAGS)
 FLAGS       += $(INCLUDE)
-ifndef CLANG
-FLAGS       += -Wa,-gdwarf-4
 FLAGS       += -MMD
-FLAGS       += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+ifndef CLANG
+  FLAGS     += -Wa,-gdwarf-4
+  FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
 endif
 
 # TODO: find out why this produces smaller code (+document)
@@ -149,10 +161,18 @@ CFLAGS      += -pedantic
 CXXFLAGS     = $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
+ifdef CLANG
+ifdef SIMULATION
+  CXXFLAGS  += -stdlib=libc++
+endif
+endif
+
 CXXFLAGS    += -g
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
-CXXFLAGS    += -funsigned-bitfields
+ifndef CLANG
+  CXXFLAGS  += -funsigned-bitfields
+endif
 CXXFLAGS    += -fshort-enums
 #CXXFLAGS    += -fomit-frame-pointer
 #CXXFLAGS    += -fno-elide-constructors
@@ -181,7 +201,10 @@ LDFLAGS     += -fno-exceptions
 LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
-  LDFLAGS     += -pthread
+  LDFLAGS   += -pthread
+  ifdef CLANG
+    LDFLAGS += -lc++
+  endif
 else
   LDFLAGS   += -nostartfiles
   LDFLAGS   += -Wl,-Map="$(MAP)",--cref

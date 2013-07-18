@@ -151,8 +151,13 @@ struct terminal_hook_list<T, Args...> {
     }
   }
 
+#ifdef CONFIG_CLANG
+  // for some reason, clang-3.3 does not treat strlen() as constexpr
+  static constexpr unsigned cmd_maxlen = 8;
+#else
   /** maximum length of all commands (minimum 8, for formatting help text) */
   static constexpr unsigned cmd_maxlen = mpl::max<8, strlen(T::cmd), strlen(Args::cmd)...>::value;
+#endif
 
   template<typename HL>
   static void list(poorman::ostream<char> & cout) {
