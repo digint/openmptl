@@ -30,11 +30,9 @@ struct cpuid
 : public mptl::terminal_hook
 {
   static constexpr const char * cmd  = "cpuid";
-  static constexpr const char * desc = "prints the SCB::CPUID register";
+  static constexpr const char * desc = "prints SCB::CPUID register hexadecimal value";
   void run(poorman::ostream<char> & cout) {
-    using namespace poorman;
-
-    cout << mptl::reg::SCB::CPUID::load() << endl;
+    cout << mptl::reg::SCB::CPUID::load() << poorman::endl;
   }
 };
 
