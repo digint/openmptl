@@ -24,6 +24,7 @@
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 #include <periph.hpp>
+#include <gpio_base.hpp>
 #include <type_traits>
 
 namespace mptl {
@@ -186,13 +187,6 @@ struct alt_func_num
 ////////////////////  gpio  ////////////////////
 
 
-// template<char port,
-//          unsigned pin_no,
-//          cfg::gpio::mode moder_cfg = cfg::gpio::mode::input,
-//          cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::push_pull,
-//          freq_t speed = mhz(2),
-//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
-//          unsigned alt_func_num = 0>
 template< char port, unsigned _pin_no, typename... CFG >
 class gpio
 : public periph_cfg<
@@ -248,98 +242,32 @@ public:
 ////////////////////  gpio_input  ////////////////////
 
 
-// template<char port,
-//          unsigned pin_no,
-//          cfg::gpio::resistor resistor_cfg,
-//          cfg::gpio::active_state active_state = cfg::gpio::active_state::low>
 template< char port, unsigned pin_no, typename... CFG >
 class gpio_input
-// : public gpio< port,
-//                pin_no,
-//                cfg::gpio::mode::input,
-//                cfg::gpio::output_type::push_pull,
-//                mhz(2),
-//                resistor_cfg >
-: public gpio< port,
-               pin_no,
-               cfg::gpio::mode::input,
-               CFG... >
-{
-//  typedef gpio_input<port, pin_no, resistor_cfg, active_state> type;
-  using type = gpio_input< port, pin_no, CFG... >;
-public:
-
-  static bool active(void) {
-    bool input = type::read_input_bit();
-    return type::is_low_active ? !input : input;
-  }
-};
+: public gpio_input_base<
+  gpio< port, pin_no,
+    CFG...,
+    cfg::gpio::mode::input
+    > >
+{ };
 
 
 ////////////////////  gpio_output  ////////////////////
 
 
-// template<char port,
-//          unsigned pin_no,
-//          cfg::gpio::output_type otype_cfg,
-//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
-//          freq_t speed = mhz(50),
-//          cfg::gpio::active_state active_state = cfg::gpio::active_state::low>
 template<char port, unsigned pin_no, typename... CFG>
 class gpio_output
-: public gpio< port,
-               pin_no,
-               cfg::gpio::mode::output,
-               CFG... >
-{
-public:
-  using type = gpio_output<port, pin_no, CFG...>;
-
-  static void enable() {
-    if(type::is_low_active) {
-      type::reset();
-    } else {
-      type::set();
-    }
-  }
-
-  static void disable() {
-    if(type::is_low_active) {
-      type::set();
-    } else {
-      type::reset();
-    }
-  }
-
-  static bool active() {
-    bool input = type::read_input_bit();
-    return type::is_low_active ? !input : input;
-  }
-
-  static void toggle() {
-    if(type::read_input_bit()) {
-      type::reset();
-    }
-    else {
-      type::set();
-    }
-  }
-
-  static bool latched() {
-    bool output = type::read_output_bit();
-    return type::is_low_active ? !output : output;
-  }
-};
+: public gpio_output_base<
+  gpio< port, pin_no,
+    CFG...,
+    cfg::gpio::mode::output
+    > >
+{ };
 
 
 ////////////////////  gpio_input_af  ////////////////////
 
 
-// template<char port,
-//          unsigned pin_no,
-//          unsigned alt_func_num,
-//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating
-//          >
 #if 0  // deprecated: use gpio<mode::alt_func_num<>> instead.
 // TODO: reenable when we support default configuration
 template<char port, unsigned pin_no, typename... CFG>
@@ -361,12 +289,6 @@ class gpio_input_af
 ////////////////////  gpio_output_af  ////////////////////
 
 
-// template<char port,
-//          unsigned pin_no,
-//          unsigned alt_func_num,
-//          cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::open_drain,
-//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
-//          freq_t speed = mhz(50)>
 #if 0  // deprecated: use gpio<mode::alt_func_num<>> instead.
 // TODO: reenable when we support default configuration
 template<char port, unsigned pin_no, typename... CFG>
@@ -392,41 +314,23 @@ class gpio_output_af
 
 template<char port, unsigned pin_no>
 class gpio_analog_io
-: public gpio< port,
-               pin_no,
-               cfg::gpio::mode::analog,
-               cfg::gpio::output_type::push_pull,
-               cfg::gpio::speed< mhz(2) >,
-               cfg::gpio::resistor::floating >
-{
-  // TODO: get/set analog value
-};
+: public gpio_analog_io_base<
+  gpio< port, pin_no,
+    cfg::gpio::mode::analog,
+    cfg::gpio::output_type::push_pull,
+    cfg::gpio::speed< mhz(2) >,
+    cfg::gpio::resistor::floating
+    > >
+{ };
 
 
 ////////////////////  gpio_led  ////////////////////
 
 
-// template<char port,
-//          unsigned pin_no,
-//          cfg::gpio::output_type otype_cfg = cfg::gpio::output_type::push_pull,
-//          cfg::gpio::resistor resistor_cfg = cfg::gpio::resistor::floating,
-//          freq_t speed = mhz(50),
-//          cfg::gpio::active_state active_state = cfg::gpio::active_state::high>
 template<char port, unsigned pin_no, typename... CFG>
 class gpio_led
-//: public gpio_output<port, pin_no, otype_cfg, resistor_cfg, speed, active_state>
-: public gpio_output<port, pin_no, CFG...>
-{
-public:
-  using type = gpio_led<port, pin_no, CFG...>;
-
-  static void on() {
-    type::enable();
-  }
-  static void off() {
-    type::disable();
-  }
-};
+: public gpio_led_base< gpio_output< port, pin_no, CFG... > >
+{ };
 
 } // namespace mptl
 
