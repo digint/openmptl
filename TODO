@@ -1,0 +1,8 @@
+- remove namespace reg -> rename reg_manip -> reg
+
+- rename: typelist -> tlist
+
+- use bits_type for RegisterBits (see arch/arm/cortex/stm32/f1/include/arch/reg/rtc.hpp)
+
+- scb priority grouping
+- nvic priority grouping
