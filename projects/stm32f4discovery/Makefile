@@ -49,8 +49,8 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 # experimental features
 #
 
-#FLAGS  += -DCONFIG_USE_FRIENDS
 #FLAGS  += -DCONFIG_USE_STD_TUPLE
+#FLAGS  += -DCONFIG_USE_FRIENDS
 #FLAGS  += -DCONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
 
 
@@ -223,11 +223,11 @@ $(HEX):	$(ELF)
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
 	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
-	$(SIZE)
+	$(SIZE) $@
 
 $(BIN):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
+	$(LD) $(OBJS) $(LDFLAGS) -o "$(BIN)"
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
@@ -248,6 +248,7 @@ clean:
 	$(RM) $(OBJ_DIR)/*.d
 	$(RM) $(OBJ_DIR)/*.lst
 
+	$(RM) $(BIN)
 	$(RM) $(HEX)
 	$(RM) $(ELF)
 	$(RM) $(MAP)
