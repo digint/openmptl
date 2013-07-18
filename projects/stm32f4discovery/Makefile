@@ -37,10 +37,6 @@ else
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb
 endif
 
-ifdef CLANG
-  FLAGS       += -DCONFIG_CLANG
-endif
-
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER      = -Os
 
@@ -64,6 +60,7 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 
 OBJ_DIR      = obj
 
+BIN          = $(PROJECT)
 ELF          = $(PROJECT).elf
 HEX          = $(PROJECT).hex
 MAP          = $(PROJECT).map
@@ -83,6 +80,7 @@ vpath %.S   $(SRC_DIRS)
 # build environment
 #
 include $(OPENMPTL_TOP)/config/gcc.mk
+include $(OPENMPTL_TOP)/config/clang.mk
 include $(OPENMPTL_TOP)/config/system.mk
 
 
@@ -158,14 +156,9 @@ CFLAGS      += -Wcast-align
 CFLAGS      += -Wnested-externs
 CFLAGS      += -pedantic
 
-CXXFLAGS     = $(FLAGS)
+CXXFLAGS    += $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
-ifdef CLANG
-ifdef SIMULATION
-  CXXFLAGS  += -stdlib=libc++
-endif
-endif
 
 CXXFLAGS    += -g
 CXXFLAGS    += -fno-exceptions
@@ -196,15 +189,12 @@ CXXFLAGS    += -pedantic
 
 ASFLAGS      = $(FLAGS)
 
-LDFLAGS      = $(CPUFLAGS)
+LDFLAGS     += $(CPUFLAGS)
 LDFLAGS     += -fno-exceptions
 LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
   LDFLAGS   += -pthread
-  ifdef CLANG
-    LDFLAGS += -lc++
-  endif
 else
   LDFLAGS   += -nostartfiles
   LDFLAGS   += -Wl,-Map="$(MAP)",--cref
@@ -215,7 +205,11 @@ endif
 
 .PHONY: all clean
 
+ifdef SIMULATION
+all: $(OBJ_DIR) $(BIN)
+else
 all: $(OBJ_DIR) $(ELF)
+endif
 
 $(LSS): $(ELF)
 	@echo "--- generating $@"
@@ -229,9 +223,11 @@ $(HEX):	$(ELF)
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
 	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
-ifndef SIMULATION
-	$(SIZE) $@
-endif
+	$(SIZE)
+
+$(BIN):	$(OBJS)
+	@echo "--- generating $@"
+	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<

@@ -18,6 +18,8 @@
  *
  */
 
+#define CONFIG_USE_STD_TUPLE
+
 #include <typelist.hpp>
 #include <arch/rcc.hpp>
 

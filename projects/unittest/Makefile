@@ -20,8 +20,7 @@
 #------------------------------------------------------------------------------
 # project setup
 #
-
-OPENMPTL_TOP  = ../..
+OPENMPTL_TOP = ../..
 
 #CROSS        = x86_64-pc-linux-gnu-
 CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
@@ -32,6 +31,8 @@ OPENMPTL_ARCH = arm/cortex/stm32/f4
 FLAGS       += -DOPENMPTL_SIMULATION
 FLAGS       += -DDEBUG_REGISTER
 FLAGS       += -DUNITTEST_MUST_FAIL_ENABLED
+
+SIMULATION = 1
 
 
 #------------------------------------------------------------------------------
@@ -56,6 +57,7 @@ vpath %.cpp $(SRC_DIR)
 # build environment
 #
 include $(OPENMPTL_TOP)/config/gcc.mk
+include $(OPENMPTL_TOP)/config/clang.mk
 include $(OPENMPTL_TOP)/config/system.mk
 
 
@@ -84,7 +86,7 @@ FLAGS       += $(CPUFLAGS)
 FLAGS       += $(INCLUDE)
 FLAGS       += -MMD
 
-CXXFLAGS     = $(FLAGS)
+CXXFLAGS    += $(FLAGS)
 CXXFLAGS    += $(OPTIMIZER)
 CXXFLAGS    += -std=c++11
 CXXFLAGS    += -g
