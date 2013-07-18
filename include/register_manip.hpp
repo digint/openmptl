@@ -18,6 +18,13 @@
  *
  */
 
+// TODO: implement make_reg<> class, analog to
+// std::make_tuple<>. This way we can put them into a std::tuple<>
+// class and perform the merge as instances
+//
+// ^^^ allows to mix compile-time traits with reg_manip<> types !
+
+
 #ifndef REGISTER_MANIP_HPP_INCLUDED
 #define REGISTER_MANIP_HPP_INCLUDED
 
@@ -25,12 +32,15 @@
 
 namespace mptl {
 
+// TODO: rename reg<>
 template<typename T>
 class reg_manip
 {
 public:
   using value_type = typename T::value_type;
 
+  // TODO: wrong. only construct from known regmask<> traits, or
+  // set/clear mask tuple. NEVER do load() magic in constructors!
   reg_manip() : reg(T::load()) { }
   reg_manip(value_type val) : reg(val) { }
 
@@ -59,6 +69,8 @@ public:
     using merged_type = typename T::template merge<Rm...>::type;
     set( merged_type::set_mask, merged_type::cropped_clear_mask );
   }
+
+  reg_manip<T> & 
 
 private:
   value_type reg;
