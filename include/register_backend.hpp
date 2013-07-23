@@ -132,20 +132,32 @@ struct regdef_backend
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
 
+  static constexpr unsigned bitsize_crop = 32; /**< limit size to 32bit, since uint_fast16_t on 64bit system has 64bit width, making the output look crappy... */
   static constexpr unsigned additional_space = 6;
   static constexpr unsigned desc_max_width = 8;
   static constexpr unsigned addr_width = sizeof(reg_addr_t) * 2 + 2;
 
   static std::string bitfield_str(T const value) {
-    std::string s = std::bitset<sizeof(T) * 8>(value).to_string();
-    for(unsigned i = sizeof(T) * 8 - 8; i > 0; i -= 8)
+    static constexpr std::size_t bitsize = sizeof(T) * 8;
+    static constexpr std::size_t print_bitsize = bitsize > bitsize_crop ? bitsize_crop : bitsize;
+
+    std::string s = std::bitset<print_bitsize>(value).to_string();
+    for(unsigned i = print_bitsize - 8; i > 0; i -= 8)
       s.insert(i, 1, ' ');
+
     return "[ " + s + " ]";
   }
 
   static void print_reg(T const value) {
-    std::cout << "0x" << std::hex << std::right << std::setfill('0') << std::setw(sizeof(T) * 2) << +value  // '+value' makes sure a char is printed as number
-              << " = " << bitfield_str(value) << std::endl;
+    static constexpr std::size_t size = sizeof(T);
+    static constexpr std::size_t print_size = size > (bitsize_crop / 8) ? (bitsize_crop / 8) : size;
+
+    std::cout << "0x" << std::hex << std::right << std::setfill('0') << std::setw(print_size * 2) << +value;  // '+value' makes sure a char is printed as number
+    if(print_size == size)
+      std::cout << " == ";
+    else
+      std::cout << " =~ ";
+    std::cout << bitfield_str(value) << std::endl;
   }
 
   static void print_mod_line(const char * desc, T value) {
