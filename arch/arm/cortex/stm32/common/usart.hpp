@@ -245,6 +245,20 @@ public:
     typename periph_cfg_type::resources
     >;
 
+  static typename USARTx::BRR::value_type baud_to_brr(unsigned baud_rate) {
+    unsigned pclk = (_usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+    unsigned div  = (pclk * 25) / (4 * baud_rate);
+    unsigned mant = div / 100;
+    unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
+
+    return (mant << 4) | (fraq & 0x0f);
+  };
+
+  static void set_baudrate(unsigned value) {
+    USARTx::BRR::store(baud_to_brr(value));
+  }
+
+
   static void send(typename USARTx::DR::value_type data) {
     /* Implicitely clears the TXE bit in the SR register.  */
     // assert((data & 0x01ff) == data);
