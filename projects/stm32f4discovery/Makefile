@@ -53,6 +53,8 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 #FLAGS  += -DCONFIG_USE_FRIENDS
 #FLAGS  += -DCONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
 
+#FLAGS  += -DDYNAMIC_BAUD_RATE
+
 
 #------------------------------------------------------------------------------
 # input/output setup
