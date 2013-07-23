@@ -180,7 +180,10 @@ struct regdef_backend
     if(reaction_running)
       print_mod_line("react", reg_value, value);
     else
-      print_mod_line("store", reg_value, value);
+      if(reg_value == value)  // notify with '*' if cur=new (candidates for optimization!)
+        print_mod_line("store~", reg_value, value);
+      else
+        print_mod_line("store", reg_value, value);
 #endif
     reg_reaction reaction(addr, reg_value, value);
     reg_value = value;
