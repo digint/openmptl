@@ -59,8 +59,12 @@ public:
   terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
   static void open() {
-    stream_device_type::configure();
+    // stream_device_type::configure();
     stream_device_type::open();
+  }
+
+  static void close() {
+    stream_device_type::close();
   }
 
   void process_input(void)

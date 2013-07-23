@@ -110,13 +110,33 @@ public:
     usart::enable_tx_interrupt();
   }
 
-  /** NOTE: Make sure the device is setup (by calling
-   *        usart_device.configure()) before calling this function
+  /** 
+   * open the stream
+   *
+   * - enable USARTx
+   * - enable usart irq channel
+   * - enable RXNE and PE interrupts
+   *
+   * NOTE: Make sure the device is correctly setup before calling this
+   *       function. e.g. by calling usart_device.configure()
    */
   static void open(void) {
     usart::enable();
     usart::irq::enable();
     usart::enable_interrupt(true, false, true, false, false);
+  }
+
+  /**
+   * close the stream
+   *
+   * - disable interrupts enabled by open()
+   * - disable the usartX irq
+   * - disable USARTx
+   */
+  static void close(void) {
+    usart::disable_interrupt(true, false, true, false, false);
+    usart::irq::disable();
+    usart::disable();
   }
 };
 
