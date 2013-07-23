@@ -23,6 +23,7 @@
 
 #include <terminal.hpp>
 #include <arch/scb.hpp>
+#include "kernel.hpp"
 
 namespace terminal_hooks
 {
@@ -37,11 +38,31 @@ struct cpuid
   }
 };
 
+#ifdef DYNAMIC_BAUD_RATE
+struct baudrate
+: public mptl::terminal_hook
+{
+  static constexpr const char * cmd  = "baudrate";
+  static constexpr const char * desc = "set the terminal baudrate to 460.8 KBps";
+  void run(poorman::ostream<char> & cout) {
+    //    cout << "setting baudrate to 460.8 KBps" << poorman::flush;
+    Kernel::terminal.close();
+    Kernel::usart::set_baudrate(460800);
+    Kernel::terminal.open();
+  }
+};
+#endif // DYNAMIC_BAUD_RATE
+
 // ----------------------------------------------------------------------------
 // Terminal Commands
 //
 
-using commands = mptl::terminal_hook_list< cpuid >;
+using commands = mptl::terminal_hook_list<
+  cpuid
+#ifdef DYNAMIC_BAUD_RATE
+  , baudrate
+#endif
+  >;
 
 } // namespace terminal_hooks
 
