@@ -26,6 +26,7 @@
 static volatile int systick_count = 1000;
 static volatile int second = 0;
 
+Kernel::terminal_type Kernel::terminal;
 
 void Kernel::systick_isr() {
   systick_count--;
@@ -49,22 +50,23 @@ void Kernel::init(void)
 
   systick::init();
   systick::enable_interrupt();
+
+#ifdef DYNAMIC_BAUD_RATE
+  // set the baud rate, since it is not set in usart<> peripheral
+  // configuration (and thus was NOT set by
+  // "mptl::core::configure<resources>()" above).
+  usart::set_baudrate(115200);
+#endif
 }
 
 void Kernel::run(void)
 {
-  mptl::terminal<usart_stream_device, terminal_hooks::commands> term;
-
-#ifdef DYNAMIC_BAUD_RATE
-  Kernel::usart::set_baudrate(115200);
-#endif
-
-  term.open();
-  term.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
+  terminal.open();
+  terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 
   while(1)
   {
     /* poll terminal */
-    term.process_input();
+    terminal.process_input< terminal_hooks::commands >();
   }
 }

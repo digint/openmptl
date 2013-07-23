@@ -29,6 +29,7 @@
 #include <arch/gpio.hpp>
 #include <arch/usart.hpp>
 #include <arch/usart_stream.hpp>
+#include <terminal.hpp>
 #include <typelist.hpp>
 #include <compiler.h>
 
@@ -55,11 +56,16 @@ struct Kernel
 
   using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512> >;
 
+  using terminal_type = mptl::terminal< usart_stream_device >;
+
   using led_green     = mptl::gpio_led< 'D', 12 >;
   using led_orange    = mptl::gpio_led< 'D', 13 >;
   using led_red       = mptl::gpio_led< 'D', 14 >;
   /* Demonstrate the impact of active_state: */
   using led_blue      = mptl::gpio_led< 'D', 15, mptl::cfg::gpio::active_state::low >;
+
+  /* our static terminal */
+  static terminal_type terminal;
 
   /* Reset exception: triggered on system startup (system entry point). */
   static void __naked reset_isr(void);

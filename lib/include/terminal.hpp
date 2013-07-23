@@ -37,7 +37,7 @@ namespace i18n { namespace terminal {
 // terminal
 //
 
-template<typename stream_device_type, typename cmd_hooks>
+template<typename stream_device_type>
 class terminal
 {
   using char_type      = typename stream_device_type::fifo_type::char_type;
@@ -68,6 +68,7 @@ public:
     cmd_index = 0;
   }
 
+  template<typename cmd_hooks>
   void process_input(void)
   {
     bool flush_tx = false;
