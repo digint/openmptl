@@ -61,7 +61,7 @@ struct Kernel
   using led_green     = mptl::gpio_led< 'D', 12 >;
   using led_orange    = mptl::gpio_led< 'D', 13 >;
   using led_red       = mptl::gpio_led< 'D', 14 >;
-  /* Demonstrate the impact of active_state: */
+  /* fake active_state on led_blue (refer to Kernel::systick_isr() definition in kernel.cpp) */
   using led_blue      = mptl::gpio_led< 'D', 15, mptl::cfg::gpio::active_state::low >;
 
   /* our static terminal */

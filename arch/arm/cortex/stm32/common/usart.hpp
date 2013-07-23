@@ -254,6 +254,12 @@ public:
     return (mant << 4) | (fraq & 0x0f);
   };
 
+  /**
+   * Set the BRR register to the value corresponding to the baud_rate
+   * provided.
+   *
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
   static void set_baudrate(unsigned value) {
     USARTx::BRR::store(baud_to_brr(value));
   }

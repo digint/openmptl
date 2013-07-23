@@ -33,6 +33,11 @@ void Kernel::systick_isr() {
   if(systick_count == 0) {
     systick_count = 1000;
     second++;
+
+  /* Demonstrate the impact of the active_state configuration element:
+   * faking active_state::low for Kernel::led_blue<> has the effect of
+   * green/blue leds toggling alternately in systick_isr().
+   */
     led_green::toggle();
     led_blue::toggle();
   }
