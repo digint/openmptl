@@ -55,6 +55,10 @@ void Kernel::run(void)
 {
   mptl::terminal<usart_stream_device, terminal_hooks::commands> term;
 
+#ifdef DYNAMIC_BAUD_RATE
+  Kernel::usart::set_baudrate(115200);
+#endif
+
   term.open();
   term.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 

@@ -42,7 +42,13 @@ struct Kernel
 
   using usart = mptl::usart<
     2, rcc,
+#ifdef DYNAMIC_BAUD_RATE
+    // explicitely do NOT set the baud_rate. this way it's not in the
+    // usart_stream_device::resources (we set BRR by hand using
+    // usart::set_baud_rate())
+#else
     mptl::cfg::usart::baud_rate< 115200 >,
+#endif
     mptl::cfg::usart::gpio_rx< 'A', 3 >,
     mptl::cfg::usart::gpio_tx< 'A', 2 >
     >;
