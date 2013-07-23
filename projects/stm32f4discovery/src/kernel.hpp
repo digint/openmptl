@@ -45,8 +45,8 @@ struct Kernel
     2, rcc,
 #ifdef DYNAMIC_BAUD_RATE
     // explicitely do NOT set the baud_rate. this way it's not in the
-    // usart_stream_device::resources (we set BRR by hand using
-    // usart::set_baud_rate())
+    // usart_stream_device::resources, and we set BRR by hand using
+    // usart::set_baud_rate() in Kernel::init().
 #else
     mptl::cfg::usart::baud_rate< 115200 >,
 #endif

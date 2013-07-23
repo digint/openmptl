@@ -215,6 +215,23 @@ struct contains_base_of_impl<T, Head, Args...>
 };
 
 
+////////////////////  all_derived_from_impl  ////////////////////
+
+
+/** uses std::is_base_of<> */
+template<typename T, typename... Args>
+struct all_derived_from_impl {
+  static constexpr bool value = true;
+};
+template<typename T, typename Head, typename... Args>
+struct all_derived_from_impl<T, Head, Args...>
+{
+  static constexpr bool value =
+    ( std::is_base_of<T, Head>::value &&
+      all_derived_from_impl<T, Args...>::value );
+};
+
+
 ////////////////////  unique_element_impl  ////////////////////
 
 

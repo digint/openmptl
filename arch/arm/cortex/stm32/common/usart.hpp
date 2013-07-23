@@ -31,9 +31,11 @@ namespace mptl {
 
 namespace cfg { namespace usart {
 
+struct config_usart : public config_base { };
+
 template<unsigned value>
 struct baud_rate
-: public config_base
+: public config_usart
 {
   template<typename usart>
   struct config_regmask_impl {
@@ -55,7 +57,7 @@ struct baud_rate
 
 
 struct enable_rx
-: public config_base
+: public config_usart
 {
   template<typename usart>
   using config_regmask = regval< typename usart::USARTx::CR1::RE, 1 >;
@@ -63,7 +65,7 @@ struct enable_rx
 
 
 struct enable_tx
-: public config_base
+: public config_usart
 {
   template<typename usart>
   using config_regmask = regval< typename usart::USARTx::CR1::TE, 1 >;
@@ -72,7 +74,7 @@ struct enable_tx
 
 template<unsigned value>
 struct word_length
-: public config_base
+: public config_usart
 {
   static_assert((value == 8) || (value == 9), "illegal word_length (supported values: 8, 9)");
   template<typename usart>
@@ -83,7 +85,7 @@ struct word_length
 namespace parity
 {
   struct even
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = typename usart::USARTx::CR1::template combined_mask<
@@ -93,7 +95,7 @@ namespace parity
   };
 
   struct odd
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = typename usart::USARTx::CR1::template combined_mask<
@@ -103,7 +105,7 @@ namespace parity
   };
 
   struct disabled
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = typename usart::USARTx::CR1::template combined_mask<
@@ -116,7 +118,7 @@ namespace parity
 
 template<unsigned a, unsigned b = 0>
 struct stop_bits
-: public config_base
+: public config_usart
 {
   static_assert(((a == 1) && (b == 0)) ||
                 ((a == 0) && (b == 5)) ||
@@ -135,7 +137,7 @@ struct stop_bits
 
 
 struct clock_enable
-: public config_base
+: public config_usart
 {
   template<typename usart>
   using config_regmask = regval< typename usart::USARTx::CR2::CLKEN, 1 >;
@@ -145,14 +147,14 @@ struct clock_enable
 namespace clock_polarity
 {
   struct high
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = regval< typename usart::USARTx::CR2::CPOL, 1 >;
   };
 
   struct low
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = regval< typename usart::USARTx::CR2::CPOL, 0 >;
@@ -164,7 +166,7 @@ namespace clock_phase
 {
   /** The first clock transition is the first data capture edge.  */
   struct first_edge
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = regval< typename usart::USARTx::CR2::CPHA, 0 >;
@@ -172,7 +174,7 @@ namespace clock_phase
 
   /** The second clock transition is the first data capture edge. */
   struct second_edge
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = regval< typename usart::USARTx::CR2::CPHA, 1 >;
@@ -181,7 +183,7 @@ namespace clock_phase
 
 
 struct last_bit_clock_pulse
-: public config_base
+: public config_usart
 {
   template<typename usart>
   using config_regmask = regval< typename usart::USARTx::CR2::LBCL, 1 >;
@@ -191,14 +193,14 @@ struct last_bit_clock_pulse
 namespace flow_control
 {
   struct rts
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = regval< typename usart::USARTx::CR3::RTSE, 1 >;
   };
 
   struct cts
-  : public config_base
+  : public config_usart
   {
     template<typename usart>
     using config_regmask = regval< typename usart::USARTx::CR3::CTSE, 1 >;
@@ -227,8 +229,6 @@ class usart
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 
-  // TODO: assert that all in CFG are usart_cfg_type
-
   using type = usart<_usart_no, _rcc>;
 
 public:
@@ -239,6 +239,11 @@ public:
 
   using irq = irq::usart<usart_no>;
   using periph_cfg_type = periph_cfg< type, CFG... >;
+
+  /* assert that all in CFG are derived from cfg::usart::config_usart */
+  static_assert(type::cfg_list::template all_derived_from< cfg::usart::config_usart>::value
+                , "CFG is not all_base_of< cfg::usart::config_usart >");
+
 
   using resources = typelist<
     rcc_usart_clock_resources<usart_no>,

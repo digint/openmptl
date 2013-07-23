@@ -140,6 +140,15 @@ public:
   };
 
   /**
+   * Type trait, providing ::value. True if all elements in the list
+   * are std::is_base_of<>, false otherwise.
+   */
+  template<typename T>
+  struct all_derived_from {
+    static constexpr bool value = mpl::all_derived_from_impl< T, Tp... >::value;
+  };
+
+  /**
    * Generic filter, takes a condition_type type trait as argument (which must
    * provide "::type::value").
    */
