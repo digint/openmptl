@@ -33,7 +33,7 @@ ifdef SIMULATION
   FLAGS       += -DOPENMPTL_SIMULATION
   FLAGS       += -DDEBUG_REGISTER
   FLAGS       += -DDEBUG_DUMP_BITFIELD
-  FLAGS       += -DDEBUG_DUMP_CURRENT_REGISTER_VALUE
+#  FLAGS       += -DDEBUG_DUMP_CURRENT_REGISTER_VALUE
 else
   CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb

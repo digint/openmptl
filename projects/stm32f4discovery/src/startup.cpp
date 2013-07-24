@@ -39,6 +39,7 @@ extern const uint32_t _stack_top;  /* provided by linker script */
  * - use irq handler from resource::irq<...> in Kernel::resources
  * - use Kernel::error_isr as default isr
  */
+// TODO: declare Kernel::default_isr in kernel.hpp and use it here:
 mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
 
 

@@ -31,10 +31,10 @@ struct irq_handler_base
 : public typelist_unique_element< irq_handler_base >
 { };
 
-template<typename _irq_type, isr_t isr>
+template<typename Tp, isr_t isr>
 struct irq_handler : irq_handler_base
 {
-  using irq_type = _irq_type;
+  using irq_type = Tp;
   static constexpr isr_t value = isr;
 };
 

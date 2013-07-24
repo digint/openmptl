@@ -132,16 +132,16 @@ public:
 
   /**
    * Type trait, providing ::value. True if the list contains an
-   * element of exact type T, false otherwise.
+   * element derived from (or same) type T, false otherwise.
    */
   template<typename T>
-  struct contains_base_of {
-    static constexpr bool value = mpl::contains_impl< T, Tp... >::value;
+  struct contains_derived_from {
+    static constexpr bool value = mpl::contains_derived_from_impl< T, Tp... >::value;
   };
 
   /**
    * Type trait, providing ::value. True if all elements in the list
-   * are std::is_base_of<>, false otherwise.
+   * are derived from (or same) type T, false otherwise.
    */
   template<typename T>
   struct all_derived_from {
@@ -170,7 +170,7 @@ public:
    * Provides a list filtered to hold at most one element of identical
    * type.
    *
-   * NOTE: this is not related with the typelist_unique_element<> class.
+   * (This is not related with the typelist_unique_element<> class.)
    */
   using filter_unique = typename mpl::make_unique_list< sane_typelist<>, Tp... >::type;
 

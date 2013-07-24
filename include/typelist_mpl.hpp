@@ -198,20 +198,20 @@ struct contains_impl<T, Head, Args...>
 };
 
 
-////////////////////  contains_base_of_impl  ////////////////////
+////////////////////  contains_derived_from_impl  ////////////////////
 
 
 /** uses std::is_base_of<> */
 template<typename T, typename... Args>
-struct contains_base_of_impl {
+struct contains_derived_from_impl {
   static constexpr bool value = false;
 };
 template<typename T, typename Head, typename... Args>
-struct contains_base_of_impl<T, Head, Args...>
+struct contains_derived_from_impl<T, Head, Args...>
 {
   static constexpr bool value =
     ( std::is_base_of<T, Head>::value ||
-      contains_base_of_impl<T, Args...>::value );
+      contains_derived_from_impl<T, Args...>::value );
 };
 
 

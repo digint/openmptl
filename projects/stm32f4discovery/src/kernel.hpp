@@ -41,21 +41,26 @@ struct Kernel
 
   using systick       = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
 
+  /* Note that setting mptl::cfg::usart::gpio_rx implicitely adds a
+   * mptl::gpio<> type to usart::resources, having the correct GPIO
+   * register configuration preset. This means that by calling
+   * mptl::core::configure<resources>(), the GPIO registers are
+   * automatically setup the way we need them for USART communication.
+   */
   using usart = mptl::usart<
     2, rcc,
 #ifdef DYNAMIC_BAUD_RATE
-    // explicitely do NOT set the baud_rate. this way it's not in the
-    // usart_stream_device::resources, and we set BRR by hand using
-    // usart::set_baud_rate() in Kernel::init().
+    /* Explicitely do NOT set the baud_rate.
+     * This way it's not in usart::resources, and we set BRR by hand
+     * using usart::set_baud_rate(unsigned) in Kernel::init().
+     */
 #else
     mptl::cfg::usart::baud_rate< 115200 >,
 #endif
-    mptl::cfg::usart::gpio_rx< 'A', 3 >,
-    mptl::cfg::usart::gpio_tx< 'A', 2 >
+    mptl::cfg::usart::gpio_rx< 'A', 3 >, /* implicitely sets USARTx::CR1::RE (rx enable) */
+    mptl::cfg::usart::gpio_tx< 'A', 2 >  /* implicitely sets USARTx::CR1::TE (tx enable) */
     >;
-
   using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512> >;
-
   using terminal_type = mptl::terminal< usart_stream_device >;
 
   using led_green     = mptl::gpio_led< 'D', 12 >;
@@ -64,7 +69,7 @@ struct Kernel
   /* fake active_state on led_blue (refer to Kernel::systick_isr() definition in kernel.cpp) */
   using led_blue      = mptl::gpio_led< 'D', 15, mptl::cfg::gpio::active_state::low >;
 
-  /* our static terminal */
+  /* our static terminal (bound to usart_irq_stream<usart>) */
   static terminal_type terminal;
 
   /* Reset exception: triggered on system startup (system entry point). */
@@ -80,6 +85,31 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
+  /* Define the irq handler resources.
+   *
+   * Override the default handler by our interupt service
+   * routines (*_isr).
+   *
+   * Note that mptl::vector_table<> filters the resources list by
+   * irq_handler<> types, and lists them in the interrupt vector table
+   * (isr_vector[] in section ".isr_vector").
+   *
+   * Each mptl::irq::* type in mptl::irq_handler<Tp,isr_t> must appear
+   * only once in the typelist<>. This is asserted by
+   * mptl::vector_table<> using typelist::unique_element<>:
+   *
+   *     In instantiation of 'struct mptl::mpl::unique_element_impl<...>':
+   *     error: static assertion failed: list contains more than one element
+   *
+   * (refer to section "interpreting mpl compiler output" if you're
+   * not familiar with template metaprogramming and see the error above)
+   *
+   * NOTE: peripheral types (e.g. usart_irq_stream<>) also list
+   * irq_handler<> in their ::resources.
+   *
+   * NOTE: the default irq handler is set by the mptl::vector_table<>
+   * instantiation in startup.cpp.
+   */
   using irq_resources = mptl::typelist<
     mptl::irq_handler< typename mptl::irq::reset        , reset_isr   >,
     mptl::irq_handler< typename systick::irq            , systick_isr >,
@@ -89,6 +119,14 @@ struct Kernel
     mptl::irq_handler< typename mptl::irq::pend_sv      , null_isr    >
     >;
 
+  /* Define the resources typelist.
+   *
+   * Note: listing usart::resources is actually not needed, since it
+   * is implicitely inherited in usart_stream_device::resources
+   * (inherited by terminal::resources). Listing it multiple times
+   * would not harm, and is explicitely allowed by
+   * mptl::core::configure<resources>().
+   */
   using resources = mptl::typelist<
     irq_resources,
     systick::resources,
@@ -96,7 +134,9 @@ struct Kernel
     led_orange::resources,
     led_red::resources,
     led_blue::resources,
-    usart_stream_device::resources
+    terminal_type::resources
+    // , usart::resources                // implicit in usart_stream_device::resources
+    // , usart_stream_device::resources  // implicit in terminal_type::resources
     >::type;
 };
 
