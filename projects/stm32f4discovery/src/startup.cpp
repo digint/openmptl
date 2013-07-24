@@ -48,7 +48,8 @@ mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_tab
 
 #include <iostream>
 
-int main(int argc, char *argv[])
+//int main(int argc, char *argv[])
+int main(void)
 {
   std::cout << "*** stm32f4discovery demo: starting simulation..." << std::endl;
 

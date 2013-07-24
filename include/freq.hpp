@@ -38,9 +38,9 @@ static constexpr freq_t operator"" _mhz(long double x)        { return x * 1000 
 
 #endif
 
-static constexpr freq_t hz (unsigned long long x) { return x; }
-static constexpr freq_t khz(unsigned long long x) { return x * 1000; }
-static constexpr freq_t mhz(unsigned long long x) { return x * 1000 * 1000; }
+static inline constexpr freq_t hz (unsigned long long x) { return x; }
+static inline constexpr freq_t khz(unsigned long long x) { return x * 1000; }
+static inline constexpr freq_t mhz(unsigned long long x) { return x * 1000 * 1000; }
 
 } // namespace mptl
 

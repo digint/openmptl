@@ -213,15 +213,16 @@ public:
 #endif // CONFIG_USE_STD_TUPLE
   }
 
+#if 0  // TODO: fix this
   /**
    * Check if elements derived from typelist_unique_element class are really
    * unique in the list.
    */
   static bool check(void) {
     using unique_check = typename mpl::unique_check_impl< type >;
-    // TODO: fix this
     return true;
   }
+#endif
 };
 
 

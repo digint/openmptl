@@ -44,8 +44,7 @@ struct baudrate
 {
   static constexpr const char * cmd  = "baudrate";
   static constexpr const char * desc = "set the terminal baudrate to 460.8 KBps";
-  void run(poorman::ostream<char> & cout) {
-    //    cout << "setting baudrate to 460.8 KBps" << poorman::flush;
+  void run(poorman::ostream<char> &) {
     Kernel::terminal.close();
     Kernel::usart::set_baudrate(460800);
     Kernel::terminal.open();

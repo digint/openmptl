@@ -51,11 +51,11 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 # experimental features
 #
 
+#FLAGS  += -DDYNAMIC_BAUD_RATE
+
 #FLAGS  += -DCONFIG_USE_STD_TUPLE
 #FLAGS  += -DCONFIG_USE_FRIENDS
 #FLAGS  += -DCONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
-
-#FLAGS  += -DDYNAMIC_BAUD_RATE
 
 
 #------------------------------------------------------------------------------
@@ -189,6 +189,9 @@ CXXFLAGS    += -Wcast-align
 CXXFLAGS    += -pedantic
 #CXXFLAGS    += -Weffc++
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
+ifdef SIMULATION
+  CXXFLAGS  += -Wno-attributes
+endif
 
 ASFLAGS     += $(FLAGS)
 

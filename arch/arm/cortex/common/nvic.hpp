@@ -132,7 +132,7 @@ using debug_monitor     = core_exception<-4>;
 using pend_sv           = core_exception<-2>;
 using systick           = core_exception<-1>;
 
-static constexpr bool reserved_irqn(int irqn) {
+static inline constexpr bool reserved_irqn(int irqn) {
   return ((irqn == -3) ||
           (irqn == -6) ||
           (irqn == -7) ||

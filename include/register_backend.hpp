@@ -98,7 +98,6 @@ class reg_reaction
 {
   reg_addr_t addr;
   uint32_t old_value;
-  uint32_t value;
 
   template<typename R>
   bool bits_set(void) {
@@ -111,7 +110,7 @@ class reg_reaction
   }
 
 public:
-  reg_reaction(reg_addr_t _addr, uint32_t _old_value, uint32_t _value) : addr(_addr), old_value(_old_value), value(_value) {
+  reg_reaction(reg_addr_t _addr, uint32_t _old_value) : addr(_addr), old_value(_old_value) {
     reaction_running++;
   };
   ~reg_reaction(void) {
@@ -185,12 +184,16 @@ struct regdef_backend
     std::cerr << std::endl;
   }
 
-  static void print_info_line(const char * desc, T value_cur, T value_new) {
 #ifdef DEBUG_DUMP_CURRENT_REGISTER_VALUE
+  static void print_info_line(const char * desc, T value_cur, T value_new) {
     print_info_line("==", value_cur);
-#endif // DEBUG_DUMP_CURRENT_REGISTER_VALUE
     print_info_line(desc, value_new);
   }
+#else
+  static void print_info_line(const char * desc, T, T value_new) {
+    print_info_line(desc, value_new);
+  }
+#endif // DEBUG_DUMP_CURRENT_REGISTER_VALUE
 
   static T load() {
     static_assert(access != reg_access::wo, "read access to a write-only register");
@@ -212,7 +215,7 @@ struct regdef_backend
       else
         print_info_line("::store()", reg_value, value);
 #endif
-    reg_reaction reaction(addr, reg_value, value);
+    reg_reaction reaction(addr, reg_value);
     reg_value = value;
     reaction.react();
   }
