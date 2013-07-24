@@ -45,7 +45,7 @@ public:
   using stream_device_type = _stream_device_type;
   using char_type      = typename stream_device_type::fifo_type::char_type;
 
-  using tx_stream_type = poorman::fifo_stream< typename stream_device_type::fifo_type, stream_device_type >;
+  using tx_stream_type = fifo_stream< typename stream_device_type::fifo_type, stream_device_type >;
 
   tx_stream_type tx_stream;
 

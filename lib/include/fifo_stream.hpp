@@ -23,7 +23,7 @@
 
 #include <poorman_ostream.hpp>
 
-namespace poorman {
+namespace mptl {
 
 template<typename fifoT, typename deviceT>
 class fifo_stream
@@ -66,6 +66,6 @@ public:
   }
 };
 
-} // namespace poorman
+} // namespace mptl
 
 #endif // FIFO_STREAM_HPP_INCLUDED
