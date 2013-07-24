@@ -126,7 +126,7 @@ template< typename   T,
           T          reset_value >
 struct regdef_backend
 {
-  typedef T value_type;
+  using value_type = T;
   static T reg_value;
 
   static constexpr reg_access access = _access;
@@ -134,7 +134,7 @@ struct regdef_backend
 
   static constexpr unsigned dump_bitsize = 32; /**< limit size to 32bit, since uint_fast16_t on 64bit system has 64bit width, making the output look crappy... */
   static constexpr unsigned additional_space = 6;
-  static constexpr unsigned desc_max_width = 11;
+  static constexpr unsigned desc_max_width = 14;
   static constexpr unsigned addr_width = sizeof(reg_addr_t) * 2 + 2;
 
   static std::string bitfield_str(T const value) {
@@ -153,36 +153,36 @@ struct regdef_backend
     static constexpr std::size_t size = sizeof(T);
     static constexpr std::size_t print_size = size > (dump_bitsize / 8) ? (dump_bitsize / 8) : size;
 
-    std::cout << std::setw((4 - print_size) * 2 + 2) << std::hex << std::right << "0x"
+    std::cerr << std::setw((4 - print_size) * 2 + 2) << std::hex << std::right << "0x"
               << std::setfill('0') << std::setw(print_size * 2) << +value;  // '+value' makes sure a char is printed as number
 
 #ifdef DEBUG_DUMP_BITFIELD
-    std::cout << "   ";
-    std::cout << bitfield_str(value);
+    std::cerr << "   ";
+    std::cerr << bitfield_str(value);
 #endif // DEBUG_DUMP_BITFIELD
 
 #if 0    // mark cropped register with '~'
     if(print_size < size)
-      std::cout << "~";
+      std::cerr << "~";
 #endif
   }
 
   static void print_address_map(void) {
     if(reg::address_map<addr>::name_str)  /* lookup register name */
-      std::cout << std::left << std::setfill(' ') << std::setw(addr_width + additional_space) << reg::address_map<addr>::name_str;
+      std::cerr << std::left << std::setfill(' ') << std::setw(addr_width + additional_space) << reg::address_map<addr>::name_str;
     else
-      std::cout << "0x" << std::hex << std::right << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr << std::setfill(' ')  << std::setw(additional_space) << "";
+      std::cerr << "0x" << std::hex << std::right << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr << std::setfill(' ')  << std::setw(additional_space) << "";
   }
 
   static void print_desc(const char * desc) {
-    std::cout << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
+    std::cerr << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
   }
 
   static void print_info_line(const char * desc, T value) {
     print_address_map();
     print_desc(desc);
     print_reg(value);
-    std::cout << std::endl;
+    std::cerr << std::endl;
   }
 
   static void print_info_line(const char * desc, T value_cur, T value_new) {
@@ -196,7 +196,7 @@ struct regdef_backend
     static_assert(access != reg_access::wo, "read access to a write-only register");
 #ifdef DEBUG_REGISTER
     if(!reaction_running)
-      print_info_line("::load", reg_value);
+      print_info_line("::load()", reg_value);
 #endif
     return reg_value;
   }
@@ -207,10 +207,10 @@ struct regdef_backend
     if(reaction_running)
       print_info_line("++react", reg_value, value);
     else
-      if(reg_value == value)  // notify with '*' if cur=new (candidates for optimization!)
-        print_info_line("::store~", reg_value, value);
+      if(reg_value == value)  // notify with '~' if cur=new (candidates for optimization!)
+        print_info_line("::store()~", reg_value, value);
       else
-        print_info_line("::store", reg_value, value);
+        print_info_line("::store()", reg_value, value);
 #endif
     reg_reaction reaction(addr, reg_value, value);
     reg_value = value;
