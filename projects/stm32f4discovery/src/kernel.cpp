@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef OPENMPTL_SIMULATION
+#  include <thread>
+#endif
+
 #include <arch/core.hpp>
 #include <terminal.hpp>
 #include "terminal_hooks.hpp"
@@ -34,10 +38,10 @@ void Kernel::systick_isr() {
     systick_count = 1000;
     second++;
 
-  /* Demonstrate the impact of the active_state configuration element:
-   * faking active_state::low for Kernel::led_blue<> has the effect of
-   * green/blue leds toggling alternately in systick_isr().
-   */
+    /* Demonstrate the impact of the active_state configuration element:
+     * faking active_state::low for Kernel::led_blue<> has the effect of
+     * green/blue leds toggling alternately in systick_isr().
+     */
     led_green::toggle();
     led_blue::toggle();
   }
@@ -45,23 +49,29 @@ void Kernel::systick_isr() {
 
 void Kernel::init(void)
 {
-  resources::check();  /* check unique resources */
-  mptl::core::configure<resources>();  /* set all register from Kernel::resources<> */
+  /* check unique resources */
+  // resources::check(); // TODO: do we still need this?
 
+  /* set all register from Kernel::resources<> */
+  mptl::core::configure< resources >();
+
+  /* turn all leds off */
   led_green ::off();
   led_orange::off();
   led_red   ::off();
   led_blue  ::off();
 
-  systick::init();
-  systick::enable_interrupt();
-
 #ifdef DYNAMIC_BAUD_RATE
-  // set the baud rate, since it is not set in usart<> peripheral
-  // configuration (and thus was NOT set by
-  // "mptl::core::configure<resources>()" above).
+  /* set the baud rate, since it is not set in usart<> peripheral
+   * configuration (and thus was NOT set by
+   * "mptl::core::configure<resources>()" above).
+   */
   usart::set_baudrate(115200);
 #endif
+
+  /* finally start systick */
+  systick::init();
+  systick::enable_interrupt();
 }
 
 void Kernel::run(void)
@@ -73,5 +83,10 @@ void Kernel::run(void)
   {
     /* poll terminal */
     terminal.process_input< terminal_hooks::commands >();
+
+#ifdef OPENMPTL_SIMULATION
+    // sleep a bit (don't eat up all cpu power)
+    std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
+#endif
   }
 }

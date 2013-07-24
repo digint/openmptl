@@ -23,12 +23,51 @@
 #include <register.hpp>
 #include <arch/scb.hpp>
 #include <arch/rcc.hpp>
+#include <iostream>
 #include <thread>
 #include <chrono>
 #include <ratio>
+#include <poll.h>
 #include "kernel.hpp"
 
+/* poll stdin, and feed result into stream_device_type::rx_fifo */
+static void sim_poll_stdin() {
+  char c;
+  pollfd cinfd[1];
+  cinfd[0].fd = fileno(stdin);
+  cinfd[0].events = POLLIN;
+  if(poll(cinfd, 1, 0))
+  {
+    c = std::cin.get();
+    if(c == 10) c = 13; // convert LF into CR (hacky...)
+
+    /* feed rx_fifo, will pe polled in terminal.process_input() */
+    Kernel::terminal_type::stream_device_type::rx_fifo.push(c);
+  }
+}
+
+/* hook into stream_device_type::tx_fifo, and print output to screen */
+static void sim_poll_terminal_fifo() {
+  char c;
+  while(Kernel::terminal_type::stream_device_type::tx_fifo.pop(c)) {
+    std::cout << c;
+    std::cout << std::flush;  // too bad, we need to flush after every character...
+  }
+}
+
+static void terminal_thread() {
+  // std::cout << "*** terminal_thread() running" << std::endl;
+  static constexpr int duration = 20; // poll frequency (ms)
+  while(true) {
+    sim_poll_terminal_fifo();
+    std::this_thread::sleep_for(std::chrono::milliseconds( duration ));
+    sim_poll_stdin();
+    std::this_thread::sleep_for(std::chrono::milliseconds( duration ));
+  }
+}
+
 static void systick_thread() {
+  // std::cout << "*** systick_thread() running" << std::endl;
   std::chrono::duration< int, std::ratio<1, Kernel::systick::freq> > duration(1);
   while(true) {
     Kernel::systick_isr();
@@ -58,6 +97,11 @@ void reg_reaction::react() {
   case reg::SCB::STCSR::addr:
     if(bits_set<reg::SCB::STCSR::TICKINT>()) {
       std::thread(systick_thread).detach();
+    }
+
+  case Kernel::usart::USARTx::CR1::addr:
+    if(bits_set<Kernel::usart::USARTx::CR1::RXNEIE>()) {
+      std::thread(terminal_thread).detach();
     }
   };
 }
