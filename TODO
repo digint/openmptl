@@ -1,5 +1,7 @@
 - remove namespace reg -> rename reg_manip -> reg
 
+- rename OPENMPTL_SIMULATION to MPTL_SIMULATION
+
 - implement make_reg<> (analog to std::make_tuple<>, see register_manip.hpp for explanation!
 
 - rename: typelist -> tlist

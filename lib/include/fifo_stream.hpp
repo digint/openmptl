@@ -66,6 +66,49 @@ public:
   }
 };
 
+#ifdef OPENMPTL_SIMULATION
+
+#include <ostream>  // std::ostream
+
+/* Fake fifo_stream for simulation.
+ * Template specialisation for deviceT = std::ostream, used for terminal simulation */
+template<typename fifoT>
+class fifo_stream< fifoT, std::ostream>
+: public poorman::ostream<typename fifoT::char_type>
+{
+public:
+  using char_type = typename fifoT::char_type;
+
+  fifo_stream(fifoT &) { };
+
+  poorman::ostream<char_type> & put(char_type c) {
+    std::cout << c;
+    return *this;
+  }
+
+  poorman::ostream<char_type> & write(const char_type* s, unsigned int count) {
+    std::cout << s;
+    return *this;
+  }
+
+  poorman::ostream<char_type> & puts(const char_type* s) {
+    std::cout << s;
+    return *this;
+  }
+
+  poorman::ostream<char_type> & flush() {
+    std::cout << std::flush;
+    return *this;
+  }
+
+  poorman::ostream<char_type> & endl() {
+    std::cout << std::endl;
+    return *this;
+  }
+};
+
+#endif // OPENMPTL_SIMULATION
+
 } // namespace poorman
 
 #endif // FIFO_STREAM_HPP_INCLUDED

@@ -41,7 +41,11 @@ template<typename stream_device_type>
 class terminal
 {
   using char_type      = typename stream_device_type::fifo_type::char_type;
+#ifndef OPENMPTL_SIMULATION
   using tx_stream_type = poorman::fifo_stream< typename stream_device_type::fifo_type, stream_device_type >;
+#else
+  using tx_stream_type = poorman::fifo_stream< typename stream_device_type::fifo_type, std::ostream >;
+#endif
 
   static constexpr std::size_t cmd_buf_size = 80;  // TODO: use cmd_hooks::cmd_buf_size, which is the maximum of all command sizes (can be computed at compile-time!)
 
@@ -53,6 +57,12 @@ public:
 
   static constexpr const char * newline = "\r\n";
   static constexpr const char * prompt  = "# ";
+
+#ifdef OPENMPTL_SIMULATION
+  static constexpr bool terminal_echo = false;
+#else
+  static constexpr bool terminal_echo = true;
+#endif
 
   using resources = typename stream_device_type::resources;
 
@@ -73,10 +83,18 @@ public:
   {
     bool flush_tx = false;
     char c;
+#ifndef OPENMPTL_SIMULATION
     while(stream_device_type::rx_fifo.pop(c)) {
+#else
+    while((c = std::cin.get())) {
+      if(c == 10) c = 13; // convert LF into CR (hacky...)
+#endif
       flush_tx = true;
-      if(c == 13) {  // CR
-        tx_stream << newline;  // echo
+      if(c == 13)  // CR
+      {
+        if(terminal_echo)
+          tx_stream << newline;
+
         cmd_buf[cmd_index] = 0;
 
         if(cmd_index) {
@@ -87,7 +105,9 @@ public:
       }
       else if((c >= 32) && (c <= 126) && (cmd_index < cmd_buf_size))
       {
-        tx_stream.put(c);  // echo
+        if(terminal_echo)
+          tx_stream.put(c);
+
         cmd_buf[cmd_index++] = c;
       }
     }
