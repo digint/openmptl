@@ -25,84 +25,130 @@
 #include <arch/rcc.hpp>
 #include <iostream>
 #include <thread>
+#include <atomic>
 #include <chrono>
 #include <ratio>
 #include <poll.h>
 #include "kernel.hpp"
 
-/* poll stdin, and feed result into stream_device_type::rx_fifo */
-static void sim_poll_stdin() {
+static std::atomic<bool> systick_thread_terminate;
+static std::atomic<bool> terminal_rx_thread_terminate;
+static std::atomic<bool> terminal_tx_thread_terminate;
+
+
+/** run Kernel::systick_isr() in intervals defined by Kernel::systick::freq */
+static void systick_thread() {
+  std::chrono::duration< int, std::ratio<1, Kernel::systick::freq> > sleep_duration(1);
+  while(!systick_thread_terminate)
+  {
+    Kernel::systick_isr();
+    std::this_thread::sleep_for(sleep_duration);
+  }
+}
+
+
+/**
+ * Poll stdin, and feed result into stream_device_type::rx_fifo.
+ *
+ * NOTE: we use std::cin, which is not thread safe.
+ */
+static void terminal_rx_thread() {
+  static constexpr int sleep_duration = 20; // poll frequency (ms)
+
   char c;
   pollfd cinfd[1];
   cinfd[0].fd = fileno(stdin);
   cinfd[0].events = POLLIN;
-  if(poll(cinfd, 1, 0))
+
+  //  std::cout << "*** terminal_rx_thread() running" << std::endl;
+  while(!terminal_rx_thread_terminate)
   {
-    c = std::cin.get();
-    if(c == 10) c = 13; // convert LF into CR (hacky...)
+    if(poll(cinfd, 1, 0))
+    {
+      c = std::cin.get();
+      if(c == 10) c = 13; // convert LF into CR (hacky...)
 
-    /* feed rx_fifo, will pe polled in terminal.process_input() */
-    Kernel::terminal_type::stream_device_type::rx_fifo.push(c);
+      /* feed rx_fifo, will pe polled in terminal.process_input() */
+      Kernel::terminal_type::stream_device_type::rx_fifo.push(c);
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds( sleep_duration ));
   }
+  //  std::cout << "*** terminal_rx_thread() terminated" << std::endl;
 }
 
-/* hook into stream_device_type::tx_fifo, and print output to screen */
-static void sim_poll_terminal_fifo() {
-  char c;
-  while(Kernel::terminal_type::stream_device_type::tx_fifo.pop(c)) {
-    std::cout << c;
-    std::cout << std::flush;  // too bad, we need to flush after every character...
+
+/**
+ * Hook into stream_device_type::tx_fifo, and print output to stdout.
+ *
+ * NOTE: we use std::cout, which is not thread safe.
+ */
+static void terminal_tx_thread() {
+  static constexpr int sleep_duration = 20; // poll frequency (ms)
+
+  //  std::cout << "*** terminal_tx_thread() running" << std::endl;
+  while(!terminal_tx_thread_terminate)
+  {
+    char c;
+    while(Kernel::terminal_type::stream_device_type::tx_fifo.pop(c)) {
+      std::cout << c;
+      std::cout << std::flush;  // too bad, we need to flush after every character...
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds( sleep_duration ));
   }
+  //  std::cout << "*** terminal_tx_thread() terminated" << std::endl;
 }
 
-static void terminal_thread() {
-  // std::cout << "*** terminal_thread() running" << std::endl;
-  static constexpr int duration = 20; // poll frequency (ms)
-  while(true) {
-    sim_poll_terminal_fifo();
-    std::this_thread::sleep_for(std::chrono::milliseconds( duration ));
-    sim_poll_stdin();
-    std::this_thread::sleep_for(std::chrono::milliseconds( duration ));
-  }
-}
 
-static void systick_thread() {
-  // std::cout << "*** systick_thread() running" << std::endl;
-  std::chrono::duration< int, std::ratio<1, Kernel::systick::freq> > duration(1);
-  while(true) {
-    Kernel::systick_isr();
-    std::this_thread::sleep_for(duration);
-  }
-}
 
 namespace mptl {
 
-void reg_reaction::react() {
+void reg_reaction::react()
+{
   switch(addr) {
   case reg::RCC::CR::addr:
-    if(bits_set<reg::RCC::CR::HSEON>()) {
+    if(bits_set< reg::RCC::CR::HSEON >()) {
       reg::RCC::CR::HSERDY::set();
     }
-    if(bits_set<reg::RCC::CR::PLLON>()) {
+    if(bits_set< reg::RCC::CR::PLLON >()) {
       reg::RCC::CR::PLLRDY::set();
     }
     break;
 
   case reg::RCC::CFGR::addr:
-    if(bits_set<reg::RCC::CFGR::SW::PLL>()) {
+    if(bits_set< reg::RCC::CFGR::SW::PLL >()) {
       reg::RCC::CFGR::SWS::PLL::set();
     }
     break;
 
   case reg::SCB::STCSR::addr:
-    if(bits_set<reg::SCB::STCSR::TICKINT>()) {
+    if(bits_set< reg::SCB::STCSR::TICKINT >()) {
+      systick_thread_terminate = false;
       std::thread(systick_thread).detach();
     }
+    else if(bits_cleared< reg::SCB::STCSR::TICKINT >()) {
+      systick_thread_terminate = true;
+    }
+    break;
 
   case Kernel::usart::USARTx::CR1::addr:
-    if(bits_set<Kernel::usart::USARTx::CR1::RXNEIE>()) {
-      std::thread(terminal_thread).detach();
+    /* start/stop terminal rx thread on RXNEIE */
+    if(bits_set< Kernel::usart::USARTx::CR1::RXNEIE >()) {
+      terminal_rx_thread_terminate = false;
+      std::thread(terminal_rx_thread).detach();
     }
+    else if(bits_cleared< Kernel::usart::USARTx::CR1::RXNEIE >()) {
+      terminal_rx_thread_terminate = true;
+    }
+
+    /* start/stop terminal tx thread on TXEIE */
+    if(bits_set< Kernel::usart::USARTx::CR1::TXEIE >()) {
+      terminal_tx_thread_terminate = false;
+      std::thread(terminal_tx_thread).detach();
+    }
+    else if(bits_cleared< Kernel::usart::USARTx::CR1::TXEIE >()) {
+      terminal_tx_thread_terminate = true;
+    }
+    break;
   };
 }
 
