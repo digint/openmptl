@@ -66,6 +66,7 @@ static void terminal_rx_thread() {
     if(poll(cinfd, 1, 0))
     {
       c = std::cin.get();
+      // std::cout << '<' << +c << '>' <<  std::endl;
       if(c == 10) c = 13; // convert LF into CR (hacky...)
 
       /* feed rx_fifo, will pe polled in terminal.process_input() */
