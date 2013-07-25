@@ -37,13 +37,32 @@ namespace i18n { namespace terminal {
 // terminal
 //
 
-template<typename _stream_device_type, bool _terminal_echo = true>
+/**
+ * Simple vt100-like terminal.
+ *
+ * Parses and executes commands from mptl::terminal_hook_list<...>,
+ * and accepts simple single-word commands (see process_input()).
+ *
+ * Operates on mptl::fifo_stream<> for input/output, and provides a
+ * very basic stream interface from poorman::ostream<>:
+ *
+ *     mptl::terminal<...> term;
+ *     term.tx_stream << "hello, var=" << myvar << poorman::endl;
+ *
+ * Template arguments:
+ *
+ *   - Tp: stream_device_type, must provide:
+ *           - fifo_type (of type: fifo<>)
+ *           - static void flush()
+ *           - static bool crlf
+ */
+template<typename Tp, bool _terminal_echo = true>
 class terminal
 {
 public:
 
-  using stream_device_type = _stream_device_type;
-  using char_type      = typename stream_device_type::fifo_type::char_type;
+  using stream_device_type = Tp;
+  using char_type = typename stream_device_type::fifo_type::char_type;
 
   using tx_stream_type = fifo_stream< typename stream_device_type::fifo_type, stream_device_type >;
 
