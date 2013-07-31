@@ -36,76 +36,108 @@ static_assert(alignof(isr_t) == 4, "wrong alignment for isr function pointer tab
 namespace mpl
 {
   /**
-   * vector_table_impl: Provides a static vector table isr_vector[]:
+   * Provides a static vector table isr_vector[] in section
+   * ".isr_vector", containing stack_top and all values of the
+   * mptl::irq_handler<> traits.
    *
-   * - pointer to reset value of stack pointer
-   * - pointer to N handler (isr_list)
+   * Template arguments:
    *
-   * Instantiating this class puts the table to the ".isr_vector" section.
-   *
+   *   - stack_top:  pointer to reset value of stack pointer
+   *   - Tp:         mptl::irq_handler<> traits
    */
-  template<const uint32_t *stack_top, isr_t... isr_list>
+  template<const uint32_t *stack_top, typename... Tp>
   struct vector_table_impl {
-    static constexpr std::size_t size = sizeof...(isr_list) + 1;
+    static constexpr std::size_t size = sizeof...(Tp) + 1;
 
     static __used isr_t isr_vector[size] __attribute__ ((section(".isr_vector")));
   };
 
-  template<const uint32_t *stack_top, isr_t... isr_list>
-  isr_t vector_table_impl<stack_top, isr_list...>::isr_vector[size] = {
+  template<const uint32_t *stack_top, typename... Tp>
+  isr_t vector_table_impl<stack_top, Tp...>::isr_vector[size] = {
+#ifndef CONFIG_CLANG  // TODO: whats wrong with this?
     reinterpret_cast<isr_t>(stack_top),
-    isr_list...
+#else
+    (isr_t)stack_top,
+#endif
+    Tp::value...
   };
 
 
-  template<unsigned int N, int irqn_offset, typename resource_list, isr_t default_isr, const uint32_t *stack_top, isr_t... isr_list>
+  /** recursively build the vector table  */
+  template< unsigned int N,
+            int          irqn_offset,
+            typename     irq_handler_list,
+            isr_t        default_isr,
+            const        uint32_t *stack_top,
+            typename...  Tp >
   struct make_vector_table
   {
     static constexpr int irqn = (N - 1) + irqn_offset;
-    using irq_handler = mpl::unique_irq_handler<resource_list, irqn>;
+    using irq_handler_resource = mpl::unique_irq_handler<irq_handler_list, irqn>;
+    using irq_handler_default = irq_handler< void, default_isr >;
 
-    struct irq_handler_default {
-      static constexpr isr_t value = default_isr;
-    };
+    /** irq_handler<> from irq_handler<irqn> in irq_handler_list if
+     *  present, default_isr if not. default_isr if irqn is a
+     *  reserved_irqn() */
+    using irq_handler_type = typename std::conditional<
+      ( irq::reserved_irqn(irqn) ||
+        std::is_void< irq_handler_resource >::value ),
+      irq_handler_default,
+      irq_handler_resource >::type;
 
-    static constexpr isr_t isr = irq::reserved_irqn(irqn) ? nullptr :
-      std::conditional<  /* handler from mpl::irq_handler<irqn> in resource::list if present */
-        std::is_void< irq_handler >::value,
-        irq_handler_default,
-        irq_handler
-      >::type::value;
-
+    /** recursion */
     using type = typename make_vector_table<
       N - 1,
       irqn_offset,
-      resource_list,
+      irq_handler_list,
       default_isr,
       stack_top,
-      isr,
-      isr_list...
+      irq_handler_type,
+      Tp...
       >::type;
   };
 
   /* last irq number (N) is irq::reset::irqn */
-  template<int irqn_offset, typename resource_list, isr_t default_isr, const uint32_t *stack_top, isr_t... isr_list>
-  struct make_vector_table<0, irqn_offset, resource_list, default_isr, stack_top, isr_list...> {
-    using type = vector_table_impl<stack_top, isr_list...>;
+  template< int              irqn_offset,
+            typename         irq_handler_list,
+            isr_t            default_isr,
+            const uint32_t * stack_top,
+            typename...      Tp >
+  struct make_vector_table< 0, irqn_offset, irq_handler_list, default_isr, stack_top, Tp... > {
+    using type = vector_table_impl<stack_top, Tp...>;
   };
 } // namespace mpl
 
 
 /**
- * vector_table: Provides a static vector table.
+ * Provides a static vector table isr_vector[] in section
+ * ".isr_vector".
  *
- * Instantiate this class somewhere in your startup code to put the
- * table to the ".isr_vector" section.
+ * NOTE: If your compiler does not support the "used" attribute, you
+ * will have to instantiate this class somewhere so that the compiler
+ * does not strip the unreferenced symbol.
+ *
+ * Template arguments:
+ *
+ *   - stack_top: pointer to reset value of stack pointer
+ *
+ *   - irq_handler_list: typelist<>, containing mptl::irq_handler<>
+ *        traits (other traits are ignored)
+ *
+ *   - default_isr: isr_t function pointer, used for all irq's which
+ *        are not listed in irq_handler_list. Defaults to "nullptr".
+ *
+ * Members:
+ * 
+ *   - isr_vector[]: interrupt vector table, "__used" in section
+ *       ".isr_vector" (__attribute__((used)) __attribute__ ((section(".isr_vector"))).
  */
-template<const uint32_t *stack_top, typename resource_list, isr_t default_isr = nullptr >
+template<const uint32_t *stack_top, typename irq_handler_list, isr_t default_isr = nullptr >
 struct vector_table
 : mpl::make_vector_table<
   irq::numof_interrupt_channels - irq::reset::irqn,  /* start index */
   irq::reset::irqn,  /* irqn_offset (negative) */
-  resource_list,
+  irq_handler_list,
   default_isr,
   stack_top
   >::type
@@ -115,7 +147,7 @@ struct vector_table
 
   static_assert(irq::reset::irqn < 0, "irq::reset::irqn must be a negative value");
   static_assert(irq::numof_interrupt_channels >= 0, "invalid irq::numof_interrupt_channels");
-  static_assert(sizeof(vector_table<stack_top, resource_list, default_isr>::isr_vector) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + -irq::reset::irqn),
+  static_assert(sizeof(vector_table<stack_top, irq_handler_list, default_isr>::isr_vector) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + -irq::reset::irqn),
                 "IRQ vector table size error");
 };
 

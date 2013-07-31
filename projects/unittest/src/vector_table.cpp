@@ -18,7 +18,6 @@
  *
  */
 
-#include <resource.hpp>
 #include <arch/vector_table.hpp>
 #include <cassert>
 
@@ -33,8 +32,8 @@ static void isr_42(void) { isr_test = 42; }
 /* Handler for irq number = 42 */
 using irq42 = irq_handler< irq_base<42>, isr_42 >;
 
-using resource_list      = resource::list < irq42 >;
-using resource_fail_list = resource::list < irq42, irq42 >;
+using resource_list      = mptl::typelist < irq42 >;
+using resource_fail_list = mptl::typelist < irq42, irq42 >;
 
 int main()
 {
