@@ -20,7 +20,6 @@
 #------------------------------------------------------------------------------
 # project setup
 #
-
 PROJECT        = stm32f4discovery-demo
 
 OPENMPTL_TOP   = ../..
@@ -122,9 +121,15 @@ INCLUDE     += $(OPENMPTL_INCLUDE)
 #OBJS := $(addprefix $(OBJ_DIR)/, $SRCS)
 
 OBJS        := $(notdir $(SRCS) )
-OBJS        := $(OBJS:.cpp=.o)
-OBJS        := $(OBJS:.c=.o)
-OBJS        := $(OBJS:.S=.o)
+ifdef CLANG_EMIT_LLVM
+  OBJS      := $(OBJS:.cpp=.bc)
+  OBJS      := $(OBJS:.c=.bc)
+else
+  OBJS      := $(OBJS:.cpp=.o)
+  OBJS      := $(OBJS:.c=.o)
+endif
+OBJS      := $(OBJS:.S=.o)
+
 #OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 
@@ -191,23 +196,27 @@ CXXFLAGS    += -pedantic
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 ifdef SIMULATION
   CXXFLAGS  += -Wno-attributes
+  # clang: use libc++ instead of libstdc++
+  CXXFLAGS  += -stdlib=libc++
 endif
 
 ASFLAGS     += $(FLAGS)
 
 LDFLAGS     += $(CPUFLAGS)
+LDFLAGS     += $(OPTIMIZER)
 LDFLAGS     += -fno-exceptions
 LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
   LDFLAGS   += -pthread
+  # clang: use libc++ instead of libstdc++
+  LDFLAGS   += -lc++
 else
   LDFLAGS   += -nostartfiles
   LDFLAGS   += -Wl,-Map="$(MAP)",--cref
   LDFLAGS   += -Wl,--gc-sections
   LDFLAGS   += -T$(LD_SCRIPT)
 endif
-
 
 .PHONY: all clean
 
@@ -228,18 +237,24 @@ $(HEX):	$(ELF)
 
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
+	$(LD) $(LDFLAGS) $(OBJS) -o "$(ELF)"
 	$(SIZE) $@
 
 $(BIN):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LDFLAGS) -o "$(BIN)"
+	$(LD) $(LDFLAGS) $(OBJS) -o "$(BIN)"
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(OBJ_DIR)/%.bc: %.cpp
+	$(CXX) -c -emit-llvm $(CXXFLAGS) -o $@ $<
+
+$(OBJ_DIR)/%.bc: %.c
+	$(CC) -c -emit-llvm $(CFLAGS) -o $@ $<
 
 $(OBJ_DIR)/%.o: %.S
 	$(AS) -c $(ASFLAGS) -o $@ $<
@@ -248,17 +263,16 @@ $(OBJ_DIR):
 	@$(MKDIR_P) $(OBJ_DIR)
 
 clean:
-#	$(RM_R) $(OBJ_DIR)
-#	$(RM_R) $(BIN_DIR)
-	$(RM) $(OBJ_DIR)/*.o
-	$(RM) $(OBJ_DIR)/*.d
-	$(RM) $(OBJ_DIR)/*.lst
-
-	$(RM) $(BIN)
 	$(RM) $(HEX)
 	$(RM) $(ELF)
 	$(RM) $(MAP)
 	$(RM) $(LSS)
+	$(RM) $(OBJ_DIR)/*.bc
+	$(RM) $(OBJ_DIR)/*.s
+	$(RM) $(OBJ_DIR)/*.o
+	$(RM) $(OBJ_DIR)/*.d
+	$(RM) $(OBJ_DIR)/*.lst
+
 
 include $(OPENMPTL_TOP)/config/doxygen.mk
 include $(OPENMPTL_TOP)/config/openocd.mk

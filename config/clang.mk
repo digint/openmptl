@@ -21,10 +21,11 @@ ifdef CLANG_CROSS_BUILD    # use prefixed clang
 else
   CLANG_SYSROOT += -resource-dir $(TOOLCHAIN_DIR)
   CLANG_SYSROOT += -isysroot $(TOOLCHAIN_DIR)/$(TRIPLE)
+  CLANG_SYSROOT += -isystem $(TOOLCHAIN_DIR)/lib/gcc/$(TRIPLE)/$(GCC_VERSION)/include
+  CLANG_SYSROOT += -isystem $(TOOLCHAIN_DIR)/$(TRIPLE)/include
   CLANG_SYSROOT += -isystem $(TOOLCHAIN_DIR)/$(TRIPLE)/include/c++/$(GCC_VERSION)
   CLANG_SYSROOT += -isystem $(TOOLCHAIN_DIR)/$(TRIPLE)/include/c++/$(GCC_VERSION)/$(TRIPLE)
   CLANG_SYSROOT += -isystem $(TOOLCHAIN_DIR)/$(TRIPLE)/include/c++/$(GCC_VERSION)/backward
-  CLANG_SYSROOT += -isystem $(TOOLCHAIN_DIR)/$(TRIPLE)/include
 
   CLANG_TARGET += -target $(TRIPLE)
   CLANG_TARGET += -ccc-gcc-name $(TRIPLE)-g++
