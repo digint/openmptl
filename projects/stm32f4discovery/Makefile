@@ -147,8 +147,10 @@ ifndef CLANG
   FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
 endif
 
-# TODO: find out why this produces smaller code (+document)
-OPTIMIZER   += -ffunction-sections -fdata-sections  # Place each function or data item into its own section
+ifndef SIMULATION
+  # Place each function or data item into its own section
+  OPTIMIZER   += -ffunction-sections -fdata-sections
+endif
 
 CFLAGS      += $(FLAGS)
 CFLAGS      += $(OPTIMIZER)
@@ -196,8 +198,6 @@ CXXFLAGS    += -pedantic
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 ifdef SIMULATION
   CXXFLAGS  += -Wno-attributes
-  # clang: use libc++ instead of libstdc++
-  CXXFLAGS  += -stdlib=libc++
 endif
 
 ASFLAGS     += $(FLAGS)
@@ -209,8 +209,6 @@ LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
   LDFLAGS   += -pthread
-  # clang: use libc++ instead of libstdc++
-  LDFLAGS   += -lc++
 else
   LDFLAGS   += -nostartfiles
   LDFLAGS   += -Wl,-Map="$(MAP)",--cref
