@@ -31,9 +31,10 @@
 #include <poll.h>
 #include "kernel.hpp"
 
-static std::atomic<bool> systick_thread_terminate;
-static std::atomic<bool> terminal_rx_thread_terminate;
-static std::atomic<bool> terminal_tx_thread_terminate;
+// TODO: non-static atomics for now (bug in clang-3.3)
+std::atomic<bool> systick_thread_terminate;
+std::atomic<bool> terminal_rx_thread_terminate;
+std::atomic<bool> terminal_tx_thread_terminate;
 
 
 /** run Kernel::systick_isr() in intervals defined by Kernel::systick::freq */
@@ -102,6 +103,8 @@ static void terminal_tx_thread() {
 
 
 namespace mptl {
+
+thread_local int reg_reaction::refcount;
 
 void reg_reaction::react()
 {

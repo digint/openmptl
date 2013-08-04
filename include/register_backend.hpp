@@ -40,21 +40,21 @@ enum class reg_access { ro, wo, rw };
 
 typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
 
-template< typename   T,
+template< typename   Tp,
           reg_addr_t _addr,
           reg_access _access,
-          T          reset_value >
+          Tp         reset_value >
 struct regdef_backend
 {
-  static_assert(std::is_integral<T>::value, "T is not an integral type");
-  static_assert(std::is_unsigned<T>::value, "T is not an unsigned type");
-  static_assert(!std::is_volatile<T>::value, "T is is a volatile-qualified type (why would you want this?)");
+  static_assert(std::is_integral<Tp>::value,  "Tp is not an integral type");
+  static_assert(std::is_unsigned<Tp>::value,  "Tp is not an unsigned type");
+  static_assert(!std::is_volatile<Tp>::value, "Tp is a volatile-qualified type (why would you want this?)");
 
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
 
   /** Integral type used for register access. */
-  typedef T value_type;
+  typedef Tp value_type;
 
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
   /* For some reasons, reinterpret_cast is not allowed anymore in
@@ -62,26 +62,26 @@ struct regdef_backend
    * drafts (N3242), this was allowed. Disabled here, since
    * clang-3.2 does not allow it (gcc-4.8 is less permissive here).
    */
-  static constexpr volatile T * value_ptr = reinterpret_cast<volatile T *>(addr);
+  static constexpr volatile Tp * value_ptr = reinterpret_cast<volatile Tp *>(addr);
 #endif
 
   /** Load (read) register value. */
-  static __always_inline T load(void) {
+  static __always_inline Tp load(void) {
     static_assert(access != reg_access::wo, "read access to a write-only register");
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
     return *value_ptr;
 #else
-    return *reinterpret_cast<volatile T *>(addr);
+    return *reinterpret_cast<volatile Tp *>(addr);
 #endif
   }
 
   /** Store (write) a register value. */
-  static __always_inline void store(T const value) {
+  static __always_inline void store(Tp const value) {
     static_assert(access != reg_access::ro, "write access to a read-only register");
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
     *value_ptr = value;
 #else
-    *reinterpret_cast<volatile T *>(addr) = value;
+    *reinterpret_cast<volatile Tp *>(addr) = value;
 #endif
   }
 };
@@ -92,41 +92,47 @@ struct regdef_backend
 
 typedef uint32_t  reg_addr_t;
 
-static int reaction_running;
-
 class reg_reaction
 {
+  static thread_local int refcount;
+
   reg_addr_t addr;
   uint32_t old_value;
 
-  template<typename R>
+  template<typename Tp>
   bool bits_set(void) {
-    return (R::test() && !(old_value & R::value));
+    return (Tp::test() && !(old_value & Tp::value));
   }
 
-  template<typename R>
+  template<typename Tp>
   bool bits_cleared(void) {
-    return ((old_value & R::value) && !R::test());
+    return ((old_value & Tp::value) && !Tp::test());
   }
 
 public:
+
+  static bool running(void) {
+    // assert(refcount >= 0);
+    return refcount != 0;
+  };
+
   reg_reaction(reg_addr_t _addr, uint32_t _old_value) : addr(_addr), old_value(_old_value) {
-    reaction_running++;
+    refcount++;
   };
   ~reg_reaction(void) {
-    reaction_running--;
+    refcount--;
   };
   void react();
 };
 
-template< typename   T,
+template< typename   Tp,
           reg_addr_t _addr,
           reg_access _access,
-          T          reset_value >
+          Tp         reset_value >
 struct regdef_backend
 {
-  using value_type = T;
-  static T reg_value;
+  using value_type = Tp;
+  static Tp reg_value;
 
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
@@ -136,8 +142,8 @@ struct regdef_backend
   static constexpr unsigned desc_max_width = 14;
   static constexpr unsigned addr_width = sizeof(reg_addr_t) * 2 + 2;
 
-  static std::string bitfield_str(T const value) {
-    static constexpr std::size_t bitsize = sizeof(T) * 8;
+  static std::string bitfield_str(Tp const value) {
+    static constexpr std::size_t bitsize = sizeof(Tp) * 8;
     static constexpr std::size_t print_bitsize = bitsize > dump_bitsize ? dump_bitsize : bitsize;
 
     std::string s = std::bitset<print_bitsize>(value).to_string();
@@ -148,8 +154,8 @@ struct regdef_backend
     return "[ " + s + " ]";
   }
 
-  static void print_reg(T const value) {
-    static constexpr std::size_t size = sizeof(T);
+  static void print_reg(Tp const value) {
+    static constexpr std::size_t size = sizeof(Tp);
     static constexpr std::size_t print_size = size > (dump_bitsize / 8) ? (dump_bitsize / 8) : size;
 
     std::cerr << std::setw((4 - print_size) * 2 + 2) << std::hex << std::right << "0x"
@@ -177,7 +183,7 @@ struct regdef_backend
     std::cerr << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
   }
 
-  static void print_info_line(const char * desc, T value) {
+  static void print_info_line(const char * desc, Tp value) {
     print_address_map();
     print_desc(desc);
     print_reg(value);
@@ -185,29 +191,30 @@ struct regdef_backend
   }
 
 #ifdef DEBUG_DUMP_CURRENT_REGISTER_VALUE
-  static void print_info_line(const char * desc, T value_cur, T value_new) {
+  static void print_info_line(const char * desc, Tp value_cur, Tp value_new) {
     print_info_line("==", value_cur);
     print_info_line(desc, value_new);
   }
 #else
-  static void print_info_line(const char * desc, T, T value_new) {
+  static void print_info_line(const char * desc, Tp, Tp value_new) {
     print_info_line(desc, value_new);
   }
 #endif // DEBUG_DUMP_CURRENT_REGISTER_VALUE
 
-  static T load() {
+  static Tp load() {
     static_assert(access != reg_access::wo, "read access to a write-only register");
 #ifdef DEBUG_REGISTER
-    if(!reaction_running)
+    //    std::cerr << "reaction_running=" << reaction_running << std::endl;
+    if(!reg_reaction::running())
       print_info_line("::load()", reg_value);
 #endif
     return reg_value;
   }
 
-  static void store(T const value) {
+  static void store(Tp const value) {
     static_assert(access != reg_access::ro, "write access to a read-only register");
 #ifdef DEBUG_REGISTER
-    if(reaction_running)
+    if(reg_reaction::running())
       print_info_line("++react", reg_value, value);
     else
       if(reg_value == value)  // notify with '~' if cur=new (candidates for optimization!)
@@ -222,11 +229,11 @@ struct regdef_backend
 };
 
 /* initialize reg_value to the reset value */
-template< typename   T,
+template< typename   Tp,
           reg_addr_t addr,
           reg_access access,
-          T          reset_value >
-T regdef_backend<T, addr, access, reset_value>::reg_value = reset_value;
+          Tp         reset_value >
+Tp regdef_backend<Tp, addr, access, reset_value>::reg_value = reset_value;
 
 #endif // OPENMPTL_SIMULATION
 
