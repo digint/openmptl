@@ -36,7 +36,7 @@ void Kernel::reset_isr(void) {
 extern const uint32_t _stack_top;  /* provided by linker script */
 
 /* Build the vector table:
- * - use irq handler from resource::irq<...> in Kernel::resources
+ * - use irq handler from irq_handler<> traits in Kernel::resources
  * - use Kernel::error_isr as default isr
  */
 // TODO: declare Kernel::default_isr in kernel.hpp and use it here:

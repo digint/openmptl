@@ -30,9 +30,10 @@ OPENMPTL_ARCH  = arm/cortex/stm32/f4
 ifdef SIMULATION
   CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
-  FLAGS       += -DDEBUG_REGISTER
-  FLAGS       += -DDEBUG_DUMP_BITFIELD
-#  FLAGS       += -DDEBUG_DUMP_CURRENT_REGISTER_VALUE
+  FLAGS       += -DCONFIG_REGISTER_REACTION
+  FLAGS       += -DCONFIG_DUMP_REGISTER_ACCESS
+  FLAGS       += -DCONFIG_DUMP_REGISTER_BITFIELD
+#  FLAGS       += -DCONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
 else
   CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb
@@ -138,8 +139,10 @@ ifndef CLANG
   FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
 endif
 
-# TODO: find out why this produces smaller code (+document)
-OPTIMIZER   += -ffunction-sections -fdata-sections  # Place each function or data item into its own section
+ifndef SIMULATION
+  # Place each function or data item into its own section
+  OPTIMIZER   += -ffunction-sections -fdata-sections
+endif
 
 CFLAGS      += $(FLAGS)
 CFLAGS      += $(OPTIMIZER)
@@ -187,8 +190,6 @@ CXXFLAGS    += -pedantic
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
 ifdef SIMULATION
   CXXFLAGS  += -Wno-attributes
-  # clang: use libc++ instead of libstdc++
-  CXXFLAGS  += -stdlib=libc++
 endif
 
 ASFLAGS     += $(FLAGS)
@@ -200,8 +201,6 @@ LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
   LDFLAGS   += -pthread
-  # clang: use libc++ instead of libstdc++
-  LDFLAGS   += -lc++
 else
   LDFLAGS   += -nostartfiles
   LDFLAGS   += -Wl,-Map="$(MAP)",--cref

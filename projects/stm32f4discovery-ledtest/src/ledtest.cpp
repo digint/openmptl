@@ -88,6 +88,8 @@ mptl::isr_t clang_hack(void) {
 
 #include <iostream>
 
+thread_local int mptl::reg_reaction::refcount;
+
 void mptl::reg_reaction::react() {
   switch(addr) {
   case reg::RCC::CR::addr:
@@ -105,7 +107,7 @@ void mptl::reg_reaction::react() {
     }
     break;
   };
-};
+}
 
 //int main(int argc, char *argv[])
 int main(void)

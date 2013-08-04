@@ -30,9 +30,10 @@ OPENMPTL_ARCH  = arm/cortex/stm32/f4
 ifdef SIMULATION
   CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
-  FLAGS       += -DDEBUG_REGISTER
-  FLAGS       += -DDEBUG_DUMP_BITFIELD
-#  FLAGS       += -DDEBUG_DUMP_CURRENT_REGISTER_VALUE
+  FLAGS       += -DCONFIG_REGISTER_REACTION
+  FLAGS       += -DCONFIG_DUMP_REGISTER_ACCESS
+  FLAGS       += -DCONFIG_DUMP_REGISTER_BITFIELD
+#  FLAGS       += -DCONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
 else
   CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb

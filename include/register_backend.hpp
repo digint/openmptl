@@ -38,7 +38,8 @@ enum class reg_access { ro, wo, rw };
 
 #ifndef OPENMPTL_SIMULATION
 
-typedef uintptr_t  reg_addr_t;  /**< Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
+/** Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
+using reg_addr_t = uintptr_t;
 
 template< typename   Tp,
           reg_addr_t _addr,
@@ -90,8 +91,9 @@ struct regdef_backend
 #else  ////////////////////  OPENMPTL_SIMULATION  ////////////////////
 
 
-typedef uint32_t  reg_addr_t;
+using reg_addr_t = uint32_t;
 
+#ifdef CONFIG_REGISTER_REACTION
 class reg_reaction
 {
   static thread_local int refcount;
@@ -124,6 +126,8 @@ public:
   };
   void react();
 };
+#endif // CONFIG_REGISTER_REACTION
+
 
 template< typename   Tp,
           reg_addr_t _addr,
@@ -161,10 +165,10 @@ struct regdef_backend
     std::cerr << std::setw((4 - print_size) * 2 + 2) << std::hex << std::right << "0x"
               << std::setfill('0') << std::setw(print_size * 2) << +value;  // '+value' makes sure a char is printed as number
 
-#ifdef DEBUG_DUMP_BITFIELD
+#ifdef CONFIG_DUMP_REGISTER_BITFIELD
     std::cerr << "   ";
     std::cerr << bitfield_str(value);
-#endif // DEBUG_DUMP_BITFIELD
+#endif // CONFIG_DUMP_REGISTER_BITFIELD
 
 #if 0    // mark cropped register with '~'
     if(print_size < size)
@@ -190,7 +194,7 @@ struct regdef_backend
     std::cerr << std::endl;
   }
 
-#ifdef DEBUG_DUMP_CURRENT_REGISTER_VALUE
+#ifdef CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
   static void print_info_line(const char * desc, Tp value_cur, Tp value_new) {
     print_info_line("==", value_cur);
     print_info_line(desc, value_new);
@@ -199,32 +203,40 @@ struct regdef_backend
   static void print_info_line(const char * desc, Tp, Tp value_new) {
     print_info_line(desc, value_new);
   }
-#endif // DEBUG_DUMP_CURRENT_REGISTER_VALUE
+#endif // CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
 
   static Tp load() {
     static_assert(access != reg_access::wo, "read access to a write-only register");
-#ifdef DEBUG_REGISTER
-    //    std::cerr << "reaction_running=" << reaction_running << std::endl;
+#ifdef CONFIG_DUMP_REGISTER_ACCESS
+#ifdef CONFIG_REGISTER_REACTION
     if(!reg_reaction::running())
-      print_info_line("::load()", reg_value);
 #endif
+      print_info_line("::load()", reg_value);
+#endif // CONFIG_DUMP_REGISTER_ACCESS
     return reg_value;
   }
 
   static void store(Tp const value) {
     static_assert(access != reg_access::ro, "write access to a read-only register");
-#ifdef DEBUG_REGISTER
+#ifdef CONFIG_DUMP_REGISTER_ACCESS
+#ifdef CONFIG_REGISTER_REACTION
     if(reg_reaction::running())
       print_info_line("++react", reg_value, value);
     else
+#endif // CONFIG_REGISTER_REACTION
       if(reg_value == value)  // notify with '~' if cur=new (candidates for optimization!)
         print_info_line("::store()~", reg_value, value);
       else
         print_info_line("::store()", reg_value, value);
-#endif
+#endif // CONFIG_DUMP_REGISTER_ACCESS
+
+#ifdef CONFIG_REGISTER_REACTION
     reg_reaction reaction(addr, reg_value);
+#endif
     reg_value = value;
+#ifdef CONFIG_REGISTER_REACTION
     reaction.react();
+#endif
   }
 };
 
