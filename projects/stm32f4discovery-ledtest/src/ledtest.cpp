@@ -78,8 +78,9 @@ extern const uint32_t _stack_top;  /* provided by linker script */
 mptl::vector_table<&_stack_top, resources, null_isr > vector_table;
 
 #ifdef CONFIG_CLANG
-// clang-3.3 ignores "__attribute__((used))", use isr_vector[] as a workaround
-mptl::isr_t clang_hack(void) {
+// clang-3.3 ignores "__attribute__((used))" on vector_table_impl::isr_vector[]
+// WORKAROUND: use something from isr_vector[] in an unused function
+mptl::isr_t clang_workaround_attribute_used(void) {
   return vector_table.isr_vector[0];
 }
 #endif // CONFIG_CLANG
