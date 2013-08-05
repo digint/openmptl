@@ -41,35 +41,36 @@ struct Kernel
 
   using systick       = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
 
-  /* Note that setting mptl::cfg::usart::gpio_rx implicitely adds a
+  /* Note that setting mptl::usart<>::gpio_rx implicitely adds a
    * mptl::gpio<> type to usart::resources, having the correct GPIO
    * register configuration preset. This means that by calling
    * mptl::core::configure<resources>(), the GPIO registers are
    * automatically setup the way we need them for USART communication.
    */
-  using usart = mptl::usart<
-    2, rcc,
+  using usart = mptl::usart< 2, rcc >;
+  using usart_device = mptl::periph<
+    usart,
 #ifdef DYNAMIC_BAUD_RATE
     /* Explicitely do NOT set the baud_rate.
-     * This way it's not in usart::resources, and we set BRR by hand
-     * using usart::set_baud_rate(unsigned) in Kernel::init().
+     * This way it's not in usart_device::resources, and we set BRR by
+     * hand using usart::set_baud_rate(unsigned) in Kernel::init().
      */
 #else
-    mptl::cfg::usart::baud_rate< 115200 >,
+    usart::baud_rate< 115200 >,
 #endif
-    mptl::cfg::usart::gpio_rx< 'A', 3 >, /* implicitely sets USARTx::CR1::RE (rx enable) */
-    mptl::cfg::usart::gpio_tx< 'A', 2 >  /* implicitely sets USARTx::CR1::TE (tx enable) */
+    usart::gpio_rx< 'A', 3 >, /* implicitely sets USARTx::CR1::RE (rx enable) */
+    usart::gpio_tx< 'A', 2 >  /* implicitely sets USARTx::CR1::TE (tx enable) */
     >;
-  using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512> >;
+  using usart_stream_device = mptl::usart_irq_stream< usart_device, mptl::ring_buffer<char, 512> >;
   using terminal_type = mptl::terminal< usart_stream_device >;
 
   using led_green     = mptl::gpio_led< 'D', 12 >;
   using led_orange    = mptl::gpio_led< 'D', 13 >;
   using led_red       = mptl::gpio_led< 'D', 14 >;
   /* fake active_state on led_blue (refer to Kernel::systick_isr() definition in kernel.cpp) */
-  using led_blue      = mptl::gpio_led< 'D', 15, mptl::cfg::gpio::active_state::low >;
+  using led_blue      = mptl::gpio_led< 'D', 15, mptl::gpio_active_state::low >;
 
-  /* our static terminal (bound to usart_irq_stream<usart>) */
+  /* our static terminal (bound to usart_irq_stream<usart_device>) */
   static terminal_type terminal;
 
   /* Reset exception: triggered on system startup (system entry point). */
@@ -122,10 +123,10 @@ struct Kernel
   /* Define the resources typelist.
    *
    * Note: listing usart::resources is actually not needed, since it
-   * is implicitely inherited in usart_stream_device::resources
-   * (inherited by terminal::resources). Listing it multiple times
-   * would not harm, and is explicitely allowed by
-   * mptl::core::configure<resources>().
+   * is implicitely inherited in usart_device::resources (inherited by
+   * usart_stream_device::resources, inherited by terminal_type::resources).
+   * Listing it multiple times would not harm, and is explicitely
+   * allowed by mptl::core::configure<resources>().
    */
   using resources = mptl::typelist<
     irq_resources,
@@ -134,9 +135,10 @@ struct Kernel
     led_orange::resources,
     led_red::resources,
     led_blue::resources,
+    // usart::resources,                // implicit in usart_device::resources
+    // usart_device::resources,         // implicit in usart_stream_device::resources
+    // usart_stream_device::resources,  // implicit in terminal_type::resources
     terminal_type::resources
-    // , usart::resources                // implicit in usart_stream_device::resources
-    // , usart_stream_device::resources  // implicit in terminal_type::resources
     >::type;
 };
 

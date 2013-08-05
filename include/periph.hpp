@@ -26,80 +26,32 @@
 
 namespace mptl {
 
-namespace cfg {
-
-  struct config_base
-  : typelist_element
-  {
-    /**
-     * Resources needed by this element. Added to peripheral device
-     * resources typelist.
-     *
-     * Defaults to void.
-     */
-    template<typename T> using resources = void;
-
-    /**
-     * Configuration portion. 
-     *
-     * regmask<> type, or typelist<regmask<>...> type defining the
-     * configuration of the peripheral device.
-     *
-     * Used by the configure() member function, in order to set
-     * corresponding register bits defined by the given regmask<>.
-     *
-     * Also appended to the periph class resources typelist.
-     * Defaults to void.
-     */
-    template<typename T> using config_regmask = void;
-  };
-
-} // namespace cfg
-
-
-/**
- * Peripheral resources class
- *
- * Template arguments:
- * - Tp     : derived type (real peripheral type), e.g. spi<0>
- * - CFG... : configuration list: e.g. spi_default_config
- */
-template< typename Tp, typename... CFG >
-struct periph_cfg
-{
-  using derived_type = Tp;
-  using cfg_list = typelist< CFG... >;
-
-  using resources = typelist<
-    typename CFG::template resources< derived_type >...,
-    typename CFG::template config_regmask< derived_type >...
-    >;
-};
-
-
 /**
  * Peripheral device class
  *
  * Template arguments:
- * - Tp        : derived type (real peripheral type), e.g. spi<0>
- * - type_list : typelist<regdef<>...> type, for resetting in configure() function
- * - CFG...    : configuration list: e.g. spi_default_config
+ *
+ * - Tp        : derived type (real peripheral type, e.g. spi<0>),
+ *               providing a config_reg_list
+ *
+ * - Tcfg...   : configuration list: e.g. spi_default_config
  */
-template< typename Tp, typename cfg_reg_type_list, typename... CFG >
+template< typename Tp, typename... Tcfg >
 class periph
-: public periph_cfg< Tp, CFG... >
+: public Tp
 {
+  using derived_type = Tp;
+
   /**
    * Set register list_element_type (aka: regdef<>) to its default
-   * value, combined with the merged regmask<> types from the local
-   * config_list<>.
+   * value, combined with the merged regmask<> types from all
+   * cfg_list<> elements.
    *
-   * 1. Filter the local config_list<> using the regdef<> (aka:
-   * list_element_type) type trait, by for_each<>() call (e.g. in
-   * configure() function below for each element in the
-   * cfg_reg_type_list).
+   * 1. Filter cfg_list<> using the regdef<> (aka: list_element_type)
+   * type trait, by for_each<>() call (e.g. in configure() function
+   * below for each element in the config_reg_list).
    *
-   * 2. Merges the regmask<> types from the filtered config_list<>.
+   * 2. Merges the regmask<> types from the filtered cfg_list<>.
    *
    * 3. Call:
    *
@@ -107,11 +59,13 @@ class periph
    *
    */
   // TODO: need unittest
-  struct functor_reset_to_config_list {
+  struct functor_reset_to_cfg {
+    using cfg_list = typelist< Tcfg... >;
+
     template<typename list_element_type>
     static void __always_inline command(void) {
       using filtered_list =
-        typename config_list::template filter<
+        typename cfg_list::template filter<
           mpl::filter_reg_type< list_element_type >
         >::type;
 
@@ -126,29 +80,24 @@ class periph
 
 public:
 
-  using derived_type = Tp;
-  using cfg_list = typelist< CFG... >;
-
-  /**
-   * List of all regmask<> types from CFG.
-   */
-  using config_list = typelist<
-    typename CFG::template config_regmask< derived_type >...
+  using resources = typelist<
+    typename Tp::resources,
+    Tcfg...
     >;
 
   /**
    * Configure peripheral device.
    *
-   * Sets all registers listed in the cfg_reg_type_list (aka:
+   * Sets all registers listed in Tp::config_reg_list (aka:
    * typelist<>). Takes register default value, or'ed by set/clear
-   * mask of the merged config_regmask (aka: regmask<> or
-   * typelist<regmask<>...>) types from the CFG traits.
+   * mask of the merged Tcfg (aka: regmask<> or
+   * typelist<regmask<>...>) traits.
    *
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   static void configure(void) {
     SIM_DEBUG("periph::configure()");
-    cfg_reg_type_list::template for_each< functor_reset_to_config_list >();
+    Tp::config_reg_list::template for_each< functor_reset_to_cfg >();
     SIM_DEBUG("~periph::configure()");
   }
 

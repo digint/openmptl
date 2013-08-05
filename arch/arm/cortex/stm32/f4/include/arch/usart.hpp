@@ -24,51 +24,59 @@
 #include <arch/gpio.hpp>
 #include "../../../common/usart.hpp"
 
-namespace mptl { namespace cfg { namespace usart {
+namespace mptl {
 
-/** 
- * Provide GPIO port/pin_no for RX (used for configuration of the GPIO registers).
- * NOTE: this implicitely sets the enable_rx option!
- */
-// TODO: provide a matrix for the gpio port/pin_no
-template<char port, unsigned pin_no>
-struct gpio_rx
-: public enable_rx
+template< unsigned _usart_no, typename _rcc >
+class usart : public usart_stm32_common<_usart_no, _rcc>
 {
-  template<typename usart>
-  using resources = typename mptl::gpio< // gpio_input_af<
-    port,
-    pin_no,
-    cfg::gpio::resistor::floating,
+  using base_type = usart_stm32_common<_usart_no, _rcc>;
 
-    cfg::gpio::mode::alternate_function,  // implicitely set by alt_func_num, but does not harm
-    cfg::gpio::alt_func_num< (usart::usart_no <= 3) ? 7 : 8 >
-  >::resources;
+  template<char port, unsigned pin_no>
+  struct gpio_rx_impl
+  {
+    using gpio_type = gpio< port, pin_no >; // gpio_input_af<port, pin_no>
+    using type = typelist<
+      typename base_type::enable_rx,
+      typename gpio_type::resources,
+      typename gpio_type::resistor::floating,
+      typename gpio_type::mode::alternate_function,  // implicitely set by alt_func_num, but does not harm
+      typename gpio_type::template alt_func_num< (usart::usart_no <= 3) ? 7 : 8 >
+      >;
+  };
+
+  template<char port, unsigned pin_no>
+  struct gpio_tx_impl
+  {
+    using gpio_type = gpio< port, pin_no >;
+    using type = typelist<
+      typename base_type::enable_tx,
+      typename gpio_type::resources,
+      typename gpio_type::output_type::push_pull,
+      typename gpio_type::resistor::floating,
+      typename gpio_type::template speed< mhz(50) >,
+      typename gpio_type::mode::alternate_function,  // implicitely set by alt_func_num, but does not harm
+      typename gpio_type::template alt_func_num< (usart::usart_no <= 3) ? 7 : 8 >
+        >;
+  };
+public:
+
+  /** 
+   * Provide GPIO port/pin_no for RX (used for configuration of the GPIO registers).
+   * NOTE: this implicitely sets the enable_rx option!
+   */
+  // TODO: provide a matrix for the gpio port/pin_no
+  template<char port, unsigned pin_no>
+  using gpio_rx = typename gpio_rx_impl<port, pin_no>::type;
+
+  /** 
+   * Provide GPIO port/pin_no for TX (used for configuration of the GPIO registers).
+   * NOTE: this implicitely sets the enable_tx option!
+   */
+  template<char port, unsigned pin_no>
+  using gpio_tx = typename gpio_tx_impl<port, pin_no>::type;
 };
 
-
-/** 
- * Provide GPIO port/pin_no for TX (used for configuration of the GPIO registers).
- * NOTE: this implicitely sets the enable_tx option!
- */
-template<char port, unsigned pin_no>
-struct gpio_tx
-: public enable_tx
-{
-  template<typename usart>
-  using resources = typename mptl::gpio< // gpio_output_af<
-    port,
-    pin_no,
-    cfg::gpio::output_type::push_pull,
-    cfg::gpio::resistor::floating,
-    cfg::gpio::speed< mhz(50) >,
-
-    cfg::gpio::mode::alternate_function,  // implicitely set by alt_func_num, but does not harm
-    cfg::gpio::alt_func_num< (usart::usart_no <= 3) ? 7 : 8 >
-  >::resources;
-};
-
-} } } // namespace mptl::cfg::usart
+} // namespace mptl
 
 
 #endif // USART_HPP_INCLUDED

@@ -23,18 +23,19 @@
 
 namespace mptl {
 
+enum class gpio_active_state { low, high };
 
 ////////////////////  gpio_input  ////////////////////
 
 
-template< typename base_type >
+template< typename base_type, gpio_active_state active_state >
 class gpio_input_base
 : public base_type
 {
 public:
   static bool active(void) {
     bool input = base_type::read_input_bit();
-    return base_type::is_low_active ? !input : input;
+    return active_state == gpio_active_state::low ? !input : input;
   }
 };
 
@@ -42,13 +43,13 @@ public:
 ////////////////////  gpio_output  ////////////////////
 
 
-template< typename base_type >
+template< typename base_type, gpio_active_state active_state >
 class gpio_output_base
 : public base_type
 {
 public:
   static void enable() {
-    if(base_type::is_low_active) {
+    if(active_state == gpio_active_state::low) {
       base_type::reset();
     } else {
       base_type::set();
@@ -56,7 +57,7 @@ public:
   }
 
   static void disable() {
-    if(base_type::is_low_active) {
+    if(active_state == gpio_active_state::low) {
       base_type::set();
     } else {
       base_type::reset();
@@ -65,7 +66,7 @@ public:
 
   static bool active() {
     bool input = base_type::read_input_bit();
-    return base_type::is_low_active ? !input : input;
+    return active_state == gpio_active_state::low ? !input : input;
   }
 
   static void toggle() {
@@ -79,7 +80,7 @@ public:
 
   static bool latched() {
     bool output = base_type::read_output_bit();
-    return base_type::is_low_active ? !output : output;
+    return active_state == gpio_active_state::low ? !output : output;
   }
 };
 
