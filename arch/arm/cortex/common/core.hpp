@@ -21,6 +21,7 @@
 #ifndef ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 #define ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 
+#include <simulation.hpp>
 #include <register.hpp>
 #include <typelist.hpp>
 
@@ -57,12 +58,14 @@ struct core_config
    */
   template<typename list_type>
   static void configure() {
+    SIM_DEBUG("core::configure()");
 #ifdef CONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
     mpl::regmask_write<list_type, mpl::write_strategy::read_modify_write >();
 #else
     mpl::regmask_write<list_type, mpl::write_strategy::reset_to >();
 #endif
-}
+    SIM_DEBUG("~core::configure()");
+  }
 };
 
 } // namespace mptl

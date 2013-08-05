@@ -21,7 +21,8 @@
 #ifndef PERIPH_HPP_INCLUDED
 #define PERIPH_HPP_INCLUDED
 
-#include "register.hpp"
+#include <register.hpp>
+#include <simulation.hpp>
 
 namespace mptl {
 
@@ -111,7 +112,7 @@ class periph
     static void __always_inline command(void) {
       using filtered_list =
         typename config_list::template filter<
-          mpl::filter_reg_type<list_element_type>
+          mpl::filter_reg_type< list_element_type >
         >::type;
 
       using merged_regmask_type =
@@ -146,7 +147,9 @@ public:
    * NOTE: make sure no communication is ongoing when calling this function.
    */
   static void configure(void) {
+    SIM_DEBUG("periph::configure()");
     cfg_reg_type_list::template for_each< functor_reset_to_config_list >();
+    SIM_DEBUG("~periph::configure()");
   }
 
   /**
