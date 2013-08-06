@@ -189,7 +189,7 @@ class nokia3310 : public lcd_base< 84, 48 >
 
 public:
 
-  using resources = mptl::resource::list<
+  using resources = mptl::typelist<
     typename spi_device::resources,
     typename lcd_ds::resources,
     typename lcd_reset::resources,

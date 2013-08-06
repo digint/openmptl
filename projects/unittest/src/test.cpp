@@ -30,9 +30,6 @@ using namespace mptl;
 
 void reg_reaction::react() { }
 
-#if 1
-struct foreign_type { };
-
 struct A : regdef< uint32_t, 0x1000, reg_access::rw, 0 > {};
 struct B : regdef< uint32_t, 0x2000, reg_access::rw, 0x44444444 > {};
 struct C : regdef< uint8_t,  0x3000, reg_access::rw, 0 > {};
@@ -50,10 +47,6 @@ using list = typelist<
 using list2 = typelist<
   regmask<B, 0x11000000, 0xff000000>
   >;
-
-// using list3 = resource::list_cat< list, list2 >;
-
-#endif
 
 struct X : typelist_element { };
 struct Y : typelist_element { };

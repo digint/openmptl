@@ -40,7 +40,7 @@ int main()
   vector_table<&stack_top, resource_list, default_isr> vt;
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: resource::list<...> contains a resource derived from unique_resource (-> irq42) which is not unique
+  // fail: typelist<...> contains a resource derived from unique_resource (-> irq42) which is not unique
   vector_table<&stack_top, resource_fail_list, default_isr> vt_fail;
 #endif
 

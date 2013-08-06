@@ -30,7 +30,7 @@
 namespace mptl { namespace mpl {
 
 /**
- * Base class for regmask class. Used for filtering in resource::list.
+ * Base class for regmask class. Used for filtering in typelist<>.
  */
 struct regmask_base
 : public typelist_element

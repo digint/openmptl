@@ -167,7 +167,7 @@ protected:
 
 public:
 
-  using resources = resource::list<
+  using resources = typelist<
     rcc_gpio_clock_resources<port>,
     resource::unique<gpio_base<port, pin_no> >
     >;
@@ -212,7 +212,7 @@ public:
   static constexpr uint32_t crh_mask  = pin_no >= 8 ? base::crx_mask : 0;
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
-  using resources = resource::list<
+  using resources = typelist<
     typename base::resources,
     resource::reg_shared< regmask< typename reg::GPIO<port>::CRL, crl_value, crl_mask > >,
     resource::reg_shared< regmask< typename reg::GPIO<port>::CRH, crh_value, crh_mask > >
@@ -259,7 +259,7 @@ public:
   static constexpr uint32_t crh_mask  = pin_no >= 8 ? base::crx_mask : 0;
   static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
 
-  using resources = resource::list<
+  using resources = typelist<
     typename base::resources,
     resource::reg_shared< regmask< typename reg::GPIO<port>::CRL, crl_value, crl_mask > >,
     resource::reg_shared< regmask< typename reg::GPIO<port>::CRH, crh_value, crh_mask > >

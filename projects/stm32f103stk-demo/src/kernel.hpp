@@ -42,20 +42,16 @@ struct Kernel
 
   using systick = mptl::systick< rcc, mptl::hz(100), mptl::cfg::systick::clock_source::hclk >;
 
-  using usart         = mptl::usart< 2, rcc >;
-  using usart_gpio_tx = mptl::usart_gpio_tx< 'A', 2 >;
-  using usart_gpio_rx = mptl::usart_gpio_rx< 'A', 3 >;
 
-  struct usart_tty0_config : mptl::cfg::usart::preset
-  {
-    static constexpr unsigned baud_rate = 115200;
+  using usart = mptl::usart< 2, rcc >;
+  using tty0_device = mptl::periph<
+    usart,
+    usart::baud_rate< 115200 >,
+    usart::gpio_rx< 'A', 3 >, /* implicitely sets USARTx::CR1::RE (rx enable) */
+    usart::gpio_tx< 'A', 2 >  /* implicitely sets USARTx::CR1::TE (tx enable) */
+    >;
 
-    /* Note: tty0_device is derived from this class. This means you can  */
-    /*       easily declare a dynamic baud_rate like this:               */
-    // unsigned baud_rate;
-  };
-  using tty0_device         = mptl::peripheral_device< usart, usart_tty0_config >;
-  using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */
+  using usart_stream_device = mptl::usart_irq_stream< tty0_device, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */
 
   using spi       = mptl::spi< rcc, 1 >;
   using spi_sck   = mptl::spi_gpio< 'A', 5 >;
@@ -97,7 +93,7 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
-  using resources = mptl::resource::list<
+  using resources = mptl::typelist<
     mptl::resource::irq< typename mptl::irq::reset, reset_isr >,
 
     time::resources,

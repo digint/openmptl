@@ -51,7 +51,7 @@ class joystick
 
 public:
 
-  using resources = mptl::resource::list<
+  using resources = mptl::typelist<
     typename adc::resources,
     typename button::resources
   >;

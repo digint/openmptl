@@ -144,7 +144,7 @@ private:
   }
 public:
 
-  using resources = mptl::resource::list<
+  using resources = mptl::typelist<
     typename spi_device::resources,
     typename nrf_ce::resources,
     typename nrf_csn::resources,
