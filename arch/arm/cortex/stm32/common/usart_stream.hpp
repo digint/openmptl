@@ -26,10 +26,10 @@
 
 namespace mptl {
 
-template<typename usart>
+template<typename usart_type>
 class usart_irq_transport
 {
-  using SR = typename usart::USARTx::SR;
+  using SR = typename usart_type::USARTx::SR;
 
   const typename SR::value_type flags;
 
@@ -39,16 +39,16 @@ public:
 
   void process_io(fifo<char> &rx_fifo, fifo<char> &tx_fifo) {
     if(flags & SR::RXNE::value) {
-      uint32_t data = usart::receive(); /* implicitely clears RXNE flag */
+      uint32_t data = usart_type::receive(); /* implicitely clears RXNE flag */
       rx_fifo.push(data);
     }
     if(flags & SR::TXE::value) {
       char c;
       if(tx_fifo.pop(c)) {
-        usart::send(c); /* implicitely clears TXE flag */
+        usart_type::send(c); /* implicitely clears TXE flag */
       }
       else {
-        usart::disable_tx_interrupt();
+        usart_type::disable_tx_interrupt();
       }
     }
   }
@@ -66,16 +66,16 @@ public:
 };
 
 
-template<typename usart,
+template<typename usart_type,
          typename _fifo_type = ring_buffer<char, 256>,
          bool     _crlf      = true,
          bool     debug_irqs = false>
-class usart_irq_stream : public usart
+class usart_irq_stream
 {
   using char_type = char;
 
   static void isr(void) {
-    usart_irq_transport<usart> transport;
+    usart_irq_transport<usart_type> transport;
 
     if(debug_irqs) {
       irq_count++;
@@ -98,16 +98,16 @@ public:
   static volatile unsigned int irq_errors;
 
   using irq_resources = typelist<
-    irq_handler< typename usart::irq, isr >
+    irq_handler< typename usart_type::irq, isr >
     >;
 
   using resources = typelist<
-    typename usart::resources,
+    typename usart_type::resources,
     irq_resources
     >;
 
   static void flush() {
-    usart::enable_tx_interrupt();
+    usart_type::enable_tx_interrupt();
   }
 
   /** 
@@ -121,9 +121,9 @@ public:
    *       function. e.g. by calling usart_device.configure()
    */
   static void open(void) {
-    usart::enable();
-    usart::irq::enable();
-    usart::enable_interrupt(true, false, true, false, false);
+    usart_type::enable();
+    usart_type::irq::enable();
+    usart_type::enable_interrupt(true, false, true, false, false);
   }
 
   /**
@@ -134,22 +134,23 @@ public:
    * - disable USARTx
    */
   static void close(void) {
-    usart::disable_interrupt(true, false, true, false, false);
-    usart::irq::disable();
-    usart::disable();
+    usart_type::disable_interrupt(true, false, true, false, false);
+    usart_type::irq::disable();
+    usart_type::disable();
   }
 };
 
-template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int usart_irq_stream<usart,  fifo_type, crlf, debug_irqs>::irq_count;
-template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int usart_irq_stream<usart,  fifo_type, crlf, debug_irqs>::irq_errors;
+template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
+volatile unsigned int usart_irq_stream<usart_type,  fifo_type, crlf, debug_irqs>::irq_count;
 
-template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-fifo_type usart_irq_stream<usart, fifo_type, crlf, debug_irqs>::rx_fifo;
+template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
+volatile unsigned int usart_irq_stream<usart_type,  fifo_type, crlf, debug_irqs>::irq_errors;
 
-template<typename usart, typename fifo_type, bool crlf, bool debug_irqs>
-fifo_type usart_irq_stream<usart, fifo_type, crlf, debug_irqs>::tx_fifo;
+template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
+fifo_type usart_irq_stream<usart_type, fifo_type, crlf, debug_irqs>::rx_fifo;
+
+template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
+fifo_type usart_irq_stream<usart_type, fifo_type, crlf, debug_irqs>::tx_fifo;
 
 
 } // namespace mptl
