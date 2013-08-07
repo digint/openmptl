@@ -1,3 +1,4 @@
-obj/
-*.elf
-*.map
+/obj/
+/*.elf
+/*.map
+/stm32f103stk-demo
