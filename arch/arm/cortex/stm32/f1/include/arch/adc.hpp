@@ -27,193 +27,171 @@
 
 namespace mptl {
 
-namespace cfg { namespace adc {
 
-/** Dual mode selection. */
-enum class mode : uint32_t {
-  independent              = 0,  /**<  0000: Independent mode.                                           */
-  regr_injec_simult        = 1,  /**<  0001: Combined regular simultaneous + injected simultaneous mode  */
-  reg_simult_alter_trig    = 2,  /**<  0010: Combined regular simultaneous + alternate trigger mode      */
-  injec_simult_fast_interl = 3,  /**<  0011: Combined injected simultaneous + fast interleaved mode      */
-  injec_simult_slow_interl = 4,  /**<  0100: Combined injected simultaneous + slow Interleaved mode      */
-  injec_simult             = 5,  /**<  0101: Injected simultaneous mode only                             */
-  reg_simult               = 6,  /**<  0110: Regular simultaneous mode only                              */
-  fast_interl              = 7,  /**<  0111: Fast interleaved mode only                                  */
-  slow_interl              = 8,  /**<  1000: Slow interleaved mode only                                  */
-  alter_trig               = 9   /**<  1001: Alternate trigger mode only                                 */
-};
-
-/**
- * In Scan mode, the inputs selected through the ADC_SQRx or
- * ADC_JSQRx registers are converted.
- */
-enum class scan_mode : uint32_t {
-  disabled = 0,  /**< 0: Scan mode disabled  */
-  enabled = 1    /**< 1: Scan mode enabled   */
-};
-
-/**
- * Continuous conversion.
- * If set conversion takes place continuously.
- */
-enum class continuous_conv_mode : uint32_t {
-  single     = 0,  /**< 0: Single conversion mode      */
-  continuous = 1   /**< 1: Continuous conversion mode  */
-};
-
-/**
- * External event select for regular group.
- * Select the external event used to trigger the start of
- * conversion of a regular group:
- */
-namespace external_trig_conv
-{
-  /* SWSTART */
-  struct software_start
-  {
-    template<unsigned adc_no>
-    struct extsel : std::integral_constant<uint32_t, 7>
-    { };
-  };
-
-  /* CC */
-  template<unsigned timer, unsigned cc>
-  struct capture_compare
-  {
-    template<unsigned adc_no>
-    struct extsel {
-      static constexpr uint32_t value =
-        (adc_no  < 3) && (timer == 1) && (cc == 1) ? 0 :
-        (adc_no  < 3) && (timer == 1) && (cc == 2) ? 1 :
-        (adc_no  < 3) && (timer == 1) && (cc == 3) ? 2 :
-        (adc_no  < 3) && (timer == 2) && (cc == 1) ? 3 :
-        (adc_no  < 3) && (timer == 4) && (cc == 4) ? 6 :
-        (adc_no == 3) && (timer == 3) && (cc == 1) ? 0 :
-        (adc_no == 3) && (timer == 2) && (cc == 3) ? 1 :
-        (adc_no == 3) && (timer == 1) && (cc == 3) ? 2 :
-        (adc_no == 3) && (timer == 8) && (cc == 1) ? 3 :
-        (adc_no == 3) && (timer == 5) && (cc == 1) ? 5 :
-        (adc_no == 3) && (timer == 5) && (cc == 3) ? 6 :
-        0xff;
-      static_assert((value & 0x7) == value, "invalid timer / cc combination");
-    };
-  };
-
-  /* TRGO */
-  template<unsigned timer>
-  struct trigger_output
-  {
-    template<unsigned adc_no>
-    struct extsel {
-      static constexpr uint32_t value =
-        (adc_no  < 3) && (timer == 3) ? 4 :
-        (adc_no == 3) && (timer == 8) ? 4 :
-#if defined (STM32F10X_XL)
-        (adc_no  < 3) && (timer == 8) ? 6 :
-#endif
-        0xff;
-      static_assert((value & 0x7) == value, "invalid timer");
-    };
-  };
-
-  struct exti_line11
-  {
-    template<unsigned adc_no>
-    struct extsel : std::integral_constant<uint32_t, 6>
-    {
-      static_assert(adc_no < 3, "invalid ADC number for EXTI_line11 external trigger conversion");
-    };
-  };
-}
-
-/** Data alignment */
-enum class data_align : uint32_t {
-  right = 0,  /**< 0: Right Alignment  */
-  left  = 1   /**< 1: Left Alignment   */
-};
-
-/**
- * External trigger conversion mode for regular channels.
- */
-// TODO
-
-/**
- * External event select for injected group.
- * Select the external event used to trigger the start of
- * conversion of an injected group.
- */
-// TODO
-
-
-/**
- * Channel x Sample time selection.
- */
-enum class sample_time {
-  cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
-  cycles_7_5   = 1,   /**< 001:   7.5 cycles  */
-  cycles_13_5  = 2,   /**< 010:  13.5 cycles  */
-  cycles_28_5  = 3,   /**< 011:  28.5 cycles  */
-  cycles_41_5  = 4,   /**< 100:  41.5 cycles  */
-  cycles_55_5  = 5,   /**< 101:  55.5 cycles  */
-  cycles_71_5  = 6,   /**< 110:  71.5 cycles  */
-  cycles_239_5 = 7    /**< 111: 239.5 cycles  */
-};
-
-/**< Regular channel sequence length 1<=n<=16 (SQR1[23:20] L) */
-template<unsigned len>
-struct regular_channel_sequence_length
-: std::integral_constant<uint32_t, len - 1>
-{
-  static_assert((len >= 1) && (len <= 16), "invalid ADC channel sequence length");
-};
-
-} } // namespace cfg::gpio
-
-
-////////////////////  adc  ////////////////////
-
-
-template<unsigned               adc_no,
-         cfg::adc::mode         mode           = cfg::adc::mode::independent,
-         cfg::adc::scan_mode    scan_mode      = cfg::adc::scan_mode::disabled,
-         cfg::adc::continuous_conv_mode cont_conv_mode = cfg::adc::continuous_conv_mode::single,
-         typename               ext_trig_conv  = cfg::adc::external_trig_conv::capture_compare<1, 1>,
-         cfg::adc::data_align   data_align     = cfg::adc::data_align::right,
-         typename               chan_seq_len   = cfg::adc::regular_channel_sequence_length<1>
-         >
+template<unsigned adc_no>
 class adc
 {
   static_assert((adc_no >= 1) && (adc_no <= 3), "invalid ADC number");
-  static_assert((adc_no == 1) || (mode == cfg::adc::mode::independent), "dual mode is only available for ADC1");
 
-  using ADCx = reg::ADC<adc_no>;
+  using ADCx = reg::ADC< adc_no >;
 
 public:
-  typedef rcc_adc_clock_resources<adc_no> resources;
+  using resources = rcc_adc_clock_resources< adc_no >;
 
-  static void configure(void) {
-    /* ADCx CR1 config */
-    auto cr1 = ADCx::CR1::load();
-    if(adc_no == 1)
-      cr1 &= ~ADCx::CR1::DUALMOD::value;
-    cr1 &= ~ADCx::CR1::SCAN::value;
+  /** Register to be set on periph::configure() */
+  using config_reg_list = typelist< 
+    typename ADCx::CR1,
+    typename ADCx::CR2,
+    typename ADCx::SMPR1,
+    typename ADCx::SMPR2,
+    typename ADCx::SQR1,
+    typename ADCx::SQR2,
+    typename ADCx::SQR3
+    >;
 
-    if(adc_no == 1)
-      cr1 |= ADCx::CR1::DUALMOD::value_from((uint32_t)mode);
-    cr1 |= ADCx::CR1::SCAN::value_from((uint32_t)scan_mode);
-    ADCx::CR1::store(cr1);
+  /** Sample time, for regular_channel_config<>  */
+  enum class sample_time {
+    cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
+    cycles_7_5   = 1,   /**< 001:   7.5 cycles  */
+    cycles_13_5  = 2,   /**< 010:  13.5 cycles  */
+    cycles_28_5  = 3,   /**< 011:  28.5 cycles  */
+    cycles_41_5  = 4,   /**< 100:  41.5 cycles  */
+    cycles_55_5  = 5,   /**< 101:  55.5 cycles  */
+    cycles_71_5  = 6,   /**< 110:  71.5 cycles  */
+    cycles_239_5 = 7    /**< 111: 239.5 cycles  */
+  };
 
-    /* ADCx CR2 config */
-    ADCx::CR2::template set<typename ADCx::CR2::CONT,
-                            typename ADCx::CR2::ALIGN,
-                            typename ADCx::CR2::EXTSEL>
-      (ADCx::CR2::ALIGN ::value_from((uint32_t)data_align) |
-       ADCx::CR2::EXTSEL::value_from((uint32_t)ext_trig_conv::template extsel<adc_no>::value) |
-       ADCx::CR2::CONT  ::value_from((uint32_t)cont_conv_mode));
+private:
 
-    /* ADCx SQR1 config */
-    ADCx::SQR1::L::set_from(chan_seq_len::value);
-  }
+  /** CR1::DUALMOD is only valid for ADC1 */
+  template< unsigned value >
+  using dualmod_impl =
+    typename std::enable_if<
+      (adc_no == 1) || (value == 0),
+      regval< typename ADCx::CR1::DUALMOD, value >
+    >::type;
+
+  template< unsigned timer, unsigned cc >
+  struct capture_compare_impl {
+    static constexpr uint32_t value =
+      (adc_no  < 3) && (timer == 1) && (cc == 1) ? 0 :
+      (adc_no  < 3) && (timer == 1) && (cc == 2) ? 1 :
+      (adc_no  < 3) && (timer == 1) && (cc == 3) ? 2 :
+      (adc_no  < 3) && (timer == 2) && (cc == 1) ? 3 :
+      (adc_no  < 3) && (timer == 4) && (cc == 4) ? 6 :
+      (adc_no == 3) && (timer == 3) && (cc == 1) ? 0 :
+      (adc_no == 3) && (timer == 2) && (cc == 3) ? 1 :
+      (adc_no == 3) && (timer == 1) && (cc == 3) ? 2 :
+      (adc_no == 3) && (timer == 8) && (cc == 1) ? 3 :
+      (adc_no == 3) && (timer == 5) && (cc == 1) ? 5 :
+      (adc_no == 3) && (timer == 5) && (cc == 3) ? 6 :
+      0xff;
+    static_assert((value & 0x7) == value, "invalid timer / cc combination");
+    using type = regval< typename ADCx::CR2::EXTSEL, value >;
+  };
+
+  template<unsigned timer>
+  struct trigger_output_impl {
+    static constexpr uint32_t value =
+      (adc_no  < 3) && (timer == 3) ? 4 :
+      (adc_no == 3) && (timer == 8) ? 4 :
+#if defined (STM32F10X_XL)
+      (adc_no  < 3) && (timer == 8) ? 6 :
+#endif
+      0xff;
+    static_assert((value & 0x7) == value, "invalid timer");
+    using type = regval< typename ADCx::CR2::EXTSEL, value >;
+  };
+
+  template<unsigned channel, unsigned rank, sample_time _sample_time>
+  struct regular_channel_config_impl {
+    static constexpr unsigned smp_value = (unsigned)_sample_time;
+
+    static_assert(channel <= 17, "invalid channel");
+    static_assert((rank >= 1) && (rank <= 16), "invalid rank");
+    static_assert(smp_value < 8, "invalid sample_time");
+
+    using type = typelist<
+      regval< typename ADCx::template SMPRx<channel>::SMP, smp_value >,
+      regval< typename ADCx::template SQRx<rank>::SQ, channel >
+      >;
+  };
+
+public:  /* ------ configuration traits ------ */
+
+  /** Dual mode selection. */
+  struct dual_mode
+  {
+    using independent                            = typename dualmod_impl< 0 >::type;  /**<  0000: Independent mode.                                           */
+    using regular_simultaneous_injected          = typename dualmod_impl< 1 >::type;  /**<  0001: Combined regular simultaneous + injected simultaneous mode  */
+    using regular_simultaneous_alternate_trigger = typename dualmod_impl< 2 >::type;  /**<  0010: Combined regular simultaneous + alternate trigger mode      */
+    using injected_simultaneous_fast_interleaved = typename dualmod_impl< 3 >::type;  /**<  0011: Combined injected simultaneous + fast interleaved mode      */
+    using injected_simultaneous_slow_interleaved = typename dualmod_impl< 4 >::type;  /**<  0100: Combined injected simultaneous + slow Interleaved mode      */
+    using injected_simultaneous                  = typename dualmod_impl< 5 >::type;  /**<  0101: Injected simultaneous mode only                             */
+    using regular_simultaneous                   = typename dualmod_impl< 6 >::type;  /**<  0110: Regular simultaneous mode only                              */
+    using fast_interleaved                       = typename dualmod_impl< 7 >::type;  /**<  0111: Fast interleaved mode only                                  */
+    using slow_interleaved                       = typename dualmod_impl< 8 >::type;  /**<  1000: Slow interleaved mode only                                  */
+    using alternate_trigger                      = typename dualmod_impl< 9 >::type;  /**<  1001: Alternate trigger mode only                                 */
+  };
+
+  /**
+   * In Scan mode, the inputs selected through the ADC_SQRx or
+   * ADC_JSQRx registers are converted.
+   */
+  using scan_mode = regval< typename ADCx::CR1::SCAN, 1 >;
+
+  /**
+   * Continuous conversion.
+   * If set conversion takes place continuously.
+   */
+  using continuous_conversion_mode = regval< typename ADCx::CR2::CONT, 1 >;
+
+  /**
+   * External event select for regular group.
+   * Select the external event used to trigger the start of
+   * conversion of a regular group:
+   */
+  struct external_trigger_conversion
+  {
+    /** SWSTART */
+    using software_start = regval< typename ADCx::CR2::EXTSEL, 7 >;
+
+    /** CCx */
+    template<unsigned timer, unsigned cc>
+    using capture_compare = typename capture_compare_impl< timer, cc >::type;
+
+    /* TRGO */
+    template<unsigned timer>
+    using trigger_output = typename trigger_output_impl< timer >::type;
+
+    using exti_line11 =
+      typename std::enable_if<
+        (adc_no < 3),
+        regval< typename ADCx::CR2::EXTSEL, 6 >
+      >::type;
+  };
+
+  /** Data alignment */
+  struct data_align
+  {
+    using right = regval< typename ADCx::CR2::ALIGN, 0 >;
+    using left  = regval< typename ADCx::CR2::ALIGN, 1 >;
+  };
+
+  /** Regular channel sequence length 1<=n<=16 (SQR1[23:20] L) */
+  template<unsigned value>
+  using regular_channel_sequence_length =
+    typename std::enable_if<
+      (value >= 1) && (value <= 16),
+      regval< typename ADCx::SQR1::L, value - 1 >
+    >::type;
+
+  /** Regular channel configuration */
+  template<unsigned channel, unsigned rank, sample_time _sample_time>
+  using regular_channel_config = typename regular_channel_config_impl< channel, rank, _sample_time >::type;
+
+
+public:  /* ------ static member functions ------ */
 
   static void reset(void) {
     switch(adc_no) {
@@ -234,56 +212,26 @@ public:
     ADCx::CR2::ADON::clear();
   }
 
-  static void get_channel(unsigned channel) {
-
-  }
-
-  // TODO: injected, AnalogWatchdogSingle
-  template<unsigned channel, unsigned rank, cfg::adc::sample_time sample_time>
-  static void regular_channel_config(void) {
-
-    static_assert(channel <= 17, "invalid channel");
-    static_assert((rank >= 1) && (rank <= 16), "invalid rank");
-
-    if(channel > 9) {
-      unsigned shift = 3 * (channel - 10);
-      ADCx::SMPR1::set((uint32_t)sample_time << shift,   /* set_mask */
-                       (uint32_t)0x7 << shift);          /* clear_mask */
-    }
-    else {
-      unsigned shift = 3 * channel;
-      ADCx::SMPR2::set((uint32_t)sample_time << shift,   /* set_mask */
-                       (uint32_t)0x7 << shift);          /* clear_mask */
-    }
-
-    if(rank < 7) {
-      unsigned shift = 5 * (rank - 1);
-      ADCx::SQR3::set((uint32_t)channel << shift,   /* set_mask */
-                      (uint32_t)0x1F << shift);     /* clear_mask */
-    }
-    else if(rank < 13) {
-      unsigned shift = 5 * (rank - 7);
-      ADCx::SQR2::set((uint32_t)channel << shift,   /* set_mask */
-                      (uint32_t)0x1F << shift);     /* clear_mask */
-    }
-    else {
-      unsigned shift = 5 * (rank - 13);
-      ADCx::SQR1::set((uint32_t)channel << shift,   /* set_mask */
-                      (uint32_t)0x1F << shift);     /* clear_mask */
-    }
-  }
-
+  /**
+   * - Enable ADC conversion on external event
+   * - Start ADC conversion
+   */
   static void enable_software_start_conversion(void) {
-    // - Enable ADC conversion on external event
-    // - Start ADC conversion
-    ADCx::CR2::template set<typename ADCx::CR2::EXTTRIG,
-                            typename ADCx::CR2::SWSTART>();
+    ADCx::CR2::template set<
+      typename ADCx::CR2::EXTTRIG,
+      typename ADCx::CR2::SWSTART
+      >();
   }
+
+  /**
+   * - Stop ADC conversion
+   * - Disable ADC conversion on external event
+   */
   static void disable_software_start_conversion(void) {
-    // - Stop ADC conversion
-    // - Disable ADC conversion on external event
-    ADCx::CR2::template clear<typename ADCx::CR2::EXTTRIG,
-                              typename ADCx::CR2::SWSTART>();
+    ADCx::CR2::template clear<
+      typename ADCx::CR2::EXTTRIG,
+      typename ADCx::CR2::SWSTART
+      >();
   }
 
   static void wait_eoc(void) {

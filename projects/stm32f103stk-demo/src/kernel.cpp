@@ -65,7 +65,7 @@ void Kernel::init(void)
   lcd::init();
   nrf::init();
 
-  joy::init();
+  joy::enable();
 
   // lcd::set_contrast(0x45);
 }
@@ -76,7 +76,7 @@ void Kernel::run(void)
   const char * joypos_text = "center";
   mptl::cycle_counter cycle_counter;
   debouncer< joy::position,
-             joy::get_position,
+             joy::get_position_blocking,
              time::get_systick,
              time::systick::freq,
              10 > joypos(joy::position::center);

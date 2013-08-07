@@ -29,26 +29,24 @@ class joystick
 {
   using button = mptl::gpio_input< 'C', 6, gpio_active_state::high >;
 
-  using adc = mptl::adc<
-    1,
-    mptl::cfg::adc::mode::independent,
-    mptl::cfg::adc::scan_mode::disabled,
-    mptl::cfg::adc::continuous_conv_mode::single,
-    mptl::cfg::adc::external_trig_conv::software_start,
-    mptl::cfg::adc::data_align::right,
-    mptl::cfg::adc::regular_channel_sequence_length<1>
+  using adc = mptl::adc< 1 >;
+  using adc_device = mptl::periph<
+    adc,
+    adc::external_trigger_conversion::software_start,
+    adc::regular_channel_sequence_length< 1 >,
+    adc::regular_channel_config< 15, 1, adc::sample_time::cycles_55_5 >
     >;
   
-  static int get_value(void) {
-    adc::enable_software_start_conversion();
-    adc::wait_eoc();
-    return adc::get_conversion_value();
+  static int adc_convert_blocking(void) {
+    adc_device::enable_software_start_conversion();
+    adc_device::wait_eoc();
+    return adc_device::get_conversion_value();
   }
 
 public:
 
   using resources = mptl::typelist<
-    typename adc::resources,
+    typename adc_device::resources,
     typename button::resources,
 
     /* configure GPIO's */
@@ -57,15 +55,16 @@ public:
 
   enum class position { center, up, down, left, right };
 
-  static void init(void) {
-    adc::reset();
-    adc::configure();
-    adc::regular_channel_config<15, 1, mptl::cfg::adc::sample_time::cycles_55_5>();
-    adc::enable();
+  static void enable(void) {
+    adc_device::enable();
   }
 
-  static position get_position(void) {
-    int value = get_value();
+  static void configure(void) {
+    adc_device::configure();
+  }
+
+  static position get_position_blocking(void) {
+    int value = adc_convert_blocking();
 
     int up_value    =  960;
     int down_value  =  190;

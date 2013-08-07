@@ -138,6 +138,20 @@ struct ADC
   };
 
   /**
+   * Sample time register: provides SMPR1 or SMPR2, depending on channel
+   *
+   * NOTE: this is not from the reference manual 
+   */
+  template<unsigned channel>
+  struct SMPRx
+  : public std::conditional< (channel > 9), SMPR1, SMPR2 >::type
+  {
+    static_assert(channel <= 17, "invalid channel");
+    using reg_type = typename std::conditional< (channel > 9), SMPR1, SMPR2 >::type;
+    using SMP = regbits< reg_type, (channel % 10) * 3, 3 >;
+  };
+
+  /**
    * Injected channel data offset register x
    */
   template<unsigned jofr_no>
@@ -217,6 +231,24 @@ struct ADC
     using SQ3  = regbits< type, 10,  5 >;  /**< 3rd conversion in regular sequence  */
     using SQ2  = regbits< type,  5,  5 >;  /**< 2nd conversion in regular sequence  */
     using SQ1  = regbits< type,  0,  5 >;  /**< 1st conversion in regular sequence  */
+  };
+
+  /**
+   * Regular sequence register: provides SQR1, SQR2 or SQR3, depending on channel
+   *
+   * NOTE: this is not from the reference manual 
+   */
+  template<unsigned rank>
+  struct SQRx
+  : public std::conditional< (rank > 12), SQR1,
+    typename std::conditional< (rank > 6), SQR2, SQR3 >::type >::type
+  {
+    static_assert((rank >= 1) && (rank <= 16), "invalid rank");
+
+    using reg_type = typename std::conditional< (rank > 12), SQR1,
+      typename std::conditional< (rank > 6), SQR2, SQR3 >::type >::type;
+
+    using SQ = regbits< reg_type, ((rank - 1) % 6) * 5, 5 >;
   };
 
   /**
