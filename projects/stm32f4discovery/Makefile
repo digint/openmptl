@@ -20,6 +20,7 @@
 #------------------------------------------------------------------------------
 # project setup
 #
+
 PROJECT        = stm32f4discovery-demo
 
 OPENMPTL_TOP   = ../..

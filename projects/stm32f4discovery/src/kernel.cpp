@@ -76,6 +76,7 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
+  /* open terminal and print welcome message */
   terminal.open();
   terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 
