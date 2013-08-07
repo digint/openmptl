@@ -111,43 +111,21 @@
 // because it eliminates the external gates that would otherwise be
 // required.
 
-
+#include <type_traits>
 #include <typelist.hpp>
 #include <arch/rcc.hpp>
 #include <freq.hpp>
 #include <arch/reg/gpio.hpp>
+#include <gpio_base.hpp>
 
 namespace mptl {
 
-namespace cfg { namespace gpio {
 
-enum class input {
-  analog,         //< Analog input
-  floating,       //< Floating input
-  pull_up,        //< Input with pull-up
-  pull_down       //< Input with pull-down
-};
-
-enum class output {
-  push_pull,      //< General purpose output push-pull (e.g. LED's)
-  open_drain,     //< General purpose output open-drain
-  alt_push_pull,  //< Alternate function output push-pull
-  alt_open_drain  //< Alternate function output open-drain
-};
-
-enum class active_state {
-  low,            //< pin is low-active
-  high            //< pin is high-active
-};
-
-} } // namespace cfg::gpio
+////////////////////  gpio  ////////////////////
 
 
-////////////////////  gpio_base  ////////////////////
-
-
-template<char port, int pin_no>
-class gpio_base
+template< char port, int pin_no >
+class gpio
 {
   static_assert(port >= 'A', "invalid GPIO port");
 #if defined (STM32F10X_HD) || defined (STM32F10X_XL)
@@ -157,20 +135,67 @@ class gpio_base
 #endif
   static_assert((pin_no >= 0) && (pin_no < 16), "invalid GPIO pin-no");
 
-protected:
-
-  static constexpr uint32_t pin_mask = (uint32_t)1 << pin_no;
-  static constexpr uint32_t crx_shift = (pin_no % 8) << 2;
-  static constexpr uint32_t crx_mask = 0x0F << crx_shift;
+public:
 
   using GPIOx = reg::GPIO<port>;
 
-public:
-
   using resources = typelist<
-    rcc_gpio_clock_resources<port>,
-    resource::unique<gpio_base<port, pin_no> >
+    rcc_gpio_clock_resources<port>
+    // TODO: unique type
+    //    resource::unique<gpio_base<port, pin_no> >
     >;
+
+protected:
+
+  static constexpr uint32_t pin_mask = (uint32_t)1 << pin_no;
+
+public:  /* ------ configuration resources ------ */
+
+  struct mode
+  {
+    /** Input mode */
+    using input  = regval< typename GPIOx::template CRx<pin_no>::MODE, 0 >;
+
+    /** Output mode */
+    template<freq_t speed>
+    using output = typename std::enable_if<
+      speed == mhz(2) || speed == mhz(10) || speed == mhz(50),
+      regval< typename GPIOx::template CRx<pin_no>::MODE,
+        speed == mhz(10) ? 1 :
+        speed == mhz(2)  ? 2 :
+        speed == mhz(50) ? 3 : 0xff
+        >
+      >::type;
+  };
+
+  struct input_type
+  {
+    /** Analog input */
+    using analog       = regval< typename GPIOx::template CRx<pin_no>::CNF, 0 >;
+
+    /** Floating input */
+    using floating     = regval< typename GPIOx::template CRx<pin_no>::CNF, 1 >;
+
+    /** Input with pull-up / pull-down */
+    using pull_up_down = regval< typename GPIOx::template CRx<pin_no>::CNF, 2 >;
+  };
+
+  struct output_type
+  {
+    /** General purpose output push-pull (e.g. LED's) */
+    using push_pull     = regval< typename GPIOx::template CRx<pin_no>::CNF, 0 >;
+
+    /** General purpose output open-drain */
+    using open_drain    = regval< typename GPIOx::template CRx<pin_no>::CNF, 1 >;
+
+    /** Alternate function output push-pull */
+    using af_push_pull  = regval< typename GPIOx::template CRx<pin_no>::CNF, 2 >;
+
+    /** Alternate function output open-drain */
+    using af_open_drain = regval< typename GPIOx::template CRx<pin_no>::CNF, 3 >;
+  };
+
+public:  /* ------ static member functions ------ */
 
   static void set() {
     GPIOx::BSRR::store(pin_mask);
@@ -192,136 +217,52 @@ public:
 ////////////////////  gpio_input  ////////////////////
 
 
-template<char port,
-         int pin_no,
-         cfg::gpio::input cfg,
-         cfg::gpio::active_state active_state = cfg::gpio::active_state::low>
-class gpio_input : public gpio_base<port, pin_no>
+template<char port, unsigned pin_no, gpio_active_state active_state = gpio_active_state::high >
+class gpio_input
+: public gpio_input_base< gpio< port, pin_no >, active_state >
 {
-
-  typedef gpio_base<port, pin_no> base;
-
+  using gpio_type = gpio< port, pin_no >;
 public:
-
-  static constexpr uint32_t crx_value = (((cfg == cfg::gpio::input::analog)   ? 0 :
-                                          (cfg == cfg::gpio::input::floating) ? 1 :
-                                          2) << 2) << base::crx_shift;
-
-  static constexpr uint32_t crl_mask  = pin_no <  8 ? base::crx_mask : 0;
-  static constexpr uint32_t crl_value = pin_no <  8 ? crx_value : 0;
-  static constexpr uint32_t crh_mask  = pin_no >= 8 ? base::crx_mask : 0;
-  static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
-
   using resources = typelist<
-    typename base::resources,
-    resource::reg_shared< regmask< typename reg::GPIO<port>::CRL, crl_value, crl_mask > >,
-    resource::reg_shared< regmask< typename reg::GPIO<port>::CRH, crh_value, crh_mask > >
+    typename gpio_type::resources,
+    typename gpio_type::mode::input
     >;
-
-  static bool active(void) {
-    bool input = base::read_input_bit();
-    return active_state == cfg::gpio::active_state::low ? !input : input;
-  }
 };
 
 
 ////////////////////  gpio_output  ////////////////////
 
 
-template<char port,
-         int pin_no,
-         cfg::gpio::output cfg,
-         freq_t speed = mhz(50),
-         cfg::gpio::active_state active_state = cfg::gpio::active_state::low>
-class gpio_output : public gpio_base<port, pin_no> {
-
-  static_assert((speed == mhz(2)) ||
-                (speed == mhz(10)) ||
-                (speed == mhz(50)),
-                "Illegal frequency for gpio output speed (allowed: mhz(2), mhz(10), mhz(50))");
-
-  typedef gpio_base<port, pin_no> base;
-
+template<
+  char port,
+  unsigned pin_no,
+  freq_t speed = mhz(50),
+  gpio_active_state active_state = gpio_active_state::high
+  >
+class gpio_output
+: public gpio_output_base< gpio< port, pin_no >, active_state >
+{
+  using gpio_type = gpio< port, pin_no >;
 public:
-
-  /* setup CRx register values */
-  static constexpr uint32_t cfg_value = (((cfg == cfg::gpio::output::open_drain)     ? 1 :
-                                          (cfg == cfg::gpio::output::alt_push_pull)  ? 2 :
-                                          (cfg == cfg::gpio::output::alt_open_drain) ? 3 :
-                                          0) << 2) << base::crx_shift;
-  static constexpr uint32_t mode_value = ((speed == mhz(10)) ? 1 :
-                                          (speed == mhz(2))  ? 2 :
-                                          3) << base::crx_shift;
-  static constexpr uint32_t crx_value = mode_value | cfg_value;
-
-  static constexpr uint32_t crl_mask  = pin_no <  8 ? base::crx_mask : 0;
-  static constexpr uint32_t crl_value = pin_no <  8 ? crx_value : 0;
-  static constexpr uint32_t crh_mask  = pin_no >= 8 ? base::crx_mask : 0;
-  static constexpr uint32_t crh_value = pin_no >= 8 ? crx_value : 0;
-
   using resources = typelist<
-    typename base::resources,
-    resource::reg_shared< regmask< typename reg::GPIO<port>::CRL, crl_value, crl_mask > >,
-    resource::reg_shared< regmask< typename reg::GPIO<port>::CRH, crh_value, crh_mask > >
+    typename gpio_type::resources,
+    typename gpio_type::mode::template output<speed>
     >;
-
-  static void enable() {
-    if(active_state == cfg::gpio::active_state::low) {
-      base::reset();
-    } else {
-      base::set();
-    }
-  }
-
-  static void disable() {
-    if(active_state == cfg::gpio::active_state::low) {
-      base::set();
-    } else {
-      base::reset();
-    }
-  }
-
-  static bool active() {
-    bool input = base::read_input_bit();
-    return active_state == cfg::gpio::active_state::low ? !input : input;
-  }
-
-  static void toggle() {
-    if(base::read_input_bit()) {
-      base::reset();
-    }
-    else {
-      base::set();
-    }
-  }
-
-  static bool latched() {
-    bool output = base::read_output_bit();
-    return active_state == cfg::gpio::active_state::low ? !output : output;
-  }
 };
 
 
 ////////////////////  gpio_led  ////////////////////
 
 
-template<char port,
-         int pin_no,
-         cfg::gpio::output cfg = cfg::gpio::output::push_pull,
-         freq_t speed = mhz(50),
-         cfg::gpio::active_state active_state = cfg::gpio::active_state::high>
-class gpio_led : public gpio_output<port, pin_no, cfg, speed, active_state> {
-
-  typedef gpio_output<port, pin_no, cfg, speed, active_state> base;
-
-public:
-  static void on() {
-    base::enable();
-  }
-  static void off() {
-    base::disable();
-  }
-};
+template<
+  char port,
+  unsigned pin_no,
+  freq_t speed = mhz(2),
+  gpio_active_state active_state = gpio_active_state::high
+  >
+class gpio_led
+: public gpio_led_base< gpio_output< port, pin_no, speed, active_state > >
+{ };
 
 } // namespace mptl
 

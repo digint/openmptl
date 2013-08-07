@@ -43,6 +43,21 @@ struct GPIO
   using BSRR  = regdef< uint32_t, base_addr + 0x10, reg_access::wo, 0x00000000 >;  /**< Port bit set/reset register        */
   using BRR   = regdef< uint32_t, base_addr + 0x14, reg_access::wo, 0x00000000 >;  /**< Port bit reset register            */
   using LCKR  = regdef< uint32_t, base_addr + 0x18, reg_access::rw, 0x00000000 >;  /**< Port configuration lock register   */
+
+  /**
+   * GPIO port configuration register: returns CRL or CRH type dependent on pin_no.
+   *
+   * NOTE: this is not from the reference manual 
+   */
+  template<unsigned pin_no>
+  struct CRx
+  : public std::conditional< (pin_no < 8), CRL, CRH >::type
+  {
+    using reg_type = typename std::conditional< (pin_no < 8), CRL, CRH >::type;
+
+    using CNF  = regbits< reg_type, (pin_no % 8) * 4 + 2, 2 >;
+    using MODE = regbits< reg_type, (pin_no % 8) * 4    , 2 >;
+  };
 };
 
 } } // namespace mptl::reg

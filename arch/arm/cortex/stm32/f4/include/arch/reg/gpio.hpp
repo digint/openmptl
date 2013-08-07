@@ -73,7 +73,6 @@ struct GPIO
    *
    * NOTE: this is not from the reference manual 
    */
-  // TODO: use (and check) this in gpio.hpp!:
   template<unsigned pin_no> using AFRx = typename std::conditional<
     (pin_no < 8),
     AFRLx<pin_no>,

@@ -33,26 +33,25 @@ namespace mptl {
 ////////////////////  gpio  ////////////////////
 
 
-template< char port, unsigned _pin_no >
+template< char port, unsigned pin_no >
 class gpio
 {
   static_assert((port >= 'A') && (port <= 'I'), "invalid GPIO port");
-  static_assert(_pin_no < 16, "invalid GPIO pin-no");
-
-protected:
-  static constexpr uint32_t pin_mask = (uint32_t)0x1 << _pin_no;
+  static_assert(pin_no < 16, "invalid GPIO pin-no");
 
 public:
 
-  static constexpr unsigned pin_no = _pin_no;
   using GPIOx = reg::GPIO<port>;
-  using type = gpio< port, pin_no >;
 
   using resources = typelist<
     rcc_gpio_clock_resources<port>
     // TODO: unique type
     //    resource::unique< gpio<port, pin_no> >,
     >;
+
+protected:
+
+  static constexpr uint32_t pin_mask = (uint32_t)0x1 << pin_no;
 
 private:
 
@@ -166,6 +165,7 @@ class gpio_input
 : public gpio_input_base< gpio< port, pin_no >, active_state >
 {
   using gpio_type = gpio< port, pin_no >;
+public:
   using resources = typelist<
     typename gpio_type::resources,
     typename gpio_type::mode::input
@@ -197,6 +197,7 @@ class gpio_analog_io
 : public gpio_analog_io_base< gpio< port, pin_no > >
 {
   using gpio_type = gpio< port, pin_no >;
+public:
   using resources = typelist<
     typename gpio_type::resources,
     typename gpio_type::mode::analog,
