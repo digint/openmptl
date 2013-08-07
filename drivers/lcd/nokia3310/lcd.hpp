@@ -24,7 +24,7 @@
 #include <arch/gpio.hpp>
 #include <arch/spi.hpp>
 #include <arch/core.hpp>
-#include <peripheral_device.hpp>
+#include <periph.hpp>
 
 namespace mptl { namespace device {
 
@@ -144,33 +144,32 @@ public:
 /////  NOKIA 3310  /////
 
 
-template<typename spi_type,
-         typename lcd_ds,   //< data / command selection
-         typename lcd_reset,
-         typename lcd_e
-         >
+template<
+  typename spi_type,
+  typename lcd_ds,    /* low=command, high=data */
+  typename lcd_reset, /* reset pin (active low) */
+  typename lcd_e      /* display controller spi enable (active low) */
+  >
 class nokia3310 : public lcd_base< 84, 48 >
 {
-  struct spi_device_config
-  {
-    static constexpr mptl::cfg::spi::master_selection          master_selection = mptl::cfg::spi::master_selection::master;
-    static constexpr mptl::freq_t                              max_frequency    = mptl::mhz(4);
-    static constexpr unsigned                                  data_size        = 8;
-    static constexpr mptl::cfg::spi::clock_polarity            clk_pol          = mptl::cfg::spi::clock_polarity::high;
-    static constexpr mptl::cfg::spi::clock_phase               clk_phase        = mptl::cfg::spi::clock_phase::second_edge;
-    static constexpr mptl::cfg::spi::data_direction            data_dir         = mptl::cfg::spi::data_direction::one_line_tx;
-    static constexpr mptl::cfg::spi::software_slave_management ssm              = mptl::cfg::spi::software_slave_management::enabled;
-    static constexpr mptl::cfg::spi::frame_format              frame_format     = mptl::cfg::spi::frame_format::msb_first;
-  };
-
-  using spi_device = mptl::peripheral_device< spi_type, spi_device_config >;
+  using spi_device = mptl::periph<
+    spi_type,
+    typename spi_type::master,
+    typename spi_type::template max_frequency< mhz(4) >,
+    typename spi_type::template data_size< 8 >,
+    typename spi_type::clock_polarity::high,
+    typename spi_type::clock_phase::second_edge,
+    typename spi_type::data_direction::one_line_tx,
+    typename spi_type::frame_format::msb_first,
+    typename spi_type::software_slave_management
+    >;
 
   static void enable_slave_select(void) {
-    lcd_e::enable();
+    lcd_e::reset();
   }
   static void disable_slave_select(void) {
     spi_device::wait_not_busy();
-    lcd_e::disable();
+    lcd_e::set();
   }
 
   static void select_data() {
@@ -189,15 +188,23 @@ class nokia3310 : public lcd_base< 84, 48 >
 
 public:
 
+  /* NOTE: don't add spi_device::resources to the resources list. The
+   * SPI configuration will be set upon spi_device::reconfigure().
+   */
   using resources = mptl::typelist<
-    typename spi_device::resources,
+    typename spi_type::resources,
     typename lcd_ds::resources,
     typename lcd_reset::resources,
-    typename lcd_e::resources
+    typename lcd_e::resources,
+
+    /* configure GPIO's */
+    typename lcd_ds::output_type::push_pull,
+    typename lcd_reset::output_type::push_pull,
+    typename lcd_e::output_type::push_pull
     >;
 
   static void enable(void) {
-    spi_device().reconfigure();
+    spi_device::reconfigure();
   }
 
   void update(void) {
@@ -234,13 +241,13 @@ public:
     bias       &= 0x07;
 
     lcd_ds::set();
-    lcd_e::disable();
-    lcd_reset::disable();
+    lcd_e::set();
+    lcd_reset::set();
 
     /* toggle display reset pin */
-    lcd_reset::enable();
+    lcd_reset::reset();
     mptl::core::nop(10000);
-    lcd_reset::disable();
+    lcd_reset::set();
     mptl::core::nop(10000);
 
     enable();

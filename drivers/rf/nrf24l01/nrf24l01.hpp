@@ -23,15 +23,16 @@
 
 #include <arch/gpio.hpp>
 #include <arch/spi.hpp>
-#include <peripheral_device.hpp>
+#include <periph.hpp>
 
 namespace mptl { namespace device {
 
-template<typename spi_type,
-         typename nrf_ce,
-         typename nrf_csn,  // nss
-         typename nrf_irq
-         >
+template<
+  typename spi_type,
+  typename nrf_ce,   /* chip enable */
+  typename nrf_csn,  /* nss: spi enable (active low) */
+  typename nrf_irq   /* IRQ */
+  >
 class nrf24l01
 {
 public:
@@ -88,19 +89,17 @@ public:
 
 private:
 
-  struct spi_device_config
-  {
-    static constexpr mptl::cfg::spi::master_selection          master_selection = mptl::cfg::spi::master_selection::master;
-    static constexpr mptl::freq_t                              max_frequency    = mptl::mhz(8);
-    static constexpr unsigned                                  data_size        = 8;
-    static constexpr mptl::cfg::spi::clock_polarity            clk_pol          = mptl::cfg::spi::clock_polarity::low;
-    static constexpr mptl::cfg::spi::clock_phase               clk_phase        = mptl::cfg::spi::clock_phase::first_edge;
-    static constexpr mptl::cfg::spi::data_direction            data_dir         = mptl::cfg::spi::data_direction::two_lines_full_duplex;
-    static constexpr mptl::cfg::spi::software_slave_management ssm              = mptl::cfg::spi::software_slave_management::enabled;
-    static constexpr mptl::cfg::spi::frame_format              frame_format     = mptl::cfg::spi::frame_format::msb_first;
-  };
-
-  using spi_device = mptl::peripheral_device< spi_type, spi_device_config >;
+  using spi_device = mptl::periph<
+    spi_type,
+    typename spi_type::master,
+    typename spi_type::template max_frequency< mhz(8) >,
+    typename spi_type::template data_size< 8 >,
+    typename spi_type::clock_polarity::low,
+    typename spi_type::clock_phase::first_edge,
+    typename spi_type::data_direction::two_lines_full_duplex,
+    typename spi_type::frame_format::msb_first,
+    typename spi_type::software_slave_management
+    >;
 
   /* Tcwh: CSN Inactive time: min. 50ns */
   /* Time between calls of disable() -> enable() */
@@ -120,12 +119,12 @@ private:
 
   static void enable_slave_select(void) {
     wait_tcwh();
-    nrf_csn::enable();
+    nrf_csn::reset();
     wait_tcc();
   }
   static void disable_slave_select(void) {
     wait_tcch();
-    nrf_csn::disable();
+    nrf_csn::set();
   }
 
   static uint8_t writeread(uint8_t data) {
@@ -144,11 +143,19 @@ private:
   }
 public:
 
+  /* NOTE: don't add spi_device::resources to the resources list. The
+   * SPI configuration will be set upon spi_device::reconfigure().
+   */
   using resources = mptl::typelist<
-    typename spi_device::resources,
+    typename spi_type::resources,
     typename nrf_ce::resources,
     typename nrf_csn::resources,
-    typename nrf_irq::resources
+    typename nrf_irq::resources,
+
+    /* configure GPIO's */
+    typename nrf_ce::output_type::push_pull,
+    typename nrf_csn::output_type::push_pull,
+    typename nrf_irq::input_type::pull_up_down
     >;
 
   static uint8_t read_register(dev_register reg) {
@@ -196,12 +203,12 @@ public:
 
 
   static void init(void) {
-    nrf_csn::disable();
-    nrf_ce::enable();
+    nrf_csn::set();
+    nrf_ce::reset();
   }
 
   static void enable() {
-    spi_device().reconfigure();
+    spi_device::reconfigure();
   }
 };
 

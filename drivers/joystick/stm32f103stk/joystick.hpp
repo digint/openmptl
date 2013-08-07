@@ -27,11 +27,7 @@ namespace mptl { namespace device {
 
 class joystick
 {
-  using button = mptl::gpio_input<
-    'C', 6,
-    mptl::cfg::gpio::input::floating,
-    mptl::cfg::gpio::active_state::high
-    >;
+  using button = mptl::gpio_input< 'C', 6, gpio_active_state::high >;
 
   using adc = mptl::adc<
     1,
@@ -53,7 +49,10 @@ public:
 
   using resources = mptl::typelist<
     typename adc::resources,
-    typename button::resources
+    typename button::resources,
+
+    /* configure GPIO's */
+    typename button::input_type::floating
   >;
 
   enum class position { center, up, down, left, right };
