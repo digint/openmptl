@@ -24,105 +24,111 @@
 #include <arch/rcc.hpp>
 #include <arch/nvic.hpp>
 #include <arch/reg/spi.hpp>
+#include <type_traits>
 
 namespace mptl {
 
-namespace cfg { namespace spi {
-
-enum class master_selection {
-  master,
-  slave
-};
-enum class clock_polarity {
-  low,
-  high
-};
-enum class clock_phase {
-  first_edge,
-  second_edge
-};
-enum class software_slave_management {
-  enabled,
-  disabled
-};
-enum class data_direction {
-  two_lines_full_duplex,
-  two_lines_rx_only,
-  one_line_rx,
-  one_line_tx
-};
-enum class frame_format {
-  msb_first,
-  lsb_first
-};
-
-struct preset
+template<typename  rcc_type, unsigned _spi_no>
+class spi_stm32_common
 {
-  static constexpr cfg::spi::master_selection          master_selection = cfg::spi::master_selection::slave;
-  static constexpr freq_t                              max_frequency    = 0;  /* Hz, 0=maximum available */
-  static constexpr unsigned                            data_size        = 8;  /* 8 bit or 16 bit data size */
-  static constexpr cfg::spi::clock_polarity            clk_pol          = cfg::spi::clock_polarity::low;
-  static constexpr cfg::spi::clock_phase               clk_phase        = cfg::spi::clock_phase::first_edge;
-  static constexpr cfg::spi::data_direction            data_dir         = cfg::spi::data_direction::two_lines_full_duplex;
-  static constexpr cfg::spi::software_slave_management ssm              = cfg::spi::software_slave_management::disabled;
-  static constexpr cfg::spi::frame_format              frame_format     = cfg::spi::frame_format::msb_first;
-};
-
-} } // namespace cfg::spi
-
-
-////////////////////  spi  ////////////////////
-
-
-template<typename  rcc_type,
-         unsigned _spi_no>
-class spi
-{
-protected:
-  using SPIx = reg::SPI<_spi_no>;
-  using rcc = rcc_type;
-
-  static constexpr unsigned clk_freq = (_spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
-
-  static constexpr typename SPIx::CR1::value_type baud_rate_prescaler_cr1_set_mask(freq_t max_frequency)
-  {
-    return ( max_frequency == 0              ? SPIx::CR1::BR::value_from(0) :
-             max_frequency >= clk_freq / 2   ? SPIx::CR1::BR::value_from(0) :
-             max_frequency >= clk_freq / 4   ? SPIx::CR1::BR::value_from(1) :
-             max_frequency >= clk_freq / 8   ? SPIx::CR1::BR::value_from(2) :
-             max_frequency >= clk_freq / 16  ? SPIx::CR1::BR::value_from(3) :
-             max_frequency >= clk_freq / 32  ? SPIx::CR1::BR::value_from(4) :
-             max_frequency >= clk_freq / 64  ? SPIx::CR1::BR::value_from(5) :
-             max_frequency >= clk_freq / 128 ? SPIx::CR1::BR::value_from(6) :
-             SPIx::CR1::BR::value_from(7) );
-  }
-
-  template<typename spi_config_type>
-  static constexpr typename SPIx::CR1::value_type cr1_set_mask(spi_config_type const & cfg)
-  {
-    // assert(cfg.data_size == 8 || cfg.data_size == 16);
-    return
-      ((cfg.master_selection == cfg::spi::master_selection::master) ? (SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value) : 0)
-
-      | ((cfg.data_dir == cfg::spi::data_direction::two_lines_rx_only) ? SPIx::CR1::RXONLY::value   :
-         (cfg.data_dir == cfg::spi::data_direction::one_line_rx)       ? SPIx::CR1::BIDIMODE::value :
-         (cfg.data_dir == cfg::spi::data_direction::one_line_tx)       ? (SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value) : 0)
-
-      | ((cfg.data_size    == 16)                                 ? SPIx::CR1::DFF::value      : 0)
-      | ((cfg.clk_pol      == cfg::spi::clock_polarity::high)     ? SPIx::CR1::CPOL::value     : 0)
-      | ((cfg.clk_phase    == cfg::spi::clock_phase::second_edge) ? SPIx::CR1::CPHA::value     : 0)
-      | ((cfg.ssm          == cfg::spi::software_slave_management::enabled) ? SPIx::CR1::SSM::value : 0)
-      | ((cfg.frame_format == cfg::spi::frame_format::lsb_first)  ? SPIx::CR1::LSBFIRST::value : 0)
-      
-      | baud_rate_prescaler_cr1_set_mask(cfg.max_frequency)
-      ;
-  }
-
 public:
 
   static constexpr unsigned spi_no = _spi_no;
+  using rcc = rcc_type;
+  using SPIx = reg::SPI<spi_no>;
+  using irq  = irq::spi<spi_no>;
+
   using resources = rcc_spi_clock_resources<spi_no>;
-  using irq = irq::spi<spi_no>;
+
+  /** register to be set on periph::configure() */
+  using config_reg_list = typelist<
+    typename SPIx::CR1
+    >;
+
+  static constexpr unsigned clk_freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+
+private:
+
+  template<unsigned value>
+  struct data_size_impl {
+    static_assert(value == 8 || value == 16, "invalid data_size (supported values: 8, 16)");
+    using type = regval< typename SPIx::CR1::DFF,
+      ( value == 8  ? 0 :
+        value == 16 ? 1 : 0xff )
+      >;
+  };
+
+public:  /* ------ configuration traits ------ */
+
+  using master = typelist<
+    regval< typename SPIx::CR1::MSTR, 1 >,
+    regval< typename SPIx::CR1::SSI,  1 >
+  >;
+
+  using slave = regval< typename SPIx::CR1::MSTR, 0 >;
+
+  struct clock_polarity {
+    using low  = regval< typename SPIx::CR1::CPOL, 0 >;
+    using high = regval< typename SPIx::CR1::CPOL, 1 >;
+  };
+
+  struct clock_phase {
+    using first_edge  = regval< typename SPIx::CR1::CPHA, 0 >;
+    using second_edge = regval< typename SPIx::CR1::CPHA, 1 >;
+  };
+
+  using software_slave_management = regval< typename SPIx::CR1::SSM, 1 >;
+
+  struct data_direction {
+    using two_lines_full_duplex = typelist<
+      regval< typename SPIx::CR1::BIDIMODE, 0 >,
+      regval< typename SPIx::CR1::BIDIOE,   0 >,
+      regval< typename SPIx::CR1::RXONLY,   0 >
+      >;
+    using two_lines_rx_only = typelist<
+      regval< typename SPIx::CR1::BIDIMODE, 0 >,
+      regval< typename SPIx::CR1::BIDIOE,   0 >,
+      regval< typename SPIx::CR1::RXONLY,   1 >
+      >;
+    using one_line_rx = typelist<
+      regval< typename SPIx::CR1::BIDIMODE, 1 >,
+      regval< typename SPIx::CR1::BIDIOE,   0 >,
+      regval< typename SPIx::CR1::RXONLY,   0 >
+      >;
+    using one_line_tx = typelist<
+      regval< typename SPIx::CR1::BIDIMODE, 1 >,
+      regval< typename SPIx::CR1::BIDIOE,   1 >,
+      regval< typename SPIx::CR1::RXONLY,   0 >
+      >;
+  };
+
+  struct frame_format {
+    using msb_first = regval< typename SPIx::CR1::LSBFIRST, 0 >;
+    using lsb_first = regval< typename SPIx::CR1::LSBFIRST, 1 >;
+  };
+
+  /** Maximum frequency (hz, 0=maximum available) */
+  template<freq_t value>
+  using max_frequency = regval< typename SPIx::CR1::BR,
+    ( value == 0 ? 0 :
+      value >= clk_freq / 2   ? 0 :
+      value >= clk_freq / 4   ? 1 :
+      value >= clk_freq / 8   ? 2 :
+      value >= clk_freq / 16  ? 3 :
+      value >= clk_freq / 32  ? 4 :
+      value >= clk_freq / 64  ? 5 :
+      value >= clk_freq / 128 ? 6 :
+      7 )
+  >;
+
+  /** 8 bit or 16 bit data size */
+  template<unsigned value>
+  using data_size = typename std::enable_if<
+    value == 8 || value == 16,
+    regval< typename SPIx::CR1::DFF, value == 16  ? 1 : 0 >
+    >::type;
+
+public:  /* ------ static member functions ------ */
 
   static void reset_crc(void) {
     SPIx::CRCPR::reset();
@@ -154,12 +160,12 @@ public:
     send(data);
   }
 
-  // NOTE: return value depends on the data frame format (DFF) bit in CR1 (8bit or 16bit)
-  static uint16_t receive(void) {
+  /** NOTE: return value depends on the data frame format (CR1::DFF, 8 or 16 bit) */
+  static typename SPIx::DR::value_type receive(void) {
     return SPIx::DR::load();
   }
 
-  static uint16_t receive_blocking(void) {
+  static typename SPIx::DR::value_type receive_blocking(void) {
     wait_receive_not_empty();
     return receive();
   }
@@ -170,61 +176,6 @@ public:
     wait_receive_not_empty();
     return receive();
   }
-
-  template<typename spi_config_type>
-  static void configure(spi_config_type const & cfg)
-  {
-    auto cr1 = SPIx::CR1::load();
-    /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
-    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
-    cr1 |= cr1_set_mask(cfg);
-    SPIx::CR1::store(cr1);
-  }
-
-#if 0
-  static void configure(cfg::spi::master_selection          master_selection,
-                        freq_t                              max_frequency,   /* Hz, 0=maximum available */
-                        unsigned                            data_size,
-                        cfg::spi::clock_polarity            clk_pol,
-                        cfg::spi::clock_phase               clk_phase,
-                        cfg::spi::data_direction            data_dir,
-                        cfg::spi::software_slave_management ssm,
-                        cfg::spi::frame_format              frame_format)
-  {
-    // assert(data_size == 8 || data_size == 16, "invalid data size");
-
-    auto cr1 = SPIx::CR1::load();
-
-    /* clear all bits except SPE, CRCNEXT, CRCEN (stm32 does strange things when these are all set together) */
-    cr1 &= SPIx::CR1::SPE::value | SPIx::CR1::CRCNEXT::value | SPIx::CR1::CRCEN::value;
-
-    if(master_selection == cfg::spi::master_selection::master)
-      cr1 |= SPIx::CR1::MSTR::value | SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
-    // if(ssm == cfg::spi::software_slave_management::enabled) cr1 |= SPIx::CR1::SSI::value; // SPI Master: Master Selection / Internal slave select
-
-    if(data_dir == cfg::spi::data_direction::two_lines_rx_only)
-      cr1 |= SPIx::CR1::RXONLY::value;
-    else if(data_dir == cfg::spi::data_direction::one_line_rx)
-      cr1 |= SPIx::CR1::BIDIMODE::value;
-    else if(data_dir == cfg::spi::data_direction::one_line_tx)
-      cr1 |= SPIx::CR1::BIDIMODE::value | SPIx::CR1::BIDIOE::value;
-
-    if(data_size == 16)
-      cr1 |= SPIx::CR1::DFF::value;
-    if(clk_pol == cfg::spi::clock_polarity::high)
-      cr1 |= SPIx::CR1::CPOL::value;
-    if(clk_phase == cfg::spi::clock_phase::second_edge)
-      cr1 |= SPIx::CR1::CPHA::value;
-    if(ssm == cfg::spi::software_slave_management::enabled)
-      cr1 |= SPIx::CR1::SSM::value;
-    if(frame_format == cfg::spi::frame_format::lsb_first)
-      cr1 |= SPIx::CR1::LSBFIRST::value;
-      
-    cr1 |= baud_rate_prescaler_cr1_set_mask(max_frequency);
-
-    SPIx::CR1::store(cr1);
-  }
-#endif
 };
 
 } // namespace mptl

@@ -25,16 +25,31 @@
 
 namespace mptl {
 
-// TODO: provide a matrix for the gpio port/pin_no
+template<typename  rcc_type, unsigned _spi_no>
+class spi : public spi_stm32_common<rcc_type, _spi_no>
+{
+  // TODO: provide a matrix for the gpio port/pin_no
+  template<char port, unsigned pin_no>
+  struct gpio_impl  /* same for sck, miso, mosi */
+  {
+    using gpio_type = gpio_output< port, pin_no >; // gpio_input_af<port, pin_no>
+    using type = typelist<
+      typename gpio_type::resources,
+      typename gpio_type::output_type::af_push_pull
+      >;
+  };
 
-template< char port,
-          unsigned pin_no >
-class spi_gpio
-: public gpio_output< port,
-                      pin_no,
-                      cfg::gpio::output::alt_push_pull
-                     >
-{ };
+public:
+
+  template<char port, unsigned pin_no>
+  using gpio_sck = typename gpio_impl<port, pin_no>::type;
+
+  template<char port, unsigned pin_no>
+  using gpio_miso = typename gpio_impl<port, pin_no>::type;
+
+  template<char port, unsigned pin_no>
+  using gpio_mosi = typename gpio_impl<port, pin_no>::type;
+};
 
 } // namespace mptl
 
