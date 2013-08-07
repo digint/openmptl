@@ -26,7 +26,7 @@
 #include "screen.hpp"
 
 
-typedef tinyfsm::FsmList<Screen> fsm_list;
+using fsm_list = tinyfsm::FsmList<Screen>;
 
 
 /* wrapper to fsm_list::dispatch() */

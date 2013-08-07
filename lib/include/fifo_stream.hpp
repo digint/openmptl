@@ -35,7 +35,7 @@ public:
 
   fifo_stream(fifoT & f) : fifo(f) { };
 
-  typedef typename fifoT::char_type char_type;
+  using char_type = typename fifoT::char_type;
 
   poorman::ostream<char_type> & put(char_type c) {
     fifo.push(c);

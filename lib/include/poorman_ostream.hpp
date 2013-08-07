@@ -25,7 +25,7 @@
 
 namespace poorman {
 
-template<typename charT>
+template<typename Tp>
 class ostream
 {
   static char nibble(unsigned val) {
@@ -34,7 +34,7 @@ class ostream
   }
 
 public:
-  typedef charT char_type;
+  using char_type = Tp;
 
   virtual ostream & put(char_type c) = 0;
   virtual ostream & puts(const char_type* s) = 0;
@@ -65,14 +65,14 @@ public:
 };
 
 /** manipulator, flushes the output stream */
-template<typename charT>
-inline ostream<charT> & flush(ostream<charT> & st) {
+template<typename Tp>
+inline ostream<Tp> & flush(ostream<Tp> & st) {
   return st.flush();
 }
 
 /** manipulator, outputs newline and flushes the output stream */
-template<typename charT>
-inline ostream<charT> & endl(ostream<charT> & st) {
+template<typename Tp>
+inline ostream<Tp> & endl(ostream<Tp> & st) {
   return st.endl();
 }
 

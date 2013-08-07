@@ -28,7 +28,7 @@ namespace mptl {
 template<typename charT>
 class fifo {
 public:
-  typedef charT char_type;
+  using char_type = charT;
 
   virtual bool push(char_type c) = 0;
   virtual bool pushs(const char_type * c) = 0;

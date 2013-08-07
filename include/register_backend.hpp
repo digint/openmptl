@@ -51,11 +51,11 @@ struct regdef_backend
   static_assert(std::is_unsigned<Tp>::value,  "Tp is not an unsigned type");
   static_assert(!std::is_volatile<Tp>::value, "Tp is a volatile-qualified type (why would you want this?)");
 
+  /** Integral type used for register access. */
+  using value_type = Tp;
+
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
-
-  /** Integral type used for register access. */
-  typedef Tp value_type;
 
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
   /* For some reasons, reinterpret_cast is not allowed anymore in

@@ -30,7 +30,7 @@ class TimePoint
   using time = Kernel::time;
 protected:
 
-  typedef decltype(time::systick::get_counter()) counter_type;
+  using counter_type = decltype(time::systick::get_counter());
 
   systick_t     systick;
   counter_type  counter;     // note: counter decreases in time
