@@ -56,8 +56,8 @@ public:
   using systick = _systick;
 
   using resources = mptl::typelist<
-    mptl::resource::irq< typename systick::irq,    systick_isr >,
-    mptl::resource::irq< typename rtc::irq_global, rtc_isr     >,
+    mptl::irq_handler< typename systick::irq,    systick_isr >,
+    mptl::irq_handler< typename rtc::irq_global, rtc_isr     >,
     typename systick::resources,
     rtc::resources
   >;

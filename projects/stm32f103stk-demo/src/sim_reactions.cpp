@@ -30,7 +30,10 @@
 
 namespace mptl {
 
-void reg_reaction::react() {
+thread_local int reg_reaction::refcount;
+
+void reg_reaction::react()
+{
   switch(addr) {
   case reg::RCC::CR::addr:
     if(bits_set<reg::RCC::CR::HSEON>()) {

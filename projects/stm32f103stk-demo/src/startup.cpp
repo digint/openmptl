@@ -36,7 +36,7 @@ void Kernel::reset_isr(void) {
 extern const uint32_t _stack_top;  /* provided by linker script */
 
 /* Build the vector table:
- * - use irq handler from resource::irq<...> in Kernel::resources
+ * - use irq handler from irq_handler<> traits in Kernel::resources
  * - use Kernel::error_isr as default isr
  */
 mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
@@ -47,7 +47,8 @@ mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_tab
 
 #include <iostream>
 
-int main(int argc, char *argv[])
+//int main(int argc, char *argv[])
+int main(void)
 {
   std::cout << "OpenMPTL simulation" << std::endl
             << "-------------------" << std::endl

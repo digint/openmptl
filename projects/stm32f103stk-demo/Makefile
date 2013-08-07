@@ -31,7 +31,10 @@ OPENMPTL_ARCH  = arm/cortex/stm32/f1
 ifdef SIMULATION
   CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
-#  FLAGS       += -DDEBUG_REGISTER
+  FLAGS       += -DCONFIG_REGISTER_REACTION
+  FLAGS       += -DCONFIG_DUMP_REGISTER_ACCESS
+  FLAGS       += -DCONFIG_DUMP_REGISTER_BITFIELD
+#  FLAGS       += -DCONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
 else
   CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m3 -mthumb
@@ -39,18 +42,17 @@ endif
 
 FLAGS         += -DSTM32F10X_MD
 #FLAGS         += -DHEAP_FIXED_SIZE=8129
-
 ifdef USE_BOOST
   FLAGS       += -DOPENMPTL_USE_BOOST
 endif
-
 
 # HINT: g++ -Q -O2 --help=optimizers
 OPTIMIZER      = -Os
 
 LD_SCRIPT      = stm32f10x_flash_md.ld
 
-OPENOCD_CONFIG = -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
+OPENOCD_CONFIG  = -f interface/olimex-arm-usb-ocd.cfg
+OPENOCD_CONFIG += -f target/stm32f1x.cfg
 
 
 #------------------------------------------------------------------------------
@@ -133,9 +135,15 @@ endif
 #OBJS := $(addprefix $(OBJ_DIR)/, $SRCS)
 
 OBJS        := $(notdir $(SRCS) )
-OBJS        := $(OBJS:.cpp=.o)
-OBJS        := $(OBJS:.c=.o)
-OBJS        := $(OBJS:.S=.o)
+ifdef CLANG_EMIT_LLVM
+  OBJS      := $(OBJS:.cpp=.bc)
+  OBJS      := $(OBJS:.c=.bc)
+else
+  OBJS      := $(OBJS:.cpp=.o)
+  OBJS      := $(OBJS:.c=.o)
+endif
+OBJS      := $(OBJS:.S=.o)
+
 #OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 
@@ -153,8 +161,10 @@ ifndef CLANG
   FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
 endif
 
-# TODO: find out why this produces smaller code (+document)
-OPTIMIZER   += -ffunction-sections -fdata-sections  # Place each function or data item into its own section
+ifndef SIMULATION
+  # Place each function or data item into its own section
+  OPTIMIZER   += -ffunction-sections -fdata-sections
+endif
 
 CFLAGS      += $(FLAGS)
 CFLAGS      += $(OPTIMIZER)
@@ -203,10 +213,14 @@ CXXFLAGS    += -Wcast-align
 CXXFLAGS    += -pedantic
 #CXXFLAGS    += -Weffc++
 #CXXFLAGS   += -Wno-long-long  # disable boost warning: ISO C++ 1998 does not support 'long long'
+ifdef SIMULATION
+  CXXFLAGS  += -Wno-attributes
+endif
 
 ASFLAGS     += $(FLAGS)
 
 LDFLAGS     += $(CPUFLAGS)
+LDFLAGS     += $(OPTIMIZER)
 LDFLAGS     += -fno-exceptions
 LDFLAGS     += -fno-rtti
 #! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
@@ -218,7 +232,6 @@ else
   LDFLAGS   += -Wl,--gc-sections
   LDFLAGS   += -T$(LD_SCRIPT)
 endif
-
 
 .PHONY: all clean
 
@@ -239,18 +252,24 @@ $(HEX):	$(ELF)
 
 $(ELF):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LDFLAGS) -o "$(ELF)"
+	$(LD) $(LDFLAGS) $(OBJS) -o "$(ELF)"
 	$(SIZE) $@
 
 $(BIN):	$(OBJS)
 	@echo "--- generating $@"
-	$(LD) $(OBJS) $(LDFLAGS) -o "$(BIN)"
+	$(LD) $(LDFLAGS) $(OBJS) -o "$(BIN)"
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(OBJ_DIR)/%.bc: %.cpp
+	$(CXX) -c -emit-llvm $(CXXFLAGS) -o $@ $<
+
+$(OBJ_DIR)/%.bc: %.c
+	$(CC) -c -emit-llvm $(CFLAGS) -o $@ $<
 
 $(OBJ_DIR)/%.o: %.S
 	$(AS) -c $(ASFLAGS) -o $@ $<
@@ -259,17 +278,16 @@ $(OBJ_DIR):
 	@$(MKDIR_P) $(OBJ_DIR)
 
 clean:
-#	$(RM_R) $(OBJ_DIR)
-#	$(RM_R) $(BIN_DIR)
-	$(RM) $(OBJ_DIR)/*.o
-	$(RM) $(OBJ_DIR)/*.d
-	$(RM) $(OBJ_DIR)/*.lst
-
-	$(RM) $(BIN)
 	$(RM) $(HEX)
 	$(RM) $(ELF)
 	$(RM) $(MAP)
 	$(RM) $(LSS)
+	$(RM) $(OBJ_DIR)/*.bc
+	$(RM) $(OBJ_DIR)/*.s
+	$(RM) $(OBJ_DIR)/*.o
+	$(RM) $(OBJ_DIR)/*.d
+	$(RM) $(OBJ_DIR)/*.lst
+
 
 include $(OPENMPTL_TOP)/config/doxygen.mk
 include $(OPENMPTL_TOP)/config/openocd.mk

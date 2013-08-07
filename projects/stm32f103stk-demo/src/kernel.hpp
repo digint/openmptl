@@ -30,7 +30,8 @@
 #include <arch/usart_stream.hpp>
 #include <arch/gpio.hpp>
 #include <arch/nvic.hpp>
-#include <peripheral_device.hpp>
+#include <terminal.hpp>
+#include <periph.hpp>
 #include <typelist.hpp>
 #include <compiler.h>
 #include "time.hpp"
@@ -42,7 +43,6 @@ struct Kernel
 
   using systick = mptl::systick< rcc, mptl::hz(100), mptl::cfg::systick::clock_source::hclk >;
 
-
   using usart = mptl::usart< 2, rcc >;
   using tty0_device = mptl::periph<
     usart,
@@ -52,36 +52,34 @@ struct Kernel
     >;
 
   using usart_stream_device = mptl::usart_irq_stream< tty0_device, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */
+  using terminal_type = mptl::terminal< usart_stream_device >;
 
   using spi       = mptl::spi< rcc, 1 >;
-  using spi_sck   = mptl::spi_gpio< 'A', 5 >;
-  using spi_miso  = mptl::spi_gpio< 'A', 6 >;
-  using spi_mosi  = mptl::spi_gpio< 'A', 7 >;
+  using spi_sck   = spi::gpio_sck< 'A', 5 >; // TODO: template arguments for mptl::spi<>
+  using spi_miso  = spi::gpio_miso< 'A', 6 >;
+  using spi_mosi  = spi::gpio_mosi< 'A', 7 >;
 
   using lcd = mptl::device::nokia3310<
     spi,
-    mptl::gpio_output< 'B', 2,  mptl::cfg::gpio::output::push_pull >,  //< lcd_ds: low=command, high=data
-    mptl::gpio_output< 'C', 7,  mptl::cfg::gpio::output::push_pull >,  //< lcd_reset: reset pin (active low)
-    mptl::gpio_output< 'C', 10, mptl::cfg::gpio::output::push_pull >   //< lcd_e: display controller spi enable (active low)
+    mptl::gpio_output< 'B', 2  >,  /* lcd_ds     */
+    mptl::gpio_output< 'C', 7  >,  /* lcd_reset  */
+    mptl::gpio_output< 'C', 10 >   /* lcd_e      */
     >;
 
   using nrf = mptl::device::nrf24l01<
     spi,
-    mptl::gpio_output< 'C', 8, mptl::cfg::gpio::output::push_pull >,  //< nrf_ce: chip enable
-    mptl::gpio_output< 'A', 4, mptl::cfg::gpio::output::push_pull >,  //< nrf_csn: spi enable (active low)
-    mptl::gpio_input < 'C', 9, mptl::cfg::gpio::input::pull_down >    //< nrf_irq: IRQ
+    mptl::gpio_output< 'C', 8 >,  /* nrf_ce   */
+    mptl::gpio_output< 'A', 4 >,  /* nrf_csn  */
+    mptl::gpio_input < 'C', 9 >   /* nrf_irq  */
     >;
 
   using joy = mptl::device::joystick;
 
-  using led = mptl::gpio_led<
-    'C', 12,
-    mptl::cfg::gpio::output::push_pull,
-    mptl::mhz(2),
-    mptl::cfg::gpio::active_state::low
-    >;
+  using led = mptl::gpio_led< 'C', 12, mptl::mhz(2), mptl::gpio_active_state::low >;
 
   using time = Time< systick >;
+
+  static terminal_type terminal;
 
   /* Reset core exception: triggered on system startup (system entry point). */
   static void  __naked reset_isr(void);
@@ -94,21 +92,22 @@ struct Kernel
   static void __noreturn run(void);
 
   using resources = mptl::typelist<
-    mptl::resource::irq< typename mptl::irq::reset, reset_isr >,
+    mptl::irq_handler< typename mptl::irq::reset, reset_isr >,
 
     time::resources,
     joy::resources,
-    led::resources,
 
-    spi_sck::resources,
-    spi_miso::resources,
-    spi_mosi::resources,
+    led::resources,
+    led::output_type::push_pull,
+
+    spi_sck,
+    spi_miso,
+    spi_mosi,
     spi::resources,
+
     lcd::resources,
     nrf::resources,
 
-    usart_gpio_rx::resources,
-    usart_gpio_tx::resources,
     usart_stream_device::resources
   >;
 };

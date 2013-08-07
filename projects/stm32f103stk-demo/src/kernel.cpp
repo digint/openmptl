@@ -28,7 +28,6 @@
 
 #include "printf.h"
 #include <terminal.hpp>
-#include <resource.hpp>
 #include <debouncer.hpp>
 #include <arch/dwt.hpp>  // cycle_counter
 
@@ -48,11 +47,15 @@ static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group
 static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::GPIO<'C'>::CRH::reg_type > >::mask_type::set_mask == 0x00020383, "crh");
 #endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 
+Kernel::terminal_type Kernel::terminal;
 
 void Kernel::init(void)
 {
-  resources::check();      /* check unique resources */
-  resources::configure();  /* configure resources (set all shared register) */
+  /* check unique resources */
+  // resources::check(); // TODO: do we still need this?
+
+  /* set all register from Kernel::resources<> */
+  mptl::core::configure< resources >();
 
   led::off();
 
@@ -69,9 +72,9 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  mptl::cycle_counter cycle_counter;
-  char joytext_buf[16] = "              ";
+  char joytext_buf[16] = { 0 };
   const char * joypos_text = "center";
+  mptl::cycle_counter cycle_counter;
   debouncer< joy::position,
              joy::get_position,
              time::get_systick,
@@ -106,8 +109,7 @@ void Kernel::run(void)
   Screen::set_item_list(item_list);
 
   /* open terminal and print welcome message */
-  mptl::terminal<usart_stream_device, terminal_hooks::commands> terminal;
-  terminal.open(tty0_device());
+  terminal.open();
   terminal.tx_stream << "\r\n\r\nWelcome to OpenMPTL terminal console!\r\n# " << poorman::flush;
 
   /* start kernel loop */
@@ -144,7 +146,7 @@ void Kernel::run(void)
     sprintf(joytext_buf, " joy: %s %s", (joy::button_pressed() ? "x" : "o"), joypos_text);
 
     /* poll terminal */
-    terminal.process_input();
+    terminal.process_input< terminal_hooks::commands >();
 
     /* update screen rows */
     rtc_sec   = time::get_rtc_seconds();
