@@ -77,8 +77,8 @@ public:
 
   using resources = typelist<
     typename base_type::resources,
-    typename mpl::usart_gpio_rx_resources< gpio_rx_type, usart_no >::type,
-    typename mpl::usart_gpio_tx_resources< gpio_tx_type, gpio_tx_speed, usart_no >::type
+    typename mpl::usart_gpio_rx_resources< gpio_rx_type, gpio_alt_func_num >::type,
+    typename mpl::usart_gpio_tx_resources< gpio_tx_type, gpio_tx_speed, gpio_alt_func_num >::type
     >;
 };
 
