@@ -72,7 +72,7 @@ struct Kernel
 
   using joy = mptl::device::joystick;
 
-  using led = mptl::gpio_led< 'C', 12, mptl::mhz(2), mptl::gpio_active_state::low >;
+  using led = mptl::gpio_led< 'C', 12, mptl::gpio_active_state::low >;
 
   using time = Time< systick >;
 
@@ -93,7 +93,7 @@ struct Kernel
 
     time::resources,
     joy::resources,
-    led::resources, led::output_type::push_pull,
+    led::resources,
     spi::resources,
     lcd::resources,
     nrf::resources,

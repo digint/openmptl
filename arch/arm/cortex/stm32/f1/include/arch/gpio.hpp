@@ -236,8 +236,8 @@ public:
 template<
   char port,
   unsigned pin_no,
-  freq_t speed = mhz(50),
-  gpio_active_state active_state = gpio_active_state::high
+  gpio_active_state active_state = gpio_active_state::high,
+  freq_t speed = mhz(50)
   >
 class gpio_output
 : public gpio_output_base< gpio< port, pin_no >, active_state >
@@ -257,12 +257,19 @@ public:
 template<
   char port,
   unsigned pin_no,
-  freq_t speed = mhz(2),
-  gpio_active_state active_state = gpio_active_state::high
+  gpio_active_state active_state = gpio_active_state::high,
+  freq_t speed = mhz(2)
   >
 class gpio_led
-: public gpio_led_base< gpio_output< port, pin_no, speed, active_state > >
-{ };
+: public gpio_led_base< gpio_output< port, pin_no, active_state, speed > >
+{
+  using gpio_type = gpio_output< port, pin_no, active_state, speed >;
+public:
+  using resources = typelist<
+    typename gpio_type::resources,
+    typename gpio_type::output_type::push_pull
+    >;
+};
 
 } // namespace mptl
 

@@ -192,7 +192,7 @@ public:
 ////////////////////  gpio_analog_io  ////////////////////
 
 
-template<char port, unsigned pin_no>
+template<char port, unsigned pin_no, freq_t speed = mhz(2)>
 class gpio_analog_io
 : public gpio_analog_io_base< gpio< port, pin_no > >
 {
@@ -202,7 +202,7 @@ public:
     typename gpio_type::resources,
     typename gpio_type::mode::analog,
     typename gpio_type::output_type::push_pull,
-    typename gpio_type::template speed< mhz(2) >,
+    typename gpio_type::template speed< speed >,
     typename gpio_type::resistor::floating
     >;
 };
@@ -214,7 +214,14 @@ public:
 template<char port, unsigned pin_no, gpio_active_state active_state = gpio_active_state::high>
 class gpio_led
 : public gpio_led_base< gpio_output< port, pin_no, active_state > >
-{ };
+{
+  using gpio_type = gpio_output< port, pin_no, active_state >;
+public:
+  using resources = typelist<
+    typename gpio_type::resources,
+    typename gpio_type::output_type::push_pull
+    >;
+};
 
 } // namespace mptl
 
