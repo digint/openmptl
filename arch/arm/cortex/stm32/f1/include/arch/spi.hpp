@@ -25,30 +25,56 @@
 
 namespace mptl {
 
-template<typename  rcc_type, unsigned _spi_no>
-class spi : public spi_stm32_common<rcc_type, _spi_no>
+namespace mpl
 {
-  // TODO: provide a matrix for the gpio port/pin_no
-  template<char port, unsigned pin_no>
-  struct gpio_impl  /* same for sck, miso, mosi */
-  {
-    using gpio_type = gpio_output< port, pin_no >; // gpio_input_af<port, pin_no>
+  template< typename gpio_type, freq_t gpio_speed >
+  struct spi_gpio_output_resources {
     using type = typelist<
       typename gpio_type::resources,
+      typename gpio_type::mode::template output< gpio_speed >,
       typename gpio_type::output_type::af_push_pull
       >;
   };
+  template< freq_t gpio_speed >
+  struct spi_gpio_output_resources< void, gpio_speed > {
+    using type = void;
+  };
+
+  template< typename gpio_type >
+  struct spi_gpio_input_resources {
+    using type = typelist<
+      typename gpio_type::resources,
+      typename gpio_type::mode::input,
+      typename gpio_type::input_type::pull_up_down
+      >;
+  };
+  template<>
+  struct spi_gpio_input_resources< void > {
+    using type = void;
+  };
+} // namespace mpl
+
+
+template<
+  unsigned spi_no,
+  typename rcc_type,
+  typename gpio_sck_type     = void,
+  typename gpio_miso_type    = void,
+  typename gpio_mosi_type    = void,
+  freq_t   gpio_output_speed = mhz(50)
+  >
+class spi : public spi_stm32_common< spi_no, rcc_type >
+{
+  using base_type = spi_stm32_common< spi_no, rcc_type >;
 
 public:
 
-  template<char port, unsigned pin_no>
-  using gpio_sck = typename gpio_impl<port, pin_no>::type;
-
-  template<char port, unsigned pin_no>
-  using gpio_miso = typename gpio_impl<port, pin_no>::type;
-
-  template<char port, unsigned pin_no>
-  using gpio_mosi = typename gpio_impl<port, pin_no>::type;
+  using resources = typelist<
+    typename base_type::resources,
+    typename mpl::spi_gpio_output_resources< gpio_sck_type,  gpio_output_speed >::type,
+    typename mpl::spi_gpio_input_resources< gpio_miso_type >::type,
+    typename mpl::spi_gpio_output_resources< gpio_mosi_type, gpio_output_speed >::type
+    >;
 };
 
 } // namespace mptl

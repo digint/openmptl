@@ -28,7 +28,7 @@
 
 namespace mptl {
 
-template<typename  rcc_type, unsigned _spi_no>
+template< unsigned _spi_no, typename rcc_type >
 class spi_stm32_common
 {
 public:

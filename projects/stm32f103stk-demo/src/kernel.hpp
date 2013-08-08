@@ -54,10 +54,7 @@ struct Kernel
   using usart_stream_device = mptl::usart_irq_stream< tty0_device, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */
   using terminal_type = mptl::terminal< usart_stream_device >;
 
-  using spi       = mptl::spi< rcc, 1 >;
-  using spi_sck   = spi::gpio_sck< 'A', 5 >; // TODO: template arguments for mptl::spi<>
-  using spi_miso  = spi::gpio_miso< 'A', 6 >;
-  using spi_mosi  = spi::gpio_mosi< 'A', 7 >;
+  using spi = mptl::spi< 1, rcc, mptl::gpio< 'A', 5 >, mptl::gpio< 'A', 6 >, mptl::gpio< 'A', 7 > >;
 
   using lcd = mptl::device::nokia3310<
     spi,
@@ -96,18 +93,10 @@ struct Kernel
 
     time::resources,
     joy::resources,
-
-    led::resources,
-    led::output_type::push_pull,
-
-    spi_sck,
-    spi_miso,
-    spi_mosi,
+    led::resources, led::output_type::push_pull,
     spi::resources,
-
     lcd::resources,
     nrf::resources,
-
     usart_stream_device::resources
   >;
 };
