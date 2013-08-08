@@ -43,12 +43,12 @@ struct Kernel
 
   using systick = mptl::systick< rcc, mptl::hz(100), mptl::cfg::systick::clock_source::hclk >;
 
-  using usart = mptl::usart< 2, rcc >;
+  using usart = mptl::usart< 2, rcc, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
   using tty0_device = mptl::periph<
     usart,
     usart::baud_rate< 115200 >,
-    usart::gpio_rx< 'A', 3 >, /* implicitely sets USARTx::CR1::RE (rx enable) */
-    usart::gpio_tx< 'A', 2 >  /* implicitely sets USARTx::CR1::TE (tx enable) */
+    usart::enable_rx,
+    usart::enable_tx
     >;
 
   using usart_stream_device = mptl::usart_irq_stream< tty0_device, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */

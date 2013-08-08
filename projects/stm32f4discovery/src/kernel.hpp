@@ -41,13 +41,14 @@ struct Kernel
 
   using systick       = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
 
-  /* Note that setting mptl::usart<>::gpio_rx implicitely adds a
-   * mptl::gpio<> type to usart::resources, having the correct GPIO
-   * register configuration preset. This means that by calling
-   * mptl::core::configure<resources>(), the GPIO registers are
-   * automatically setup the way we need them for USART communication.
+  /* Note that setting gpio_rx_type (and gpio_tx_type respectively)
+   * template parameter implicitely adds the correct mptl::gpio<>
+   * configuration traits to usart::resources. This means that by
+   * calling mptl::core::configure<resources>(), the GPIO registers
+   * are automatically setup the way we need them for USART
+   * communication.
    */
-  using usart = mptl::usart< 2, rcc >;
+  using usart = mptl::usart< 2, rcc, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
   using usart_device = mptl::periph<
     usart,
 #ifdef DYNAMIC_BAUD_RATE
@@ -58,8 +59,8 @@ struct Kernel
 #else
     usart::baud_rate< 115200 >,
 #endif
-    usart::gpio_rx< 'A', 3 >, /* implicitely sets USARTx::CR1::RE (rx enable) */
-    usart::gpio_tx< 'A', 2 >  /* implicitely sets USARTx::CR1::TE (tx enable) */
+    usart::enable_rx,
+    usart::enable_tx
     >;
   using usart_stream_device = mptl::usart_irq_stream< usart_device, mptl::ring_buffer<char, 512> >;
   using terminal_type = mptl::terminal< usart_stream_device >;

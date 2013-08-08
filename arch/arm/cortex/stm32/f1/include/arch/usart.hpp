@@ -25,49 +25,54 @@
 
 namespace mptl {
 
-template< unsigned _usart_no, typename _rcc >
-class usart : public usart_stm32_common<_usart_no, _rcc>
+namespace mpl
 {
-  using base_type = usart_stm32_common<_usart_no, _rcc>;
-
-  template<char port, unsigned pin_no>
-  struct gpio_rx_impl
-  {
-    using gpio_type = gpio< port, pin_no >;
+  template< typename gpio_type >
+  struct usart_gpio_rx_resources {
     using type = typelist<
-      typename base_type::enable_rx,
       typename gpio_type::resources,
       typename gpio_type::mode::input,
       typename gpio_type::input_type::floating
       >;
   };
+  template<>
+  struct usart_gpio_rx_resources< void > {
+    using type = void;
+  };
 
-  template<char port, unsigned pin_no>
-  struct gpio_tx_impl
-  {
-    using gpio_type = gpio< port, pin_no >;
+  template< typename gpio_type, freq_t gpio_speed >
+  struct usart_gpio_tx_resources {
     using type = typelist<
-      typename base_type::enable_tx,
       typename gpio_type::resources,
-      typename gpio_type::mode::template output< mhz(50) >,
+      typename gpio_type::mode::template output< gpio_speed >,
       typename gpio_type::output_type::af_push_pull
       >;
   };
+  template< freq_t gpio_speed >
+  struct usart_gpio_tx_resources< void, gpio_speed > {
+    using type = void;
+  };
+} // namespace mpl
+
+
+template<
+  unsigned usart_no,
+  typename rcc_type,
+  typename gpio_rx_type  = void,
+  typename gpio_tx_type  = void,
+  freq_t   gpio_tx_speed = mhz(50)
+  >
+class usart : public usart_stm32_common< usart_no, rcc_type >
+{
+  using base_type = usart_stm32_common< usart_no, rcc_type >;
+
 public:
 
-  /** 
-   * Provide GPIO port/pin_no for RX (used for configuration of the GPIO registers).
-   * NOTE: this implicitely sets the enable_rx option!
-   */
-  template<char port, unsigned pin_no>
-  using gpio_rx = typename gpio_rx_impl<port, pin_no>::type;
-
-  /** 
-   * Provide GPIO port/pin_no for TX (used for configuration of the GPIO registers).
-   * NOTE: this implicitely sets the enable_tx option!
-   */
-  template<char port, unsigned pin_no>
-  using gpio_tx = typename gpio_tx_impl<port, pin_no>::type;
+  using resources = typelist<
+    typename base_type::resources,
+    typename mpl::usart_gpio_rx_resources< gpio_rx_type >::type,
+    typename mpl::usart_gpio_tx_resources< gpio_tx_type, gpio_tx_speed >::type
+    >;
 };
 
 } // namespace mptl
