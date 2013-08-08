@@ -46,7 +46,7 @@ public:
 
   reg_manip<T> operator|(const T & rhs) { return reg_manip<T>(reg | rhs); }
 
-  reg_manip<T> & operator=(const reg_manip<T> & rhs) { return *this; }
+  reg_manip<T> & operator=(const reg_manip<T> &) { return *this; }
   reg_manip<T> & operator|=(value_type rhs) { this->reg |= rhs; return *this; }
   reg_manip<T> & operator&=(value_type rhs) { this->reg &= rhs; return *this; }
 
@@ -69,8 +69,6 @@ public:
     using merged_type = typename T::template merge<Rm...>::type;
     set( merged_type::set_mask, merged_type::cropped_clear_mask );
   }
-
-  reg_manip<T> & 
 
 private:
   value_type reg;

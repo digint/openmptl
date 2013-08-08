@@ -70,6 +70,7 @@ class sane_typelist
 public: // see note about friends above
 #endif
 
+#if 0 // TODO
   template<typename T>
   struct filter_element_tag {
     template<typename Tf>
@@ -78,6 +79,7 @@ public: // see note about friends above
       typename Tf::_typelist_tag_type
       >;
   };
+#endif
 
   template<typename T>
   struct filter_is_base_of {
@@ -162,9 +164,10 @@ public:
   template<typename T>
   using filter_type = typename filter< filter_is_base_of< T > >::type;
 
-  // TODO
+#if 0 // TODO
   template<typename T>
   using filter_tag = typename filter< filter_element_tag< T > >::type;
+#endif
 
   /**
    * Provides a list filtered to hold at most one element of identical

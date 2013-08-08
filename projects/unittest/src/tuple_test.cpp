@@ -31,8 +31,6 @@
 using namespace mptl;
 using namespace mptl::reg;
 
-void reg_reaction::react() { }
-
 // helper function to print a tuple of any size
 template<class Tp, std::size_t N>
 struct tuple_regmask_reset_to {

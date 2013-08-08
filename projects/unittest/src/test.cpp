@@ -19,7 +19,7 @@
  */
 
 #include <arch/core.hpp>
-#include <resource.hpp>
+#include <typelist.hpp>
 #include <register.hpp>
 
 #include <cassert>
@@ -27,8 +27,6 @@
 #include <iomanip>
 
 using namespace mptl;
-
-void reg_reaction::react() { }
 
 struct A : regdef< uint32_t, 0x1000, reg_access::rw, 0 > {};
 struct B : regdef< uint32_t, 0x2000, reg_access::rw, 0x44444444 > {};
@@ -66,33 +64,31 @@ incomplete<list5> debug;
 
 
 using merged = mpl::merged_regmask<
-  regmask<A, 0x00000011, 0x000000ff>,
-  regmask<A, 0x00001100, 0x0000ff00>,
+  void,
+  regmask<D, 0x00000011, 0x000000ff>,
+  void,
+  regmask<D, 0x00001100, 0x0000ff00>,
   void
   >::type;
 
 
 int main()
 {
-  A::reset_to<merged>();
-
-#if 1
   assert(A::load() == 0);
   assert(B::load() == 0x44444444);
   assert(C::load() == 0);
   assert(D::load() == 0x55555555);
 
-#if 0
-  /* set all shared register from list */
-  unique_merged_type_list::template for_each< reg_reset_to >();
-#else
+  /* set all register from list */
   mptl::core::configure<list>();
-#endif
 
   assert(A::load() == 0x11001111);
   assert(B::load() == 0x44114444);
   assert(C::load() == 0x10);
   assert(D::load() == 0x55555555);
-#endif
+
+  D::reset_to<merged>();
+  assert(D::load() == 0x55551111);
+
   return 0;
 }

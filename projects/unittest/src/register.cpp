@@ -71,8 +71,6 @@ template<> struct address_map< 0x00001234 > { static constexpr const char * name
 using namespace mptl;
 using namespace reg;
 
-void reg_reaction::react() { }
-
 void unittest_register_manip()
 {
   std::cout << "*** unittest_register_manip ***" << std::endl; 
@@ -111,14 +109,6 @@ int main()
                 regmask<TEST::REG, 0x48011107>
                 >::type::set_mask ==         0x7d935917, "");
 
-  using merged_reg = typename reglist<
-    regmask<TEST::REG, 0x11111111>,
-    regmask<TEST::REG, 0x24824800>,
-    regmask<TEST::REG2, 0xffffffff>, // this is filtered out
-    regmask<TEST::REG, 0x48011107>
-    >::filter<TEST::REG>::type::merge::type;
-  static_assert(merged_reg::set_mask == 0x7d935917, "");
-
 #ifdef UNITTEST_MUST_FAIL
   // fail: template argument is not of same regdef<> type
   using merge_fail = TEST::REG::merge<
@@ -130,8 +120,8 @@ int main()
 #endif
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: not same register
-  using merged_type_fail = regmask<TEST::REG2, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
+  // fail: template argument is not of same regdef<> type
+  using merge_fail = regmask<TEST::REG2, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
 #endif
 
 
@@ -243,7 +233,8 @@ int main()
   assert(TEST::REG::BITS_4_7::CONST_d::test() == true);
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: value=0x1f does not fit into bits of R=TEST::REG::BITS_4_7
+  // fail: clear_mask does not cover all bits of set_mask
+  // -> value=0x1f does not fit into bits of R=TEST::REG::BITS_4_7
   regval<TEST::REG::BITS_4_7, 0x1f>::set();
 #endif
 
@@ -273,13 +264,23 @@ int main()
   TEST::REG::set<TEST::REG::BITS_4_7::bit<1> >();
   assert(TEST::REG::load() == 0xffffff2f);
 
-  unittest_register_manip(); // TODO: separate register_manip.cpp
+
+  using merged = mpl::merged_regmask<
+    TEST::REG::BITS_0_3,
+    void,
+    TEST::REG::BITS_4_7
+    >::type;
+
+  TEST::REG::store(0x00000000);
+  TEST::REG::reset_to<merged>();
+  assert(TEST::REG::load() == 0x555555ff);
 
 #ifdef UNITTEST_MUST_FAIL
-  // clearing bits from different register
-  // fail: template arguments are not of same regdef<> type
+  // fail: merged template arguments have different regdef<> type
   TEST::REG::clear<TEST::REG2::BITS_0_7>();
 #endif
+
+  unittest_register_manip(); // TODO: separate register_manip.cpp
 
   return 0;
 }
