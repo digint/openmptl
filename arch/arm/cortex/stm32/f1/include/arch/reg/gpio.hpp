@@ -28,12 +28,12 @@ namespace mptl { namespace reg {
 /**
  * General-purpose and alternate-function I/Os (GPIOs and AFIOs)
  */
-template<char reg_name>
+template< char port >
 struct GPIO
 {
-  static_assert((reg_name >= 'A') && (reg_name <= 'G'), "invalid index for register");
+  static_assert((port >= 'A') && (port <= 'G'), "invalid index for register");
 
-  static constexpr unsigned    gpio_no   = reg_name - 'A';
+  static constexpr unsigned    gpio_no   = port - 'A';
   static constexpr reg_addr_t  base_addr = 0x40010800 + gpio_no * 0x0400;
 
   using CRL   = regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x44444444 >;  /**< Port configuration register low    */

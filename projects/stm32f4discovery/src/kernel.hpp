@@ -106,7 +106,7 @@ struct Kernel
    * (refer to section "interpreting mpl compiler output" if you're
    * not familiar with template metaprogramming and see the error above)
    *
-   * NOTE: peripheral types (e.g. usart_irq_stream<>) also list
+   * NOTE: some peripheral classes (e.g. usart_irq_stream<>) also list
    * irq_handler<> in their ::resources.
    *
    * NOTE: the default irq handler is set by the mptl::vector_table<>
