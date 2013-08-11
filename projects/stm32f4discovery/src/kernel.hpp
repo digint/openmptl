@@ -35,11 +35,11 @@
 
 struct Kernel
 {
-  using rcc           = mptl::rcc< mptl::mhz(168) >;
-  using pwr           = mptl::pwr< rcc, mptl::volt(3.3), false >;
-  using flash         = mptl::flash< rcc, pwr >;
+  using rcc     = mptl::rcc< mptl::mhz(168) >;
+  using pwr     = mptl::pwr< rcc, mptl::volt(3.3), false >;
+  using flash   = mptl::flash< rcc, pwr >;
 
-  using systick       = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
+  using systick = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
 
   /* Note that setting gpio_rx_type (and gpio_tx_type respectively)
    * template parameter implicitely adds the correct mptl::gpio<>

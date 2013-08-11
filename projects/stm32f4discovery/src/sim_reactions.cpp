@@ -31,7 +31,7 @@
 #include <poll.h>
 #include "kernel.hpp"
 
-// TODO: non-static atomics for now (bug in clang-3.3)
+// non-static atomics (bug in clang-3.3 ?)
 std::atomic<bool> systick_thread_terminate;
 std::atomic<bool> terminal_rx_thread_terminate;
 std::atomic<bool> terminal_tx_thread_terminate;
@@ -39,11 +39,11 @@ std::atomic<bool> terminal_tx_thread_terminate;
 
 /** run Kernel::systick_isr() in intervals defined by Kernel::systick::freq */
 static void systick_thread() {
-  std::chrono::duration< int, std::ratio<1, Kernel::systick::freq> > sleep_duration(1);
+  using systick_interval = std::chrono::duration< int, std::ratio<1, Kernel::systick::freq> >;
   while(!systick_thread_terminate)
   {
     Kernel::systick_isr();
-    std::this_thread::sleep_for(sleep_duration);
+    std::this_thread::sleep_for( systick_interval(1) );
   }
 }
 
@@ -54,8 +54,6 @@ static void systick_thread() {
  * NOTE: we use std::cin, which is not thread safe.
  */
 static void terminal_rx_thread() {
-  static constexpr int sleep_duration = 20; // poll frequency (ms)
-
   char c;
   pollfd cinfd[1];
   cinfd[0].fd = fileno(stdin);
@@ -73,7 +71,7 @@ static void terminal_rx_thread() {
       /* feed rx_fifo, will pe polled in terminal.process_input() */
       Kernel::terminal_type::stream_device_type::rx_fifo.push(c);
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds( sleep_duration ));
+    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
   }
   //  std::cout << "*** terminal_rx_thread() terminated" << std::endl;
 }
@@ -85,17 +83,15 @@ static void terminal_rx_thread() {
  * NOTE: we use std::cout, which is not thread safe.
  */
 static void terminal_tx_thread() {
-  static constexpr int sleep_duration = 20; // poll frequency (ms)
-
   //  std::cout << "*** terminal_tx_thread() running" << std::endl;
   while(!terminal_tx_thread_terminate)
   {
     char c;
     while(Kernel::terminal_type::stream_device_type::tx_fifo.pop(c)) {
       std::cout << c;
-      std::cout << std::flush;  // too bad, we need to flush after every character...
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds( sleep_duration ));
+    std::cout << std::flush;
+    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
   }
   //  std::cout << "*** terminal_tx_thread() terminated" << std::endl;
 }

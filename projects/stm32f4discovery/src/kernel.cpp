@@ -85,9 +85,6 @@ void Kernel::run(void)
     /* poll terminal */
     terminal.process_input< terminal_hooks::commands >();
 
-#ifdef OPENMPTL_SIMULATION
-    // sleep a bit (don't eat up all cpu power)
-    std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
-#endif
+    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
   }
 }

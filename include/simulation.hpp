@@ -23,11 +23,14 @@
 
 #ifdef OPENMPTL_SIMULATION
 #  include <iostream>
-#  define SIM_DEBUG(msg) std::cerr << msg << std::endl;
-#  define SIM_TRACE(msg) std::cerr << msg << " - " << __PRETTY_FUNCTION__ << std::endl;
+#  include <thread>
+#  define SIM_DEBUG(msg) std::cerr << msg << std::endl
+#  define SIM_TRACE(msg) std::cerr << msg << " - " << __PRETTY_FUNCTION__ << std::endl
+#  define SIM_RELAX      std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) )
 #else
 #  define SIM_DEBUG(msg)
 #  define SIM_TRACE(msg)
+#  define SIM_RELAX
 #endif // OPENMPTL_SIMULATION
 
 
