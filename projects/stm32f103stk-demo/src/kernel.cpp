@@ -160,5 +160,7 @@ void Kernel::run(void)
     /* update screen */
     lcd::enable();
     Screen::update();
+
+    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
   }
 }

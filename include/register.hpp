@@ -137,8 +137,8 @@ public:
    * compiler is not smart enough.
    * Example: (gcc-4.8 generating Arm-Thumb2)
    *
-   *   x = (x & ~0x1ff00) | 0x0ff00
-   *   x = (x & ~0x10000) | 0x0ff00   <-- one BIC instruction less!
+   *     x = (x & ~0x1ff00) | 0x0ff00
+   *     x = (x & ~0x10000) | 0x0ff00   <-- one BIC instruction less!
    *
    * As long as a load-clear-set-store sequence is performed, the
    * above statements are equivalent, and the cropped_clear_mask can
