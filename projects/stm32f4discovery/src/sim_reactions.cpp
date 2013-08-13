@@ -23,6 +23,7 @@
 #include <register.hpp>
 #include <arch/scb.hpp>
 #include <arch/rcc.hpp>
+#include <terminal_sim.hpp>
 #include <iostream>
 #include <thread>
 #include <atomic>
@@ -33,8 +34,6 @@
 
 // non-static atomics (bug in clang-3.3 ?)
 std::atomic<bool> systick_thread_terminate;
-std::atomic<bool> terminal_rx_thread_terminate;
-std::atomic<bool> terminal_tx_thread_terminate;
 
 
 /** run Kernel::systick_isr() in intervals defined by Kernel::systick::freq */
@@ -47,109 +46,34 @@ static void systick_thread() {
   }
 }
 
-
-/**
- * Poll stdin, and feed result into stream_device_type::rx_fifo.
- *
- * NOTE: we use std::cin, which is not thread safe.
- */
-static void terminal_rx_thread() {
-  char c;
-  pollfd cinfd[1];
-  cinfd[0].fd = fileno(stdin);
-  cinfd[0].events = POLLIN;
-
-  //  std::cout << "*** terminal_rx_thread() running" << std::endl;
-  while(!terminal_rx_thread_terminate)
-  {
-    if(poll(cinfd, 1, 0))
-    {
-      c = std::cin.get();
-      // std::cout << '<' << +c << '>' <<  std::endl;
-      if(c == 10) c = 13; // convert LF into CR (hacky...)
-
-      /* feed rx_fifo, will pe polled in terminal.process_input() */
-      Kernel::terminal_type::stream_device_type::rx_fifo.push(c);
-    }
-    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
-  }
-  //  std::cout << "*** terminal_rx_thread() terminated" << std::endl;
-}
-
-
-/**
- * Hook into stream_device_type::tx_fifo, and print output to stdout.
- *
- * NOTE: we use std::cout, which is not thread safe.
- */
-static void terminal_tx_thread() {
-  //  std::cout << "*** terminal_tx_thread() running" << std::endl;
-  while(!terminal_tx_thread_terminate)
-  {
-    char c;
-    while(Kernel::terminal_type::stream_device_type::tx_fifo.pop(c)) {
-      std::cout << c;
-    }
-    std::cout << std::flush;
-    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
-  }
-  //  std::cout << "*** terminal_tx_thread() terminated" << std::endl;
-}
-
-
-
 namespace mptl {
 
 thread_local int reg_reaction::refcount;
 
 void reg_reaction::react()
 {
-  switch(addr) {
-  case reg::RCC::CR::addr:
-    if(bits_set< reg::RCC::CR::HSEON >()) {
-      reg::RCC::CR::HSERDY::set();
-    }
-    if(bits_set< reg::RCC::CR::PLLON >()) {
-      reg::RCC::CR::PLLRDY::set();
-    }
-    break;
+  /* simulate the system clock setup */
+  if(bits_set< reg::RCC::CR::HSEON >())
+    reg::RCC::CR::HSERDY::set();
+  if(bits_set< reg::RCC::CR::PLLON >())
+    reg::RCC::CR::PLLRDY::set();
+  if(bits_set< reg::RCC::CFGR::SW::PLL >())
+    reg::RCC::CFGR::SWS::PLL::set();
 
-  case reg::RCC::CFGR::addr:
-    if(bits_set< reg::RCC::CFGR::SW::PLL >()) {
-      reg::RCC::CFGR::SWS::PLL::set();
-    }
-    break;
+  /* start/stop systick thread on SCB::STCSR::TICKINT */
+  if(bits_set< reg::SCB::STCSR::TICKINT >()) {
+    systick_thread_terminate = false;
+    std::thread(systick_thread).detach();
+  }
+  else if(bits_cleared< reg::SCB::STCSR::TICKINT >()) {
+    systick_thread_terminate = true;
+  }
 
-  case reg::SCB::STCSR::addr:
-    if(bits_set< reg::SCB::STCSR::TICKINT >()) {
-      systick_thread_terminate = false;
-      std::thread(systick_thread).detach();
-    }
-    else if(bits_cleared< reg::SCB::STCSR::TICKINT >()) {
-      systick_thread_terminate = true;
-    }
-    break;
-
-  case Kernel::usart::USARTx::CR1::addr:
-    /* start/stop terminal rx thread on RXNEIE */
-    if(bits_set< Kernel::usart::USARTx::CR1::RXNEIE >()) {
-      terminal_rx_thread_terminate = false;
-      std::thread(terminal_rx_thread).detach();
-    }
-    else if(bits_cleared< Kernel::usart::USARTx::CR1::RXNEIE >()) {
-      terminal_rx_thread_terminate = true;
-    }
-
-    /* start/stop terminal tx thread on TXEIE */
-    if(bits_set< Kernel::usart::USARTx::CR1::TXEIE >()) {
-      terminal_tx_thread_terminate = false;
-      std::thread(terminal_tx_thread).detach();
-    }
-    else if(bits_cleared< Kernel::usart::USARTx::CR1::TXEIE >()) {
-      terminal_tx_thread_terminate = true;
-    }
-    break;
-  };
+  /* provide a terminal on stdin/stdout */
+  terminal_reaction< Kernel::terminal_type >(*this).react<
+    Kernel::usart::USARTx::CR1::RXNEIE,    /* start/stop terminal rx thread on RXNEIE */
+    Kernel::usart::USARTx::CR1::TXEIE      /* start/stop terminal tx thread on TXEIE */
+    >();
 }
 
 } // namespace mptl

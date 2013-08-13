@@ -101,17 +101,21 @@ class reg_reaction
   reg_addr_t addr;
   uint32_t old_value;
 
+public:
+
   template<typename Tp>
-  bool bits_set(void) {
+  bool bits_set(void) const {
+    if(Tp::reg_type::addr != addr)
+      return false;
     return (Tp::test() && !(old_value & Tp::value));
   }
 
   template<typename Tp>
-  bool bits_cleared(void) {
+  bool bits_cleared(void) const {
+    if(Tp::reg_type::addr != addr)
+      return false;
     return ((old_value & Tp::value) && !Tp::test());
   }
-
-public:
 
   static bool running(void) {
     // assert(refcount >= 0);

@@ -50,9 +50,7 @@ mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_tab
 //int main(int argc, char *argv[])
 int main(void)
 {
-  std::cout << "OpenMPTL simulation" << std::endl
-            << "-------------------" << std::endl
-            << std::endl;
+  std::cout << "*** stm32f103stk demo: starting simulation..." << std::endl;
 
   Kernel::reset_isr();
 }

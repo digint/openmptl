@@ -21,6 +21,7 @@
 #ifdef OPENMPTL_SIMULATION
 
 #include <register.hpp>
+#include <terminal_sim.hpp>
 #include <arch/rcc.hpp>
 #include <arch/rtc.hpp>
 #include <thread>
@@ -34,48 +35,38 @@ thread_local int reg_reaction::refcount;
 
 void reg_reaction::react()
 {
-  switch(addr) {
-  case reg::RCC::CR::addr:
-    if(bits_set<reg::RCC::CR::HSEON>()) {
-      reg::RCC::CR::HSERDY::set();
-    }
-    if(bits_set<reg::RCC::CR::PLLON>()) {
-      reg::RCC::CR::PLLRDY::set();
-    }
-    break;
+  /* RCC: simulate the system clock setup */
+  if(bits_set< reg::RCC::CR::HSEON >())
+    reg::RCC::CR::HSERDY::set();
+  if(bits_set< reg::RCC::CR::PLLON >())
+    reg::RCC::CR::PLLRDY::set();
+  if(bits_set< reg::RCC::CFGR::SW::PLL >())
+    reg::RCC::CFGR::SWS::PLL::set();
 
-  case reg::RCC::CFGR::addr:
-    if(bits_set<reg::RCC::CFGR::SW::PLL>()) {
-      reg::RCC::CFGR::SWS::PLL::set();
-    }
-    break;
+  /* RTC: simulate synchronisation */
+  if(bits_set< reg::RCC::BDCR::RTCEN >()) {
+    reg::RCC::BDCR::LSERDY::set();
+    reg::RTC::CRL::RSF::set();
+  }
+  if(bits_cleared< reg::RTC::CRL::RSF >())
+    reg::RTC::CRL::RSF::set();
 
-  case reg::RCC::BDCR::addr:
-    if(bits_set<reg::RCC::BDCR::RTCEN>()) {
-      reg::RCC::BDCR::LSERDY::set();
-      reg::RTC::CRL::RSF::set();
-    }
-    break;
 
-  case reg::RTC::CRL::addr:
-    if(bits_cleared<reg::RTC::CRL::RSF>()) {
-      reg::RTC::CRL::RSF::set();
-    }
-    break;
+  /* ADC: set "end of conversion" on SWSTART */
+  if(bits_set< reg::ADC<1>::CR2::SWSTART >())
+    reg::ADC<1>::SR::EOC::set();
 
-  case reg::ADC<1>::CR2::addr:
-    if(bits_set<reg::ADC<1>::CR2::SWSTART>()) {
-      reg::ADC<1>::SR::EOC::set(); // end of conversion
-    }
-    break;
+  /* SPI: always ready to send / receive */
+  if(bits_set< Kernel::spi::SPIx::CR1::SPE >()) {  // spi enable
+    Kernel::spi::SPIx::SR::TXE::set();
+    Kernel::spi::SPIx::SR::RXNE::set();
+  }
 
-  case reg::SPI<1>::CR1::addr:
-    if(bits_set<reg::SPI<1>::CR1::SPE>()) {  // spi enable
-      reg::SPI<1>::SR::TXE::set();
-      reg::SPI<1>::SR::RXNE::set();
-    }
-    break;
-  };
+  /* provide a terminal on stdin/stdout */
+  terminal_reaction< Kernel::terminal_type >(*this).react<
+    Kernel::usart::USARTx::CR1::RXNEIE,    /* start/stop terminal rx thread on RXNEIE */
+    Kernel::usart::USARTx::CR1::TXEIE      /* start/stop terminal tx thread on TXEIE */
+    >();
 }
 
 } // namespace mptl
