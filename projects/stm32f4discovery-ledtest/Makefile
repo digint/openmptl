@@ -49,6 +49,7 @@ LD_SCRIPT      = stm32f40x_flash.ld
 
 OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 
+
 #------------------------------------------------------------------------------
 # input/output setup
 #
@@ -69,6 +70,8 @@ SRCS        += $(wildcard $(addsuffix /*.S, $(SRC_DIRS)))
 vpath %.cpp $(SRC_DIRS)
 vpath %.c   $(SRC_DIRS)
 vpath %.S   $(SRC_DIRS)
+
+include $(OPENMPTL_TOP)/config/simulation.mk
 
 
 #------------------------------------------------------------------------------
@@ -136,12 +139,14 @@ FLAGS       += $(INCLUDE)
 FLAGS       += -MMD
 ifndef CLANG
   FLAGS     += -Wa,-gdwarf-4
-  FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+  ifndef SIMULATION
+    FLAGS   += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+  endif
 endif
 
 ifndef SIMULATION
   # Place each function or data item into its own section
-  OPTIMIZER   += -ffunction-sections -fdata-sections
+  OPTIMIZER += -ffunction-sections -fdata-sections
 endif
 
 CFLAGS      += $(FLAGS)

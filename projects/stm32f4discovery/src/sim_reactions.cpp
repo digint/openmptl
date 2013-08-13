@@ -20,21 +20,16 @@
 
 #ifdef OPENMPTL_SIMULATION
 
-#include <register.hpp>
 #include <arch/scb.hpp>
 #include <arch/rcc.hpp>
 #include <terminal_sim.hpp>
-#include <iostream>
 #include <thread>
 #include <atomic>
 #include <chrono>
 #include <ratio>
-#include <poll.h>
 #include "kernel.hpp"
 
-// non-static atomics (bug in clang-3.3 ?)
-std::atomic<bool> systick_thread_terminate;
-
+std::atomic<bool> systick_thread_terminate; // TODO: make static (bug in clang-3.3 ?)
 
 /** run Kernel::systick_isr() in intervals defined by Kernel::systick::freq */
 static void systick_thread() {
@@ -46,11 +41,7 @@ static void systick_thread() {
   }
 }
 
-namespace mptl {
-
-thread_local int reg_reaction::refcount;
-
-void reg_reaction::react()
+void mptl::sim::reg_reaction::react()
 {
   /* simulate the system clock setup */
   if(bits_set< reg::RCC::CR::HSEON >())
@@ -70,12 +61,10 @@ void reg_reaction::react()
   }
 
   /* provide a terminal on stdin/stdout */
-  terminal_reaction< Kernel::terminal_type >(*this).react<
+  stdio_terminal< Kernel::terminal_type >(*this).react<
     Kernel::usart::USARTx::CR1::RXNEIE,    /* start/stop terminal rx thread on RXNEIE */
     Kernel::usart::USARTx::CR1::TXEIE      /* start/stop terminal tx thread on TXEIE */
     >();
 }
-
-} // namespace mptl
 
 #endif // OPENMPTL_SIMULATION

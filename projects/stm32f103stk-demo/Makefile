@@ -31,6 +31,7 @@ OPENMPTL_ARCH  = arm/cortex/stm32/f1
 ifdef SIMULATION
   CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
+  FLAGS       += -DCONFIG_SIM_THREADED
   FLAGS       += -DCONFIG_REGISTER_REACTION
   FLAGS       += -DCONFIG_DUMP_REGISTER_ACCESS
   FLAGS       += -DCONFIG_DUMP_REGISTER_BITFIELD
@@ -84,6 +85,8 @@ SRCS        += $(wildcard $(addsuffix /*.S, $(SRC_DIRS)))
 vpath %.cpp $(SRC_DIRS)
 vpath %.c   $(SRC_DIRS)
 vpath %.S   $(SRC_DIRS)
+
+include $(OPENMPTL_TOP)/config/simulation.mk
 
 
 #------------------------------------------------------------------------------
@@ -158,12 +161,14 @@ FLAGS       += $(INCLUDE)
 FLAGS       += -MMD
 ifndef CLANG
   FLAGS     += -Wa,-gdwarf-4
-  FLAGS     += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+  ifndef SIMULATION
+    FLAGS   += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
+  endif
 endif
 
 ifndef SIMULATION
   # Place each function or data item into its own section
-  OPTIMIZER   += -ffunction-sections -fdata-sections
+  OPTIMIZER += -ffunction-sections -fdata-sections
 endif
 
 CFLAGS      += $(FLAGS)

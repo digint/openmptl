@@ -20,20 +20,12 @@
 
 #ifdef OPENMPTL_SIMULATION
 
-#include <register.hpp>
-#include <terminal_sim.hpp>
+#include <arch/scb.hpp>
 #include <arch/rcc.hpp>
-#include <arch/rtc.hpp>
-#include <thread>
-#include <chrono>
-#include <ratio>
+#include <terminal_sim.hpp>
 #include "kernel.hpp"
 
-namespace mptl {
-
-thread_local int reg_reaction::refcount;
-
-void reg_reaction::react()
+void mptl::sim::reg_reaction::react()
 {
   /* RCC: simulate the system clock setup */
   if(bits_set< reg::RCC::CR::HSEON >())
@@ -63,12 +55,10 @@ void reg_reaction::react()
   }
 
   /* provide a terminal on stdin/stdout */
-  terminal_reaction< Kernel::terminal_type >(*this).react<
+  stdio_terminal< Kernel::terminal_type >(*this).react<
     Kernel::usart::USARTx::CR1::RXNEIE,    /* start/stop terminal rx thread on RXNEIE */
     Kernel::usart::USARTx::CR1::TXEIE      /* start/stop terminal tx thread on TXEIE */
     >();
 }
-
-} // namespace mptl
 
 #endif // OPENMPTL_SIMULATION

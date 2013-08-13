@@ -1,6 +1,8 @@
 #ifndef COMPILER_H_INCLUDED
 #define COMPILER_H_INCLUDED
 
+#define __weak                   __attribute__((weak))
+
 /* Function attributes */
 #ifndef __always_inline
 # define __always_inline  inline __attribute__((always_inline))

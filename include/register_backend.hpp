@@ -22,24 +22,15 @@
 #define REGISTER_BACKEND_HPP_INCLUDED
 
 #include <compiler.h>
+#include <register_type.hpp>
 
 #ifdef OPENMPTL_SIMULATION
-#include <arch/reg/address_map.hpp>
-#include <iostream>
-#include <iomanip>
-#include <typeinfo>
-#include <bitset>
-#endif // OPENMPTL_SIMULATION
+#  include <register_sim.hpp>
+#endif
 
 namespace mptl {
 
-/** Register access */
-enum class reg_access { ro, wo, rw };
-
 #ifndef OPENMPTL_SIMULATION
-
-/** Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
-using reg_addr_t = uintptr_t;
 
 template< typename   Tp,
           reg_addr_t _addr,
@@ -91,48 +82,6 @@ struct regdef_backend
 #else  ////////////////////  OPENMPTL_SIMULATION  ////////////////////
 
 
-using reg_addr_t = uint32_t;
-
-#ifdef CONFIG_REGISTER_REACTION
-class reg_reaction
-{
-  static thread_local int refcount;
-
-  reg_addr_t addr;
-  uint32_t old_value;
-
-public:
-
-  template<typename Tp>
-  bool bits_set(void) const {
-    if(Tp::reg_type::addr != addr)
-      return false;
-    return (Tp::test() && !(old_value & Tp::value));
-  }
-
-  template<typename Tp>
-  bool bits_cleared(void) const {
-    if(Tp::reg_type::addr != addr)
-      return false;
-    return ((old_value & Tp::value) && !Tp::test());
-  }
-
-  static bool running(void) {
-    // assert(refcount >= 0);
-    return refcount != 0;
-  };
-
-  reg_reaction(reg_addr_t _addr, uint32_t _old_value) : addr(_addr), old_value(_old_value) {
-    refcount++;
-  };
-  ~reg_reaction(void) {
-    refcount--;
-  };
-  void react();
-};
-#endif // CONFIG_REGISTER_REACTION
-
-
 template< typename   Tp,
           reg_addr_t _addr,
           reg_access _access,
@@ -145,77 +94,14 @@ struct regdef_backend
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
 
-  static constexpr unsigned dump_bitsize = 32; /**< limit size to 32bit, since uint_fast16_t on 64bit system has 64bit width, making the output look crappy... */
-  static constexpr unsigned additional_space = 6;
-  static constexpr unsigned desc_max_width = 14;
-  static constexpr unsigned addr_width = sizeof(reg_addr_t) * 2 + 2;
-
-  static std::string bitfield_str(Tp const value) {
-    static constexpr std::size_t bitsize = sizeof(Tp) * 8;
-    static constexpr std::size_t print_bitsize = bitsize > dump_bitsize ? dump_bitsize : bitsize;
-
-    std::string s = std::bitset<print_bitsize>(value).to_string();
-    s.insert(0, (dump_bitsize - print_bitsize), ' ');    /* insert blanks to front */
-    for(unsigned i = dump_bitsize - 8; i > 0; i -= 8)
-      s.insert(i, 1, ' ');
-
-    return "[ " + s + " ]";
-  }
-
-  static void print_reg(Tp const value) {
-    static constexpr std::size_t size = sizeof(Tp);
-    static constexpr std::size_t print_size = size > (dump_bitsize / 8) ? (dump_bitsize / 8) : size;
-
-    std::cerr << std::setw((4 - print_size) * 2 + 2) << std::hex << std::right << "0x"
-              << std::setfill('0') << std::setw(print_size * 2) << +value;  // '+value' makes sure a char is printed as number
-
-#ifdef CONFIG_DUMP_REGISTER_BITFIELD
-    std::cerr << "   ";
-    std::cerr << bitfield_str(value);
-#endif // CONFIG_DUMP_REGISTER_BITFIELD
-
-#if 0    // mark cropped register with '~'
-    if(print_size < size)
-      std::cerr << "~";
+#ifdef CONFIG_DUMP_REGISTER_ACCESS
+  using dumper = sim::reg_dumper<Tp, addr>;
 #endif
-  }
-
-  static void print_address_map(void) {
-    if(reg::address_map<addr>::name_str)  /* lookup register name */
-      std::cerr << std::left << std::setfill(' ') << std::setw(addr_width + additional_space) << reg::address_map<addr>::name_str;
-    else
-      std::cerr << "0x" << std::hex << std::right << std::setfill('0') << std::setw(sizeof(reg_addr_t) * 2) << addr << std::setfill(' ')  << std::setw(additional_space) << "";
-  }
-
-  static void print_desc(const char * desc) {
-    std::cerr << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
-  }
-
-  static void print_info_line(const char * desc, Tp value) {
-    print_address_map();
-    print_desc(desc);
-    print_reg(value);
-    std::cerr << std::endl;
-  }
-
-#ifdef CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
-  static void print_info_line(const char * desc, Tp value_cur, Tp value_new) {
-    print_info_line("==", value_cur);
-    print_info_line(desc, value_new);
-  }
-#else
-  static void print_info_line(const char * desc, Tp, Tp value_new) {
-    print_info_line(desc, value_new);
-  }
-#endif // CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
 
   static Tp load() {
     static_assert(access != reg_access::wo, "read access to a write-only register");
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
-#ifdef CONFIG_REGISTER_REACTION
-    if(!reg_reaction::running())
-#endif
-      print_info_line("::load()", reg_value);
+    dumper::dump_register_load(reg_value);
 #endif // CONFIG_DUMP_REGISTER_ACCESS
     return reg_value;
   }
@@ -223,19 +109,11 @@ struct regdef_backend
   static void store(Tp const value) {
     static_assert(access != reg_access::ro, "write access to a read-only register");
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
-#ifdef CONFIG_REGISTER_REACTION
-    if(reg_reaction::running())
-      print_info_line("++react", reg_value, value);
-    else
-#endif // CONFIG_REGISTER_REACTION
-      if(reg_value == value)  // notify with '~' if cur=new (candidates for optimization!)
-        print_info_line("::store()~", reg_value, value);
-      else
-        print_info_line("::store()", reg_value, value);
-#endif // CONFIG_DUMP_REGISTER_ACCESS
+    dumper::dump_register_store(reg_value, value);
+#endif
 
 #ifdef CONFIG_REGISTER_REACTION
-    reg_reaction reaction(addr, reg_value);
+    sim::reg_reaction reaction(addr, reg_value);
 #endif
     reg_value = value;
 #ifdef CONFIG_REGISTER_REACTION

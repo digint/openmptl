@@ -18,20 +18,17 @@
  *
  */
 
-#ifndef SIMULATION_HPP_INCLUDED
-#define SIMULATION_HPP_INCLUDED
+#include <register_sim.hpp>
+#include <compiler.h>
+#include <iostream>
 
-#ifdef OPENMPTL_SIMULATION
-#  include <iostream>
-#  include <thread>
-#  define SIM_DEBUG(msg) std::clog << msg << std::endl
-#  define SIM_TRACE(msg) std::clog << msg << " - " << __PRETTY_FUNCTION__ << std::endl
-#  define SIM_RELAX      std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) )
-#else
-#  define SIM_DEBUG(msg)
-#  define SIM_TRACE(msg)
-#  define SIM_RELAX
-#endif // OPENMPTL_SIMULATION
+namespace mptl { namespace sim {
 
+__weak std::ostream & regdump_ostream = std::clog; /**< defaults to std::clog (weak symbol, can be overridden) */
+thread_local int      regdump_reaction_running = 0;
 
-#endif // SIMULATION_HPP_INCLUDED
+#ifdef CONFIG_SIM_THREADED
+std::mutex            regdump_mutex;
+#endif
+
+} } // namespace mptl::sim

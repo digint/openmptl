@@ -18,12 +18,9 @@
  *
  */
 
-#ifdef OPENMPTL_SIMULATION
-#  include <thread>
-#endif
-
 #include <arch/core.hpp>
 #include <terminal.hpp>
+#include <simulation.hpp>
 #include "terminal_hooks.hpp"
 #include "kernel.hpp"
 

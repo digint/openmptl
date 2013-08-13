@@ -30,6 +30,7 @@
 #include <terminal.hpp>
 #include <debouncer.hpp>
 #include <arch/dwt.hpp>  // cycle_counter
+#include <simulation.hpp>
 
 
 //#define DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES

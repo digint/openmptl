@@ -21,9 +21,6 @@
 #ifndef TERMINAL_SIM_HPP_INCLUDED
 #define TERMINAL_SIM_HPP_INCLUDED
 
-#ifdef OPENMPTL_SIMULATION
-#ifdef CONFIG_REGISTER_REACTION
-
 #include <simulation.hpp>
 #include <iostream>
 #include <thread>
@@ -32,7 +29,7 @@
 #include <ratio>
 #include <poll.h>
 
-namespace mptl {
+namespace mptl { namespace sim {
 
 /**
  * Simulate a terminal (Tp) on stdin/stdout, by starting rx/tx threads
@@ -40,25 +37,20 @@ namespace mptl {
  *
  * For use in reg_reaction::react().
  *
- * NOTE: The threads will use std::cin and std::cout, which are not
- * thread safe!
+ * NOTE: The threads use std::cin and std::cout without mutexes!
  */
 template<typename Tp>
-class terminal_reaction
+class stdio_terminal
 {
   reg_reaction const & reaction;
 
   static std::atomic<bool> terminal_rx_thread_terminate;
   static std::atomic<bool> terminal_tx_thread_terminate;
 
-public:
-
-  terminal_reaction(reg_reaction const & r): reaction(r) { }
-
   /**
    * Poll stdin, and feed result into stream_device_type::rx_fifo.
    *
-   * NOTE: we use std::cin, which is not thread safe.
+   * NOTE: This thread uses terminal::istream without mutexes!
    */
   static void terminal_rx_thread() {
     char c;
@@ -86,7 +78,7 @@ public:
   /**
    * Hook into stream_device_type::tx_fifo, and print output to stdout.
    *
-   * NOTE: we use std::cout, which is not thread safe.
+   * NOTE: This thread uses std::cout without mutexes!
    */
   static void terminal_tx_thread() {
     //  std::cout << "*** terminal_tx_thread() running" << std::endl;
@@ -101,6 +93,10 @@ public:
     }
     //  std::cout << "*** terminal_tx_thread() terminated" << std::endl;
   }
+
+public:
+
+  stdio_terminal(reg_reaction const & r): reaction(r) { }
 
   template<
     typename rx_trigger_regmask_type,
@@ -128,12 +124,9 @@ public:
   }
 };
 
-template<typename Tp> std::atomic<bool> terminal_reaction<Tp>::terminal_rx_thread_terminate;
-template<typename Tp> std::atomic<bool> terminal_reaction<Tp>::terminal_tx_thread_terminate;
+template<typename Tp> std::atomic<bool> stdio_terminal<Tp>::terminal_rx_thread_terminate;
+template<typename Tp> std::atomic<bool> stdio_terminal<Tp>::terminal_tx_thread_terminate;
 
-} // namespace mptl
-
-#endif // CONFIG_REGISTER_REACTION
-#endif // OPENMPTL_SIMULATION
+} } // namespace mptl::sim
 
 #endif // TERMINAL_SIM_HPP_INCLUDED

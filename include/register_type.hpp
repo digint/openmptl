@@ -18,20 +18,23 @@
  *
  */
 
-#ifndef SIMULATION_HPP_INCLUDED
-#define SIMULATION_HPP_INCLUDED
+#ifndef REGISTER_TYPE_HPP_INCLUDED
+#define REGISTER_TYPE_HPP_INCLUDED
 
-#ifdef OPENMPTL_SIMULATION
-#  include <iostream>
-#  include <thread>
-#  define SIM_DEBUG(msg) std::clog << msg << std::endl
-#  define SIM_TRACE(msg) std::clog << msg << " - " << __PRETTY_FUNCTION__ << std::endl
-#  define SIM_RELAX      std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) )
+#include <cstdint>
+
+namespace mptl {
+
+/** Register access */
+enum class reg_access { ro, wo, rw };
+
+#ifndef OPENMPTL_SIMULATION
+/** Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */
+using reg_addr_t = uintptr_t;
 #else
-#  define SIM_DEBUG(msg)
-#  define SIM_TRACE(msg)
-#  define SIM_RELAX
-#endif // OPENMPTL_SIMULATION
+using reg_addr_t = uint32_t;
+#endif
 
+} // namespace mptl
 
-#endif // SIMULATION_HPP_INCLUDED
+#endif // REGISTER_TYPE_HPP_INCLUDED

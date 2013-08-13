@@ -21,11 +21,11 @@
 #ifndef ARCH_REG_ADDRESS_MAP_HPP_INCLUDED
 #define ARCH_REG_ADDRESS_MAP_HPP_INCLUDED
 
-#include <cstdint>
+#include <register_type.hpp>
 
 namespace mptl { namespace reg {
 
-template<uintptr_t addr>
+template<reg_addr_t addr>
 struct address_map {
   static constexpr const char * name_str = nullptr;
 };

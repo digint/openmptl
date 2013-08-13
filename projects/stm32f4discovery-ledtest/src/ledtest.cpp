@@ -25,6 +25,7 @@
 #include <arch/nvic.hpp>
 #include <arch/reg/gpio.hpp>
 #include <typelist.hpp>
+#include <simulation.hpp>
 
 static constexpr char     led_port = 'D';
 static constexpr unsigned led_pin  = 12;
@@ -67,6 +68,8 @@ void __naked reset_isr(void) {
 
   while(1) {
     mptl::core::nop();
+
+    SIM_RELAX; // sleep a bit (don't eat up all cpu power)
   }
 }
 
@@ -85,35 +88,24 @@ mptl::isr_t clang_workaround_attribute_used(void) {
 }
 #endif // CONFIG_CLANG
 
+
 #else // OPENMPTL_SIMULATION
 
-#include <iostream>
 
-thread_local int mptl::reg_reaction::refcount;
-
-void mptl::reg_reaction::react() {
-  switch(addr) {
-  case reg::RCC::CR::addr:
-    if(bits_set< reg::RCC::CR::HSEON >()) {
-      reg::RCC::CR::HSERDY::set();
-    }
-    if(bits_set< reg::RCC::CR::PLLON >()) {
-      reg::RCC::CR::PLLRDY::set();
-    }
-    break;
-
-  case reg::RCC::CFGR::addr:
-    if(bits_set< reg::RCC::CFGR::SW::PLL >()) {
-      reg::RCC::CFGR::SWS::PLL::set();
-    }
-    break;
-  };
+void mptl::sim::reg_reaction::react() {
+  /* simulate the system clock setup */
+  if(bits_set< reg::RCC::CR::HSEON >())
+    reg::RCC::CR::HSERDY::set();
+  if(bits_set< reg::RCC::CR::PLLON >())
+    reg::RCC::CR::PLLRDY::set();
+  if(bits_set< reg::RCC::CFGR::SW::PLL >())
+    reg::RCC::CFGR::SWS::PLL::set();
 }
 
 //int main(int argc, char *argv[])
 int main(void)
 {
-  std::cout << "*** stm32f4discovery demo: starting simulation..." << std::endl;
+  std::cout << "*** stm32f4discovery ledtest: starting simulation..." << std::endl;
 
   reset_isr();
 }
