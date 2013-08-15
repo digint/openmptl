@@ -98,32 +98,12 @@ include $(OPENMPTL_TOP)/config/system.mk
 include $(OPENMPTL_TOP)/config/openmptl.mk
 INCLUDE     += $(OPENMPTL_INCLUDE)
 
-#SRCS        += $(OPENMPTL_SRC)
-#vpath %.cpp $(OPENMPTL_SRC_DIRS)
-
-
-#------------------------------------------------------------------------------
-# tinyfsm includes
-#
-#INCLUDE     += -I $(TINYFSM_TOP)/include
-
-
-#------------------------------------------------------------------------------
-# boost includes
-#
-#include $(OPENMPTL_TOP)/config/boost.mk
-#INCLUDE     += $(BOOST_INCLUDE)
-#FLAGS       += $(BOOST_FLAGS)
-
 
 #------------------------------------------------------------------------------
 # put all OBJ's to OBJ_DIR (flat!)
 #
 # NOTE: all source files need distinct names
 #
-
-#OBJS = $(SRCS:$(TOP)%=$(OBJ_DIR)%)
-#OBJS := $(addprefix $(OBJ_DIR)/, $SRCS)
 
 OBJS        := $(notdir $(SRCS) )
 ifdef CLANG_EMIT_LLVM
@@ -133,9 +113,8 @@ else
   OBJS      := $(OBJS:.cpp=.o)
   OBJS      := $(OBJS:.c=.o)
 endif
-OBJS      := $(OBJS:.S=.o)
+OBJS        := $(OBJS:.S=.o)
 
-#OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 
 
@@ -268,8 +247,9 @@ $(OBJ_DIR):
 	@$(MKDIR_P) $(OBJ_DIR)
 
 clean:
-	$(RM) $(HEX)
+	$(RM) $(BIN)
 	$(RM) $(ELF)
+	$(RM) $(HEX)
 	$(RM) $(MAP)
 	$(RM) $(LSS)
 	$(RM) $(OBJ_DIR)/*.bc

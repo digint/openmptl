@@ -103,9 +103,6 @@ include $(OPENMPTL_TOP)/config/system.mk
 include $(OPENMPTL_TOP)/config/openmptl.mk
 INCLUDE     += $(OPENMPTL_INCLUDE)
 
-#SRCS        += $(OPENMPTL_SRC)
-#vpath %.cpp $(OPENMPTL_SRC_DIRS)
-
 # add all drivers
 DRIVERS_SRC_DIRS = $(wildcard $(OPENMPTL_DRIVERS_DIR)/*/*)
 SRCS            += $(wildcard $(addsuffix /*.cpp, $(DRIVERS_SRC_DIRS)))
@@ -134,9 +131,6 @@ endif
 # NOTE: all source files need distinct names
 #
 
-#OBJS = $(SRCS:$(TOP)%=$(OBJ_DIR)%)
-#OBJS := $(addprefix $(OBJ_DIR)/, $SRCS)
-
 OBJS        := $(notdir $(SRCS) )
 ifdef CLANG_EMIT_LLVM
   OBJS      := $(OBJS:.cpp=.bc)
@@ -145,9 +139,8 @@ else
   OBJS      := $(OBJS:.cpp=.o)
   OBJS      := $(OBJS:.c=.o)
 endif
-OBJS      := $(OBJS:.S=.o)
+OBJS        := $(OBJS:.S=.o)
 
-#OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 
 
@@ -283,8 +276,9 @@ $(OBJ_DIR):
 	@$(MKDIR_P) $(OBJ_DIR)
 
 clean:
-	$(RM) $(HEX)
+	$(RM) $(BIN)
 	$(RM) $(ELF)
+	$(RM) $(HEX)
 	$(RM) $(MAP)
 	$(RM) $(LSS)
 	$(RM) $(OBJ_DIR)/*.bc

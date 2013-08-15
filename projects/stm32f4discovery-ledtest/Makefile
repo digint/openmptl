@@ -23,7 +23,6 @@
 PROJECT        = stm32f4discovery-ledtest
 
 OPENMPTL_TOP   = ../..
-TINYFSM_TOP    = ../../../tinyfsm
 
 OPENMPTL_ARCH  = arm/cortex/stm32/f4
 
@@ -75,6 +74,26 @@ include $(OPENMPTL_TOP)/config/simulation.mk
 
 
 #------------------------------------------------------------------------------
+# compiler-rt sources (experimental)
+#
+
+# libgcc does not provide __aeabi_memset, which is referenced by a
+# clang build. As a hotfix, we simply compile aeabi_memset.S from the
+# compiler-rt project.
+
+# NOTE: For this to work, you will need to download compiler-rt from
+# <http://llvm.org/releases> and unpack it to OPENMPTL_TOP.
+
+COMPILER_RT_TOP     = $(OPENMPTL_TOP)/compiler-rt
+COMPILER_RT_SRC_DIR = $(COMPILER_RT_TOP)/lib/arm
+
+ifdef CLANG
+  SRCS        += $(COMPILER_RT_SRC_DIR)/aeabi_memset.S
+  vpath %.S   $(COMPILER_RT_SRC_DIR)
+endif
+
+
+#------------------------------------------------------------------------------
 # build environment
 #
 include $(OPENMPTL_TOP)/config/gcc.mk
@@ -88,32 +107,12 @@ include $(OPENMPTL_TOP)/config/system.mk
 include $(OPENMPTL_TOP)/config/openmptl.mk
 INCLUDE     += $(OPENMPTL_INCLUDE)
 
-#SRCS        += $(OPENMPTL_SRC)
-#vpath %.cpp $(OPENMPTL_SRC_DIRS)
-
-
-#------------------------------------------------------------------------------
-# tinyfsm includes
-#
-#INCLUDE     += -I $(TINYFSM_TOP)/include
-
-
-#------------------------------------------------------------------------------
-# boost includes
-#
-#include $(OPENMPTL_TOP)/config/boost.mk
-#INCLUDE     += $(BOOST_INCLUDE)
-#FLAGS       += $(BOOST_FLAGS)
-
 
 #------------------------------------------------------------------------------
 # put all OBJ's to OBJ_DIR (flat!)
 #
 # NOTE: all source files need distinct names
 #
-
-#OBJS = $(SRCS:$(TOP)%=$(OBJ_DIR)%)
-#OBJS := $(addprefix $(OBJ_DIR)/, $SRCS)
 
 OBJS        := $(notdir $(SRCS) )
 ifdef CLANG_EMIT_LLVM
@@ -123,9 +122,8 @@ else
   OBJS      := $(OBJS:.cpp=.o)
   OBJS      := $(OBJS:.c=.o)
 endif
-OBJS      := $(OBJS:.S=.o)
+OBJS        := $(OBJS:.S=.o)
 
-#OBJS        := $(SRCS:$(TOP)%=$(OBJ_DIR)%)
 OBJS        := $(patsubst %, $(OBJ_DIR)/%, $(OBJS))
 
 
@@ -258,8 +256,9 @@ $(OBJ_DIR):
 	@$(MKDIR_P) $(OBJ_DIR)
 
 clean:
-	$(RM) $(HEX)
+	$(RM) $(BIN)
 	$(RM) $(ELF)
+	$(RM) $(HEX)
 	$(RM) $(MAP)
 	$(RM) $(LSS)
 	$(RM) $(OBJ_DIR)/*.bc
