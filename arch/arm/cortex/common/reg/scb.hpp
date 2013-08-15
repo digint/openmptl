@@ -159,7 +159,7 @@ struct SCB
 
     using type = regdef< uint32_t, 0xE000ED18 + 4 * reg_index, reg_access::rw >;
 
-    // TODO: magic template for PRI_xx
+    // TODO: template PRIx
     using PRI_N   = regbits< type,  0,  8 >;  /**< [ 7: 0] Priority of system handler 4,8, and 12. Mem Manage, reserved and Debug Monitor   */
     using PRI_N1  = regbits< type,  8,  8 >;  /**< [15: 8] Priority of system handler 5,9, and 13. Bus Fault, reserved and reserved         */
     using PRI_N2  = regbits< type, 16,  8 >;  /**< [23:16] Priority of system handler 6,10, and 14. Usage Fault, reserved and PendSV        */

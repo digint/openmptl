@@ -28,6 +28,8 @@
 #ifndef REGISTER_MANIP_HPP_INCLUDED
 #define REGISTER_MANIP_HPP_INCLUDED
 
+#warning "This is experimental code!"
+
 #include <compiler.h>
 
 namespace mptl {

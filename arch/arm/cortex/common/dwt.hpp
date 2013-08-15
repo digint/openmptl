@@ -54,7 +54,7 @@ public:
 /**
  * Cycle counter: Count processor clock cycles
  */
-class cycle_counter // TODO: correct namespace
+class cycle_counter
 {
   using DWT = reg::DWT;
   using value_type = decltype(dwt::cycle_counter_load());
