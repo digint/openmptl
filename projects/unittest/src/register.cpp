@@ -21,6 +21,9 @@
 #include <register.hpp>
 #include <register_manip.hpp>
 #include <cassert>
+#include <iostream>
+
+std::ostream & mptl::sim::regdump_ostream = std::cout;
 
 namespace mptl { namespace reg {
 
@@ -110,7 +113,7 @@ int main()
                 >::type::set_mask ==         0x7d935917, "");
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: template argument is not of same regdef<> type
+#warning "UNITTEST_MUST_FAIL: template argument is not of same regdef<> type"
   using merge_fail = TEST::REG::merge<
     regmask<TEST::REG, 0x11111111>,
     regmask<TEST::REG, 0x24824800>,
@@ -120,7 +123,7 @@ int main()
 #endif
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: template argument is not of same regdef<> type
+#warning "UNITTEST_MUST_FAIL: template argument is not of same regdef<> type"
   using merge_fail = regmask<TEST::REG2, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
 #endif
 
@@ -233,7 +236,7 @@ int main()
   assert(TEST::REG::BITS_4_7::CONST_d::test() == true);
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: clear_mask does not cover all bits of set_mask
+#warning "UNITTEST_MUST_FAIL: clear_mask does not cover all bits of set_mask"
   // -> value=0x1f does not fit into bits of R=TEST::REG::BITS_4_7
   regval<TEST::REG::BITS_4_7, 0x1f>::set();
 #endif
@@ -250,7 +253,7 @@ int main()
 
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: clear() is private on regval
+#warning "UNITTEST_MUST_FAIL: clear() is private on regval"
   TEST::REG::BITS_0_3::CONST_d::clear();
 #endif
 
@@ -276,7 +279,7 @@ int main()
   assert(TEST::REG::load() == 0x555555ff);
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: merged template arguments have different regdef<> type
+#warning "UNITTEST_MUST_FAIL: merged template arguments have different regdef<> type"
   TEST::REG::clear<TEST::REG2::BITS_0_7>();
 #endif
 

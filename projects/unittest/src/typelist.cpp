@@ -26,6 +26,8 @@
 #include <iostream>
 #include <iomanip>
 
+std::ostream & mptl::sim::regdump_ostream = std::cout;
+
 using namespace mptl;
 
 struct A : regdef< uint32_t, 0x1000, reg_access::rw, 0 > {};

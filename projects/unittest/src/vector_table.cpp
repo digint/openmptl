@@ -19,6 +19,7 @@
  */
 
 #include <arch/vector_table.hpp>
+#include <iostream>
 #include <cassert>
 
 using namespace mptl;

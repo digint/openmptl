@@ -31,7 +31,7 @@ while (my $infile = shift @ARGV) {
 
   open(INFILE, "<$infile") || die;
   {
-    local $/;                   # slurp the file
+    local $/;  # slurp the file
     $text = <INFILE>;
   }
   close(INFILE);
@@ -39,7 +39,7 @@ while (my $infile = shift @ARGV) {
   my $pre = '';
   my $count = 0;
 
-  while ($text =~ /UNITTEST_MUST_FAIL/ms) {
+  while ($text =~ /^\s*#ifdef\s+UNITTEST_MUST_FAIL/ms) {
     my $m = $&;
     $pre = $pre . $`;
     $text = $';

@@ -2,19 +2,16 @@ ifdef CLANG
 
 ifndef SIMULATION
 
-# if you did not build llvm/clang with:
-#
-#     --with-gcc-toolchain
-#     --with-default-sysroot
-#     --with-c-include-dirs
-#
-# you might want to uncomment the following:
-#
-
 GCC_VERSION=4.8.1
 TRIPLE=armv7m-none-eabi
 
 TOOLCHAIN_DIR=/opt/toolchain/$(TRIPLE)-$(GCC_VERSION)
+
+# Consider setting CLANG_CROSS_BUILD if you built llvm/clang with:
+#
+#     --with-gcc-toolchain
+#     --with-default-sysroot
+#     --with-c-include-dirs
 
 ifdef CLANG_CROSS_BUILD    # use prefixed clang
   CROSS_CLANG = $(CROSS)

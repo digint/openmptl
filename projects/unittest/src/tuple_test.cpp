@@ -28,6 +28,8 @@
 #include <tuple>
 #include <string>
 
+std::ostream & mptl::sim::regdump_ostream = std::cout;
+
 using namespace mptl;
 using namespace mptl::reg;
 
