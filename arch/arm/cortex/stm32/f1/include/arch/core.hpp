@@ -28,8 +28,7 @@
 namespace mptl {
 
 struct core
-: public core_asm,
-  public core_config
+: public core_asm
 {
   template<typename rcc,
            typename flash>

@@ -50,7 +50,7 @@ void Kernel::init(void)
   // resources::check(); // TODO: do we still need this?
 
   /* set all register from Kernel::resources<> */
-  mptl::core::configure< resources >();
+  mptl::make_reglist< resources >::reset_to();
 
   /* turn all leds off */
   led_green ::off();

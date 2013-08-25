@@ -47,27 +47,6 @@ struct core_asm
   static void nop(unsigned value) { while(value--) nop(); }
 };
 
-
-struct core_config
-{
-  /**
-   * Call regdef::reset_to() on each distinct merged regmask from list.
-   *
-   * Also see the "functor_reg_reset_to" documentation in
-   * register_mpl.hpp for a discussion about reset_to() and set().
-   */
-  template<typename list_type>
-  static void configure() {
-    SIM_DEBUG("core::configure()");
-#ifdef CONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
-    mpl::regmask_write<list_type, mpl::write_strategy::read_modify_write >();
-#else
-    mpl::regmask_write<list_type, mpl::write_strategy::reset_to >();
-#endif
-    SIM_DEBUG("~core::configure()");
-  }
-};
-
 } // namespace mptl
 
 #endif // ARM_CORTEX_COMMON_CORE_HPP_INCLUDED

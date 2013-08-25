@@ -85,7 +85,6 @@ public:
   terminal() : tx_stream(stream_device_type::tx_fifo) { }
 
   void open() const {
-    // stream_device_type::configure();
     stream_device_type::open();
   }
 

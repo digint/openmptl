@@ -42,10 +42,11 @@
 #include <arch/reg/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 
-static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::RCC::APB1ENR::reg_type   > >::mask_type::set_mask == 0x18020000, "apb1enr");
-static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::RCC::APB2ENR::reg_type   > >::mask_type::set_mask == 0x0000121c, "apb2enr");
-static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::GPIO<'C'>::CRL::reg_type > >::mask_type::set_mask == 0x34000000, "crl");
-static_assert(Kernel::resources::combined_type< mptl::resource::reg_shared_group< mptl::reg::GPIO<'C'>::CRH::reg_type > >::mask_type::set_mask == 0x00020383, "crh");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::reg::RCC::APB1ENR   >::set_mask == 0x18020000, "apb1enr");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::reg::RCC::APB2ENR   >::set_mask == 0x0000121c, "apb2enr");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::reg::GPIO<'C'>::CRL >::set_mask == 0x34000000, "crl");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::reg::GPIO<'C'>::CRH >::set_mask == 0x00020383, "crh");
+
 #endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 
 Kernel::terminal_type Kernel::terminal;
@@ -56,7 +57,7 @@ void Kernel::init(void)
   // resources::check(); // TODO: do we still need this?
 
   /* set all register from Kernel::resources<> */
-  mptl::core::configure< resources >();
+  mptl::make_reglist< resources >::reset_to();
 
   led::off();
 

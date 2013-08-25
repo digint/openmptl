@@ -62,7 +62,6 @@ OPENOCD_CONFIG += -f target/stm32f1x.cfg
 
 #FLAGS  += -DCONFIG_USE_STD_TUPLE
 #FLAGS  += -DCONFIG_USE_FRIENDS
-#FLAGS  += -DCONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
 
 
 #------------------------------------------------------------------------------

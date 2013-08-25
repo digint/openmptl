@@ -30,23 +30,23 @@ class joystick
   using button = mptl::gpio_input< 'C', 6, gpio_active_state::high >;
 
   using adc = mptl::adc< 1 >;
-  using adc_device = mptl::periph<
-    adc,
+  using adc_cfg = mptl::reglist<
     adc::external_trigger_conversion::software_start,
     adc::regular_channel_sequence_length< 1 >,
     adc::regular_channel_config< 15, 1, adc::sample_time::cycles_55_5 >
     >;
   
   static int adc_convert_blocking(void) {
-    adc_device::enable_software_start_conversion();
-    adc_device::wait_eoc();
-    return adc_device::get_conversion_value();
+    adc::enable_software_start_conversion();
+    adc::wait_eoc();
+    return adc::get_conversion_value();
   }
 
 public:
 
   using resources = mptl::typelist<
-    typename adc_device::resources,
+    typename adc::resources,
+    adc_cfg,
     typename button::resources,
 
     /* configure GPIO's */
@@ -56,11 +56,11 @@ public:
   enum class position { center, up, down, left, right };
 
   static void enable(void) {
-    adc_device::enable();
+    adc::enable();
   }
 
   static void configure(void) {
-    adc_device::configure();
+    adc::template configure< adc_cfg >();
   }
 
   static position get_position_blocking(void) {

@@ -38,17 +38,6 @@ class adc
 public:
   using resources = rcc_adc_clock_resources< adc_no >;
 
-  /** Register to be set on periph::configure() */
-  using config_reg_list = typelist< 
-    typename ADCx::CR1,
-    typename ADCx::CR2,
-    typename ADCx::SMPR1,
-    typename ADCx::SMPR2,
-    typename ADCx::SQR1,
-    typename ADCx::SQR2,
-    typename ADCx::SQR3
-    >;
-
   /** Sample time, for regular_channel_config<>  */
   enum class sample_time {
     cycles_1_5   = 0,   /**< 000:   1.5 cycles  */
@@ -111,7 +100,7 @@ private:
     static_assert((rank >= 1) && (rank <= 16), "invalid rank");
     static_assert(smp_value < 8, "invalid sample_time");
 
-    using type = typelist<
+    using type = reglist<
       regval< typename ADCx::template SMPRx<channel>::SMP, smp_value >,
       regval< typename ADCx::template SQRx<rank>::SQ, channel >
       >;
@@ -192,6 +181,26 @@ public:  /* ------ configuration traits ------ */
 
 
 public:  /* ------ static member functions ------ */
+
+  /**
+   * Configure ADC register using Tp type traits.
+   *
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
+  template< typename... Tp >
+  static void configure(void) {
+    SIM_DEBUG("adc::configure()");
+    reglist< Tp... >::template strict_reset_to<
+      typename ADCx::CR1,
+      typename ADCx::CR2,
+      typename ADCx::SMPR1,
+      typename ADCx::SMPR2,
+      typename ADCx::SQR1,
+      typename ADCx::SQR2,
+      typename ADCx::SQR3
+      >();
+    SIM_DEBUG("~adc::configure()");
+  }
 
   static void reset(void) {
     switch(adc_no) {

@@ -40,11 +40,6 @@ public:
 
   using resources = rcc_spi_clock_resources<spi_no>;
 
-  /** register to be set on periph::configure() */
-  using config_reg_list = typelist<
-    typename SPIx::CR1
-    >;
-
   static constexpr unsigned clk_freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
 
 private:
@@ -60,7 +55,7 @@ private:
 
 public:  /* ------ configuration traits ------ */
 
-  using master = typelist<
+  using master = reglist<
     regval< typename SPIx::CR1::MSTR, 1 >,
     regval< typename SPIx::CR1::SSI,  1 >
   >;
@@ -80,22 +75,22 @@ public:  /* ------ configuration traits ------ */
   using software_slave_management = regval< typename SPIx::CR1::SSM, 1 >;
 
   struct data_direction {
-    using two_lines_full_duplex = typelist<
+    using two_lines_full_duplex = reglist<
       regval< typename SPIx::CR1::BIDIMODE, 0 >,
       regval< typename SPIx::CR1::BIDIOE,   0 >,
       regval< typename SPIx::CR1::RXONLY,   0 >
       >;
-    using two_lines_rx_only = typelist<
+    using two_lines_rx_only = reglist<
       regval< typename SPIx::CR1::BIDIMODE, 0 >,
       regval< typename SPIx::CR1::BIDIOE,   0 >,
       regval< typename SPIx::CR1::RXONLY,   1 >
       >;
-    using one_line_rx = typelist<
+    using one_line_rx = reglist<
       regval< typename SPIx::CR1::BIDIMODE, 1 >,
       regval< typename SPIx::CR1::BIDIOE,   0 >,
       regval< typename SPIx::CR1::RXONLY,   0 >
       >;
-    using one_line_tx = typelist<
+    using one_line_tx = reglist<
       regval< typename SPIx::CR1::BIDIMODE, 1 >,
       regval< typename SPIx::CR1::BIDIOE,   1 >,
       regval< typename SPIx::CR1::RXONLY,   0 >
@@ -129,6 +124,30 @@ public:  /* ------ configuration traits ------ */
     >::type;
 
 public:  /* ------ static member functions ------ */
+
+  /**
+   * Configure SPI register using Tp type traits.
+   *
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
+  template< typename... Tp >
+  static void configure(void) {
+    reglist< Tp... >::template strict_reset_to<
+      typename SPIx::CR1
+      >();
+  }
+
+  /**
+   * Disable SPI, configure SPI register using Tp type traits, and enable SPI.
+   *
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
+  template< typename... Tp >
+  static void reconfigure(void) {
+    disable();
+    configure< Tp... >();
+    enable();
+  }
 
   static void reset_crc(void) {
     SPIx::CRCPR::reset();

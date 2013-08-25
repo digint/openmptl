@@ -24,7 +24,6 @@
 #include <arch/gpio.hpp>
 #include <arch/spi.hpp>
 #include <arch/core.hpp>
-#include <periph.hpp>
 
 namespace mptl { namespace device {
 
@@ -152,8 +151,7 @@ template<
   >
 class nokia3310 : public lcd_base< 84, 48 >
 {
-  using spi_device = mptl::periph<
-    spi_type,
+  using spi_cfg = mptl::typelist<
     typename spi_type::master,
     typename spi_type::template max_frequency< mhz(4) >,
     typename spi_type::template data_size< 8 >,
@@ -168,28 +166,28 @@ class nokia3310 : public lcd_base< 84, 48 >
     lcd_e::reset();
   }
   static void disable_slave_select(void) {
-    spi_device::wait_not_busy();
+    spi_type::wait_not_busy();
     lcd_e::set();
   }
 
   static void select_data() {
-    spi_device::wait_not_busy();
+    spi_type::wait_not_busy();
     lcd_ds::set(); /* select data */
   }
 
   static void select_command() {
-    spi_device::wait_not_busy();
+    spi_type::wait_not_busy();
     lcd_ds::reset(); /* select command */
   }
 
   static void send_byte(unsigned char data) {
-    spi_device::send_blocking(data);
+    spi_type::send_blocking(data);
   }
 
 public:
 
-  /* NOTE: don't add spi_device::resources to the resources list. The
-   * SPI configuration will be set upon spi_device::reconfigure().
+  /* NOTE: don't add spi_cfg to the resources list. The SPI
+   * configuration will be set upon spi_type::reconfigure<>().
    */
   using resources = mptl::typelist<
     typename spi_type::resources,
@@ -204,7 +202,7 @@ public:
     >;
 
   static void enable(void) {
-    spi_device::reconfigure();
+    spi_type::template reconfigure< spi_cfg >();
   }
 
   void update(void) {

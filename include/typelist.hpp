@@ -216,6 +216,14 @@ public:
 #endif // CONFIG_USE_STD_TUPLE
   }
 
+  /**
+   * Type trait providing value=true if every typelist<> element (aka: Tp...)
+   * has value=true.
+   */
+  struct all_true
+  : std::integral_constant< bool, mpl::all_true< Tp... >::value >
+  { };
+
 #if 0  // TODO: fix this
   /**
    * Check if elements derived from typelist_unique_element class are really
@@ -272,7 +280,7 @@ public: // see note about friends above
 template<typename unique_type>
 struct typelist_unique_element : typelist_element
 {
-  /* tag type, used in reglist::filter_type<> */
+  /** type trait for tagging, used in typelist::filter_type<> */
   using _typelist_unique_type = unique_type;
 };
 

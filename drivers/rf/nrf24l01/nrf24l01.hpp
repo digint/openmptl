@@ -23,7 +23,6 @@
 
 #include <arch/gpio.hpp>
 #include <arch/spi.hpp>
-#include <periph.hpp>
 
 namespace mptl { namespace device {
 
@@ -89,8 +88,7 @@ public:
 
 private:
 
-  using spi_device = mptl::periph<
-    spi_type,
+  using spi_cfg = mptl::reglist<
     typename spi_type::master,
     typename spi_type::template max_frequency< mhz(8) >,
     typename spi_type::template data_size< 8 >,
@@ -128,7 +126,7 @@ private:
   }
 
   static uint8_t writeread(uint8_t data) {
-    return spi_device::writeread_blocking(data);
+    return spi_type::writeread_blocking(data);
   }
 
   static uint8_t writeread(dev_command cmd) {
@@ -143,8 +141,8 @@ private:
   }
 public:
 
-  /* NOTE: don't add spi_device::resources to the resources list. The
-   * SPI configuration will be set upon spi_device::reconfigure().
+  /* NOTE: don't add spi_cfg to the resources list. The SPI
+   * configuration will be set upon spi_type::reconfigure<>().
    */
   using resources = mptl::typelist<
     typename spi_type::resources,
@@ -208,7 +206,7 @@ public:
   }
 
   static void enable() {
-    spi_device::reconfigure();
+    spi_type::template reconfigure< spi_cfg >();
   }
 };
 

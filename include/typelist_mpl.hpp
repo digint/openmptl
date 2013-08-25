@@ -252,7 +252,7 @@ struct unique_element_impl<T> {
 
 ////////////////////  unique_check_impl  ////////////////////
 
-
+#if 0  // fix this
 struct unique_base
 { };
 
@@ -282,6 +282,24 @@ struct unique_check_impl {
   using type = typename filtered_list::template map< map_unique >::type;
   static constexpr bool value = std::is_void<type>::value;
 };
+#endif
+
+////////////////////  all_true  ////////////////////
+
+
+/**
+ * Type trait providing value=true if every typelist<> element (aka: Tp...)
+ * is of same reg_type as one of Tregdef.
+ */
+template< typename... Tp >
+struct all_true {
+  static constexpr bool value = true;
+};
+template< typename Head, typename... Args >
+struct all_true< Head, Args... > {
+  static constexpr bool value = Head::value && all_true< Args... >::value;
+};
+
 
 } } // namespace mptl::mpl
 

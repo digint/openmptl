@@ -24,7 +24,6 @@
 #include <arch/nvic.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/usart.hpp>
-#include <periph.hpp>
 #include <type_traits>
 
 namespace mptl {
@@ -46,14 +45,6 @@ public:
   using irq = irq::usart<usart_no>;
 
   using resources = rcc_usart_clock_resources<usart_no>;
-
-  /** register to be set on periph::configure() */
-  using config_reg_list = typelist< 
-    typename USARTx::CR1,
-    typename USARTx::CR2,
-    typename USARTx::CR3,
-    typename USARTx::BRR
-    >;
 
 private:
 
@@ -106,15 +97,15 @@ public:  /* ------ configuration traits ------ */
 
   struct parity
   {
-    using even = typelist<
+    using even = reglist<
       regval< typename USARTx::CR1::PCE, 1 >,
       regval< typename USARTx::CR1::PS,  0 >
       >;
-    using odd = typelist<
+    using odd = reglist<
       regval< typename USARTx::CR1::PCE, 1 >,
       regval< typename USARTx::CR1::PS,  1 >
       >;
-    using disabled = typelist<
+    using disabled = reglist<
       regval< typename USARTx::CR1::PCE, 0 >,
       regval< typename USARTx::CR1::PS,  0 >
       >;
@@ -157,6 +148,33 @@ public:  /* ------ configuration traits ------ */
 
 
 public:  /* ------ static member functions ------ */
+
+  /**
+   * Configure USART register using Tp type traits.
+   *
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
+  template< typename... Tp >
+  static void configure(void) {
+    reglist< Tp... >::template strict_reset_to<
+      typename USARTx::CR1,
+      typename USARTx::CR2,
+      typename USARTx::CR3,
+      typename USARTx::BRR
+      >();
+  }
+
+  /**
+   * Disable USART, configure USART register using Tp type traits, and enable USART.
+   *
+   * NOTE: make sure no communication is ongoing when calling this function.
+   */
+  template< typename... Tp >
+  static void reconfigure(void) {
+    disable();
+    configure< Tp... >();
+    enable();
+  }
 
   /**
    * Set the BRR register to the value corresponding to the baud_rate

@@ -103,8 +103,7 @@ CXXFLAGS    += -Wctor-dtor-privacy
 CXXFLAGS    += -Wshadow
 CXXFLAGS    += -Wcast-qual
 CXXFLAGS    += -Wcast-align
-CXXFLAGS    += -Wno-cpp
-CXXFLAGS    += -pedantic
+#CXXFLAGS    += -pedantic
 
 
 .PHONY: all clean clean_fail test test_fail

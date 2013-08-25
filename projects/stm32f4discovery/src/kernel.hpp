@@ -49,12 +49,10 @@ struct Kernel
    * communication.
    */
   using usart = mptl::usart< 2, rcc, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
-  using usart_device = mptl::periph<
-    usart,
+  using usart_cfg = mptl::reglist<
 #ifdef DYNAMIC_BAUD_RATE
-    /* Explicitely do NOT set the baud_rate.
-     * This way it's not in usart_device::resources, and we set BRR by
-     * hand using usart::set_baud_rate(unsigned) in Kernel::init().
+    /* Explicitely do NOT set the baud_rate. Instead, we set BRR using
+     * usart::set_baud_rate(115200) in Kernel::init().
      */
 #else
     usart::baud_rate< 115200 >,
@@ -62,7 +60,7 @@ struct Kernel
     usart::enable_rx,
     usart::enable_tx
     >;
-  using usart_stream_device = mptl::usart_irq_stream< usart_device, mptl::ring_buffer<char, 512> >;
+  using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512> >;
   using terminal_type = mptl::terminal< usart_stream_device >;
 
   using led_green     = mptl::gpio_led< 'D', 12 >;
@@ -123,9 +121,8 @@ struct Kernel
 
   /* Define the resources typelist.
    *
-   * Note: listing usart::resources is actually not needed, since it
-   * is implicitely inherited in usart_device::resources (inherited by
-   * usart_stream_device::resources, inherited by terminal_type::resources).
+   * Note: listing usart_stream_device::resources is actually not needed, since it
+   * is implicitely inherited by terminal_type::resources.
    * Listing it multiple times would not harm, and is explicitely
    * allowed by mptl::core::configure<resources>().
    */
@@ -136,8 +133,8 @@ struct Kernel
     led_orange::resources,
     led_red::resources,
     led_blue::resources,
-    // usart::resources,                // implicit in usart_device::resources
-    // usart_device::resources,         // implicit in usart_stream_device::resources
+    usart::resources,
+    usart_cfg,
     // usart_stream_device::resources,  // implicit in terminal_type::resources
     terminal_type::resources
     >::type;

@@ -23,7 +23,6 @@
 
 #include <arch/rcc.hpp>
 #include <arch/reg/gpio.hpp>
-#include <periph.hpp>
 #include <gpio_base.hpp>
 #include <type_traits>
 

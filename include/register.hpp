@@ -147,10 +147,8 @@ public:
   static constexpr value_type cropped_clear_mask = clear_mask & ~set_mask;
 
   static __always_inline void set() {
-#ifndef CONFIG_DONT_RELY_ON_REGDEF_RESET_VALUES
     // TODO: improvement: check for clear_mask covering ALL bits of
     // our reg_type. if yes, use store() instead!
-#endif
     if((set_mask != 0) || (clear_mask != 0))  /* evaluated at compile-time */
       reg_type::set(set_mask, cropped_clear_mask);
   }
@@ -300,6 +298,17 @@ public:
   using reg_type   = type;
   using value_type = T;
 
+  /**
+   * regmask<> type, with following properties:
+   *
+   *   - some_regmask<>::merge< neutral_regmask >::type == some_regmask<>::type
+   *   - neutral_regmask::reset_to() == reg_type::store(reset_value)
+   *
+   * Note that having a neutral_regmask element in a reglist<> has the
+   * effect of resetting the register on a reglist<>::reset_to() call!
+   */
+  using neutral_regmask = regmask< reg_type, 0, 0 >;
+
   static constexpr value_type reset_value = _reset_value;
 
   static __always_inline value_type test(value_type const value) {
@@ -349,11 +358,109 @@ public:
   template<typename... Rm>
   static __always_inline void reset_to(void) {
     /* add a neutral regmask to the merge list, in order to handle empty template arguments correctly */
-    using neutral_regmask = regmask< reg_type, 0, 0 >;
     using merged_regmask = typename merge<neutral_regmask, Rm...>::type;
     type::store((reset_value & ~merged_regmask::cropped_clear_mask) | merged_regmask::set_mask);
   }
 };
+
+
+////////////////////  reglist  ////////////////////
+
+
+/**
+ * List of regmask<> types. Expands reglist<> types to its elements.
+ */
+template< typename... Tp >
+class reglist
+: public typelist< Tp... >
+{
+  using type = reglist< Tp... >;
+
+  using merged_list = typename type::template map< mpl::map_merged_regmask >;
+  using unique_merged_list = typename merged_list::filter_unique::type;
+
+public:
+
+  /**
+   * Call regdef::set() on each distinct merged regmask from reglist.
+   *
+   * Refer to the "mpl::functor_reg_set" documentation in
+   * register_mpl.hpp for a discussion about reset_to() and set().
+   */
+  static __always_inline void set(void) {
+    unique_merged_list::template for_each< mpl::functor_reg_set >();
+  }
+
+  /**
+   * Call regdef::reset_to() on each distinct merged regmask from reglist.
+   *
+   * Refer to the "mpl::functor_reg_reset_to" documentation in
+   * register_mpl.hpp for a discussion about reset_to() and set().
+   */
+  static __always_inline void reset_to(void) {
+    unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
+  }
+
+  /**
+   * Call regdef::reset_to() on each distinct merged regmask from
+   * reglist.
+   *
+   * Resets regdefs from strict_regdef_type if no regmask of same
+   * regdef_type is in reglist.
+   *
+   * Asserts all regmasks in reglist to be of regdef_type from any
+   * regdef in strict_regdef_type list.
+   */
+  template< typename... strict_regdef_type >
+  static __always_inline void strict_reset_to(void) {
+    static_assert(reglist< Tp... >::template all_regdef_type< strict_regdef_type... >::value,
+                  "one or more elements (aka: Tp...) are not of regdef_type listed in strict_regdef_type");
+
+    /* add neutral regmasks to the list, which enforces these registers to be set in reset_to() call. */
+    using strict_list = reglist<
+      typename strict_regdef_type::neutral_regmask...,
+      Tp...
+      >;
+
+    strict_list::reset_to();
+  }
+
+  /**
+   * Type trait providing value=true if every reglist<> element (aka:
+   * Tp...) is of same regdef_type as one of Tregdef, or if reglist<>
+   * contains no elements.
+   */
+  template< typename... Tregdef >
+  struct all_regdef_type {
+    using bool_list = typename type::template map< mpl::map_contains_regdef_type< Tregdef... > >;
+    static constexpr bool value = bool_list::all_true::value;
+  };
+
+  /**
+   * Provides a typelist, whose elements are a filtered subset of all
+   * reglist<> elements with underlying regdef_type = Tregdef
+   */
+  template< typename Tregdef >
+  using filter_regdef_type = typename type::template filter< mpl::filter_reg_type< Tregdef > >::type;
+
+  /**
+   * Provides a regmask<> type, merged by all elements in reglist<> of
+   * regdef_type Tregdef.
+   */
+  template< typename Tregdef >
+  using merged_regmask = typename reglist< unique_merged_list >::template filter_regdef_type< Tregdef >::unique_element::type;
+};
+
+
+/**
+ * Create a reglist<> from a list of any types Tp, while expanding
+ * typelist<> types.
+ *
+ * Ignores all non-regmask<> types in list (more exact: all types
+ * which are not derived from mpl::regmask_base).
+ */
+template< typename... Tp >
+using make_reglist = reglist< typename typelist< Tp... >::template filter_type< mpl::regmask_base > >;
 
 } // namespace mptl
 

@@ -92,17 +92,39 @@ struct pack_merged_regmask {
   };
 };
 
+
 /**
  * Map each element in list to a merged_regmask of all elements in
  * list having the same reg_type.
  */
 struct map_merged_regmask {
-  template<typename T, typename list_type>
+  template<typename Tp, typename list_type>
   struct map {
-    using filtered_list = typename list_type::template filter< filter_reg_type<T> >::type;
+    using filtered_list = typename list_type::template filter< filter_reg_type<Tp> >::type;
     using type = typename filtered_list::template pack< pack_merged_regmask >::type;
   };
 };
+
+
+/**
+ * Map each element (aka: Tp) in list to a
+ * std::integral_constant<bool,v> type, with v=true if the Tregdef
+ * list contains at least one element of type Tp.
+ *
+ * Used in conjunction with typelist::all_true to check a list for
+ * multiple regdef types.
+ */
+template< typename... Tregdef >
+struct map_contains_regdef_type {
+  template<typename Tp, typename list_type>
+  struct map {
+    using type = std::integral_constant<
+      bool,
+      typelist< typename Tregdef::reg_type... >::template contains< typename Tp::reg_type >::value
+      >;
+  };
+};
+
 
 /**
  * Calls regdef_type::reset_to<>() on a given typelist element type.
@@ -126,7 +148,6 @@ struct map_merged_regmask {
 struct functor_reg_reset_to {
   template<typename list_element_type>
   static void __always_inline command(void) {
-    // list_element_type::reg_type::template reset_to< list_element_type >();
     list_element_type::reset_to();
   }
 };
@@ -154,9 +175,10 @@ enum class write_strategy {
   reset_to
 }; 
 
-
+#if 0
 /**
  * Call regdef::reset_to() on each distinct merged regmask from list.
+ * Ignores all non-regmask<> types in list.
  *
  * Also see the "functor_reg_reset_to" documentation in
  * register_mpl.hpp for a discussion about reset_to() and set().
@@ -164,7 +186,7 @@ enum class write_strategy {
 template< typename typelist_type,
   write_strategy strategy = write_strategy::read_modify_write,
   typename... Tf
-        >
+  >
 static void regmask_write() {
   using regmask_list = typename typelist_type::template filter_type< regmask_base >;
   using merged_list  = typename regmask_list::template map< mpl::map_merged_regmask >;
@@ -175,6 +197,7 @@ static void regmask_write() {
   else
     unique_merged_list::template for_each< mpl::functor_reg_reset_to >();
 }
+#endif
 
 } } // namespace mptl::mpl
 
