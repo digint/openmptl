@@ -31,7 +31,7 @@ void SystemTime::systick_isr(void) {
 }
 
 void SystemTime::rtc_isr() {
-  Kernel::time::rtc::static_isr_wrap wrap;  // clears second flag in constructor
+  Kernel::rtc::clear_second_flag();
   Kernel::led::toggle();
 }
 

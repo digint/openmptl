@@ -1,5 +1,3 @@
-- remove isr_wrap stuff, this is more confusing than useful (too much c++ magic)
-
 - implement compile-time sorting of reglist<> (by addr), which can produce speedup
 
 - implement make_reg<> (analog to std::make_tuple<>, see register_manip.hpp for explanation!
