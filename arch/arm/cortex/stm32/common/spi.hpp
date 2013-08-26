@@ -145,8 +145,8 @@ public:  /* ------ static member functions ------ */
   template< typename... Tp >
   static void reconfigure(void) {
     disable();
-    configure< Tp... >();
-    enable();
+    /* configure and enable SPI in one register write */
+    configure< typename SPIx::CR1::SPE, Tp... >();
   }
 
   static void reset_crc(void) {
