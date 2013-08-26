@@ -165,18 +165,6 @@ public:  /* ------ static member functions ------ */
   }
 
   /**
-   * Disable USART, configure USART register using Tp type traits, and enable USART.
-   *
-   * NOTE: make sure no communication is ongoing when calling this function.
-   */
-  template< typename... Tp >
-  static void reconfigure(void) {
-    disable();
-    configure< Tp... >();
-    enable();
-  }
-
-  /**
    * Set the BRR register to the value corresponding to the baud_rate
    * provided.
    *
