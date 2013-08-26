@@ -54,11 +54,7 @@ namespace mpl
 
   template<const uint32_t *stack_top, typename... Tp>
   isr_t vector_table_impl<stack_top, Tp...>::isr_vector[size] = {
-#ifndef CONFIG_CLANG  // TODO: whats wrong with this?
-    reinterpret_cast<isr_t>(stack_top),
-#else
     (isr_t)stack_top,
-#endif
     Tp::value...
   };
 
