@@ -51,7 +51,7 @@ struct PWR
     {
       template<unsigned int fraction>
       struct voltage_threshold
-      : public regval< bits_type, fraction - 2 >
+      : public regval< regbits_type, fraction - 2 >
       { static_assert((fraction >= 2) && (fraction <= 9), "invalid fraction"); };
     };
 

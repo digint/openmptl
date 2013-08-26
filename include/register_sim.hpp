@@ -55,14 +55,14 @@ public:
 
   template<typename Tp>
   bool bits_set(void) const {
-    if(Tp::reg_type::addr != addr)
+    if(Tp::regdef_type::addr != addr)
       return false;
     return (Tp::test() && !(old_value & Tp::value));
   }
 
   template<typename Tp>
   bool bits_cleared(void) const {
-    if(Tp::reg_type::addr != addr)
+    if(Tp::regdef_type::addr != addr)
       return false;
     return ((old_value & Tp::value) && !Tp::test());
   }

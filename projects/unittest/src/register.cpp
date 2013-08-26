@@ -61,9 +61,9 @@ public:
   struct REG2
   : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >
   {
-    using reg_type = regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >;
+    using type = regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >;
 
-    using BITS_0_7 = regbits< reg_type, 0,  8 >;
+    using BITS_0_7 = regbits< type, 0,  8 >;
   };
 };
 

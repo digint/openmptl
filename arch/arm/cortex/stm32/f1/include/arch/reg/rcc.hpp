@@ -64,74 +64,74 @@ struct RCC
     struct SW
     : public regbits< type,  0,  2 >
     {
-      using HSI  = regval< bits_type, 0x0 >;          /**< 00: HSI selected as system clock   */
-      using HSE  = regval< bits_type, 0x1 >;          /**< 01: HSE selected as system clock   */
-      using PLL  = regval< bits_type, 0x2 >;          /**< 10: PLL selected as system clock   */
+      using HSI  = regval< regbits_type, 0x0 >;          /**< 00: HSI selected as system clock   */
+      using HSE  = regval< regbits_type, 0x1 >;          /**< 01: HSE selected as system clock   */
+      using PLL  = regval< regbits_type, 0x2 >;          /**< 10: PLL selected as system clock   */
     };
 
     /** System clock switch status  */
     struct SWS
     : public regbits< type,  2,  2 >
     {
-      using HSI  = regval< bits_type, 0x0 >;          /**< 00: HSI selected as system clock   */
-      using HSE  = regval< bits_type, 0x1 >;          /**< 01: HSE selected as system clock   */
-      using PLL  = regval< bits_type, 0x2 >;          /**< 10: PLL selected as system clock   */
+      using HSI  = regval< regbits_type, 0x0 >;          /**< 00: HSI selected as system clock   */
+      using HSE  = regval< regbits_type, 0x1 >;          /**< 01: HSE selected as system clock   */
+      using PLL  = regval< regbits_type, 0x2 >;          /**< 10: PLL selected as system clock   */
     };
 
     /** AHB prescaler  */
     struct HPRE
     : public regbits< type,  4,  4 >
     {
-      using DIV1    = regval< bits_type, 0x0 >;       /**< 0xxx: SYSCLK not divided      */
-      using DIV2    = regval< bits_type, 0x8 >;       /**< 1000: SYSCLK divided by 2     */
-      using DIV4    = regval< bits_type, 0x9 >;       /**< 1001: SYSCLK divided by 4     */
-      using DIV8    = regval< bits_type, 0xa >;       /**< 1010: SYSCLK divided by 8     */
-      using DIV16   = regval< bits_type, 0xb >;       /**< 1011: SYSCLK divided by 16    */
-      using DIV64   = regval< bits_type, 0xc >;       /**< 1100: SYSCLK divided by 64    */
-      using DIV128  = regval< bits_type, 0xd >;       /**< 1101: SYSCLK divided by 128   */
-      using DIV256  = regval< bits_type, 0xe >;       /**< 1110: SYSCLK divided by 256   */
-      using DIV512  = regval< bits_type, 0xf >;       /**< 1111: SYSCLK divided by 512   */
+      using DIV1    = regval< regbits_type, 0x0 >;       /**< 0xxx: SYSCLK not divided      */
+      using DIV2    = regval< regbits_type, 0x8 >;       /**< 1000: SYSCLK divided by 2     */
+      using DIV4    = regval< regbits_type, 0x9 >;       /**< 1001: SYSCLK divided by 4     */
+      using DIV8    = regval< regbits_type, 0xa >;       /**< 1010: SYSCLK divided by 8     */
+      using DIV16   = regval< regbits_type, 0xb >;       /**< 1011: SYSCLK divided by 16    */
+      using DIV64   = regval< regbits_type, 0xc >;       /**< 1100: SYSCLK divided by 64    */
+      using DIV128  = regval< regbits_type, 0xd >;       /**< 1101: SYSCLK divided by 128   */
+      using DIV256  = regval< regbits_type, 0xe >;       /**< 1110: SYSCLK divided by 256   */
+      using DIV512  = regval< regbits_type, 0xf >;       /**< 1111: SYSCLK divided by 512   */
     };
 
     /** APB low speed prescaler (APB1)  */
     struct PPRE1
     : public regbits< type,  8,  3 >
     {
-      using DIV1   = regval< bits_type, 0x0 >;        /**< 0xx: HCLK not divided     */
-      using DIV2   = regval< bits_type, 0x4 >;        /**< 100: HCLK divided by 2    */
-      using DIV4   = regval< bits_type, 0x5 >;        /**< 101: HCLK divided by 4    */
-      using DIV8   = regval< bits_type, 0x6 >;        /**< 110: HCLK divided by 8    */
-      using DIV16  = regval< bits_type, 0x7 >;        /**< 111: HCLK divided by 16   */
+      using DIV1   = regval< regbits_type, 0x0 >;        /**< 0xx: HCLK not divided     */
+      using DIV2   = regval< regbits_type, 0x4 >;        /**< 100: HCLK divided by 2    */
+      using DIV4   = regval< regbits_type, 0x5 >;        /**< 101: HCLK divided by 4    */
+      using DIV8   = regval< regbits_type, 0x6 >;        /**< 110: HCLK divided by 8    */
+      using DIV16  = regval< regbits_type, 0x7 >;        /**< 111: HCLK divided by 16   */
     };
 
     /** APB high speed prescaler (APB2)  */
     struct PPRE2
     : public regbits< type, 11,  3 >
     {
-      using DIV1   = regval< bits_type, 0x0 >;        /**< 0xx: HCLK not divided     */
-      using DIV2   = regval< bits_type, 0x4 >;        /**< 100: HCLK divided by 2    */
-      using DIV4   = regval< bits_type, 0x5 >;        /**< 101: HCLK divided by 4    */
-      using DIV8   = regval< bits_type, 0x6 >;        /**< 110: HCLK divided by 8    */
-      using DIV16  = regval< bits_type, 0x7 >;        /**< 111: HCLK divided by 16   */
+      using DIV1   = regval< regbits_type, 0x0 >;        /**< 0xx: HCLK not divided     */
+      using DIV2   = regval< regbits_type, 0x4 >;        /**< 100: HCLK divided by 2    */
+      using DIV4   = regval< regbits_type, 0x5 >;        /**< 101: HCLK divided by 4    */
+      using DIV8   = regval< regbits_type, 0x6 >;        /**< 110: HCLK divided by 8    */
+      using DIV16  = regval< regbits_type, 0x7 >;        /**< 111: HCLK divided by 16   */
     };
 
     /** ADC prescaler  */
     struct ADCPRE
     : public regbits< type, 14,  2 >
     {
-      using DIV2  = regval< bits_type, 0x0 >;         /**< 00: PCLK2 divided by 2   */
-      using DIV4  = regval< bits_type, 0x1 >;         /**< 01: PCLK2 divided by 4   */
-      using DIV6  = regval< bits_type, 0x2 >;         /**< 10: PCLK2 divided by 6   */
-      using DIV8  = regval< bits_type, 0x3 >;         /**< 11: PCLK2 divided by 8   */
+      using DIV2  = regval< regbits_type, 0x0 >;         /**< 00: PCLK2 divided by 2   */
+      using DIV4  = regval< regbits_type, 0x1 >;         /**< 01: PCLK2 divided by 4   */
+      using DIV6  = regval< regbits_type, 0x2 >;         /**< 10: PCLK2 divided by 6   */
+      using DIV8  = regval< regbits_type, 0x3 >;         /**< 11: PCLK2 divided by 8   */
     };
 
     /** PLL entry clock source  */
     struct PLLSRC
     : public regbits< type, 16,  1 >
     {
-      using HSI_DIV2  = regval< bits_type, 0x0 >;     /**< 00: HSI clock divided by 2 selected as PLL input clock   */
-      using HSE       = regval< bits_type, 0x1 >;     /**< 01: HSE oscillator clock selected as PLL input clock (not available on connectivity line devices!)  */
-      using PREDIV1   = regval< bits_type, 0x1 >;     /**< 01: Clock from PREDIV1 selected as PLL input clock (only available on connectivity line devices!)  */
+      using HSI_DIV2  = regval< regbits_type, 0x0 >;     /**< 00: HSI clock divided by 2 selected as PLL input clock   */
+      using HSE       = regval< regbits_type, 0x1 >;     /**< 01: HSE oscillator clock selected as PLL input clock (not available on connectivity line devices!)  */
+      using PREDIV1   = regval< regbits_type, 0x1 >;     /**< 01: Clock from PREDIV1 selected as PLL input clock (only available on connectivity line devices!)  */
     };
 
     /**
@@ -142,65 +142,65 @@ struct RCC
     : public regbits< type, 17,  1 >
     {
       /* Low-, medium-, high- and XL-density Devices */
-      using HSE_DIV1  = regval< bits_type, 0x0 >;     /**< 00: HSE clock not divided (not available on connectivity line devices!)   */
-      using HSE_DIV2  = regval< bits_type, 0x1 >;     /**< 01: HSE clock divided by 2 (not available on connectivity line devices!)  */
+      using HSE_DIV1  = regval< regbits_type, 0x0 >;     /**< 00: HSE clock not divided (not available on connectivity line devices!)   */
+      using HSE_DIV2  = regval< regbits_type, 0x1 >;     /**< 01: HSE clock divided by 2 (not available on connectivity line devices!)  */
 
       /* Connectivity line devices */
-      using PREDIV1_DIV1  = regval< bits_type, 0x0 >; /**< 00: PREDIV1 clock not divided for PLL entry (only available on connectivity line devices!)   */
-      using PREDIV1_DIV2  = regval< bits_type, 0x1 >; /**< 01: PREDIV1 clock divided by 2 for PLL entry (only available on connectivity line devices!)  */
+      using PREDIV1_DIV1  = regval< regbits_type, 0x0 >; /**< 00: PREDIV1 clock not divided for PLL entry (only available on connectivity line devices!)   */
+      using PREDIV1_DIV2  = regval< regbits_type, 0x1 >; /**< 01: PREDIV1 clock divided by 2 for PLL entry (only available on connectivity line devices!)  */
     };
 
     /** PLL Multiplication Factor  */
     struct PLLMUL
     : public regbits< type, 18,  4 >
     {
-      using MUL2    = regval< bits_type, 0x0 >;       /**< 0000: PLL input clock * 2  (not available on connectivity line devices!)  */
-      using MUL3    = regval< bits_type, 0x1 >;       /**< 0001: PLL input clock * 3  (not available on connectivity line devices!)  */
-      using MUL4    = regval< bits_type, 0x2 >;       /**< 0010: PLL input clock * 4  */
-      using MUL5    = regval< bits_type, 0x3 >;       /**< 0011: PLL input clock * 5  */
-      using MUL6    = regval< bits_type, 0x4 >;       /**< 0100: PLL input clock * 6  */
-      using MUL7    = regval< bits_type, 0x5 >;       /**< 0101: PLL input clock * 7  */
-      using MUL8    = regval< bits_type, 0x6 >;       /**< 0110: PLL input clock * 8  */
-      using MUL9    = regval< bits_type, 0x7 >;       /**< 0111: PLL input clock * 9  */
-      using MUL10   = regval< bits_type, 0x8 >;       /**< 1000: PLL input clock * 10  (not available on connectivity line devices!)  */
-      using MUL11   = regval< bits_type, 0x9 >;       /**< 1001: PLL input clock * 11  (not available on connectivity line devices!)  */
-      using MUL12   = regval< bits_type, 0xa >;       /**< 1010: PLL input clock * 12  (not available on connectivity line devices!)  */
-      using MUL13   = regval< bits_type, 0xb >;       /**< 1011: PLL input clock * 13  (not available on connectivity line devices!)  */
-      using MUL14   = regval< bits_type, 0xc >;       /**< 1100: PLL input clock * 14  (not available on connectivity line devices!)  */
-      using MUL15   = regval< bits_type, 0xd >;       /**< 1101: PLL input clock * 15  (not available on connectivity line devices!)  */
-      using MUL16   = regval< bits_type, 0xe >;       /**< 1110: PLL input clock * 16  (not available on connectivity line devices!)  */
-      using MUL6_5  = regval< bits_type, 0xd >;       /**< 1101: PLL input clock * 6.5 (only available on connectivity line devices!)  */
+      using MUL2    = regval< regbits_type, 0x0 >;       /**< 0000: PLL input clock * 2  (not available on connectivity line devices!)  */
+      using MUL3    = regval< regbits_type, 0x1 >;       /**< 0001: PLL input clock * 3  (not available on connectivity line devices!)  */
+      using MUL4    = regval< regbits_type, 0x2 >;       /**< 0010: PLL input clock * 4  */
+      using MUL5    = regval< regbits_type, 0x3 >;       /**< 0011: PLL input clock * 5  */
+      using MUL6    = regval< regbits_type, 0x4 >;       /**< 0100: PLL input clock * 6  */
+      using MUL7    = regval< regbits_type, 0x5 >;       /**< 0101: PLL input clock * 7  */
+      using MUL8    = regval< regbits_type, 0x6 >;       /**< 0110: PLL input clock * 8  */
+      using MUL9    = regval< regbits_type, 0x7 >;       /**< 0111: PLL input clock * 9  */
+      using MUL10   = regval< regbits_type, 0x8 >;       /**< 1000: PLL input clock * 10  (not available on connectivity line devices!)  */
+      using MUL11   = regval< regbits_type, 0x9 >;       /**< 1001: PLL input clock * 11  (not available on connectivity line devices!)  */
+      using MUL12   = regval< regbits_type, 0xa >;       /**< 1010: PLL input clock * 12  (not available on connectivity line devices!)  */
+      using MUL13   = regval< regbits_type, 0xb >;       /**< 1011: PLL input clock * 13  (not available on connectivity line devices!)  */
+      using MUL14   = regval< regbits_type, 0xc >;       /**< 1100: PLL input clock * 14  (not available on connectivity line devices!)  */
+      using MUL15   = regval< regbits_type, 0xd >;       /**< 1101: PLL input clock * 15  (not available on connectivity line devices!)  */
+      using MUL16   = regval< regbits_type, 0xe >;       /**< 1110: PLL input clock * 16  (not available on connectivity line devices!)  */
+      using MUL6_5  = regval< regbits_type, 0xd >;       /**< 1101: PLL input clock * 6.5 (only available on connectivity line devices!)  */
     };
 
     /** USB OTG FS prescaler (only available on connectivity line devices!)  */
     struct OTGFSPRE
     : public regbits< type, 22,  1 >
     {
-      using DIV3  = regval< bits_type, 0x0 >;
-      using DIV2  = regval< bits_type, 0x1 >;
+      using DIV3  = regval< regbits_type, 0x0 >;
+      using DIV2  = regval< regbits_type, 0x1 >;
     };
 
     /** USB prescaler (not available on connectivity line devices!) */
     struct USBPRE
     : public regbits< type, 22,  1 >
     {
-      using DIV1_5  = regval< bits_type, 0x0 >;
-      using DIV1    = regval< bits_type, 0x1 >;
+      using DIV1_5  = regval< regbits_type, 0x0 >;
+      using DIV1    = regval< regbits_type, 0x1 >;
     };
 
     /** Microcontroller Clock Output  */
     struct MCO
     : public regbits< type, 24,  4 >
     {
-      using NOCLOCK    = regval< bits_type, 0x0 >;   /**< 00xx: No clock                          */
-      using SYSCLK     = regval< bits_type, 0x4 >;   /**< 0100: System clock selected             */
-      using HSI        = regval< bits_type, 0x5 >;   /**< 0101: HSI clock selected                */
-      using HSE        = regval< bits_type, 0x6 >;   /**< 0110: HSE clock selected                */
-      using PLL_DIV2   = regval< bits_type, 0x7 >;   /**< 0111: PLL clock divided by 2 selected   */
-      using PLL2       = regval< bits_type, 0x8 >;   /**< 1000: PLL2 clock selected (only available on connectivity line devices!)                                             */
-      using PLL3_DIV2  = regval< bits_type, 0x9 >;   /**< 1001: PLL3 clock divided by 2 selected (only available on connectivity line devices!)                                 */
-      using Ext_HSE    = regval< bits_type, 0xa >;   /**< 1010: XT1 external 3-25 MHz oscillator clock selected (for Ethernet) (only available on connectivity line devices!)   */
-      using PLL3       = regval< bits_type, 0xb >;   /**< 1011: PLL3 clock selected (for Ethernet) (only available on connectivity line devices!)                               */
+      using NOCLOCK    = regval< regbits_type, 0x0 >;   /**< 00xx: No clock                          */
+      using SYSCLK     = regval< regbits_type, 0x4 >;   /**< 0100: System clock selected             */
+      using HSI        = regval< regbits_type, 0x5 >;   /**< 0101: HSI clock selected                */
+      using HSE        = regval< regbits_type, 0x6 >;   /**< 0110: HSE clock selected                */
+      using PLL_DIV2   = regval< regbits_type, 0x7 >;   /**< 0111: PLL clock divided by 2 selected   */
+      using PLL2       = regval< regbits_type, 0x8 >;   /**< 1000: PLL2 clock selected (only available on connectivity line devices!)                                             */
+      using PLL3_DIV2  = regval< regbits_type, 0x9 >;   /**< 1001: PLL3 clock divided by 2 selected (only available on connectivity line devices!)                                 */
+      using Ext_HSE    = regval< regbits_type, 0xa >;   /**< 1010: XT1 external 3-25 MHz oscillator clock selected (for Ethernet) (only available on connectivity line devices!)   */
+      using PLL3       = regval< regbits_type, 0xb >;   /**< 1011: PLL3 clock selected (for Ethernet) (only available on connectivity line devices!)                               */
     };
   };
 
@@ -393,9 +393,9 @@ struct RCC
     struct RTCSEL
     : public regbits< type,  8,  2 >
     {
-      using LSE = regval< bits_type, 0x1 >;  /**< 01: LSE oscillator clock used as RTC clock                  */
-      using LSI = regval< bits_type, 0x2 >;  /**< 10: LSI oscillator clock used as RTC clock                  */
-      using HSE = regval< bits_type, 0x3 >;  /**< 11: HSE oscillator clock divided by 128 used as RTC clock   */
+      using LSE = regval< regbits_type, 0x1 >;  /**< 01: LSE oscillator clock used as RTC clock                  */
+      using LSI = regval< regbits_type, 0x2 >;  /**< 10: LSI oscillator clock used as RTC clock                  */
+      using HSE = regval< regbits_type, 0x3 >;  /**< 11: HSE oscillator clock divided by 128 used as RTC clock   */
     };
 
     using RTCEN   = regbits< type, 15,  1 >;  /**< RTC clock enable                      */
@@ -446,24 +446,24 @@ struct RCC
     struct PREDIV1SRC
     : public regbits< type, 16,  1 >
     {
-      using HSE   = regval< bits_type, 0x0 >;  /**< 0: HSE oscillator clock selected as PREDIV1 clock entry   */
-      using PLL2  = regval< bits_type, 0x1 >;  /**< 1: PLL2 selected as PREDIV1 clock entry                   */
+      using HSE   = regval< regbits_type, 0x0 >;  /**< 0: HSE oscillator clock selected as PREDIV1 clock entry   */
+      using PLL2  = regval< regbits_type, 0x1 >;  /**< 1: PLL2 selected as PREDIV1 clock entry                   */
     };
 
     /** I2S2 clock source  */
     struct I2S2SRC
     : public regbits< type, 17,  1 >
     {
-      using SYSCLK  = regval< bits_type, 0x0 >;  /**< 0: System clock (SYSCLK) selected as I2Sx clock entry   */
-      using PLL3    = regval< bits_type, 0x1 >;  /**< 1: PLL3 VCO clock selected as I2Sx clock entry          */
+      using SYSCLK  = regval< regbits_type, 0x0 >;  /**< 0: System clock (SYSCLK) selected as I2Sx clock entry   */
+      using PLL3    = regval< regbits_type, 0x1 >;  /**< 1: PLL3 VCO clock selected as I2Sx clock entry          */
     };
 
     /** I2S3 clock source  */
     struct I2S3SRC
     : public regbits< type, 18,  1 >
     {
-      using SYSCLK  = regval< bits_type, 0x0 >;  /**< 0: System clock (SYSCLK) selected as I2S3 clock entry   */
-      using PLL3    = regval< bits_type, 0x1 >;  /**< 1: PLL3 VCO clock selected as I2S3 clock entry          */
+      using SYSCLK  = regval< regbits_type, 0x0 >;  /**< 0: System clock (SYSCLK) selected as I2S3 clock entry   */
+      using PLL3    = regval< regbits_type, 0x1 >;  /**< 1: PLL3 VCO clock selected as I2S3 clock entry          */
     };
   };
 };

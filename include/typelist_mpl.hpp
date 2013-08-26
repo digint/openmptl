@@ -252,6 +252,7 @@ struct unique_element_impl<T> {
 
 ////////////////////  unique_check_impl  ////////////////////
 
+
 #if 0  // fix this
 struct unique_base
 { };
@@ -284,12 +285,12 @@ struct unique_check_impl {
 };
 #endif
 
+
 ////////////////////  all_true  ////////////////////
 
 
 /**
- * Type trait providing value=true if every typelist<> element (aka: Tp...)
- * is of same reg_type as one of Tregdef.
+ * Type trait providing value=true if every element Tp has value==true.
  */
 template< typename... Tp >
 struct all_true {

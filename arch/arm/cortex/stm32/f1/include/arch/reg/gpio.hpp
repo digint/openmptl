@@ -53,10 +53,10 @@ struct GPIO
   struct CRx
   : public std::conditional< (pin_no < 8), CRL, CRH >::type
   {
-    using reg_type = typename std::conditional< (pin_no < 8), CRL, CRH >::type;
+    using type = typename std::conditional< (pin_no < 8), CRL, CRH >::type;
 
-    using CNF  = regbits< reg_type, (pin_no % 8) * 4 + 2, 2 >;
-    using MODE = regbits< reg_type, (pin_no % 8) * 4    , 2 >;
+    using CNF  = regbits< type, (pin_no % 8) * 4 + 2, 2 >;
+    using MODE = regbits< type, (pin_no % 8) * 4    , 2 >;
   };
 };
 

@@ -47,10 +47,10 @@ struct USART_common
   struct SR
   : public regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >
   {
-    // TODO: document why it sucks to have to define reg_type here
-    // again.  This is required here (by the standard) because the
-    // template parameter "base_addr" is used as template-parameter
-    // in our regdef<> base class:
+    // TODO: document why it sucks to have to define a typedef "type"
+    // here again.  This is required here (by the standard) because
+    // the template parameter "base_addr" is used as
+    // template-parameter in our regdef<> base class:
     //
     //   regdef< ..., base_addr + 0x00, ... >
     //                ^^^
@@ -66,22 +66,22 @@ struct USART_common
     //
     // This all has to do with specialization: the regdef<>
     // template could be specialized later on, possibly making
-    // reg_type unavailable.
+    // "type" unavailable.
     // 
     // see discussion here: http://stackoverflow.com/questions/1643035/propagating-typedef-from-based-to-derived-class-for-template
     //
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >;
 
-    using CTS   = regbits< reg_type,  9,  1 >;   /**< CTS flag                      */
-    using LBD   = regbits< reg_type,  8,  1 >;   /**< LIN break detection flag      */
-    using TXE   = regbits< reg_type,  7,  1 >;   /**< Transmit data register empty  */
-    using TC    = regbits< reg_type,  6,  1 >;   /**< Transmission complete         */
-    using RXNE  = regbits< reg_type,  5,  1 >;   /**< Read data register not empty  */
-    using IDLE  = regbits< reg_type,  4,  1 >;   /**< IDLE line detected            */
-    using ORE   = regbits< reg_type,  3,  1 >;   /**< Overrun error                 */
-    using NE    = regbits< reg_type,  2,  1 >;   /**< Noise error flag              */
-    using FE    = regbits< reg_type,  1,  1 >;   /**< Framing error                 */
-    using PE    = regbits< reg_type,  0,  1 >;   /**< Parity error                  */
+    using CTS   = regbits< type,  9,  1 >;   /**< CTS flag                      */
+    using LBD   = regbits< type,  8,  1 >;   /**< LIN break detection flag      */
+    using TXE   = regbits< type,  7,  1 >;   /**< Transmit data register empty  */
+    using TC    = regbits< type,  6,  1 >;   /**< Transmission complete         */
+    using RXNE  = regbits< type,  5,  1 >;   /**< Read data register not empty  */
+    using IDLE  = regbits< type,  4,  1 >;   /**< IDLE line detected            */
+    using ORE   = regbits< type,  3,  1 >;   /**< Overrun error                 */
+    using NE    = regbits< type,  2,  1 >;   /**< Noise error flag              */
+    using FE    = regbits< type,  1,  1 >;   /**< Framing error                 */
+    using PE    = regbits< type,  0,  1 >;   /**< Parity error                  */
   };
 
   /**
@@ -90,9 +90,9 @@ struct USART_common
   struct DR
   : public regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >
   {
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >;
 
-    using bits_type = regbits< reg_type,  0,  9 >;   /**< Data value  */
+    using regbits_type = regbits< type,  0,  9 >;   /**< Data value  */
   };
 
   /**
@@ -101,10 +101,10 @@ struct USART_common
   struct BRR
   : public regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >
   {
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >;
 
-    using DIV_Mantissa = regbits< reg_type,  4, 12 >;   /**< mantissa of USARTDIV  */
-    using DIV_Fraction = regbits< reg_type,  0,  4 >;   /**< fraction of USARTDIV  */
+    using DIV_Mantissa = regbits< type,  4, 12 >;   /**< mantissa of USARTDIV  */
+    using DIV_Fraction = regbits< type,  0,  4 >;   /**< fraction of USARTDIV  */
   };
 
   /**
@@ -113,22 +113,22 @@ struct USART_common
   struct CR1
   : public regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >
   {
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >;
 
-    using UE      = regbits< reg_type, 13,  1 >;   /**< USART enable                            */
-    using M       = regbits< reg_type, 12,  1 >;   /**< Word length                             */
-    using WAKE    = regbits< reg_type, 11,  1 >;   /**< Wakeup method                           */
-    using PCE     = regbits< reg_type, 10,  1 >;   /**< Parity control enable                   */
-    using PS      = regbits< reg_type,  9,  1 >;   /**< Parity selection                        */
-    using PEIE    = regbits< reg_type,  8,  1 >;   /**< PE interrupt enable                     */
-    using TXEIE   = regbits< reg_type,  7,  1 >;   /**< TXE interrupt enable                    */
-    using TCIE    = regbits< reg_type,  6,  1 >;   /**< Transmission complete interrupt enable  */
-    using RXNEIE  = regbits< reg_type,  5,  1 >;   /**< RXNE interrupt enable                   */
-    using IDLEIE  = regbits< reg_type,  4,  1 >;   /**< IDLE interrupt enable                   */
-    using TE      = regbits< reg_type,  3,  1 >;   /**< Transmitter enable                      */
-    using RE      = regbits< reg_type,  2,  1 >;   /**< Receiver enable                         */
-    using RWU     = regbits< reg_type,  1,  1 >;   /**< Receiver wakeup                         */
-    using SBK     = regbits< reg_type,  0,  1 >;   /**< Send break                              */
+    using UE      = regbits< type, 13,  1 >;   /**< USART enable                            */
+    using M       = regbits< type, 12,  1 >;   /**< Word length                             */
+    using WAKE    = regbits< type, 11,  1 >;   /**< Wakeup method                           */
+    using PCE     = regbits< type, 10,  1 >;   /**< Parity control enable                   */
+    using PS      = regbits< type,  9,  1 >;   /**< Parity selection                        */
+    using PEIE    = regbits< type,  8,  1 >;   /**< PE interrupt enable                     */
+    using TXEIE   = regbits< type,  7,  1 >;   /**< TXE interrupt enable                    */
+    using TCIE    = regbits< type,  6,  1 >;   /**< Transmission complete interrupt enable  */
+    using RXNEIE  = regbits< type,  5,  1 >;   /**< RXNE interrupt enable                   */
+    using IDLEIE  = regbits< type,  4,  1 >;   /**< IDLE interrupt enable                   */
+    using TE      = regbits< type,  3,  1 >;   /**< Transmitter enable                      */
+    using RE      = regbits< type,  2,  1 >;   /**< Receiver enable                         */
+    using RWU     = regbits< type,  1,  1 >;   /**< Receiver wakeup                         */
+    using SBK     = regbits< type,  0,  1 >;   /**< Send break                              */
   };
 
   /**
@@ -137,17 +137,17 @@ struct USART_common
   struct CR2
   : public regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >
   {
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >;
 
-    using LINEN  = regbits< reg_type, 14,  1 >;   /**< LIN mode enable                       */
-    using STOP   = regbits< reg_type, 12,  2 >;   /**< STOP bits                             */
-    using CLKEN  = regbits< reg_type, 11,  1 >;   /**< Clock enable                          */
-    using CPOL   = regbits< reg_type, 10,  1 >;   /**< Clock polarity                        */
-    using CPHA   = regbits< reg_type,  9,  1 >;   /**< Clock phase                           */
-    using LBCL   = regbits< reg_type,  8,  1 >;   /**< Last bit clock pulse                  */
-    using LBDIE  = regbits< reg_type,  6,  1 >;   /**< LIN break detection interrupt enable  */
-    using LBDL   = regbits< reg_type,  5,  1 >;   /**< LIN break detection length            */
-    using ADD    = regbits< reg_type,  0,  4 >;   /**< Address of the USART node             */
+    using LINEN  = regbits< type, 14,  1 >;   /**< LIN mode enable                       */
+    using STOP   = regbits< type, 12,  2 >;   /**< STOP bits                             */
+    using CLKEN  = regbits< type, 11,  1 >;   /**< Clock enable                          */
+    using CPOL   = regbits< type, 10,  1 >;   /**< Clock polarity                        */
+    using CPHA   = regbits< type,  9,  1 >;   /**< Clock phase                           */
+    using LBCL   = regbits< type,  8,  1 >;   /**< Last bit clock pulse                  */
+    using LBDIE  = regbits< type,  6,  1 >;   /**< LIN break detection interrupt enable  */
+    using LBDL   = regbits< type,  5,  1 >;   /**< LIN break detection length            */
+    using ADD    = regbits< type,  0,  4 >;   /**< Address of the USART node             */
   };
 
   /**
@@ -156,19 +156,19 @@ struct USART_common
   struct CR3
   : public regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >
   {
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >;
 
-    using CTSIE  = regbits< reg_type, 10,  1 >;   /**< CTS interrupt enable    */
-    using CTSE   = regbits< reg_type,  9,  1 >;   /**< CTS enable              */
-    using RTSE   = regbits< reg_type,  8,  1 >;   /**< RTS enable              */
-    using DMAT   = regbits< reg_type,  7,  1 >;   /**< DMA enable transmitter  */
-    using DMAR   = regbits< reg_type,  6,  1 >;   /**< DMA enable receiver     */
-    using SCEN   = regbits< reg_type,  5,  1 >;   /**< Smartcard mode enable   */
-    using NACK   = regbits< reg_type,  4,  1 >;   /**< Smartcard NACK enable   */
-    using HDSEL  = regbits< reg_type,  3,  1 >;   /**< Half-duplex selection   */
-    using IRLP   = regbits< reg_type,  2,  1 >;   /**< IrDA low-power          */
-    using IREN   = regbits< reg_type,  1,  1 >;   /**< IrDA mode enable        */
-    using EIE    = regbits< reg_type,  0,  1 >;   /**< Error interrupt enable  */
+    using CTSIE  = regbits< type, 10,  1 >;   /**< CTS interrupt enable    */
+    using CTSE   = regbits< type,  9,  1 >;   /**< CTS enable              */
+    using RTSE   = regbits< type,  8,  1 >;   /**< RTS enable              */
+    using DMAT   = regbits< type,  7,  1 >;   /**< DMA enable transmitter  */
+    using DMAR   = regbits< type,  6,  1 >;   /**< DMA enable receiver     */
+    using SCEN   = regbits< type,  5,  1 >;   /**< Smartcard mode enable   */
+    using NACK   = regbits< type,  4,  1 >;   /**< Smartcard NACK enable   */
+    using HDSEL  = regbits< type,  3,  1 >;   /**< Half-duplex selection   */
+    using IRLP   = regbits< type,  2,  1 >;   /**< IrDA low-power          */
+    using IREN   = regbits< type,  1,  1 >;   /**< IrDA mode enable        */
+    using EIE    = regbits< type,  0,  1 >;   /**< Error interrupt enable  */
   };
 
   /**
@@ -177,10 +177,10 @@ struct USART_common
   struct GTPR
   : public regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >
   {
-    using reg_type = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >;
+    using type = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >;
 
-    using GT   = regbits< reg_type,  8,  8 >;   /**< Guard time value  */
-    using PSC  = regbits< reg_type,  0,  8 >;   /**< Prescaler value   */
+    using GT   = regbits< type,  8,  8 >;   /**< Guard time value  */
+    using PSC  = regbits< type,  0,  8 >;   /**< Prescaler value   */
   };
 };
 

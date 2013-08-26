@@ -63,7 +63,7 @@ struct RTC
   struct PRLH
   : public regdef< std::uint_fast16_t, base_addr + 0x8, reg_access::wo, 0x0000 >
   {
-    using bits_type = regbits< type,  0,  4 >;  /**< RTC Prescaler Load Register High  */
+    using regbits_type = regbits< type,  0,  4 >;  /**< RTC Prescaler Load Register High  */
   };
 
   /**
@@ -72,7 +72,7 @@ struct RTC
   struct PRLL
   : public regdef< std::uint_fast16_t, base_addr + 0xc, reg_access::wo, 0x8000 >
   {
-    using bits_type = regbits< type,  0, 16 >;  /**< RTC Prescaler Divider Register Low  */
+    using regbits_type = regbits< type,  0, 16 >;  /**< RTC Prescaler Divider Register Low  */
   };
 
   /**
@@ -81,7 +81,7 @@ struct RTC
   struct DIVH
   : public regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::ro, 0x0000 >
   {
-    using bits_type = regbits< type,  0,  4 >;  /**< RTC prescaler divider register high  */
+    using regbits_type = regbits< type,  0,  4 >;  /**< RTC prescaler divider register high  */
   };
 
   /**
@@ -90,7 +90,7 @@ struct RTC
   struct DIVL
   : public regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::ro, 0x8000 >
   {
-    using bits_type = regbits< type,  0, 16 >;  /**< RTC prescaler divider register Low  */
+    using regbits_type = regbits< type,  0, 16 >;  /**< RTC prescaler divider register Low  */
   };
 
   /**
@@ -99,7 +99,7 @@ struct RTC
   struct CNTH
   : public regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >
   {
-    using bits_type = regbits< type,  0, 16 >;  /**< RTC counter register high  */
+    using regbits_type = regbits< type,  0, 16 >;  /**< RTC counter register high  */
   };
 
   /**
@@ -108,7 +108,7 @@ struct RTC
   struct CNTL
   : public regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >
   {
-    using bits_type = regbits< type,  0, 16 >;  /**< RTC counter register Low  */
+    using regbits_type = regbits< type,  0, 16 >;  /**< RTC counter register Low  */
   };
 
   /**
@@ -117,7 +117,7 @@ struct RTC
   struct ALRH
   : public regdef< std::uint_fast16_t, base_addr + 0x20, reg_access::wo, 0xFFFF >
   {
-    using bits_type = regbits< type,  0, 16 >;  /**< RTC alarm register high  */
+    using regbits_type = regbits< type,  0, 16 >;  /**< RTC alarm register high  */
   };
 
   /**
@@ -126,7 +126,7 @@ struct RTC
   struct ALRL
   : public regdef< std::uint_fast16_t, base_addr + 0x24, reg_access::wo, 0xFFFF >
   {
-    using bits_type = regbits< type,  0, 16 >;  /**< RTC alarm register low  */
+    using regbits_type = regbits< type,  0, 16 >;  /**< RTC alarm register low  */
   };
 };
 

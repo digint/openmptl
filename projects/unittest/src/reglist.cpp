@@ -93,7 +93,7 @@ int main()
   assert(C::load() == 0xff);
 
 #ifdef UNITTEST_MUST_FAIL
-#warning UNITTEST_MUST_FAIL: no type named 'reg_type' in 'Dummy'
+#warning UNITTEST_MUST_FAIL: no type named 'regdef_type' in 'Dummy'
   bool fail = list_dirty::all_regdef_type< A, B >::value;
 #endif
 

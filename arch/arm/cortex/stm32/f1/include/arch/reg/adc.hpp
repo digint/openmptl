@@ -147,8 +147,8 @@ struct ADC
   : public std::conditional< (channel > 9), SMPR1, SMPR2 >::type
   {
     static_assert(channel <= 17, "invalid channel");
-    using reg_type = typename std::conditional< (channel > 9), SMPR1, SMPR2 >::type;
-    using SMP = regbits< reg_type, (channel % 10) * 3, 3 >;
+    using type = typename std::conditional< (channel > 9), SMPR1, SMPR2 >::type;
+    using SMP = regbits< type, (channel % 10) * 3, 3 >;
   };
 
   /**
@@ -245,10 +245,10 @@ struct ADC
   {
     static_assert((rank >= 1) && (rank <= 16), "invalid rank");
 
-    using reg_type = typename std::conditional< (rank > 12), SQR1,
+    using type = typename std::conditional< (rank > 12), SQR1,
       typename std::conditional< (rank > 6), SQR2, SQR3 >::type >::type;
 
-    using SQ = regbits< reg_type, ((rank - 1) % 6) * 5, 5 >;
+    using SQ = regbits< type, ((rank - 1) % 6) * 5, 5 >;
   };
 
   /**

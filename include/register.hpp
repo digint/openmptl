@@ -103,16 +103,16 @@ using merged_regmask = mpl::merged_regmask<Tp...>::type;
 
 ////////////////////  regmask  ////////////////////
 
-// TODO: global replace reg_type with regdef_type
 
-
-template< typename R,    /* regdef<> type */
-          typename R::value_type _set_mask,
-          typename R::value_type _clear_mask = _set_mask
-          >
-class regmask : public mpl::regmask_base
+template<
+  typename Tp,    /* regdef<> type */
+  typename Tp::value_type _set_mask,
+  typename Tp::value_type _clear_mask = _set_mask
+  >
+class regmask
+: public mpl::regmask_base
 {
-  static_assert(std::is_same<typename R::type, typename R::reg_type>::value, "template argument R is not of type: regdef<>");
+  static_assert(std::is_same<typename Tp::type, typename Tp::regdef_type>::value, "template argument Tp is not of type: regdef<>");
   static_assert((_set_mask | _clear_mask) == _clear_mask, "clear_mask does not cover all bits of set_mask");
 
 #ifndef CONFIG_USE_STD_TUPLE
@@ -121,10 +121,10 @@ class regmask : public mpl::regmask_base
 #endif // CONFIG_USE_STD_TUPLE
 
 public:
-  using type       = regmask<typename R::reg_type, _set_mask, _clear_mask>;
-  using mask_type  = type;
-  using reg_type   = typename R::reg_type;
-  using value_type = typename R::value_type;
+  using type         = regmask<typename Tp::regdef_type, _set_mask, _clear_mask>;
+  using regdef_type  = typename Tp::regdef_type;
+  using regmask_type = type;
+  using value_type   = typename Tp::value_type;
 
   static constexpr value_type set_mask   = _set_mask;
   static constexpr value_type clear_mask = _clear_mask;
@@ -148,39 +148,38 @@ public:
 
   static __always_inline void set() {
     // TODO: improvement: check for clear_mask covering ALL bits of
-    // our reg_type. if yes, use store() instead!
+    // our regdef_type. if yes, use store() instead!
     if((set_mask != 0) || (clear_mask != 0))  /* evaluated at compile-time */
-      reg_type::set(set_mask, cropped_clear_mask);
+      regdef_type::set(set_mask, cropped_clear_mask);
   }
   static __always_inline void clear() {
     if(clear_mask != 0)  /* evaluated at compile-time */
-      reg_type::clear(clear_mask);
+      regdef_type::clear(clear_mask);
   }
   static __always_inline bool test() {
     if(clear_mask != 0)  /* evaluated at compile-time */
-      return (reg_type::load() & clear_mask) == set_mask;
+      return (regdef_type::load() & clear_mask) == set_mask;
     return set_mask == 0;
   }
 
-  /* reset register, combined with set/clear mask (results in single store()) */
+  /** reset register, combined with set/clear mask (results in single store()) */
   static __always_inline void reset_to(void) {
-    reg_type::store((reg_type::reset_value & ~cropped_clear_mask) | set_mask);
+    regdef_type::store((regdef_type::reset_value & ~cropped_clear_mask) | set_mask);
   }
 
   /**
-   * Merge set_mask and clear_mask with the values of another regmask
-   * type (Rm).
+   * Merge set_mask and clear_mask with the values of another
+   * regmask<> type Up.
    */
   template<typename Rm>
   struct merge {
-    static_assert(std::is_same<typename Rm::reg_type, reg_type>::value, "template argument is not of same regdef<> type");
+    static_assert(std::is_same<typename Rm::regdef_type, regdef_type>::value, "template argument is not of same regdef<> type");
 
     /* assert if we set a bit which was previously cleared (and vice versa) */
-    static_assert(!((Rm::set_mask & clear_mask) & (~set_mask)),     "set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour.");
-    static_assert(!((set_mask & Rm::clear_mask) & (~Rm::set_mask)), "set/clear check failed: clearing a bit which was previously set leads to undefined behaviour.");
+    static_assert(!((Rm::set_mask & clear_mask) & (~set_mask)),     "set/clear check failed: setting a bit which was previously cleared");
+    static_assert(!((set_mask & Rm::clear_mask) & (~Rm::set_mask)), "set/clear check failed: clearing a bit which was previously set");
 
-    using type = regmask<reg_type, (set_mask | Rm::set_mask), (clear_mask | Rm::clear_mask)>;
-    //    using type = typename regmask_merge<mask_type, Rm>::type;
+    using type = regmask<regdef_type, (set_mask | Rm::set_mask), (clear_mask | Rm::clear_mask)>;
   };
 };
 
@@ -188,15 +187,17 @@ public:
 ////////////////////  regbits  ////////////////////
 
 
-template< typename R,          /* regdef<> type */
-          unsigned offset,     /* bit offset */
-          unsigned width = 1   /* number of bits */
-          >
-class regbits : public regmask<R, ((1ul << width) - 1) << offset>
+template<
+  typename Tp,         /* regdef<> type */
+  unsigned offset,     /* bit offset */
+  unsigned width = 1   /* number of bits */
+  >
+class regbits
+: public regmask<Tp, ((1ul << width) - 1) << offset>
 {
-  static_assert(std::is_same<typename R::type, typename R::reg_type>::value, "template argument R is not of type: regdef<>");
+  static_assert(std::is_same<typename Tp::type, typename Tp::regdef_type>::value, "template argument Tp is not of type: regdef<>");
   static_assert(width >= 1, "invalid width");
-  static_assert(offset + width <= sizeof(typename R::value_type) * 8, "invalid width/offset");
+  static_assert(offset + width <= sizeof(typename Tp::value_type) * 8, "invalid width/offset");
 
 #ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
@@ -204,13 +205,13 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
 #endif // CONFIG_USE_STD_TUPLE
 
  public:
-  using type       = regbits<typename R::reg_type, offset, width>;
-  using bits_type  = type;
-  using reg_type   = typename R::reg_type;
-  using value_type = typename R::value_type;
-  using mask_type  = regmask<R, ((1ul << width) - 1) << offset>;
+  using type         = regbits<typename Tp::regdef_type, offset, width>;
+  using regdef_type  = typename Tp::regdef_type;
+  using regmask_type = regmask<Tp, ((1ul << width) - 1) << offset>;
+  using regbits_type = type;
+  using value_type   = typename Tp::value_type;
 
-  static constexpr value_type value = mask_type::set_mask;
+  static constexpr value_type value = regmask_type::set_mask;
 
   static __always_inline constexpr value_type value_from(value_type const val) {
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
@@ -219,21 +220,21 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
   /** NOTE: this does not check if _value is masked correctly! */
   static __always_inline void set_from(value_type const val) {
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
-    reg_type::set(value_from(val), mask_type::clear_mask);
+    regdef_type::set(value_from(val), regmask_type::clear_mask);
   }
   static __always_inline bool test() /* override */ {
-    return (reg_type::load() & mask_type::clear_mask) != 0;
+    return (regdef_type::load() & regmask_type::clear_mask) != 0;
   }
   static __always_inline bool test_from(value_type const val) {
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
-    return (reg_type::load() & mask_type::clear_mask) == value_from(val);
+    return (regdef_type::load() & regmask_type::clear_mask) == value_from(val);
   }
   static __always_inline value_type get() {
-    return (reg_type::load() & mask_type::clear_mask) >> offset;
+    return (regdef_type::load() & regmask_type::clear_mask) >> offset;
   }
 
   template<unsigned bit_no>
-    struct bit : regbits< reg_type, offset + bit_no, 1 > {
+    struct bit : regbits< regdef_type, offset + bit_no, 1 > {
     static_assert(bit_no < width, "invalid bit_no");
   };
 };
@@ -242,11 +243,15 @@ class regbits : public regmask<R, ((1ul << width) - 1) << offset>
 ////////////////////  regval  ////////////////////
 
 
-/** NOTE: _value is shifted with offset of R! */
-template< typename R, typename R::value_type _value >
-class regval : public regmask<typename R::reg_type, R::value_from(_value), R::clear_mask>
+/** NOTE: _value is shifted with offset of Tp! */
+template<
+  typename Tp,
+  typename Tp::value_type _value
+  >
+class regval
+: public regmask<typename Tp::regdef_type, Tp::value_from(_value), Tp::clear_mask>
 {
-  static_assert(std::is_same<typename R::type, typename R::bits_type>::value, "template argument R is not of type: regbits<>");
+  static_assert(std::is_same<typename Tp::type, typename Tp::regbits_type>::value, "template argument Tp is not of type: regbits<>");
 
 #ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
@@ -258,34 +263,36 @@ class regval : public regmask<typename R::reg_type, R::value_from(_value), R::cl
    * is clearing all bits (offset, width) where regval<> is
    * defined on. In order to clear the constant, you must refer to
    * the underlying regbits<> type by either accessing it
-   * directly (preferred), or use the bits_type:
+   * directly (preferred), or use the regbits_type:
    *
-   *   regval<>::bits_type::clear()
+   *   regval<>::regbits_type::clear()
    *
    */
   static __always_inline void clear() {
-    R::bits_type::clear();
+    Tp::regbits_type::clear();
   }
 
 public:
-  using type       = regval<R, _value>;
-  using bits_type  = typename R::bits_type;
-  using reg_type   = typename R::reg_type;
-  using mask_type  = regmask<typename R::reg_type, R::value_from(_value), R::clear_mask>;
-  using value_type = typename R::value_type;
+  using type         = regval<Tp, _value>;
+  using regdef_type  = typename Tp::regdef_type;
+  using regmask_type = regmask<typename Tp::regdef_type, Tp::value_from(_value), Tp::clear_mask>;
+  using regbits_type = typename Tp::regbits_type;
+  using value_type  = typename Tp::value_type;
 
-  static constexpr value_type value = mask_type::set_mask;
+  static constexpr value_type value = regmask_type::set_mask;
 };
 
 
 ////////////////////  regdef  ////////////////////
 
 
-template< typename   T,
-          reg_addr_t addr,
-          reg_access access,
-          T          _reset_value = 0 >
-class regdef : public regdef_backend<T, addr, access, _reset_value>, public typelist_element
+template<
+  typename   Tp,
+  reg_addr_t addr,
+  reg_access access,
+  Tp         _reset_value = 0 >
+class regdef
+: public regdef_backend<Tp, addr, access, _reset_value>, public typelist_element
 {
 #ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */
@@ -293,21 +300,21 @@ class regdef : public regdef_backend<T, addr, access, _reset_value>, public type
 #endif // CONFIG_USE_STD_TUPLE
 
 public:
-  using type       = regdef<T, addr, access, _reset_value>;
-  using bits_type  = regbits< type, 0, sizeof(T) * 8>;
-  using reg_type   = type;
-  using value_type = T;
+  using type         = regdef<Tp, addr, access, _reset_value>;
+  using regdef_type  = type;
+  using regbits_type = regbits< type, 0, sizeof(Tp) * 8>;
+  using value_type   = Tp;
 
   /**
    * regmask<> type, with following properties:
    *
    *   - some_regmask<>::merge< neutral_regmask >::type == some_regmask<>::type
-   *   - neutral_regmask::reset_to() == reg_type::store(reset_value)
+   *   - neutral_regmask::reset_to() == regdef_type::store(reset_value)
    *
    * Note that having a neutral_regmask element in a reglist<> has the
    * effect of resetting the register on a reglist<>::reset_to() call!
    */
-  using neutral_regmask = regmask< reg_type, 0, 0 >;
+  using neutral_regmask = regmask< regdef_type, 0, 0 >;
 
   static constexpr value_type reset_value = _reset_value;
 
@@ -333,28 +340,28 @@ public:
   template<typename Rm0, typename... Rm>
   struct merge {
     using type = typename mpl::merged_regmask<Rm0, Rm...>::type;
-    static_assert(std::is_same<typename type::reg_type, reg_type>::value, "merged template arguments have different regdef<> type");
+    static_assert(std::is_same<typename type::regdef_type, regdef_type>::value, "merged template arguments have different regdef<> type");
   };
 
-  /* clear register bits (or'ed clear_mask of regmask Rm) */
+  /** clear register bits (or'ed clear_mask of regmask Rm) */
   template<typename Rm0, typename... Rm>
   static __always_inline void clear(void) {
     merge<Rm0, Rm...>::type::clear();
   }
 
-  /* set constants */
+  /** set constants */
   template<typename Rm0, typename... Rm>
   static __always_inline void set(void) {
     merge<Rm0, Rm...>::type::set();
   }
 
-  /* set value, masked by clear_mask of regmask (Rm) */
+  /** set value, masked by clear_mask of regmask (Rm) */
   template<typename Rm0, typename... Rm>
   static __always_inline void set(value_type const value) {
     set(value, merge<Rm0, Rm...>::type::clear_mask);
   }
 
-  /* reset register, and set constants (results in single store()) */
+  /** reset register, and set constants (results in single store()) */
   template<typename... Rm>
   static __always_inline void reset_to(void) {
     /* add a neutral regmask to the merge list, in order to handle empty template arguments correctly */
@@ -441,7 +448,7 @@ public:
    * reglist<> elements with underlying regdef_type = Tregdef
    */
   template< typename Tregdef >
-  using filter_regdef_type = typename type::template filter< mpl::filter_reg_type< Tregdef > >::type;
+  using filter_regdef_type = typename type::template filter< mpl::filter_regdef_type< Tregdef > >::type;
 
   /**
    * Provides a regmask<> type, merged by all elements in reglist<> of

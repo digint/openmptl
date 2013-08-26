@@ -64,18 +64,18 @@ struct merged_regmask<T0, void, Tp...> {
 };
 template<typename T0, typename... Tp>
 struct merged_regmask<T0, Tp...> {
-  using type = typename T0::mask_type::template merge< typename merged_regmask<Tp...>::type >::type;
+  using type = typename T0::regmask_type::template merge< typename merged_regmask<Tp...>::type >::type;
 };
 
 
 /**
  * Provides a list, whose types all share the same underlying
- * reg_type = Tp
+ * regdef_type = Tp
  */
 template<typename Tp>
-struct filter_reg_type {
+struct filter_regdef_type {
   template<typename Tf>
-  using filter = std::is_same< typename Tp::reg_type, typename Tf::reg_type >;
+  using filter = std::is_same< typename Tp::regdef_type, typename Tf::regdef_type >;
 };
 
 
@@ -95,12 +95,12 @@ struct pack_merged_regmask {
 
 /**
  * Map each element in list to a merged_regmask of all elements in
- * list having the same reg_type.
+ * list having the same regdef_type.
  */
 struct map_merged_regmask {
   template<typename Tp, typename list_type>
   struct map {
-    using filtered_list = typename list_type::template filter< filter_reg_type<Tp> >::type;
+    using filtered_list = typename list_type::template filter< filter_regdef_type<Tp> >::type;
     using type = typename filtered_list::template pack< pack_merged_regmask >::type;
   };
 };
@@ -120,7 +120,7 @@ struct map_contains_regdef_type {
   struct map {
     using type = std::integral_constant<
       bool,
-      typelist< typename Tregdef::reg_type... >::template contains< typename Tp::reg_type >::value
+      typelist< typename Tregdef::regdef_type... >::template contains< typename Tp::regdef_type >::value
       >;
   };
 };

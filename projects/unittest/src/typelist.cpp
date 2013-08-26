@@ -95,7 +95,7 @@ int main()
 #endif
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: set/clear check failed: setting a bit which was previously cleared leads to undefined behaviour
+  // fail: set/clear check failed: setting a bit which was previously cleared
   mptl::core::configure<bitmask_fail_list>();
 #endif
 
