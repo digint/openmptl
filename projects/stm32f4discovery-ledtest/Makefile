@@ -53,7 +53,10 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 # input/output setup
 #
 
-OBJ_DIR      = obj
+OBJ_DIR     := obj
+ifdef SIMULATION
+  OBJ_DIR   := $(OBJ_DIR)/sim
+endif
 
 BIN          = $(PROJECT)
 ELF          = $(PROJECT).elf

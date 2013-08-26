@@ -68,7 +68,10 @@ OPENOCD_CONFIG += -f target/stm32f1x.cfg
 # input/output setup
 #
 
-OBJ_DIR      = obj
+OBJ_DIR     := obj
+ifdef SIMULATION
+  OBJ_DIR   := $(OBJ_DIR)/sim
+endif
 
 BIN          = $(PROJECT)
 ELF          = $(PROJECT).elf
