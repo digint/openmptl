@@ -45,12 +45,12 @@ public:
 };
 
 
-template<typename _systick>
+template< typename _systick, typename _rtc >
 class Time : public SystemTime
 {
 
 public:
-  using rtc     = mptl::rtc< mptl::khz(0x8000) >;  /* 32.768 kHz LSE clock */
+  using rtc     = _rtc;
   using systick = _systick;
 
   static constexpr mptl::freq_t rtc_freq = mptl::hz(1);  /* 1sec signal period */
@@ -59,13 +59,13 @@ public:
     mptl::irq_handler< typename systick::irq,    systick_isr >,
     mptl::irq_handler< typename rtc::irq_global, rtc_isr     >,
     typename systick::resources,
-    rtc::resources
+    typename rtc::resources
   >;
 
   static void init(void) {
     systick::init();
-    rtc::init< rtc_freq >();
-    rtc::set_counter(1);
+    rtc::template init< rtc_freq >();
+    rtc::set_counter(0);
   }
 
   static void enable(void) {

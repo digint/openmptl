@@ -27,8 +27,75 @@
 
 namespace mptl {
 
+class rcc_base
+{
+  using RCC = reg::RCC;
+
+public:  /* ------ configuration traits ------ */
+
+  /** Enable external high speed oscillator */
+  using hse_enable  = regval< RCC::CR::HSEON, 1 >;
+
+  /** Enable external high speed oscillator */
+  using hse_disable = regval< RCC::CR::HSEON, 0 >;
+
+  /** Enable Internal low speed oscillator */
+  using lsi_enable  = regval< RCC::CSR::LSION, 1 >;
+
+  /** Disable Internal low speed oscillator */
+  using lsi_disable = regval< RCC::CSR::LSION, 0 >;
+
+  /** Enable external low speed oscillator */
+  using lse_enable  = regval< RCC::BDCR::LSEON, 1 >;
+
+  /** Disable external low speed oscillator */
+  using lse_disable = regval< RCC::BDCR::LSEON, 0 >;
+
+  struct rtc_clock_source {
+    /* Use LSE oscillator clock as RTC clock */
+    using lse = RCC::BDCR::RTCSEL::LSE;
+
+    /* Use LSI oscillator clock as RTC clock */
+    using lsi = RCC::BDCR::RTCSEL::LSI;
+
+    /* Use HSE oscillator clock as RTC clock */
+    using hse = RCC::BDCR::RTCSEL::HSE;
+  };
+
+  /** Enable RTC clock */
+  using rtc_enable = regval< RCC::BDCR::RTCEN, 1>;
+
+
+public:  /* ------ static member functions ------ */
+
+  static void backup_domain_software_reset(void) {
+    RCC::BDCR::BDRST::set();
+    RCC::BDCR::BDRST::clear();
+  }
+
+  static void wait_hse_ready(void) {
+    while(RCC::CR::HSERDY::test() == false);
+  }
+  static bool wait_hse_ready(unsigned timeout) {
+    while((RCC::CR::HSERDY::test() == false) && timeout) {
+      timeout--;
+    }
+    return timeout;
+  }
+
+  static void wait_lse_ready(void) {
+    while(RCC::BDCR::LSERDY::test() == false);
+  }
+};
+
+
+/**
+ * RCC configured for HSE clock
+ */
 template<freq_t cpu_clock_freq = mhz(72)>
-class rcc {
+class rcc
+: public rcc_base
+{
   static_assert(cpu_clock_freq == mhz(24) ||
                 cpu_clock_freq == mhz(36) ||
                 cpu_clock_freq == mhz(48) ||
@@ -44,20 +111,6 @@ public:
   static constexpr freq_t hclk_freq  = cpu_clock_freq;
   static constexpr freq_t pclk1_freq = cpu_clock_freq <= mhz(36) ? cpu_clock_freq : cpu_clock_freq / 2;
   static constexpr freq_t pclk2_freq = cpu_clock_freq;
-
-  static void enable_hse(void) {
-    RCC::CR::HSEON::set();
-  }
-
-  static void wait_hse_ready(void) {
-    while(RCC::CR::HSERDY::test() == false);
-  }
-  static bool wait_hse_ready(unsigned timeout) {
-    while((RCC::CR::HSERDY::test() == false) && timeout) {
-      timeout--;
-    }
-    return timeout;
-  }
 
   static void set_system_clock(void) {
     /* reset CFGR, and set HPRE, PPRE1, PPRE2, PLLSRC, PLLXTPRE, PLLMUL */
@@ -126,7 +179,7 @@ public:
   }
 
   static void init(void) {
-    enable_hse();
+    hse_enable::set();
     wait_hse_ready();
   }
 };

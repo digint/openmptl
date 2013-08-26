@@ -25,7 +25,6 @@
 #include <arch/pwr.hpp>
 #include <arch/rcc.hpp>
 #include <arch/reg/rtc.hpp>
-#include <isr_wrap.hpp>
 
 namespace mptl {
 
@@ -53,7 +52,6 @@ public:
   using irq_alarm  = irq::rtc_alarm;  /**< RTC Alarm through EXTI Line Interrupt  */
 
   static void wait_sync(void) {
-    while(reg::RCC::BDCR::LSERDY::test() == false);
     RTC::CRL::RSF::clear();
     while(RTC::CRL::RSF::test() == false);
   }
@@ -109,7 +107,7 @@ public:
 
   template< freq_t tr_clk_freq >
   static void set_time_base(void) {
-    static constexpr unsigned prescaler_value = (rtcclk_freq / ( tr_clk_freq * khz(1) )) - 1;
+    static constexpr unsigned prescaler_value = (rtcclk_freq / tr_clk_freq) - 1;
     set_prescaler(prescaler_value);
   }
 
@@ -127,37 +125,25 @@ public:
     // return ((uint32_t)RTC::DIVH::regbits_type::test() << 16 ) | (uint32_t)RTC::DIVL::bits_type::test();
   }
 
-  struct static_isr_wrap : public isr_wrap {
-    static_isr_wrap() { clear_second_flag(); }
-  };
-  struct alarm_isr_wrap : public isr_wrap {
-    alarm_isr_wrap() { clear_alarm_flag(); }
-  };
-
   using resources = rcc_rtc_clock_resources;
 
+  /**
+   * Initialize RTC to run on on LSE clock, with given time base.
+   *
+   * NOTE: resets backup domain and disables write protection
+   */
   template< freq_t tr_clk_freq = hz(1) >
   static void init(void) {
-    /* Disable backup domain write protection */
+    rcc_base::backup_domain_software_reset();
     pwr::disable_backup_domain_write_protection();
 
-    /* Backup domain software reset */
-    reg::RCC::BDCR::BDRST::set();  // TODO: rcc.hpp
-    reg::RCC::BDCR::BDRST::clear();  // TODO: rcc.hpp
+    reglist<
+      typename rcc_base::lse_enable,
+      typename rcc_base::rtc_clock_source::lse,
+      typename rcc_base::rtc_enable
+      >::set();
 
-    /* External low speed oscillator enable */
-    reg::RCC::BDCR::LSEON::clear();  // TODO: rcc.hpp
-    reg::RCC::BDCR::LSEON::set();  // TODO: rcc.hpp
-
-    /* Internal low speed oscillator disable */
-    reg::RCC::CSR::LSION::clear();
-
-    /* LSE oscillator clock used as RTC clock (hardcoded for now) */
-    reg::RCC::BDCR::set(reg::RCC::BDCR::RTCSEL::LSE::value);
-
-    /* RTC clock enable */
-    reg::RCC::BDCR::RTCEN::set();
-
+    rcc_base::wait_lse_ready();
     wait_sync();
 
     /* set prescaler */

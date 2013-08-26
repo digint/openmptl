@@ -72,7 +72,8 @@ struct Kernel
 
   using led = mptl::gpio_led< 'C', 12, mptl::gpio_active_state::low >;
 
-  using time = Time< systick >;
+  using rtc = mptl::rtc< mptl::hz(0x8000) >;  /* 32.768 kHz LSE clock */
+  using time = Time< systick, rtc >;
 
   static terminal_type terminal;
 
