@@ -24,7 +24,6 @@
 
 //systick_t SystemTime::systick_count;
 std::atomic<systick_t> SystemTime::systick_count;
-volatile unsigned int SystemTime::seconds;
 
 void SystemTime::systick_isr(void) {
   systick_count.fetch_add(1, std::memory_order_relaxed);
@@ -33,9 +32,6 @@ void SystemTime::systick_isr(void) {
 
 void SystemTime::rtc_isr() {
   Kernel::time::rtc::static_isr_wrap wrap;  // clears second flag in constructor
-
-  // seconds.store(seconds.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
-  seconds++;
   Kernel::led::toggle();
 }
 

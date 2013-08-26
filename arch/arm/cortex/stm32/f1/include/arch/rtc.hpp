@@ -29,16 +29,18 @@
 
 namespace mptl {
 
+template< freq_t rtcclk_freq = khz(0x8000) >  /* LSE clock frequency */
 class rtc
 {
   using RTC = reg::RTC;
 
 private:
   static void enter_config_mode(void) {
+    wait_config_done();
     RTC::CRL::CNF::set();
   }
   static void exit_config_mode(void) {
-    RTC::CRL::CNF::set();
+    RTC::CRL::CNF::clear();
     wait_config_done();
   }
   static void wait_config_done(void) {
@@ -87,6 +89,9 @@ public:
     RTC::CRL::SECF::clear();
   }
 
+  static uint32_t get_counter(void) {
+    return (((uint32_t)RTC::CNTH::load() << 16) | (uint32_t)RTC::CNTL::load());
+  }
 
   static void set_counter(uint32_t value) {
     enter_config_mode();
@@ -96,16 +101,19 @@ public:
   }
 
   static void set_prescaler(uint32_t value) {
-    // TODO: assert(value <= 0xFFFFF);
-    //TODO: set PRLH subbits
     enter_config_mode();
     RTC::PRLH::store((value & 0xF0000) >> 16);
     RTC::PRLL::store(value & 0xFFFF);
     exit_config_mode();
   }
 
+  template< freq_t tr_clk_freq >
+  static void set_time_base(void) {
+    static constexpr unsigned prescaler_value = (rtcclk_freq / ( tr_clk_freq * khz(1) )) - 1;
+    set_prescaler(prescaler_value);
+  }
+
   static void set_alarm(uint32_t value) {
-    //TODO: set ALRH subbits
     enter_config_mode();
     RTC::ALRH::store(value >> 16);
     RTC::ALRL::store(value & 0xFFFF);
@@ -128,6 +136,7 @@ public:
 
   using resources = rcc_rtc_clock_resources;
 
+  template< freq_t tr_clk_freq = hz(1) >
   static void init(void) {
     /* Disable backup domain write protection */
     pwr::disable_backup_domain_write_protection();
@@ -143,7 +152,7 @@ public:
     /* Internal low speed oscillator disable */
     reg::RCC::CSR::LSION::clear();
 
-    /* LSE oscillator clock used as RTC clock */
+    /* LSE oscillator clock used as RTC clock (hardcoded for now) */
     reg::RCC::BDCR::set(reg::RCC::BDCR::RTCSEL::LSE::value);
 
     /* RTC clock enable */
@@ -151,9 +160,8 @@ public:
 
     wait_sync();
 
-    // TODO: no hardcoded stuff!
-    /* one second (dependent on clock frequency!) */
-    set_prescaler(0x7FFF);
+    /* set prescaler */
+    set_time_base<tr_clk_freq>();
   }
 };
 

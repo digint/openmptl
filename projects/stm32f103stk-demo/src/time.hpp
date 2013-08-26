@@ -24,6 +24,7 @@
 #include <arch/systick.hpp>
 #include <arch/rtc.hpp>
 #include <typelist.hpp>
+#include <freq.hpp>
 #include <atomic>
 
 typedef unsigned int systick_t;
@@ -33,9 +34,6 @@ class SystemTime
 protected:
   static std::atomic<systick_t> systick_count;
   // static systick_t systick_count;
-
-  static volatile unsigned int seconds;
-  // static std::atomic<unsigned int> seconds;
 
   static void systick_isr(void);
   static void rtc_isr(void);
@@ -52,8 +50,10 @@ class Time : public SystemTime
 {
 
 public:
-  using rtc     = mptl::rtc;
+  using rtc     = mptl::rtc< mptl::khz(0x8000) >;  /* 32.768 kHz LSE clock */
   using systick = _systick;
+
+  static constexpr mptl::freq_t rtc_freq = mptl::hz(1);  /* 1sec signal period */
 
   using resources = mptl::typelist<
     mptl::irq_handler< typename systick::irq,    systick_isr >,
@@ -64,9 +64,8 @@ public:
 
   static void init(void) {
     systick::init();
-    rtc::init();
-    // TODO: play around with prescaler (measurements!)
-    rtc::set_prescaler(0x7FFF); // 1sec
+    rtc::init< rtc_freq >();
+    rtc::set_counter(1);
   }
 
   static void enable(void) {
@@ -76,8 +75,7 @@ public:
   }
 
   static unsigned int get_rtc_seconds(void) {
-    // return seconds.load(std::memory_order_relaxed);
-    return seconds;
+    return rtc::get_counter();
   }
 
   static systick_t get_systick() {
