@@ -107,7 +107,7 @@ using merged_regmask = mpl::merged_regmask<Tp...>::type;
 template<
   typename Tp,    /* regdef<> type */
   typename Tp::value_type _set_mask,
-  typename Tp::value_type _clear_mask = _set_mask
+  typename Tp::value_type _clear_mask
   >
 class regmask
 : public mpl::regmask_base
@@ -190,10 +190,10 @@ public:
 template<
   typename Tp,         /* regdef<> type */
   unsigned offset,     /* bit offset */
-  unsigned width = 1   /* number of bits */
+  unsigned width       /* number of bits */
   >
 class regbits
-: public regmask<Tp, ((1ul << width) - 1) << offset>
+: public regmask< Tp, ((1ul << width) - 1) << offset, ((1ul << width) - 1) << offset >
 {
   static_assert(std::is_same<typename Tp::type, typename Tp::regdef_type>::value, "template argument Tp is not of type: regdef<>");
   static_assert(width >= 1, "invalid width");
@@ -207,7 +207,7 @@ class regbits
  public:
   using type         = regbits<typename Tp::regdef_type, offset, width>;
   using regdef_type  = typename Tp::regdef_type;
-  using regmask_type = regmask<Tp, ((1ul << width) - 1) << offset>;
+  using regmask_type = regmask<Tp, ((1ul << width) - 1) << offset, ((1ul << width) - 1) << offset>;
   using regbits_type = type;
   using value_type   = typename Tp::value_type;
 
