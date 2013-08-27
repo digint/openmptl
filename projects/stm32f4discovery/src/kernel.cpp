@@ -67,7 +67,7 @@ void Kernel::init(void)
 #endif
 
   /* finally start systick */
-  systick::init();
+  systick::enable();
   systick::enable_interrupt();
 }
 

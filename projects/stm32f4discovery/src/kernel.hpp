@@ -39,7 +39,9 @@ struct Kernel
   using pwr     = mptl::pwr< rcc, mptl::volt(3.3), false >;
   using flash   = mptl::flash< rcc, pwr >;
 
-  using systick = mptl::systick< rcc, mptl::khz(1), mptl::cfg::systick::clock_source::hclk >;
+  using systick = mptl::systick<
+    mptl::systick_clock::external< rcc, mptl::khz(1) >
+    >;
 
   /* Note that setting gpio_rx_type (and gpio_tx_type respectively)
    * template parameter implicitely adds the correct mptl::gpio<>

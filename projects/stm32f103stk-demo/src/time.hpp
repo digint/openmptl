@@ -33,7 +33,6 @@ class SystemTime
 {
 protected:
   static std::atomic<systick_t> systick_count;
-  // static systick_t systick_count;
 
   static void systick_isr(void);
   static void rtc_isr(void);
@@ -63,7 +62,7 @@ public:
   >;
 
   static void init(void) {
-    systick::init();
+    systick::enable();
     rtc::template init< rtc_freq >();
     rtc::set_counter(0);
   }
@@ -80,7 +79,6 @@ public:
 
   static systick_t get_systick() {
     return systick_count.load(std::memory_order_relaxed);
-    // return systick_count;
   }
 };
 

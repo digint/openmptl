@@ -51,12 +51,20 @@ struct SCB
   /**
    * SysTick Reload Value Register
    */
-  using STRVR  = regdef< uint32_t, 0xE000E014, reg_access::rw >;
+  struct STRVR
+  : public regdef< uint32_t, 0xE000E014, reg_access::rw >
+  {
+    using regbits_type = regbits< type, 0, 24 >;
+  };
 
   /**
    * SysTick Current Value Register
    */
-  using STCVR  = regdef< uint32_t, 0xE000E018, reg_access::rw >;
+  struct STCVR
+  : public regdef< uint32_t, 0xE000E018, reg_access::rw >
+  {
+    using regbits_type = regbits< type, 0, 24 >;
+  };
 
   /**
    * SysTick Calilbration Value Register

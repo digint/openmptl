@@ -28,31 +28,44 @@
 
 namespace mptl {
 
-namespace cfg { namespace systick {
 
-enum class clock_source {
-  hclk,       /**< AHB clock (HCLK)               */
-  hclk_div8   /**< AHB clock (HCLK) divided by 8  */
+struct systick_clock
+{
+  /** Select external clock (HCLK_DIV8) as systick clock source */
+  template< typename rcc, freq_t _freq >
+  struct external {
+    static constexpr freq_t freq = _freq;
+    static constexpr freq_t counter_freq = rcc::hclk_freq / 8;
+
+    using resources = reglist<
+      regval< reg::SCB::STCSR::CLKSOURCE, 0 >,
+      regval< reg::SCB::STRVR::regbits_type, (rcc::hclk_freq / (freq * 8)) >
+      >;
+  };
+
+  /** Select core clock (HCLK) as systick clock source */
+  template< typename rcc, freq_t _freq >
+  struct core {
+    static constexpr freq_t freq = _freq;
+    static constexpr freq_t counter_freq = rcc::hclk_freq;
+
+    using resources = reglist<
+      regval< reg::SCB::STCSR::CLKSOURCE, 1 >,
+      regval< reg::SCB::STRVR::regbits_type, (rcc::hclk_freq / freq) >
+      >;
+  };
 };
 
-} } // namespace cfg::systick
 
-
-template<typename rcc,
-         freq_t   _freq,   //< clock frequency in Hz
-         cfg::systick::clock_source clock_source = cfg::systick::clock_source::hclk_div8>
+template< typename clock_source_type >
 class systick
 {
   using SCB = reg::SCB;
 
 public:
-
-  static constexpr freq_t freq = _freq;
-  static constexpr freq_t counter_freq = rcc::hclk_freq /
-    (clock_source == cfg::systick::clock_source::hclk_div8 ? 8 : 1);
-
+  static constexpr freq_t freq = clock_source_type::freq;
+  static constexpr freq_t counter_freq = clock_source_type::counter_freq;
   static constexpr uint32_t reload_value = counter_freq / freq;
-  static_assert((reload_value >= 1) && (reload_value <= 0x00FFFFFF), "illegal reload value");
 
   /** picoseconds per counter tick
    *
@@ -61,7 +74,7 @@ public:
    */
   static constexpr uint32_t ps_per_tick  = (1000 * 1000 * 1000) / (counter_freq / 1000);
 
-  using resources = void;
+  using resources = typename clock_source_type::resources;
 
   using irq = mptl::irq::systick; /**< System Tick Interrupt */
 
@@ -70,13 +83,6 @@ public:
     SCB::STRVR::store(reload);
   }
 
-  static void set_clock_source(void) {
-    if(clock_source == cfg::systick::clock_source::hclk) {
-      SCB::STCSR::CLKSOURCE::set();   // hclk
-    } else {
-      SCB::STCSR::CLKSOURCE::clear(); // hclk_div8
-    }
-  }
   static void enable_counter(void) {
     SCB::STCSR::ENABLE::set();
   }
@@ -107,10 +113,8 @@ public:
     return SCB::STCR::NOREF::test();
   }
 
-  static void init(void) {
+  static void enable(void) {
     clear_counter();
-    set_reload(reload_value);
-    set_clock_source();
     enable_counter();
   }
 

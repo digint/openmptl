@@ -40,7 +40,9 @@ struct Kernel
   using rcc     = mptl::rcc< mptl::mhz(72) >;
   using flash   = mptl::flash< rcc >;
 
-  using systick = mptl::systick< rcc, mptl::hz(100), mptl::cfg::systick::clock_source::hclk >;
+  using systick = mptl::systick<
+    mptl::systick_clock::external< rcc, mptl::hz(100) >
+    >;
 
   using usart = mptl::usart< 2, rcc, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
   using usart_cfg = mptl::reglist<
