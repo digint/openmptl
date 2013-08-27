@@ -85,18 +85,9 @@ using bitmask_fail_list = typelist < anti_test_a_0, list >;
 
 int main()
 {
-  /* check unique resources */
-  //  list::check();  // TODO
-
 #ifdef UNITTEST_MUST_FAIL
-  // fail: typelist contains a resource derived from
-  // typelist_unique_element (-> uniq_c) which is not unique.
-  uniq_fail_list::check();
-#endif
-
-#ifdef UNITTEST_MUST_FAIL
-  // fail: set/clear check failed: setting a bit which was previously cleared
-  mptl::core::configure<bitmask_fail_list>();
+#warning UNITTEST_MUST_FAIL: set/clear check failed: setting a bit which was previously cleared
+  make_reglist< bitmask_fail_list >::reset_to();
 #endif
 
   assert(A::load() == 0);
@@ -105,7 +96,7 @@ int main()
   assert(D::load() == 0x55555555);
 
   /* set all shared register from list */
-  mptl::core::configure<list>();
+  make_reglist< list >::reset_to();
 
   assert(A::load() == 0x11001111);
   assert(B::load() == 0x44114444);

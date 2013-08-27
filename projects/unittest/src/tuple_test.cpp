@@ -31,7 +31,6 @@
 std::ostream & mptl::sim::regdump_ostream = std::cout;
 
 using namespace mptl;
-using namespace mptl::reg;
 
 // helper function to print a tuple of any size
 template<class Tp, std::size_t N>

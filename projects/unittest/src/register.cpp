@@ -25,7 +25,7 @@
 
 std::ostream & mptl::sim::regdump_ostream = std::cout;
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 class TEST
 {
@@ -69,10 +69,9 @@ public:
 
 template<> struct address_map< 0x00001234 > { static constexpr const char * name_str = "TEST::REG"; };
 
-} } //namespace mptl::reg
+} // namespace mptl
 
 using namespace mptl;
-using namespace reg;
 
 void unittest_register_manip()
 {
@@ -97,34 +96,34 @@ int main()
   std::cout << "*** main ***" << std::endl; 
 
   /* regmask */
-  using merged_type = regmask<TEST::REG, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
+  using merged_type = regmask<TEST::REG, 0xabcd0000, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
   static_assert(merged_type::set_mask           == 0xabcd00d0, "");
   static_assert(merged_type::clear_mask         == 0xabcd00f0, "");
   static_assert(merged_type::cropped_clear_mask == 0x00000020, "");
 
-  static_assert(regmask<TEST::REG, 0x11111111>::merge<
-                regmask<TEST::REG, 0x222200ef>
+  static_assert(regmask<TEST::REG, 0x11111111, 0x11111111>::merge<
+                regmask<TEST::REG, 0x222200ef, 0x222200ef>
                 >::type::set_mask ==         0x333311ff, "");
 
   static_assert(TEST::REG::merge<
-                regmask<TEST::REG, 0x11111111>,
-                regmask<TEST::REG, 0x24824800>,
-                regmask<TEST::REG, 0x48011107>
+                regmask<TEST::REG, 0x11111111, 0x11111111>,
+                regmask<TEST::REG, 0x24824800, 0x24824800>,
+                regmask<TEST::REG, 0x48011107, 0x48011107>
                 >::type::set_mask ==         0x7d935917, "");
 
 #ifdef UNITTEST_MUST_FAIL
 #warning "UNITTEST_MUST_FAIL: template argument is not of same regdef<> type"
   using merge_fail = TEST::REG::merge<
-    regmask<TEST::REG, 0x11111111>,
-    regmask<TEST::REG, 0x24824800>,
-    regmask<TEST::REG2, 0xffffffff>, // this asserts
-    regmask<TEST::REG, 0x48011107>
+    regmask<TEST::REG, 0x11111111, 0x11111111>,
+    regmask<TEST::REG, 0x24824800, 0x24824800>,
+    regmask<TEST::REG2, 0xffffffff, 0xffffffff>, // this asserts
+    regmask<TEST::REG, 0x48011107, 0x48011107>
     >::type;
 #endif
 
 #ifdef UNITTEST_MUST_FAIL
 #warning "UNITTEST_MUST_FAIL: template argument is not of same regdef<> type"
-  using merge_fail = regmask<TEST::REG2, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
+  using merge_fail = regmask<TEST::REG2, 0xabcd0000, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
 #endif
 
 

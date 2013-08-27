@@ -41,7 +41,7 @@ int main()
   vector_table<&stack_top, resource_list, default_isr> vt;
 
 #ifdef UNITTEST_MUST_FAIL
-  // fail: list contains more than one element
+#warning UNITTEST_MUST_FAIL: list contains more than one element
   vector_table<&stack_top, resource_fail_list, default_isr> vt_fail;
 #endif
 

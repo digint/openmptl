@@ -34,13 +34,13 @@ template<> struct address_map< 0x00 > { static constexpr const char * name_str =
 template<> struct address_map< 0x04 > { static constexpr const char * name_str = "TEST::B"; };
 template<> struct address_map< 0x08 > { static constexpr const char * name_str = "TEST::C"; };
 
-using A0 = regmask< A, 0x01 >;
-using A1 = regmask< A, 0x02 >;
-using A2 = regmask< A, 0x04 >;
+using A0 = regmask< A, 0x01, 0x01 >;
+using A1 = regmask< A, 0x02, 0x02 >;
+using A2 = regmask< A, 0x04, 0x04 >;
 
-using B0 = regmask< B, 0x01 >;
-using B1 = regmask< B, 0x02 >;
-using B2 = regmask< B, 0x04 >;
+using B0 = regmask< B, 0x01, 0x01 >;
+using B1 = regmask< B, 0x02, 0x02 >;
+using B2 = regmask< B, 0x04, 0x04 >;
 
 using C0 = regmask< C, 0x00, 0x01 >;
 using C1 = regmask< C, 0x00, 0x02 >;
@@ -91,11 +91,6 @@ int main()
   C::store(0x00);
   reglist< A0, C::neutral_regmask, B0 >::reset_to();
   assert(C::load() == 0xff);
-
-#ifdef UNITTEST_MUST_FAIL
-#warning UNITTEST_MUST_FAIL: no type named 'regdef_type' in 'Dummy'
-  bool fail = list_dirty::all_regdef_type< A, B >::value;
-#endif
 
   A::store(0xff);
   list_A::strict_reset_to< A >();
