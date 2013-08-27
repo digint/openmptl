@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 /**
  * Analog-to-digital converter (ADC)
  */
@@ -292,6 +292,6 @@ struct ADC
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_ADC_HPP_INCLUDED

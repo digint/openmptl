@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Embedded Flash memory (FLASH)
@@ -185,6 +185,6 @@ struct FLASH
 #endif
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_FLASH_HPP_INCLUDED

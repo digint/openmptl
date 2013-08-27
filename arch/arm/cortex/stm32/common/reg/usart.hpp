@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Universal synchronous asynchronous receiver transmitter (USART),
@@ -203,6 +203,6 @@ public:
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARM_CORTEX_STM32_COMMON_REG_USART_HPP_INCLUDED

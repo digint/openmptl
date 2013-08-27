@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Advanced timer
@@ -345,6 +345,6 @@ struct TIM_common
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARM_CORTEX_STM32_COMMON_REG_TIM_HPP_INCLUDED

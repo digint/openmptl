@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * System Control Register
@@ -272,6 +272,6 @@ struct SCB
   using STIR      = regdef< uint32_t, 0xE000EF00, reg_access::wo             >;  /**< Software Triggered Interrupt Register   */
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // COMMON_ARM_CORTEX_REG_SCB_HPP_INCLUDED

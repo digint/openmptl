@@ -37,8 +37,6 @@ class flash
 {
   static_assert((pwr::system_voltage >= volt(2.1)) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
 
-  using FLASH = reg::FLASH;
-
   static_assert(rcc::hclk_freq <= mhz(168), "unsupported system clock frequency");
 
   static constexpr FLASH::ACR::LATENCY::value_type latency =

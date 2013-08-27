@@ -32,7 +32,7 @@ struct cpuid
   static constexpr const char * cmd  = "cpuid";
   static constexpr const char * desc = "prints SCB::CPUID register hexadecimal value";
   void run(poorman::ostream<char> & cout) {
-    cout << mptl::reg::SCB::CPUID::load() << poorman::endl;
+    cout << mptl::SCB::CPUID::load() << poorman::endl;
   }
 };
 

@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Debug Register
@@ -48,6 +48,6 @@ struct DEBUG
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // COMMON_ARM_CORTEX_REG_DEBUG_HPP_INCLUDED

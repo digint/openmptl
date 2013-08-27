@@ -31,8 +31,6 @@ namespace mptl {
 template< freq_t rtcclk_freq = khz(0x8000) >  /* LSE clock frequency */
 class rtc
 {
-  using RTC = reg::RTC;
-
 private:
   static void enter_config_mode(void) {
     wait_config_done();

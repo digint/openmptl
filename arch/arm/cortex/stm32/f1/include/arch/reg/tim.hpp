@@ -23,7 +23,7 @@
 
 #include "../../../../common/reg/tim.hpp"
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 template<unsigned tim_no>
 class TIM
@@ -47,6 +47,6 @@ template<> class TIM< 12 > : public TIM_common< 0x40001800 > { };
 template<> class TIM< 13 > : public TIM_common< 0x40001c00 > { };
 template<> class TIM< 14 > : public TIM_common< 0x40002000 > { };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_TIM_HPP_INCLUDED

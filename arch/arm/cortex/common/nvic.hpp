@@ -70,7 +70,6 @@ class irq_channel : public irq_base<irqn> {
   static constexpr unsigned reg_index = (uint32_t)irqn >> 5;
   static constexpr unsigned irq_bit = 1 << ((uint32_t)irqn & 0x1F);
 
-  using NVIC  = reg::NVIC;
   using ISERx = NVIC::ISER<reg_index>;
   using ICERx = NVIC::ICER<reg_index>;
   using ISPRx = NVIC::ISPR<reg_index>;

@@ -30,8 +30,6 @@ template<typename rcc,
          >
 class flash
 {
-  using FLASH = reg::FLASH;
-
   static_assert(rcc::hclk_freq <= mhz(72), "unsupported system clock frequency");
 
   static constexpr FLASH::ACR::LATENCY::value_type latency =

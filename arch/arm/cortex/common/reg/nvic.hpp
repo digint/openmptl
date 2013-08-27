@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  *  NVIC (Nested Vectored Interrupt Controller) Register
@@ -70,6 +70,6 @@ struct NVIC
   { static_assert(reg_index < 60, "invalid index for register"); };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // COMMON_ARM_CORTEX_REG_NVIC_HPP_INCLUDED

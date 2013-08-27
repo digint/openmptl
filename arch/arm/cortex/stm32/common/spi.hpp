@@ -35,7 +35,7 @@ public:
 
   static constexpr unsigned spi_no = _spi_no;
   using rcc = rcc_type;
-  using SPIx = reg::SPI<spi_no>;
+  using SPIx = SPI<spi_no>;
   using irq  = irq::spi<spi_no>;
 
   using resources = rcc_spi_clock_resources<spi_no>;

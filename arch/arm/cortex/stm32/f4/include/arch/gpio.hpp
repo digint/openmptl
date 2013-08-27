@@ -40,7 +40,7 @@ class gpio
 
 public:
 
-  using GPIOx = reg::GPIO<port>;
+  using GPIOx = GPIO<port>;
 
   using resources = typelist<
     rcc_gpio_clock_resources<port>

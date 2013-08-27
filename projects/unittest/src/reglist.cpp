@@ -30,9 +30,9 @@ using A = regdef< uint8_t,  0x00, reg_access::rw, 0 >;
 using B = regdef< uint16_t, 0x04, reg_access::rw, 0 >;
 using C = regdef< uint8_t,  0x08, reg_access::rw, 0xff >;
 
-template<> struct reg::address_map< 0x00 > { static constexpr const char * name_str = "TEST::A"; };
-template<> struct reg::address_map< 0x04 > { static constexpr const char * name_str = "TEST::B"; };
-template<> struct reg::address_map< 0x08 > { static constexpr const char * name_str = "TEST::C"; };
+template<> struct address_map< 0x00 > { static constexpr const char * name_str = "TEST::A"; };
+template<> struct address_map< 0x04 > { static constexpr const char * name_str = "TEST::B"; };
+template<> struct address_map< 0x08 > { static constexpr const char * name_str = "TEST::C"; };
 
 using A0 = regmask< A, 0x01 >;
 using A1 = regmask< A, 0x02 >;

@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * DWT Register
@@ -67,6 +67,6 @@ struct DWT
   using CID3       = regdef<uint32_t, 0xE0001FFC, reg_access::ro, 0xB1 >;
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // COMMON_ARM_CORTEX_REG_DWT_HPP_INCLUDED

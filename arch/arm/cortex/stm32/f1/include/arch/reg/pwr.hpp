@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Power control
@@ -73,6 +73,6 @@ struct PWR
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_PWR_HPP_INCLUDED

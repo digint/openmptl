@@ -122,8 +122,8 @@ class reg_dumper
   static void print_address(void) {
     static constexpr unsigned addr_width = sizeof(reg_addr_t) * 2;
 
-    if(reg::address_map<addr>::name_str)  /* lookup register name */
-      regdump_ostream << std::left << std::setfill(' ') << std::setw(addr_max_width) << reg::address_map<addr>::name_str;
+    if(address_map<addr>::name_str)  /* lookup register name */
+      regdump_ostream << std::left << std::setfill(' ') << std::setw(addr_max_width) << address_map<addr>::name_str;
     else
       regdump_ostream << "0x" << std::hex << std::right << std::setfill('0') << std::setw(addr_width) << addr << std::setfill(' ')  << std::setw(addr_max_width - 2 - addr_width) << "";
   }

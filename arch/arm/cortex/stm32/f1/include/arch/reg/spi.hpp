@@ -23,7 +23,7 @@
 
 #include "../../../../common/reg/spi.hpp"
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 template<unsigned spi_no>
 class SPI
@@ -40,6 +40,6 @@ template<> class SPI<2> : public SPI_Common< 0x40003800 > { };
 template<> class SPI<3> : public SPI_Common< 0x40003C00 > { };
 #endif
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_SPI_HPP_INCLUDED

@@ -28,16 +28,14 @@ namespace mptl {
 
 class dwt
 {
-  using DWT = reg::DWT;
-
 public:
 
   static void enable(void) {
-    reg::DEBUG::DEMCR::TRCENA::set();
+    DEBUG::DEMCR::TRCENA::set();
   }
 
   static void disable(void) {
-    reg::DEBUG::DEMCR::TRCENA::clear();
+    DEBUG::DEMCR::TRCENA::clear();
   }
 
   static void cycle_counter_enable(void) {
@@ -56,7 +54,6 @@ public:
  */
 class cycle_counter
 {
-  using DWT = reg::DWT;
   using value_type = decltype(dwt::cycle_counter_load());
 
   value_type value;

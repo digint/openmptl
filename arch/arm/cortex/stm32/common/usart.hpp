@@ -39,7 +39,7 @@ class usart_stm32_common
 public:
   static constexpr unsigned usart_no = _usart_no;
 
-  using USARTx = reg::USART<usart_no>;
+  using USARTx = USART<usart_no>;
   using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;

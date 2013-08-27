@@ -38,8 +38,8 @@ struct systick_clock
     static constexpr freq_t counter_freq = rcc::hclk_freq / 8;
 
     using resources = reglist<
-      regval< reg::SCB::STCSR::CLKSOURCE, 0 >,
-      regval< reg::SCB::STRVR::regbits_type, (rcc::hclk_freq / (freq * 8)) >
+      regval< SCB::STCSR::CLKSOURCE, 0 >,
+      regval< SCB::STRVR::regbits_type, (rcc::hclk_freq / (freq * 8)) >
       >;
   };
 
@@ -50,8 +50,8 @@ struct systick_clock
     static constexpr freq_t counter_freq = rcc::hclk_freq;
 
     using resources = reglist<
-      regval< reg::SCB::STCSR::CLKSOURCE, 1 >,
-      regval< reg::SCB::STRVR::regbits_type, (rcc::hclk_freq / freq) >
+      regval< SCB::STCSR::CLKSOURCE, 1 >,
+      regval< SCB::STRVR::regbits_type, (rcc::hclk_freq / freq) >
       >;
   };
 };
@@ -60,8 +60,6 @@ struct systick_clock
 template< typename clock_source_type >
 class systick
 {
-  using SCB = reg::SCB;
-
 public:
   static constexpr freq_t freq = clock_source_type::freq;
   static constexpr freq_t counter_freq = clock_source_type::counter_freq;
@@ -117,7 +115,6 @@ public:
     clear_counter();
     enable_counter();
   }
-
 };
 
 } // namespace mptl

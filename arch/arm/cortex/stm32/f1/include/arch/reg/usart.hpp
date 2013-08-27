@@ -23,7 +23,7 @@
 
 #include "../../../../common/reg/usart.hpp"
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 template<unsigned usart_no>
 class USART
@@ -38,6 +38,6 @@ template<> class USART<2> : public USART_common< 0x40004400 > { };
 template<> class USART<3> : public USART_common< 0x40004800 > { };
 #endif
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_USART_HPP_INCLUDED

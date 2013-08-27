@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Real time clock
@@ -130,6 +130,6 @@ struct RTC
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_RTC_HPP_INCLUDED

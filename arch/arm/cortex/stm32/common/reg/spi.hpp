@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Serial peripheral interface (SPI)
@@ -193,6 +193,6 @@ public:
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARM_CORTEX_STM32_COMMON_REG_SPI_HPP_INCLUDED

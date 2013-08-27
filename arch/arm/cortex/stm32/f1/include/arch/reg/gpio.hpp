@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * General-purpose and alternate-function I/Os (GPIOs and AFIOs)
@@ -60,6 +60,6 @@ struct GPIO
   };
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_GPIO_HPP_INCLUDED

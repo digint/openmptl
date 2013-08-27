@@ -23,7 +23,7 @@
 
 #include <register_type.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 template<reg_addr_t addr>
 struct address_map {
@@ -827,6 +827,6 @@ template<> struct address_map< 0xe000ef00 > { static constexpr const char * name
 template<> struct address_map< 0xe0042000 > { static constexpr const char * name_str = "DBG::IDCODE"; };
 template<> struct address_map< 0xe0042004 > { static constexpr const char * name_str = "DBG::CR"; };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // ARCH_REG_ADDRESS_MAP_HPP_INCLUDED

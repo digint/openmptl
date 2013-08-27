@@ -28,25 +28,25 @@
 void mptl::sim::reg_reaction::react()
 {
   /* RCC: simulate the system clock setup */
-  if(bits_set< reg::RCC::CR::HSEON >())
-    reg::RCC::CR::HSERDY::set();
-  if(bits_set< reg::RCC::CR::PLLON >())
-    reg::RCC::CR::PLLRDY::set();
-  if(bits_set< reg::RCC::CFGR::SW::PLL >())
-    reg::RCC::CFGR::SWS::PLL::set();
+  if(bits_set< RCC::CR::HSEON >())
+    RCC::CR::HSERDY::set();
+  if(bits_set< RCC::CR::PLLON >())
+    RCC::CR::PLLRDY::set();
+  if(bits_set< RCC::CFGR::SW::PLL >())
+    RCC::CFGR::SWS::PLL::set();
 
   /* RTC: simulate synchronisation */
-  if(bits_set< reg::RCC::BDCR::RTCEN >()) {
-    reg::RCC::BDCR::LSERDY::set();
-    reg::RTC::CRL::RSF::set();
+  if(bits_set< RCC::BDCR::RTCEN >()) {
+    RCC::BDCR::LSERDY::set();
+    RTC::CRL::RSF::set();
   }
-  if(bits_cleared< reg::RTC::CRL::RSF >())
-    reg::RTC::CRL::RSF::set();
+  if(bits_cleared< RTC::CRL::RSF >())
+    RTC::CRL::RSF::set();
 
 
   /* ADC: set "end of conversion" on SWSTART */
-  if(bits_set< reg::ADC<1>::CR2::SWSTART >())
-    reg::ADC<1>::SR::EOC::set();
+  if(bits_set< ADC<1>::CR2::SWSTART >())
+    ADC<1>::SR::EOC::set();
 
   /* SPI: always ready to send / receive */
   if(bits_set< Kernel::spi::SPIx::CR1::SPE >()) {  // spi enable

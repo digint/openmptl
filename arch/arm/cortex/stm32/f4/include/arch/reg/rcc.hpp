@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  * Reset and clock control
@@ -499,7 +499,7 @@ struct RCC
     using PLLI2SN  = regbits< type,  6,  9 >;  /**< PLLI2S multiplication factor for VCO   */
   };
 };
-} } // namespace mptl::reg
+} // namespace mptl
 
 
 #endif // ARCH_REG_RCC_HPP_INCLUDED

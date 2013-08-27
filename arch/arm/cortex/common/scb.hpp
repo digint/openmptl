@@ -30,8 +30,6 @@ namespace mptl {
 template<unsigned priority_bits>
 class scb
 {
-  using SCB = reg::SCB;
-
 public:
 
   static void set_priority_group(uint32_t group) {

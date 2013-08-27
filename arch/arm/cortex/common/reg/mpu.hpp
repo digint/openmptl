@@ -23,7 +23,7 @@
 
 #include <register.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 /**
  *  MPU (Memory Protection Unit) Register
@@ -46,6 +46,6 @@ struct MPU
   using RASR_A3  = regdef< uint32_t, 0xE000EDB8, reg_access::rw             >;  /**<                                          */
 };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // COMMON_ARM_CORTEX_REG_MPU_HPP_INCLUDED

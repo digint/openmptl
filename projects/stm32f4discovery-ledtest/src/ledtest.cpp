@@ -61,9 +61,9 @@ void __naked reset_isr(void) {
   led_green ::on();
 #else
   static constexpr uint32_t pin_mask = (uint32_t)0x1 << led_pin;
-  mptl::reg::RCC::AHB1ENR::GPIODEN::reset_to();  // enable AHB1 clock for GPIO D
-  mptl::regval< mptl::reg::GPIO< led_port >::MODERx< led_pin >, 1 >::set();  // configure GPIOD::MODERx (set GPIOD12 to output mode)
-  mptl::reg::GPIO< led_port >::BSRR::store(pin_mask);  // enable led
+  mptl::RCC::AHB1ENR::GPIODEN::reset_to();  // enable AHB1 clock for GPIO D
+  mptl::regval< mptl::GPIO< led_port >::MODERx< led_pin >, 1 >::set();  // configure GPIOD::MODERx (set GPIOD12 to output mode)
+  mptl::GPIO< led_port >::BSRR::store(pin_mask);  // enable led
 #endif
 
   while(1) {
@@ -94,12 +94,12 @@ mptl::isr_t clang_workaround_attribute_used(void) {
 
 void mptl::sim::reg_reaction::react() {
   /* simulate the system clock setup */
-  if(bits_set< reg::RCC::CR::HSEON >())
-    reg::RCC::CR::HSERDY::set();
-  if(bits_set< reg::RCC::CR::PLLON >())
-    reg::RCC::CR::PLLRDY::set();
-  if(bits_set< reg::RCC::CFGR::SW::PLL >())
-    reg::RCC::CFGR::SWS::PLL::set();
+  if(bits_set< RCC::CR::HSEON >())
+    RCC::CR::HSERDY::set();
+  if(bits_set< RCC::CR::PLLON >())
+    RCC::CR::PLLRDY::set();
+  if(bits_set< RCC::CFGR::SW::PLL >())
+    RCC::CFGR::SWS::PLL::set();
 }
 
 //int main(int argc, char *argv[])

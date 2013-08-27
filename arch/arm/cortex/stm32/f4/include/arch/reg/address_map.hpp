@@ -23,7 +23,7 @@
 
 #include <register_type.hpp>
 
-namespace mptl { namespace reg {
+namespace mptl {
 
 template<reg_addr_t addr>
 struct address_map {
@@ -1382,6 +1382,6 @@ template<> struct address_map< 0xe0042004 > { static constexpr const char * name
 template<> struct address_map< 0xe0042008 > { static constexpr const char * name_str = "DBG::DBGMCU_APB1_FZ"; };
 template<> struct address_map< 0xe004200c > { static constexpr const char * name_str = "DBG::DBGMCU_APB2_FZ"; };
 
-} } // namespace mptl::reg
+} // namespace mptl
 
 #endif // REG_ADDR_MAP_HPP_INCLUDED
