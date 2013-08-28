@@ -60,6 +60,7 @@ OPENOCD_CONFIG += -f target/stm32f1x.cfg
 # experimental features
 #
 
+FLAGS  += -DCONFIG_AUTO_BITBAND
 #FLAGS  += -DCONFIG_USE_STD_TUPLE
 #FLAGS  += -DCONFIG_USE_FRIENDS
 

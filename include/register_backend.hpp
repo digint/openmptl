@@ -23,6 +23,7 @@
 
 #include <compiler.h>
 #include <register_type.hpp>
+#include <arch/bitband.hpp>
 
 #ifdef OPENMPTL_SIMULATION
 #  include <register_sim.hpp>
@@ -47,6 +48,8 @@ struct regdef_backend
 
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
+
+  static constexpr bool bitop_enabled = bitband_periph::covered(addr);
 
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
   /* For some reasons, reinterpret_cast is not allowed anymore in
@@ -76,6 +79,24 @@ struct regdef_backend
     *reinterpret_cast<volatile Tp *>(addr) = value;
 #endif
   }
+
+  template<unsigned bit_no>
+  static __always_inline void bitset() {
+    static_assert(access != reg_access::ro, "write access to a read-only register");
+    bitband_periph::bitset<addr, bit_no>();
+  }
+
+  template<unsigned bit_no>
+  static __always_inline void bitclear() {
+    static_assert(access != reg_access::ro, "write access to a read-only register");
+    bitband_periph::bitclear<addr, bit_no>();
+  }
+
+  template<unsigned bit_no>
+  static __always_inline bool bittest() {
+    static_assert(access != reg_access::wo, "read access to a write-only register");
+    return bitband_periph::bittest<addr, bit_no>();
+  }
 };
 
 
@@ -86,13 +107,28 @@ template< typename   Tp,
           reg_addr_t _addr,
           reg_access _access,
           Tp         reset_value >
-struct regdef_backend
+class regdef_backend
 {
+  static void store_impl(Tp const value) {
+    static_assert(access != reg_access::ro, "write access to a read-only register");
+
+#ifdef CONFIG_REGISTER_REACTION
+    sim::reg_reaction reaction(addr, reg_value);
+#endif
+    reg_value = value;
+#ifdef CONFIG_REGISTER_REACTION
+    reaction.react();
+#endif
+  }
+
+public:
   using value_type = Tp;
   static Tp reg_value;
 
   static constexpr reg_access access = _access;
   static constexpr reg_addr_t addr   = _addr;
+
+  static constexpr bool bitop_enabled = bitband_periph::covered(addr);
 
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
   using dumper = sim::reg_dumper<Tp, addr>;
@@ -107,18 +143,38 @@ struct regdef_backend
   }
 
   static void store(Tp const value) {
-    static_assert(access != reg_access::ro, "write access to a read-only register");
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
     dumper::dump_register_store(reg_value, value);
 #endif
+    store_impl(value);
+  }
 
-#ifdef CONFIG_REGISTER_REACTION
-    sim::reg_reaction reaction(addr, reg_value);
+  template<unsigned bit_no>
+  static __always_inline void bitset() {
+    value_type value = reg_value | (1 << bit_no);
+#ifdef CONFIG_DUMP_REGISTER_ACCESS
+    dumper::dump_register_bitset(reg_value, value);
 #endif
-    reg_value = value;
-#ifdef CONFIG_REGISTER_REACTION
-    reaction.react();
+    store_impl(value);
+  }
+
+  template<unsigned bit_no>
+  static __always_inline void bitclear() {
+    value_type value = reg_value & ~(1 << bit_no);
+#ifdef CONFIG_DUMP_REGISTER_ACCESS
+    dumper::dump_register_bitclear(reg_value, value);
 #endif
+    store_impl(value);
+  }
+
+  template<unsigned bit_no>
+  static __always_inline bool bittest() {
+    static_assert(access != reg_access::wo, "read access to a write-only register");
+    value_type value = reg_value & (1 << bit_no);
+#ifdef CONFIG_DUMP_REGISTER_ACCESS
+    dumper::dump_register_bittest(value);
+#endif
+    return value;
   }
 };
 

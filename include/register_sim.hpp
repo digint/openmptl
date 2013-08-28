@@ -128,12 +128,12 @@ class reg_dumper
       regdump_ostream << "0x" << std::hex << std::right << std::setfill('0') << std::setw(addr_width) << addr << std::setfill(' ')  << std::setw(addr_max_width - 2 - addr_width) << "";
   }
 
-  static void print_desc(const char * desc) {
+  static void print_desc(const std::string & desc) {
     regdump_ostream << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
   }
 
 
-  static void print_info_line(const char * desc, value_type value) {
+  static void print_info_line(const std::string & desc, value_type value) {
     print_address();
     print_desc(desc);
     print_value(value);
@@ -142,7 +142,7 @@ class reg_dumper
 
 public:
 
-  static void dump_register_access(const char * desc, value_type value, bool print_current_value = false) {
+  static void dump_register_access(const std::string & desc, value_type value, bool print_current_value = false) {
     REGDUMP_LOCK;
     if(print_current_value) {
 #ifdef CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
@@ -153,23 +153,42 @@ public:
     REGDUMP_UNLOCK;
   }
 
-  static void dump_register_load(value_type value) {
-#ifdef CONFIG_REGISTER_REACTION
-    if(regdump_reaction_running == 0)
-#endif
-      dump_register_access("::load()", value);
-  }
-
-  static void dump_register_store(value_type cur_value, value_type new_value) {
+  static void dump_register_load(value_type value, const std::string & suffix = "") {
 #ifdef CONFIG_REGISTER_REACTION
     if(regdump_reaction_running != 0)
+      return;
+#endif
+
+    std::string s("::load()");
+    s.append(suffix);
+    dump_register_access(s, value);
+  }
+
+  static void dump_register_store(value_type cur_value, value_type new_value, const std::string & suffix = "") {
+#ifdef CONFIG_REGISTER_REACTION
+    if(regdump_reaction_running != 0) {
       dump_register_access("++react", new_value, true);
-    else
+      return;
+    }
 #endif // CONFIG_REGISTER_REACTION
-      if(cur_value == new_value)  // notify with '~' if cur=new (candidates for optimization!)
-        dump_register_access("::store()~", new_value, true);
-      else
-        dump_register_access("::store()", new_value, true);
+
+    std::string s("::store()");
+    s.append(suffix);
+    if(cur_value == new_value)  // notify with '~' if cur=new (candidates for optimization!)
+      s.append("~");
+    dump_register_access(s, new_value, true);
+  }
+
+  static void dump_register_bitset(value_type cur_value, value_type new_value) {
+    dump_register_store(cur_value, new_value, "+");
+  }
+
+  static void dump_register_bitclear(value_type cur_value, value_type new_value) {
+    dump_register_store(cur_value, new_value, "-");
+  }
+
+  static void dump_register_bittest(value_type value) {
+    dump_register_load(value, "+");
   }
 };
 

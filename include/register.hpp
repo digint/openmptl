@@ -94,6 +94,12 @@
 #include <compiler.h>
 #include "register_mpl.hpp"
 
+#ifdef CONFIG_AUTO_BITBAND
+# define CONFIG_AUTO_BITBAND_SET
+# define CONFIG_AUTO_BITBAND_CLEAR
+# define CONFIG_AUTO_BITBAND_TEST
+#endif
+
 namespace mptl {
 
 #if 0 // TODO: provide comfort functions (map to _impl without ::type)
@@ -146,20 +152,46 @@ public:
    */
   static constexpr value_type cropped_clear_mask = clear_mask & ~set_mask;
 
-  static __always_inline void set() {
+#if defined(CONFIG_AUTO_BITBAND_SET) || defined(CONFIG_AUTO_BITBAND_CLEAR) || defined(CONFIG_AUTO_BITBAND_TEST)
+  using bitcount = mpl::bitcount<clear_mask>;
+  static constexpr bool bitop_enabled = regdef_type::bitop_enabled && (bitcount::value == 1);
+#endif
+
+  static __always_inline void set(void) {
     // TODO: improvement: check for clear_mask covering ALL bits of
     // our regdef_type. if yes, use store() instead!
+#ifdef CONFIG_AUTO_BITBAND_SET
+    if(bitop_enabled && (set_mask == clear_mask)) {
+      regdef_type::template bitset< bitcount::significant_bits - 1 >();
+      return;
+    }
+#endif
     if((set_mask != 0) || (clear_mask != 0))  /* evaluated at compile-time */
       regdef_type::set(set_mask, cropped_clear_mask);
   }
-  static __always_inline void clear() {
+
+  static __always_inline void clear(void) {
+#ifdef CONFIG_AUTO_BITBAND_CLEAR
+    if(bitop_enabled) {
+      regdef_type::template bitclear< bitcount::significant_bits - 1 >();
+      return;
+    }
+#endif
     if(clear_mask != 0)  /* evaluated at compile-time */
       regdef_type::clear(clear_mask);
   }
-  static __always_inline bool test() {
-    if(clear_mask != 0)  /* evaluated at compile-time */
-      return (regdef_type::load() & clear_mask) == set_mask;
-    return set_mask == 0;
+  static __always_inline bool test(void) {
+    if(clear_mask == 0)
+      return false;
+#ifdef CONFIG_AUTO_BITBAND_TEST
+    if(bitop_enabled && (set_mask != 0))
+      return regdef_type::template bittest< bitcount::significant_bits - 1 >();
+    if(bitop_enabled && (set_mask == 0))
+      return !regdef_type::template bittest< bitcount::significant_bits - 1 >();
+#endif
+    if(clear_mask == set_mask)
+      return (regdef_type::load() & clear_mask);
+    return (regdef_type::load() & clear_mask) == set_mask;
   }
 
   /** reset register, combined with set/clear mask (results in single store()) */
@@ -222,9 +254,6 @@ class regbits
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
     regdef_type::set(value_from(val), regmask_type::clear_mask);
   }
-  static __always_inline bool test() /* override */ {
-    return (regdef_type::load() & regmask_type::clear_mask) != 0;
-  }
   static __always_inline bool test_from(value_type const val) {
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
     return (regdef_type::load() & regmask_type::clear_mask) == value_from(val);
@@ -277,7 +306,7 @@ public:
   using regdef_type  = typename Tp::regdef_type;
   using regmask_type = regmask<typename Tp::regdef_type, Tp::value_from(_value), Tp::clear_mask>;
   using regbits_type = typename Tp::regbits_type;
-  using value_type  = typename Tp::value_type;
+  using value_type   = typename Tp::value_type;
 
   static constexpr value_type value = regmask_type::set_mask;
 };

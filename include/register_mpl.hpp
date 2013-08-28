@@ -199,6 +199,20 @@ static void regmask_write() {
 }
 #endif
 
+
+template< unsigned x >
+struct bitcount {
+  using bc = bitcount< x/2 >;
+  static constexpr unsigned value = x & 1 ? bc::value + 1 : bc::value;
+  static constexpr unsigned significant_bits = bc::significant_bits + 1;
+};
+
+template<>
+struct bitcount<0> {
+  static constexpr unsigned value = 0;
+  static constexpr unsigned significant_bits = 0;
+};
+
 } } // namespace mptl::mpl
 
 #endif // REGISTER_MPL_HPP_INCLUDED
