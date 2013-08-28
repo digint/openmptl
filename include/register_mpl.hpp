@@ -127,9 +127,9 @@ struct map_contains_regdef_type {
 
 
 /**
- * Calls regdef_type::reset_to<>() on a given typelist element type.
+ * Calls ::reset_to() on a given typelist element type.
  *
- * NOTE: list_element_type MUST provide the reset_to<>() static
+ * NOTE: list_element_type MUST provide the reset_to() static
  * member (e.g. regmask<> type), so you might want to filter your
  * typelist first.
  *
@@ -153,8 +153,8 @@ struct functor_reg_reset_to {
 };
 
 /**
- * Analog to functor_reg_reset_to, but executes the
- * regmask_type::set() static member function instead.
+ * Analog to functor_reg_reset_to, but calls the ::set() function
+ * instead.
  *
  * Use this if you only WANT the register bits to keep their old
  * value if not touched by set/clear mask of regmask<>.
@@ -167,6 +167,16 @@ struct functor_reg_set {
   template<typename list_element_type>
   static void __always_inline command(void) {
     list_element_type::set();
+  }
+};
+
+/**
+ * Calls ::clear() on a given typelist element type.
+ */
+struct functor_reg_clear {
+  template<typename list_element_type>
+  static void __always_inline command(void) {
+    list_element_type::clear();
   }
 };
 

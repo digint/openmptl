@@ -180,6 +180,7 @@ public:
     if(clear_mask != 0)  /* evaluated at compile-time */
       regdef_type::clear(clear_mask);
   }
+
   static __always_inline bool test(void) {
     if(clear_mask == 0)
       return false;
@@ -258,9 +259,11 @@ class regbits
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
     return (regdef_type::load() & regmask_type::clear_mask) == value_from(val);
   }
+#if 0 // this is confusing. find better naming for this
   static __always_inline value_type get() {
     return (regdef_type::load() & regmask_type::clear_mask) >> offset;
   }
+#endif
 
   template<unsigned bit_no>
     struct bit : regbits< regdef_type, offset + bit_no, 1 > {
@@ -418,7 +421,7 @@ class reglist
 public:
 
   /**
-   * Call regdef::set() on each distinct merged regmask from reglist.
+   * Call ::set() on each distinct merged regmask from reglist.
    *
    * Refer to the "mpl::functor_reg_set" documentation in
    * register_mpl.hpp for a discussion about reset_to() and set().
@@ -428,7 +431,19 @@ public:
   }
 
   /**
-   * Call regdef::reset_to() on each distinct merged regmask from reglist.
+   * Call ::clear() on each distinct merged regmask from reglist.
+   */
+  static __always_inline void clear(void) {
+    unique_merged_list::template for_each< mpl::functor_reg_clear >();
+  }
+
+#if 0  // TODO: implement 
+  static __always_inline void test(void) {
+  }
+#endif
+
+  /**
+   * Call ::reset_to() on each distinct merged regmask from reglist.
    *
    * Refer to the "mpl::functor_reg_reset_to" documentation in
    * register_mpl.hpp for a discussion about reset_to() and set().
@@ -438,7 +453,7 @@ public:
   }
 
   /**
-   * Call regdef::reset_to() on each distinct merged regmask from
+   * Call ::reset_to() on each distinct merged regmask from
    * reglist.
    *
    * Resets regdefs from strict_regdef_type if no regmask of same
