@@ -57,12 +57,20 @@ OPENOCD_CONFIG += -f target/stm32f1x.cfg
 
 
 #------------------------------------------------------------------------------
-# experimental features
+# OpenMPTL features
 #
 
-FLAGS  += -DCONFIG_AUTO_BITBAND
-#FLAGS  += -DCONFIG_USE_STD_TUPLE
-#FLAGS  += -DCONFIG_USE_FRIENDS
+# Per default, OpenMPTL automatically uses bit-banding when
+# writing/reading a single bit in a peripheral register. In general,
+# this produces more efficient code. This feature can be disabled:
+#
+# FLAGS  += -DCONFIG_DISABLE_AUTO_BITBAND
+
+#
+# experimental features
+#
+# FLAGS  += -DCONFIG_USE_STD_TUPLE
+# FLAGS  += -DCONFIG_USE_FRIENDS
 
 
 #------------------------------------------------------------------------------

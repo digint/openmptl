@@ -94,10 +94,9 @@
 #include <compiler.h>
 #include "register_mpl.hpp"
 
-#ifdef CONFIG_AUTO_BITBAND
-# define CONFIG_AUTO_BITBAND_SET
-# define CONFIG_AUTO_BITBAND_CLEAR
-# define CONFIG_AUTO_BITBAND_TEST
+#ifdef CONFIG_DISABLE_AUTO_BITBAND
+# define CONFIG_DISABLE_AUTO_BITBAND_WRITE
+# define CONFIG_DISABLE_AUTO_BITBAND_READ
 #endif
 
 namespace mptl {
@@ -152,7 +151,7 @@ public:
    */
   static constexpr value_type cropped_clear_mask = clear_mask & ~set_mask;
 
-#if defined(CONFIG_AUTO_BITBAND_SET) || defined(CONFIG_AUTO_BITBAND_CLEAR) || defined(CONFIG_AUTO_BITBAND_TEST)
+#if !defined(CONFIG_DISABLE_AUTO_BITBAND_WRITE) && !defined(CONFIG_DISABLE_AUTO_BITBAND_READ)
   using bitcount = mpl::bitcount<clear_mask>;
   static constexpr bool bitop_enabled = regdef_type::bitop_enabled && (bitcount::value == 1);
 #endif
@@ -160,7 +159,7 @@ public:
   static __always_inline void set(void) {
     // TODO: improvement: check for clear_mask covering ALL bits of
     // our regdef_type. if yes, use store() instead!
-#ifdef CONFIG_AUTO_BITBAND_SET
+#ifndef CONFIG_DISABLE_AUTO_BITBAND_WRITE
     if(bitop_enabled && (set_mask == clear_mask)) {
       regdef_type::template bitset< bitcount::significant_bits - 1 >();
       return;
@@ -171,7 +170,7 @@ public:
   }
 
   static __always_inline void clear(void) {
-#ifdef CONFIG_AUTO_BITBAND_CLEAR
+#ifndef CONFIG_DISABLE_AUTO_BITBAND_WRITE
     if(bitop_enabled) {
       regdef_type::template bitclear< bitcount::significant_bits - 1 >();
       return;
@@ -184,7 +183,7 @@ public:
   static __always_inline bool test(void) {
     if(clear_mask == 0)
       return false;
-#ifdef CONFIG_AUTO_BITBAND_TEST
+#ifndef CONFIG_DISABLE_AUTO_BITBAND_READ
     if(bitop_enabled && (set_mask != 0))
       return regdef_type::template bittest< bitcount::significant_bits - 1 >();
     if(bitop_enabled && (set_mask == 0))

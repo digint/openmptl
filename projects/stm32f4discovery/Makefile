@@ -50,14 +50,20 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 
 
 #------------------------------------------------------------------------------
-# experimental features
+# OpenMPTL features
 #
 
-#FLAGS  += -DDYNAMIC_BAUD_RATE
+# Per default, OpenMPTL automatically uses bit-banding when
+# writing/reading a single bit in a peripheral register. In general,
+# this produces more efficient code. This feature can be disabled:
+#
+# FLAGS  += -DCONFIG_DISABLE_AUTO_BITBAND
 
-FLAGS  += -DCONFIG_AUTO_BITBAND
-#FLAGS  += -DCONFIG_USE_STD_TUPLE
-#FLAGS  += -DCONFIG_USE_FRIENDS
+#
+# experimental features
+#
+# FLAGS  += -DCONFIG_USE_STD_TUPLE
+# FLAGS  += -DCONFIG_USE_FRIENDS
 
 
 #------------------------------------------------------------------------------
