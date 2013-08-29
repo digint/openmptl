@@ -131,7 +131,7 @@ FLAGS       += $(INCLUDE)
 FLAGS       += -MMD
 ifndef CLANG
   FLAGS     += -Wa,-gdwarf-4
-  ifndef SIMULATION
+  ifdef LST
     FLAGS   += -Wa,-adhlns=$(addsuffix .lst, $(basename $@))
   endif
 endif
