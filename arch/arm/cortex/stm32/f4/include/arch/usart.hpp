@@ -62,14 +62,14 @@ namespace mpl
 
 template<
   unsigned usart_no,
-  typename rcc_type,
+  typename system_clock_type,
   typename gpio_rx_type,
   typename gpio_tx_type,
   freq_t gpio_tx_speed = mhz(50)
   >
-class usart : public usart_stm32_common< usart_no, rcc_type >
+class usart : public usart_stm32_common< usart_no, system_clock_type >
 {
-  using base_type = usart_stm32_common< usart_no, rcc_type >;
+  using base_type = usart_stm32_common< usart_no, system_clock_type >;
 
   static constexpr unsigned gpio_alt_func_num = (usart_no <= 3) ? 7 : 8;
 

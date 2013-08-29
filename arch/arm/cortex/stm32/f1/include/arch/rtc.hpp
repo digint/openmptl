@@ -132,16 +132,16 @@ public:
    */
   template< freq_t tr_clk_freq = hz(1) >
   static void init(void) {
-    rcc_base::backup_domain_software_reset();
+    rcc::backup_domain_software_reset();
     pwr::disable_backup_domain_write_protection();
 
     reglist<
-      typename rcc_base::lse_enable,
-      typename rcc_base::rtc_clock_source::lse,
-      typename rcc_base::rtc_enable
+      typename rcc::lse_enable,
+      typename rcc::rtc_clock_source::lse,
+      typename rcc::rtc_enable
       >::set();
 
-    rcc_base::wait_lse_ready();
+    rcc::wait_lse_ready();
     wait_sync();
 
     /* set prescaler */

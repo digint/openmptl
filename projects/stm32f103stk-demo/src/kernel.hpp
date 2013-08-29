@@ -37,14 +37,14 @@
 
 struct Kernel
 {
-  using rcc     = mptl::rcc< mptl::mhz(72) >;
-  using flash   = mptl::flash< rcc >;
+  using sysclk  = mptl::system_clock_hse< mptl::mhz(72) >;
+  using flash   = mptl::flash< sysclk >;
 
   using systick = mptl::systick<
-    mptl::systick_clock::external< rcc, mptl::hz(100) >
+    mptl::systick_clock::external< sysclk, mptl::hz(100) >
     >;
 
-  using usart = mptl::usart< 2, rcc, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
+  using usart = mptl::usart< 2, sysclk, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
   using usart_cfg = mptl::reglist<
     usart::baud_rate< 115200 >,
     usart::enable_rx,
@@ -54,7 +54,7 @@ struct Kernel
   using usart_stream_device = mptl::usart_irq_stream< usart, mptl::ring_buffer<char, 512>, true, true >; /* irq debug enabled */
   using terminal_type = mptl::terminal< usart_stream_device >;
 
-  using spi = mptl::spi< 1, rcc, mptl::gpio< 'A', 5 >, mptl::gpio< 'A', 6 >, mptl::gpio< 'A', 7 > >;
+  using spi = mptl::spi< 1, sysclk, mptl::gpio< 'A', 5 >, mptl::gpio< 'A', 6 >, mptl::gpio< 'A', 7 > >;
 
   using lcd = mptl::device::nokia3310<
     spi,

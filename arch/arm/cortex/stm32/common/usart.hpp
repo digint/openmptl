@@ -28,19 +28,18 @@
 
 namespace mptl {
 
-template< unsigned _usart_no, typename _rcc >
+template< unsigned _usart_no, typename system_clock_type >
 class usart_stm32_common
 {
   static_assert((_usart_no >= 1) && (_usart_no <= 3), "invalid USART number");
   static_assert(_usart_no != 1, "usart 1 is not yet supported, sorry...");
 
-  using type = usart_stm32_common<_usart_no, _rcc>;
+  using type = usart_stm32_common<_usart_no, system_clock_type>;
 
 public:
   static constexpr unsigned usart_no = _usart_no;
 
   using USARTx = USART<usart_no>;
-  using rcc = _rcc;
 
   using irq = irq::usart<usart_no>;
 
@@ -50,7 +49,7 @@ private:
 
   template<unsigned value>
   struct baud_rate_impl {
-    static constexpr unsigned pclk = (usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+    static constexpr unsigned pclk = (usart_no == 1 ? system_clock_type::pclk2_freq : system_clock_type::pclk1_freq );
     static constexpr unsigned div  = (pclk * 25) / (4 * value);
     static constexpr unsigned mant = div / 100;
     static constexpr unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;
@@ -138,7 +137,7 @@ public:  /* ------ configuration traits ------ */
 
 
   static typename USARTx::BRR::value_type baud_to_brr(unsigned baud_rate) {
-    unsigned pclk = (_usart_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+    unsigned pclk = (_usart_no == 1 ? system_clock_type::pclk2_freq : system_clock_type::pclk1_freq );
     unsigned div  = (pclk * 25) / (4 * baud_rate);
     unsigned mant = div / 100;
     unsigned fraq = ((div - (mant * 100)) * 16 + 50) / 100;

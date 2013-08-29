@@ -57,15 +57,15 @@ namespace mpl
 
 template<
   unsigned spi_no,
-  typename rcc_type,
+  typename system_clock_type,
   typename gpio_sck_type     = void,
   typename gpio_miso_type    = void,
   typename gpio_mosi_type    = void,
   freq_t   gpio_output_speed = mhz(50)
   >
-class spi : public spi_stm32_common< spi_no, rcc_type >
+class spi : public spi_stm32_common< spi_no, system_clock_type >
 {
-  using base_type = spi_stm32_common< spi_no, rcc_type >;
+  using base_type = spi_stm32_common< spi_no, system_clock_type >;
 
 public:
 

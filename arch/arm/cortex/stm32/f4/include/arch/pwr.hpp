@@ -26,13 +26,13 @@
 
 namespace mptl {
 
-template<typename  rcc,
+template<typename  system_clock_type,
          voltage_t _system_voltage = volt(3.3),
          bool      power_save = false>
 class pwr
 {
   static_assert(_system_voltage >= volt(1.8) && _system_voltage <= volt(3.6), "unsupported system voltage");
-  static_assert(power_save == false || rcc::hclk_freq <= mhz(144), "system clock frequency too high for power save feature");
+  static_assert(power_save == false || system_clock_type::hclk_freq <= mhz(144), "system clock frequency too high for power save feature");
 
 public:
 

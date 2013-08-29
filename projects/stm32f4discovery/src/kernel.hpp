@@ -35,12 +35,12 @@
 
 struct Kernel
 {
-  using rcc     = mptl::rcc< mptl::mhz(168) >;
-  using pwr     = mptl::pwr< rcc, mptl::volt(3.3), false >;
-  using flash   = mptl::flash< rcc, pwr >;
+  using sysclk  = mptl::system_clock_hse< mptl::mhz(168) >;
+  using pwr     = mptl::pwr< sysclk, mptl::volt(3.3), false >;
+  using flash   = mptl::flash< sysclk, pwr >;
 
   using systick = mptl::systick<
-    mptl::systick_clock::external< rcc, mptl::khz(1) >
+    mptl::systick_clock::external< sysclk, mptl::khz(1) >
     >;
 
   /* Note that setting gpio_rx_type (and gpio_tx_type respectively)
@@ -50,7 +50,7 @@ struct Kernel
    * are automatically setup the way we need them for USART
    * communication.
    */
-  using usart = mptl::usart< 2, rcc, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
+  using usart = mptl::usart< 2, sysclk, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
   using usart_cfg = mptl::reglist<
 #ifdef DYNAMIC_BAUD_RATE
     /* Explicitely do NOT set the baud_rate. Instead, we set BRR using

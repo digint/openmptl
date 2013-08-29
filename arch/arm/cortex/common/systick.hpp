@@ -32,26 +32,26 @@ namespace mptl {
 struct systick_clock
 {
   /** Select external clock (HCLK_DIV8) as systick clock source */
-  template< typename rcc, freq_t _freq >
+  template< typename system_clock_type, freq_t _freq >
   struct external {
     static constexpr freq_t freq = _freq;
-    static constexpr freq_t counter_freq = rcc::hclk_freq / 8;
+    static constexpr freq_t counter_freq = system_clock_type::hclk_freq / 8;
 
     using resources = reglist<
       regval< SCB::STCSR::CLKSOURCE, 0 >,
-      regval< SCB::STRVR::regbits_type, (rcc::hclk_freq / (freq * 8)) >
+      regval< SCB::STRVR::regbits_type, (system_clock_type::hclk_freq / (freq * 8)) >
       >;
   };
 
   /** Select core clock (HCLK) as systick clock source */
-  template< typename rcc, freq_t _freq >
+  template< typename system_clock_type, freq_t _freq >
   struct core {
     static constexpr freq_t freq = _freq;
-    static constexpr freq_t counter_freq = rcc::hclk_freq;
+    static constexpr freq_t counter_freq = system_clock_type::hclk_freq;
 
     using resources = reglist<
       regval< SCB::STCSR::CLKSOURCE, 1 >,
-      regval< SCB::STRVR::regbits_type, (rcc::hclk_freq / freq) >
+      regval< SCB::STRVR::regbits_type, (system_clock_type::hclk_freq / freq) >
       >;
   };
 };

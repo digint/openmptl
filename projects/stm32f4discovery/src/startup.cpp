@@ -23,7 +23,7 @@
 
 /* Reset exception: triggered on system startup (system entry point). */
 void Kernel::reset_isr(void) {
-  mptl::core::startup<rcc, flash, pwr>();
+  mptl::core::startup<sysclk, flash, pwr>();
 
   Kernel::init();
   Kernel::run();

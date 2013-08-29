@@ -28,19 +28,18 @@
 
 namespace mptl {
 
-template< unsigned _spi_no, typename rcc_type >
+template< unsigned _spi_no, typename system_clock_type >
 class spi_stm32_common
 {
 public:
 
   static constexpr unsigned spi_no = _spi_no;
-  using rcc = rcc_type;
   using SPIx = SPI<spi_no>;
   using irq  = irq::spi<spi_no>;
 
   using resources = rcc_spi_clock_resources<spi_no>;
 
-  static constexpr unsigned clk_freq = (spi_no == 1 ? rcc::pclk2_freq : rcc::pclk1_freq );
+  static constexpr unsigned clk_freq = (spi_no == 1 ? system_clock_type::pclk2_freq : system_clock_type::pclk1_freq );
 
 private:
 

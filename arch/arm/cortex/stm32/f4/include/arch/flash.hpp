@@ -27,55 +27,57 @@
 
 namespace mptl {
 
-template<typename rcc,
-         typename pwr,
+template<typename system_clock_type,
+         typename pwr_type,
          bool prefetch_buffer = false,
          bool instruction_cache = true,
          bool data_cache = true
          >
 class flash
 {
-  static_assert((pwr::system_voltage >= volt(2.1)) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
+  static constexpr freq_t hclk_freq = system_clock_type::hclk_freq;
+  static constexpr voltage_t system_voltage = pwr_type::system_voltage;
 
-  static_assert(rcc::hclk_freq <= mhz(168), "unsupported system clock frequency");
+  static_assert((system_voltage >= volt(2.1)) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
+  static_assert(hclk_freq <= mhz(168), "unsupported system clock frequency");
 
   static constexpr FLASH::ACR::LATENCY::value_type latency =
-    (pwr::system_voltage <= volt(2.1)) ? 
-    ((rcc::hclk_freq <= mhz(20))  ?  0  :
-     (rcc::hclk_freq <= mhz(40))  ?  1  :
-     (rcc::hclk_freq <= mhz(60))  ?  2  :
-     (rcc::hclk_freq <= mhz(80))  ?  3  :
-     (rcc::hclk_freq <= mhz(100)) ?  4  :
-     (rcc::hclk_freq <= mhz(120)) ?  5  :
-     (rcc::hclk_freq <= mhz(140)) ?  6  :
-     (rcc::hclk_freq <= mhz(160)) ?  7  :
+    (system_voltage <= volt(2.1)) ? 
+    ((hclk_freq <= mhz(20))  ?  0  :
+     (hclk_freq <= mhz(40))  ?  1  :
+     (hclk_freq <= mhz(60))  ?  2  :
+     (hclk_freq <= mhz(80))  ?  3  :
+     (hclk_freq <= mhz(100)) ?  4  :
+     (hclk_freq <= mhz(120)) ?  5  :
+     (hclk_freq <= mhz(140)) ?  6  :
+     (hclk_freq <= mhz(160)) ?  7  :
      -1 ) :
-    (pwr::system_voltage <= volt(2.4)) ?
-    ((rcc::hclk_freq <= mhz(22))  ?  0  :
-     (rcc::hclk_freq <= mhz(44))  ?  1  :
-     (rcc::hclk_freq <= mhz(66))  ?  2  :
-     (rcc::hclk_freq <= mhz(88))  ?  3  :
-     (rcc::hclk_freq <= mhz(110)) ?  4  :
-     (rcc::hclk_freq <= mhz(132)) ?  5  :
-     (rcc::hclk_freq <= mhz(154)) ?  6  :
-     (rcc::hclk_freq <= mhz(168)) ?  7  :
+    (system_voltage <= volt(2.4)) ?
+    ((hclk_freq <= mhz(22))  ?  0  :
+     (hclk_freq <= mhz(44))  ?  1  :
+     (hclk_freq <= mhz(66))  ?  2  :
+     (hclk_freq <= mhz(88))  ?  3  :
+     (hclk_freq <= mhz(110)) ?  4  :
+     (hclk_freq <= mhz(132)) ?  5  :
+     (hclk_freq <= mhz(154)) ?  6  :
+     (hclk_freq <= mhz(168)) ?  7  :
      -1 ) :
-    (pwr::system_voltage <= volt(2.7)) ?
-    ((rcc::hclk_freq <= mhz(24))  ?  0  :
-     (rcc::hclk_freq <= mhz(48))  ?  1  :
-     (rcc::hclk_freq <= mhz(72))  ?  2  :
-     (rcc::hclk_freq <= mhz(96))  ?  3  :
-     (rcc::hclk_freq <= mhz(120)) ?  4  :
-     (rcc::hclk_freq <= mhz(144)) ?  5  :
-     (rcc::hclk_freq <= mhz(168)) ?  6  :
+    (system_voltage <= volt(2.7)) ?
+    ((hclk_freq <= mhz(24))  ?  0  :
+     (hclk_freq <= mhz(48))  ?  1  :
+     (hclk_freq <= mhz(72))  ?  2  :
+     (hclk_freq <= mhz(96))  ?  3  :
+     (hclk_freq <= mhz(120)) ?  4  :
+     (hclk_freq <= mhz(144)) ?  5  :
+     (hclk_freq <= mhz(168)) ?  6  :
      -1 ) :
-    (pwr::system_voltage <= volt(3.6)) ?
-    ((rcc::hclk_freq <= mhz(30))  ?  0  :
-     (rcc::hclk_freq <= mhz(60))  ?  1  :
-     (rcc::hclk_freq <= mhz(90))  ?  2  :
-     (rcc::hclk_freq <= mhz(120)) ?  3  :
-     (rcc::hclk_freq <= mhz(150)) ?  4  :
-     (rcc::hclk_freq <= mhz(168)) ?  5  :
+    (system_voltage <= volt(3.6)) ?
+    ((hclk_freq <= mhz(30))  ?  0  :
+     (hclk_freq <= mhz(60))  ?  1  :
+     (hclk_freq <= mhz(90))  ?  2  :
+     (hclk_freq <= mhz(120)) ?  3  :
+     (hclk_freq <= mhz(150)) ?  4  :
+     (hclk_freq <= mhz(168)) ?  5  :
      -1 ) : -1;
 public:
 

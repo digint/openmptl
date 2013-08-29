@@ -25,17 +25,17 @@
 
 namespace mptl {
 
-template<typename rcc,
+template<typename system_clock_type,
          bool prefetch_buffer = true
          >
 class flash
 {
-  static_assert(rcc::hclk_freq <= mhz(72), "unsupported system clock frequency");
+  static_assert(system_clock_type::hclk_freq <= mhz(72), "unsupported system clock frequency");
 
   static constexpr FLASH::ACR::LATENCY::value_type latency =
-    ((rcc::hclk_freq <= mhz(24))  ?  0  :
-     (rcc::hclk_freq <= mhz(48))  ?  1  :
-     (rcc::hclk_freq <= mhz(72))  ?  2  :
+    ((system_clock_type::hclk_freq <= mhz(24))  ?  0  :
+     (system_clock_type::hclk_freq <= mhz(48))  ?  1  :
+     (system_clock_type::hclk_freq <= mhz(72))  ?  2  :
      -1 );
 
 public:

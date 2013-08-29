@@ -27,41 +27,22 @@
 
 namespace mptl {
 
-template<freq_t cpu_clock_freq = mhz(168)>
-class rcc {
-  static_assert(cpu_clock_freq == mhz(168) || cpu_clock_freq == mhz(120), "unsupported cpu clock frequency");
 
-  template<int m, int n, int p, int q>
-  struct pllcfgr_hse {
-    static_assert(m >= 2 && m <= 63,                    "invalid PLLM value");
-    static_assert(n >= 2 && n <= 432,                   "invalid PLLN value");
-    static_assert(p == 2 || p == 4 || p == 6 || p == 8, "invalid PLLP value");
-    static_assert(q >= 2 && q <= 15,                    "invalid PLLQ value");
+////////////////////  rcc  ////////////////////
 
-    static constexpr RCC::PLLCFGR::value_type value =
-      RCC::PLLCFGR::PLLM::value_from(m)           |
-      RCC::PLLCFGR::PLLN::value_from(n)           |
-      RCC::PLLCFGR::PLLP::value_from((p >> 1) -1) |
-      RCC::PLLCFGR::PLLQ::value_from(q)           |
-      RCC::PLLCFGR::PLLSRC::value;  // HSE
-  };
 
-public:
+class rcc
+{
+public:  /* ------ configuration traits ------ */
 
-  //  static constexpr freq_t cpu_clock_freq = _clock_freq;
+  using hse_enable  = regval< RCC::CR::HSEON, 1 >;
+  using hse_disable = regval< RCC::CR::HSEON, 0 >;
 
-  /* Note: this is only valid for clocks setup by set_system_clock() function */
-  static constexpr freq_t hclk_freq  = cpu_clock_freq;
-  static constexpr freq_t pclk1_freq = ( hclk_freq == mhz(120) ? mhz(30) :
-                                         hclk_freq == mhz(168) ? mhz(42) :
-                                         0 );
-  static constexpr freq_t pclk2_freq = ( hclk_freq == mhz(120) ? mhz(60) :
-                                         hclk_freq == mhz(168) ? mhz(84) :
-                                         0 );
+  using hsi_enable  = regval< RCC::CR::HSION, 1 >;
+  using hsi_disable = regval< RCC::CR::HSION, 0 >;
 
-  static void enable_hse(void) {
-    RCC::CR::HSEON::set();
-  }
+public:  /* ------ static member functions ------ */
+
   static void wait_hse_ready() {
     while(RCC::CR::HSERDY::test() == false);
   }
@@ -71,9 +52,7 @@ public:
     }
     return timeout;
   }
-  static void enable_hsi(void) {
-    RCC::CR::HSION::set();
-  }
+
   static void wait_hsi_ready() {
     while(RCC::CR::HSIRDY::test() == false);
   }
@@ -83,33 +62,100 @@ public:
     }
     return timeout;
   }
+};
 
-  static void set_system_clock(void) {
-    /* reset CFGR, and set HPRE, PPRE1, PPRE2 */
-    RCC::CFGR::reset_to<RCC::CFGR::HPRE ::DIV1,
-                        RCC::CFGR::PPRE1::DIV4,
-                        RCC::CFGR::PPRE2::DIV2>();
 
-    switch(hclk_freq) {
-    case mhz(120):
-      RCC::PLLCFGR::store(pllcfgr_hse<8, 240, 2, 5>::value);
-      break;
-    case mhz(168):
-      RCC::PLLCFGR::store(pllcfgr_hse<8, 336, 2, 7>::value);
-      break;
-    }
+////////////////////  system_clock_hse  ////////////////////
+
+
+template< typename... Tp >
+struct system_clock_hse_impl
+{
+  using cfg_list = reglist<
+    Tp...,
+    RCC::PLLCFGR::PLLSRC  /* select HSE */
+    >;
+
+  static void init(void) {
+    rcc::hse_enable::set();
+    rcc::wait_hse_ready();
+  }
+
+  static void configure(void) {
+    cfg_list::template strict_reset_to<
+      RCC::CFGR,
+      RCC::PLLCFGR
+      >();
 
     RCC::CR::PLLON::set();
     while(RCC::CR::PLLRDY::test() == false);
     RCC::CFGR::SW::PLL::set();
     while(RCC::CFGR::SWS::PLL::test() == false);
   }
-
-  static void init(void) {
-    enable_hse();
-    wait_hse_ready();
-  }
 };
+
+template< freq_t output_freq, freq_t hse_freq = mhz(8) >
+struct system_clock_hse {
+  static_assert(output_freq == !output_freq,
+                "unsupported system clock frequency (see available template specialisations below)");
+};
+
+template< freq_t hse_freq >
+struct system_clock_hse< mhz(48), hse_freq >
+: public system_clock_hse_impl <
+  RCC::CFGR::HPRE ::DIV1,
+  RCC::CFGR::PPRE1::DIV4,
+  RCC::CFGR::PPRE2::DIV2,
+  regval< RCC::PLLCFGR::PLLM, hse_freq / mhz(1) >,
+  regval< RCC::PLLCFGR::PLLN, 96 >,
+  regval< RCC::PLLCFGR::PLLP, 0  >, // DIV2
+  regval< RCC::PLLCFGR::PLLQ, 2  >
+  >
+{
+  static constexpr freq_t hclk_freq  = mhz(120);
+  static constexpr freq_t pclk1_freq = hclk_freq / 4;
+  static constexpr freq_t pclk2_freq = hclk_freq / 2;
+};
+
+template< freq_t hse_freq >
+struct system_clock_hse< mhz(120), hse_freq >
+: public system_clock_hse_impl <
+  RCC::CFGR::HPRE ::DIV1,
+  RCC::CFGR::PPRE1::DIV4,
+  RCC::CFGR::PPRE2::DIV2,
+  regval< RCC::PLLCFGR::PLLM, hse_freq / mhz(1) >,
+  regval< RCC::PLLCFGR::PLLN, 240 >,
+  regval< RCC::PLLCFGR::PLLP, 0   >, // DIV2
+  regval< RCC::PLLCFGR::PLLQ, 5   >
+  >
+{
+  static constexpr freq_t hclk_freq  = mhz(120);
+  static constexpr freq_t pclk1_freq = hclk_freq / 4;
+  static constexpr freq_t pclk2_freq = hclk_freq / 2;
+};
+
+template< freq_t hse_freq >
+struct system_clock_hse< mhz(168), hse_freq >
+: public system_clock_hse_impl <
+  RCC::CFGR::HPRE ::DIV1,
+  RCC::CFGR::PPRE1::DIV4,
+  RCC::CFGR::PPRE2::DIV2,
+  regval< RCC::PLLCFGR::PLLM, hse_freq / mhz(1) >,
+  regval< RCC::PLLCFGR::PLLN, 336 >,
+  regval< RCC::PLLCFGR::PLLP, 0   >, // DIV2
+  regval< RCC::PLLCFGR::PLLQ, 7   >
+  >
+{
+  static constexpr freq_t hclk_freq  = mhz(160);
+  static constexpr freq_t pclk1_freq = hclk_freq / 4;
+  static constexpr freq_t pclk2_freq = hclk_freq / 2;
+};
+
+
+
+
+////////////////////  peripheral clock traits  ////////////////////
+
 
 /* Clock resource declarations (enable peripheral clocks) */
 template<char>     struct rcc_gpio_clock_resources;

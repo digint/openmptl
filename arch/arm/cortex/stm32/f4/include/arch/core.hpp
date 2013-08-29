@@ -30,17 +30,19 @@ namespace mptl {
 struct core
 : public core_asm
 {
-  template<typename rcc,
-           typename flash,
-           typename pwr>
+  template<
+    typename system_clock_type,
+    typename flash_type,
+    typename pwr_type
+    >
   static void startup(void) {
     crt::init_data_section();
     crt::init_bss_section();
 
-    rcc::init();
-    flash::init();
-    pwr::init();
-    rcc::set_system_clock();
+    system_clock_type::init();
+    flash_type::init();
+    pwr_type::init();
+    system_clock_type::configure();
 
     crt::call_ctors();
   }
