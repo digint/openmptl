@@ -24,16 +24,15 @@
 #include "terminal_hooks.hpp"
 #include "kernel.hpp"
 
-static volatile int systick_count = 1000;
-static volatile int second = 0;
-
 Kernel::terminal_type Kernel::terminal;
 
 void Kernel::systick_isr() {
+  static constexpr int toggle_interval = systick::freq / 2;  /* 0.5 seconds interval */
+  static int systick_count = toggle_interval;
+
   systick_count--;
   if(systick_count == 0) {
-    systick_count = 1000;
-    second++;
+    systick_count = toggle_interval;
 
     /* Demonstrate the impact of the active_state configuration element:
      * faking active_state::low for Kernel::led_blue<> has the effect of
