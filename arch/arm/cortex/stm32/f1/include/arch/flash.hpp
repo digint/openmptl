@@ -22,41 +22,45 @@
 #define FLASH_HPP_INCLUDED
 
 #include <arch/reg/flash.hpp>
+#include <freq.hpp>
 
 namespace mptl {
 
-template<typename system_clock_type,
-         bool prefetch_buffer = true
-         >
 class flash
 {
-  static_assert(system_clock_type::hclk_freq <= mhz(72), "unsupported system clock frequency");
+  static constexpr FLASH::ACR::LATENCY::value_type min_latency(freq_t hclk_freq)
+  {
+    return
+      ((hclk_freq <= mhz(24))  ?  0  :
+       (hclk_freq <= mhz(48))  ?  1  :
+       (hclk_freq <= mhz(72))  ?  2  :
+       0xff );
+  };
 
-  static constexpr FLASH::ACR::LATENCY::value_type latency =
-    ((system_clock_type::hclk_freq <= mhz(24))  ?  0  :
-     (system_clock_type::hclk_freq <= mhz(48))  ?  1  :
-     (system_clock_type::hclk_freq <= mhz(72))  ?  2  :
-     -1 );
+public:  /* ------ configuration traits ------ */
 
-public:
+  using prefetch_buffer_enable  = regval< FLASH::ACR::PRFTBE, 1>;
+  using prefetch_buffer_disable = regval< FLASH::ACR::PRFTBE, 0>;
 
-  static void enable_prefetch_buffer(void) {
-    FLASH::ACR::PRFTBE::set();
-  }
-  static void disable_prefetch_buffer(void) {
-    FLASH::ACR::PRFTBE::clear();
-  }
+  struct latency {
+    template< typename system_clock_type >
+    using minimum = regval<
+      FLASH::ACR::LATENCY,
+      min_latency(system_clock_type::hclk_freq)
+      >;
 
-  static void set_latency(void) {
-    static_assert(latency <= 2, "invalid FLASH::ACR::LATENCY value");
-    FLASH::ACR::LATENCY::set_from(latency);
-  }
+    template< unsigned ws >
+    using wait_states = regval< FLASH::ACR::LATENCY, ws >;
+  };
 
-  static void init(void) {
-    if(prefetch_buffer)
-      enable_prefetch_buffer();
+public:  /* ------ static member functions ------ */
 
-    set_latency();
+  /**
+   * Configure FLASH register using configuration traits (Tp).
+   */
+  template< typename... Tp >
+  static void configure(void) {
+    reglist< Tp... >::template strict_reset_to< FLASH::ACR >();
   }
 };
 

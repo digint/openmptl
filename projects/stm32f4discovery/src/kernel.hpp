@@ -37,7 +37,12 @@ struct Kernel
 {
   using sysclk  = mptl::system_clock_hse< mptl::mhz(168) >;
   using pwr     = mptl::pwr< sysclk, mptl::volt(3.3), false >;
-  using flash   = mptl::flash< sysclk, pwr >;
+  using flash_cfg = mptl::reglist<
+    mptl::flash::latency::minimum< sysclk, pwr >,
+    mptl::flash::prefetch_buffer_enable< pwr >,
+    mptl::flash::instruction_cache_enable,
+    mptl::flash::data_cache_enable
+    >;
 
   using systick = mptl::systick<
     mptl::systick_clock::external< sysclk, mptl::khz(1) >

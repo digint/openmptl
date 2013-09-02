@@ -24,6 +24,7 @@
 #include "../../../../common/core.hpp"
 
 #include <crt.hpp>
+#include <arch/flash.hpp>
 
 namespace mptl {
 
@@ -32,7 +33,7 @@ struct core
 {
   template<
     typename system_clock_type,
-    typename flash_type,
+    typename flash_cfg_reglist_type,
     typename pwr_type
     >
   static void startup(void) {
@@ -40,7 +41,7 @@ struct core
     crt::init_bss_section();
 
     system_clock_type::init();
-    flash_type::init();
+    flash::configure< flash_cfg_reglist_type >();
     pwr_type::init();
     system_clock_type::configure();
 

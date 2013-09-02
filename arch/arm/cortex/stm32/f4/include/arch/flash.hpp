@@ -27,97 +27,88 @@
 
 namespace mptl {
 
-template<typename system_clock_type,
-         typename pwr_type,
-         bool prefetch_buffer = false,
-         bool instruction_cache = true,
-         bool data_cache = true
-         >
 class flash
 {
-  static constexpr freq_t hclk_freq = system_clock_type::hclk_freq;
-  static constexpr voltage_t system_voltage = pwr_type::system_voltage;
+  template< typename pwr_type >
+  struct prefetch_buffer_enable_impl {
+    static_assert(pwr_type::system_voltage >= volt(2.1), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
+    using type = regval< FLASH::ACR::PRFTEN, 1>;
+  };
 
-  static_assert((system_voltage >= volt(2.1)) || (prefetch_buffer == false), "prefetch buffer must be disabled when the supply voltage is below 2.1V");
-  static_assert(hclk_freq <= mhz(168), "unsupported system clock frequency");
+  static constexpr FLASH::ACR::LATENCY::value_type min_latency(freq_t hclk_freq, voltage_t system_voltage)
+  {
+    return
+      (system_voltage <= volt(2.1)) ? 
+      ((hclk_freq <= mhz(20))  ?  0  :
+       (hclk_freq <= mhz(40))  ?  1  :
+       (hclk_freq <= mhz(60))  ?  2  :
+       (hclk_freq <= mhz(80))  ?  3  :
+       (hclk_freq <= mhz(100)) ?  4  :
+       (hclk_freq <= mhz(120)) ?  5  :
+       (hclk_freq <= mhz(140)) ?  6  :
+       (hclk_freq <= mhz(160)) ?  7  :
+       0xff ) :
+      (system_voltage <= volt(2.4)) ?
+      ((hclk_freq <= mhz(22))  ?  0  :
+       (hclk_freq <= mhz(44))  ?  1  :
+       (hclk_freq <= mhz(66))  ?  2  :
+       (hclk_freq <= mhz(88))  ?  3  :
+       (hclk_freq <= mhz(110)) ?  4  :
+       (hclk_freq <= mhz(132)) ?  5  :
+       (hclk_freq <= mhz(154)) ?  6  :
+       (hclk_freq <= mhz(168)) ?  7  :
+       0xff ) :
+      (system_voltage <= volt(2.7)) ?
+      ((hclk_freq <= mhz(24))  ?  0  :
+       (hclk_freq <= mhz(48))  ?  1  :
+       (hclk_freq <= mhz(72))  ?  2  :
+       (hclk_freq <= mhz(96))  ?  3  :
+       (hclk_freq <= mhz(120)) ?  4  :
+       (hclk_freq <= mhz(144)) ?  5  :
+       (hclk_freq <= mhz(168)) ?  6  :
+       0xff ) :
+      (system_voltage <= volt(3.6)) ?
+      ((hclk_freq <= mhz(30))  ?  0  :
+       (hclk_freq <= mhz(60))  ?  1  :
+       (hclk_freq <= mhz(90))  ?  2  :
+       (hclk_freq <= mhz(120)) ?  3  :
+       (hclk_freq <= mhz(150)) ?  4  :
+       (hclk_freq <= mhz(168)) ?  5  :
+       0xff ) : 0xff;
+  };
 
-  static constexpr FLASH::ACR::LATENCY::value_type latency =
-    (system_voltage <= volt(2.1)) ? 
-    ((hclk_freq <= mhz(20))  ?  0  :
-     (hclk_freq <= mhz(40))  ?  1  :
-     (hclk_freq <= mhz(60))  ?  2  :
-     (hclk_freq <= mhz(80))  ?  3  :
-     (hclk_freq <= mhz(100)) ?  4  :
-     (hclk_freq <= mhz(120)) ?  5  :
-     (hclk_freq <= mhz(140)) ?  6  :
-     (hclk_freq <= mhz(160)) ?  7  :
-     -1 ) :
-    (system_voltage <= volt(2.4)) ?
-    ((hclk_freq <= mhz(22))  ?  0  :
-     (hclk_freq <= mhz(44))  ?  1  :
-     (hclk_freq <= mhz(66))  ?  2  :
-     (hclk_freq <= mhz(88))  ?  3  :
-     (hclk_freq <= mhz(110)) ?  4  :
-     (hclk_freq <= mhz(132)) ?  5  :
-     (hclk_freq <= mhz(154)) ?  6  :
-     (hclk_freq <= mhz(168)) ?  7  :
-     -1 ) :
-    (system_voltage <= volt(2.7)) ?
-    ((hclk_freq <= mhz(24))  ?  0  :
-     (hclk_freq <= mhz(48))  ?  1  :
-     (hclk_freq <= mhz(72))  ?  2  :
-     (hclk_freq <= mhz(96))  ?  3  :
-     (hclk_freq <= mhz(120)) ?  4  :
-     (hclk_freq <= mhz(144)) ?  5  :
-     (hclk_freq <= mhz(168)) ?  6  :
-     -1 ) :
-    (system_voltage <= volt(3.6)) ?
-    ((hclk_freq <= mhz(30))  ?  0  :
-     (hclk_freq <= mhz(60))  ?  1  :
-     (hclk_freq <= mhz(90))  ?  2  :
-     (hclk_freq <= mhz(120)) ?  3  :
-     (hclk_freq <= mhz(150)) ?  4  :
-     (hclk_freq <= mhz(168)) ?  5  :
-     -1 ) : -1;
-public:
+public:  /* ------ configuration traits ------ */
 
-  static void enable_prefetch_buffer(void) {
-    FLASH::ACR::PRFTEN::set();
-  }
-  static void disable_prefetch_buffer(void) {
-    FLASH::ACR::PRFTEN::clear();
-  }
+  template< typename pwr_type >
+  using prefetch_buffer_enable  = typename prefetch_buffer_enable_impl< pwr_type >::type;
 
-  static void enable_instruction_cache(void) {
-    FLASH::ACR::ICEN::set();
-  }
-  static void disable_instruction_cache(void) {
-    FLASH::ACR::ICEN::clear();
-  }
+  using prefetch_buffer_disable = regval< FLASH::ACR::PRFTEN, 0>;
 
-  static void enable_data_cache(void) {
-    FLASH::ACR::DCEN::set();
-  }
-  static void disable_data_cache(void) {
-    FLASH::ACR::DCEN::clear();
-  }
+  using instruction_cache_enable  = regval< FLASH::ACR::ICEN, 1>;
+  using instruction_cache_disable = regval< FLASH::ACR::ICEN, 0>;
 
-  static void set_latency(void) {
-    static_assert(latency <= 7, "invalid FLASH::ACR::LATENCY value");
-    FLASH::ACR::LATENCY::set_from(latency);
-  }
+  using data_cache_enable  = regval< FLASH::ACR::DCEN, 1>;
+  using data_cache_disable = regval< FLASH::ACR::DCEN, 0>;
 
-  static void init(void) {
-    auto acr = FLASH::ACR::load();
-    if(prefetch_buffer)
-      acr |= FLASH::ACR::PRFTEN::value;
-    if(instruction_cache)
-      acr |= FLASH::ACR::ICEN::value;
-    if(data_cache)
-      acr |= FLASH::ACR::DCEN::value;
-    FLASH::ACR::store(acr);
+  struct latency {
+    template< typename system_clock_type, typename pwr_type >
+    using minimum = regval<
+      FLASH::ACR::LATENCY,
+      min_latency(system_clock_type::hclk_freq, pwr_type::system_voltage)
+      >;
 
-    set_latency();
+    template< unsigned ws >
+    using wait_states = regval< FLASH::ACR::LATENCY, ws >;
+  };
+
+public:  /* ------ static member functions ------ */
+
+  /**
+   * Configure FLASH register using configuration traits (Tp).
+   */
+  template< typename... Tp >
+  static void configure(void) {
+    reglist< Tp... >::template strict_reset_to< FLASH::ACR >();
   }
 };
 
