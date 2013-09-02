@@ -93,6 +93,10 @@ struct Kernel
   static void init(void);
   static void __noreturn run(void);
 
+  using early_cfg = mptl::reglist<
+    flash_cfg
+    >;
+
   using resources = mptl::typelist<
     mptl::irq_handler< typename mptl::irq::reset, reset_isr >,
 

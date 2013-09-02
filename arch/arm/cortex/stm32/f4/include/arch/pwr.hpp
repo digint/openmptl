@@ -26,30 +26,31 @@
 
 namespace mptl {
 
-template<typename  system_clock_type,
-         voltage_t _system_voltage = volt(3.3),
-         bool      power_save = false>
+template< voltage_t _system_voltage = volt(3.3) >
 class pwr
 {
   static_assert(_system_voltage >= volt(1.8) && _system_voltage <= volt(3.6), "unsupported system voltage");
-  static_assert(power_save == false || system_clock_type::hclk_freq <= mhz(144), "system clock frequency too high for power save feature");
+
+  template< typename system_clock_type >
+  struct power_save_enable_impl {
+    static_assert(system_clock_type::hclk_freq <= mhz(144), "system clock frequency too high for power save feature");
+    using type = regval< PWR::CR::VOS, 0 >;
+  };
 
 public:
 
   static constexpr voltage_t system_voltage = _system_voltage;
 
+public:  /* ------ configuration traits ------ */
+
+  /** disable high performance mode */
+  template< typename system_clock_type >
+  using power_save_enable = typename power_save_enable_impl<system_clock_type>::type;
+
+public:  /* ------ static member functions ------ */
+
   static void disable_backup_domain_write_protection(void) {
     PWR::CR::DBP::set();
-  }
-
-  /* enable/disable high performance mode */
-  static void enable_power_save(void) {
-    PWR::CR::VOS::clear();
-  }
-
-  static void init(void) {
-    if(power_save)
-      enable_power_save();
   }
 };
 

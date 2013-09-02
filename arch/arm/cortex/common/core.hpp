@@ -21,13 +21,12 @@
 #ifndef ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 #define ARM_CORTEX_COMMON_CORE_HPP_INCLUDED
 
-#include <simulation.hpp>
 #include <register.hpp>
-#include <typelist.hpp>
+#include <crt.hpp>
 
 namespace mptl {
 
-struct core_asm
+struct core_base
 {
   static void enable_irq()        { __asm volatile ("cpsie i"); }  /**< global interrupt enable   */
   static void disable_irq()       { __asm volatile ("cpsid i"); }  /**< global interrupt disable  */
@@ -45,6 +44,35 @@ struct core_asm
   static void clrex()             { __asm volatile ("clrex"); }
 
   static void nop(unsigned value) { while(value--) nop(); }
+
+  /* Startup code.
+   *
+   *   - Initialize data and bss section
+   *   - Set early-config registers
+   *   - Set system clock
+   *
+   * Template arguments:
+   *
+   *   - system_clock_type: class providing init() and configure()
+   *       static member functions.
+   *
+   *   - early_cfg_list: list of regmask<> or reglist<> type traits to
+   *       be set before the system clock is configured.
+   */
+  template<
+    typename system_clock_type,
+    typename... early_cfg_list
+    >
+  static void startup(void) {
+    crt::init_data_section();
+    crt::init_bss_section();
+
+    system_clock_type::init();
+    reglist< early_cfg_list... >::reset_to();
+    system_clock_type::configure();
+
+    crt::call_ctors();
+  }
 };
 
 } // namespace mptl

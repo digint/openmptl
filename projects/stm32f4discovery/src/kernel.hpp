@@ -36,7 +36,8 @@
 struct Kernel
 {
   using sysclk  = mptl::system_clock_hse< mptl::mhz(168) >;
-  using pwr     = mptl::pwr< sysclk, mptl::volt(3.3), false >;
+  using pwr     = mptl::pwr< mptl::volt(3.3) >;
+
   using flash_cfg = mptl::reglist<
     mptl::flash::latency::minimum< sysclk, pwr >,
     mptl::flash::prefetch_buffer_enable< pwr >,
@@ -124,6 +125,17 @@ struct Kernel
     mptl::irq_handler< typename mptl::irq::sv_call      , null_isr    >,
     mptl::irq_handler< typename mptl::irq::debug_monitor, null_isr    >,
     mptl::irq_handler< typename mptl::irq::pend_sv      , null_isr    >
+    >;
+
+  /* Define the early configuration list.
+   *
+   * The registers listed here (regmask<> or reglist<> type traits)
+   * are set by the mptl::core::startup() function before the system
+   * clock is being configured.
+   */
+  using early_cfg = mptl::reglist<
+    // pwr::power_save_enable< sysclk >,
+    flash_cfg
     >;
 
   /* Define the resources typelist.

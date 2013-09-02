@@ -189,7 +189,6 @@ public:  /* ------ static member functions ------ */
    */
   template< typename... Tp >
   static void configure(void) {
-    SIM_DEBUG("adc::configure()");
     reglist< Tp... >::template strict_reset_to<
       typename ADCx::CR1,
       typename ADCx::CR2,
@@ -199,7 +198,6 @@ public:  /* ------ static member functions ------ */
       typename ADCx::SQR2,
       typename ADCx::SQR3
       >();
-    SIM_DEBUG("~adc::configure()");
   }
 
   static void reset(void) {

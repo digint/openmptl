@@ -23,29 +23,9 @@
 
 #include "../../../../common/core.hpp"
 
-#include <crt.hpp>
-#include <arch/flash.hpp>
-
 namespace mptl {
 
-struct core
-: public core_asm
-{
-  template<
-    typename system_clock_type,
-    typename flash_cfg_reglist_type
-    >
-  static void startup(void) {
-    crt::init_data_section();
-    crt::init_bss_section();
-
-    system_clock_type::init();
-    flash::configure< flash_cfg_reglist_type >();
-    system_clock_type::configure();
-
-    crt::call_ctors();
-  }
-};
+using core = core_base;
 
 } // namespace mptl
 

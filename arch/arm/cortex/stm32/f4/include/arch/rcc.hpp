@@ -101,23 +101,6 @@ struct system_clock_hse {
 };
 
 template< freq_t hse_freq >
-struct system_clock_hse< mhz(48), hse_freq >
-: public system_clock_hse_impl <
-  RCC::CFGR::HPRE ::DIV1,
-  RCC::CFGR::PPRE1::DIV4,
-  RCC::CFGR::PPRE2::DIV2,
-  regval< RCC::PLLCFGR::PLLM, hse_freq / mhz(1) >,
-  regval< RCC::PLLCFGR::PLLN, 96 >,
-  regval< RCC::PLLCFGR::PLLP, 0  >, // DIV2
-  regval< RCC::PLLCFGR::PLLQ, 2  >
-  >
-{
-  static constexpr freq_t hclk_freq  = mhz(120);
-  static constexpr freq_t pclk1_freq = hclk_freq / 4;
-  static constexpr freq_t pclk2_freq = hclk_freq / 2;
-};
-
-template< freq_t hse_freq >
 struct system_clock_hse< mhz(120), hse_freq >
 : public system_clock_hse_impl <
   RCC::CFGR::HPRE ::DIV1,
@@ -146,7 +129,7 @@ struct system_clock_hse< mhz(168), hse_freq >
   regval< RCC::PLLCFGR::PLLQ, 7   >
   >
 {
-  static constexpr freq_t hclk_freq  = mhz(160);
+  static constexpr freq_t hclk_freq  = mhz(168);
   static constexpr freq_t pclk1_freq = hclk_freq / 4;
   static constexpr freq_t pclk2_freq = hclk_freq / 2;
 };
