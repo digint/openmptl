@@ -101,10 +101,6 @@
 
 namespace mptl {
 
-#if 0 // TODO: provide comfort functions (map to _impl without ::type)
-template<typename... Tp>
-using merged_regmask = mpl::merged_regmask<Tp...>::type;
-#endif
 
 ////////////////////  regmask  ////////////////////
 
@@ -216,6 +212,10 @@ public:
 };
 
 
+template<typename... Tp>
+using merged_regmask = typename mpl::merged_regmask<Tp...>::type;
+
+
 ////////////////////  regbits  ////////////////////
 
 
@@ -258,11 +258,9 @@ class regbits
     // assert((val & (clear_mask >> offset)) == val);  /* input value does not match clear_mask */
     return (regdef_type::load() & regmask_type::clear_mask) == value_from(val);
   }
-#if 0 // this is confusing. find better naming for this
-  static __always_inline value_type get() {
+  static __always_inline value_type load_and_shift() {
     return (regdef_type::load() & regmask_type::clear_mask) >> offset;
   }
-#endif
 
   template<unsigned bit_no>
     struct bit : regbits< regdef_type, offset + bit_no, 1 > {

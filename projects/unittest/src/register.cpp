@@ -153,14 +153,14 @@ int main()
   TEST::REG::store(0xffff0000);
   assert(TEST::REG::BITS_0_3::test() == false);
   assert(TEST::REG::BITS_4_7::test() == false);
-  assert(TEST::REG::BITS_8_31::get() == 0xffff00);
+  assert(TEST::REG::BITS_8_31::load_and_shift() == 0xffff00);
 
   TEST::REG::BITS_0_3::set();
-  assert(TEST::REG::BITS_0_3::get() == 0xf);
+  assert(TEST::REG::BITS_0_3::load_and_shift() == 0xf);
   assert(TEST::REG::BITS_0_3::test_from(0xf) == true);
   assert(TEST::REG::BITS_4_7::test() == false);
   assert(TEST::REG::BITS_4_7::test_from(0x0) == true);
-  assert(TEST::REG::BITS_8_31::get() == 0xffff00);
+  assert(TEST::REG::BITS_8_31::load_and_shift() == 0xffff00);
 
   TEST::REG::BITS_0_3::set_from(0xc);
   assert(TEST::REG::BITS_0_3::test_from(0xc) == true);
@@ -194,7 +194,7 @@ int main()
   assert(TEST::REG::BITS_4_7::test_from(0xf) == true);
   assert(TEST::REG::BITS_0_3::test_from(0x1) == false);
   assert(TEST::REG::BITS_0_3::test_from(0xe) == false);
-  assert(TEST::REG::BITS_8_31::get() == 0x00ffffff);
+  assert(TEST::REG::BITS_8_31::load_and_shift() == 0x00ffffff);
 
   TEST::REG::store(0x000000cc);
   assert(TEST::REG::BITS_0_3::test_from(0x1) == false);
@@ -267,11 +267,11 @@ int main()
   assert(TEST::REG::load() == 0xffffff2f);
 
 
-  using merged = mpl::merged_regmask<
+  using merged = merged_regmask<
     TEST::REG::BITS_0_3,
     void,
     TEST::REG::BITS_4_7
-    >::type;
+    >;
 
   TEST::REG::store(0x00000000);
   TEST::REG::reset_to<merged>();
