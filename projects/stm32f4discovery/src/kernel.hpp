@@ -35,8 +35,8 @@
 
 struct Kernel
 {
-  using sysclk  = mptl::system_clock_hse< mptl::mhz(168) >;
-  using pwr     = mptl::pwr< mptl::volt(3.3) >;
+  using sysclk = mptl::system_clock_hse< mptl::mhz(168) >;
+  using pwr    = mptl::pwr< mptl::volt(3.3) >;
 
   using flash_cfg = mptl::reglist<
     mptl::flash::latency::minimum< sysclk, pwr >,
@@ -52,8 +52,8 @@ struct Kernel
   /* Note that setting gpio_rx_type (and gpio_tx_type respectively)
    * template parameter implicitely adds the correct mptl::gpio<>
    * configuration traits to usart::resources. This means that by
-   * calling mptl::core::configure<resources>(), the GPIO registers
-   * are automatically setup the way we need them for USART
+   * calling mptl::make_reglist<resources>::reset_to(), the GPIO
+   * registers are automatically setup the way we need them for USART
    * communication.
    */
   using usart = mptl::usart< 2, sysclk, mptl::gpio< 'A', 3 >, mptl::gpio< 'A', 2 > >;
@@ -156,7 +156,7 @@ struct Kernel
     usart_cfg,
     // usart_stream_device::resources,  // implicit in terminal_type::resources
     terminal_type::resources
-    >::type;
+    >;
 };
 
 #endif // KERNEL_HPP_INCLUDED

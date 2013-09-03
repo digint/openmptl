@@ -139,11 +139,7 @@ public:
 
   using GPIOx = GPIO<port>;
 
-  using resources = typelist<
-    rcc_gpio_clock_resources<port>
-    // TODO: unique type
-    //    resource::unique<gpio_base<port, pin_no> >
-    >;
+  using resources = rcc_gpio_clock_resources<port>;
 
 protected:
 

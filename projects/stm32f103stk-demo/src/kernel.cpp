@@ -53,9 +53,6 @@ Kernel::terminal_type Kernel::terminal;
 
 void Kernel::init(void)
 {
-  /* check unique resources */
-  // resources::check(); // TODO: do we still need this?
-
   /* set all register from Kernel::resources<> */
   mptl::make_reglist< resources >::reset_to();
 
@@ -68,8 +65,6 @@ void Kernel::init(void)
   nrf::init();
 
   joy::enable();
-
-  // lcd::set_contrast(0x45);
 }
 
 void Kernel::run(void)

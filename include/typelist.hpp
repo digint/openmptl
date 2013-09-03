@@ -45,14 +45,14 @@ template<typename... Tp>
 class sane_typelist
 {
   /**
-   * firends are *DISABLED* by default, this is subject to change.
+   * Friends are *DISABLED* by default, this is subject to change.
    *
-   * friends, hmpf. needed to hide the "_typelist_append<T, Tp...>"
+   * Friends, hmpf. Needed to hide the "_typelist_append<T, Tp...>"
    * traits from the list element types. We try to be nice and don't
    * pollute the namespace of every type derived from the
    * typelist_element class.
    *
-   * But then, we hide the append<> trait from the user. well, he
+   * But then, we hide the append<> trait from the user. Well, he
    * still can use "list<list<A>, B>" instead of
    * "list<A>::append<B>". (which is usually all you need for mpl)
    *

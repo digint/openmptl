@@ -34,9 +34,10 @@ void Kernel::systick_isr() {
   if(systick_count == 0) {
     systick_count = toggle_interval;
 
-    /* Demonstrate the impact of the active_state configuration element:
-     * faking active_state::low for Kernel::led_blue<> has the effect of
-     * green/blue leds toggling alternately.
+    /* Demonstrate the impact of the active_state configuration (in
+     * kernel.hpp, typedef led_blue): faking active_state::low for
+     * Kernel::led_blue<> has the effect of green/blue leds toggling
+     * alternately.
      */
     led_green::toggle();
     led_blue::toggle();
@@ -45,9 +46,6 @@ void Kernel::systick_isr() {
 
 void Kernel::init(void)
 {
-  /* check unique resources */
-  // resources::check(); // TODO: do we still need this?
-
   /* set all register from Kernel::resources<> */
   mptl::make_reglist< resources >::reset_to();
 

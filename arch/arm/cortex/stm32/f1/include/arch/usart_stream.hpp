@@ -18,4 +18,9 @@
  *
  */
 
+#ifndef USART_STREAM_HPP_INCLUDED
+#define USART_STREAM_HPP_INCLUDED
+
 #include "../../../common/usart_stream.hpp"
+
+#endif // USART_STREAM_HPP_INCLUDED

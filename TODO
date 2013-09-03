@@ -1,8 +1,4 @@
-- implement compile-time sorting of reglist<> (by addr), which can produce speedup
-
-- implement make_reg<> (analog to std::make_tuple<>, see register_manip.hpp for explanation!
-
-- use regbits_type for RegisterBits (see arch/arm/cortex/stm32/f1/include/arch/reg/rtc.hpp)
+- implement compile-time sorting of reglist<> (by addr), which can produce speedup in reset_to()
 
 - scb priority grouping
 - nvic priority grouping
