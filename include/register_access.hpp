@@ -39,7 +39,7 @@ template<
   reg_perm   _permission,
   Tp         reset_value
   >
-struct reg_backend
+struct reg_access
 {
   static_assert(std::is_integral<Tp>::value,  "Tp is not an integral type");
   static_assert(std::is_unsigned<Tp>::value,  "Tp is not an unsigned type");
@@ -111,7 +111,7 @@ template<
   reg_perm   _permission,
   Tp         reset_value
   >
-class reg_backend
+class reg_access
 {
   static void store_impl(Tp const value) {
     static_assert(permission != ro, "write access to a read-only register");
@@ -189,7 +189,7 @@ template<
   reg_perm   permission,
   Tp         reset_value
   >
-Tp reg_backend<Tp, addr, permission, reset_value>::reg_value = reset_value;
+Tp reg_access<Tp, addr, permission, reset_value>::reg_value = reset_value;
 
 #endif // OPENMPTL_SIMULATION
 

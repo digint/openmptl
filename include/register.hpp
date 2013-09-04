@@ -89,7 +89,7 @@
 
 #include <type_traits>
 #include <cstdint>
-#include <register_backend.hpp>
+#include <register_access.hpp>
 #include <typelist.hpp>
 #include <compiler.h>
 #include "register_mpl.hpp"
@@ -321,7 +321,7 @@ template<
   reg_perm   permission,
   Tp         _reset_value = 0 >
 class reg
-: public reg_backend<Tp, addr, permission, _reset_value>, public typelist_element
+: public reg_access<Tp, addr, permission, _reset_value>, public typelist_element
 {
 #ifndef CONFIG_USE_STD_TUPLE
   /* private constructor: instantiation would only cause confusion with set/clear functions */

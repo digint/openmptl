@@ -23,7 +23,6 @@
 
 #include <type_traits>
 #include <cstdint>
-#include <register_backend.hpp>
 #include <typelist.hpp>
 #include <compiler.h>
 
@@ -137,7 +136,7 @@ struct map_contains_reg_type {
  * with the set/clear mask of the given regmask element type
  * (list_element_type).
  *
- * This results in a single write (reg_backend::store())
+ * This results in a single write (reg_access::store())
  * instruction, NOT a read-modify-write!.
  *
  * Used e.g. in core::configure() on typelist::for_each<>() in order
