@@ -20,6 +20,7 @@
 #------------------------------------------------------------------------------
 # project setup
 #
+
 PROJECT        = stm32f4discovery-ledtest
 
 OPENMPTL_TOP   = ../..
@@ -36,7 +37,6 @@ ifdef SIMULATION
 else
   CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb
-#  CPUFLAGS     = -march=armv7e-m
 endif
 
 #FLAGS += -DHIGH_LEVEL

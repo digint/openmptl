@@ -30,9 +30,10 @@
 static constexpr char     led_port = 'D';
 static constexpr unsigned led_pin  = 12;
 
-using rcc     = mptl::rcc< mptl::mhz(168) >;
-using pwr     = mptl::pwr< rcc, mptl::volt(3.3), false >;
-using flash   = mptl::flash< rcc, pwr >;
+using sysclk  = mptl::system_clock_hse< mptl::mhz(168) >;
+using pwr     = mptl::pwr< mptl::volt(3.3) >;
+
+using early_cfg = mptl::flash::latency::minimum< sysclk, pwr >;
 
 #ifdef HIGH_LEVEL
 #include <arch/gpio.hpp>
@@ -52,10 +53,10 @@ using resources = mptl::typelist<
 
 /* Reset exception: triggered on system startup (system entry point). */
 void __naked reset_isr(void) {
-  mptl::core::startup<rcc, flash, pwr>();
+  mptl::core::startup< sysclk, early_cfg >();
 
   /* set all register from our resources<> typelist */
-  mptl::core::configure< resources >();
+  mptl::make_reglist< resources >::reset_to();
 
 #ifdef HIGH_LEVEL
   led_green ::on();
