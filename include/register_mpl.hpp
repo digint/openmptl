@@ -29,11 +29,9 @@
 namespace mptl { namespace mpl {
 
 /**
- * Base class for regmask class. Used for filtering in typelist<>.
+ * Base class for regmask<> template. Used for filtering in typelist<>.
  */
-struct regmask_base
-: public typelist_element
-{ };
+struct regmask_tag { };
 
 /**
  * Merge all regmask types (Tp...) into a new regmask type of same
@@ -179,12 +177,13 @@ struct functor_reg_clear {
   }
 };
 
+
+#if 0
 enum class write_strategy {
   read_modify_write,
   reset_to
 }; 
 
-#if 0
 /**
  * Call reg::reset_to() on each distinct merged regmask from list.
  * Ignores all non-regmask<> types in list.
@@ -197,7 +196,7 @@ template< typename typelist_type,
   typename... Tf
   >
 static void regmask_write() {
-  using regmask_list = typename typelist_type::template filter_type< regmask_base >;
+  using regmask_list = typename typelist_type::template filter_type< regmask_tag >;
   using merged_list  = typename regmask_list::template map< mpl::map_merged_regmask >;
   using unique_merged_list = typename merged_list::filter_unique::type;
 

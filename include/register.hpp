@@ -111,7 +111,7 @@ template<
   typename Tp::value_type _clear_mask
   >
 class regmask
-: public mpl::regmask_base
+: public mpl::regmask_tag, public typelist_element
 {
   static_assert(std::is_same<typename Tp::type, typename Tp::reg_type>::value, "template argument Tp is not of type: reg<>");
   static_assert((_set_mask | _clear_mask) == _clear_mask, "clear_mask does not cover all bits of set_mask");
@@ -505,10 +505,10 @@ public:
  * typelist<> types.
  *
  * Ignores all non-regmask<> types in list (more exact: all types
- * which are not derived from mpl::regmask_base).
+ * which are not derived from mpl::regmask_tag).
  */
 template< typename... Tp >
-using make_reglist = reglist< typename typelist< Tp... >::template filter_type< mpl::regmask_base > >;
+using make_reglist = reglist< typename typelist< Tp... >::template filter_type< mpl::regmask_tag > >;
 
 } // namespace mptl
 

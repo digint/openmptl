@@ -53,47 +53,33 @@ struct reg_access
 
   static constexpr bool bitop_enabled = bitband_periph::covered(addr);
 
-#ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
-  /* For some reasons, reinterpret_cast is not allowed anymore in
-   * constant expressions (C++11 standard N3376, 5.19). In older
-   * drafts (N3242), this was allowed. Disabled here, since
-   * clang-3.2 does not allow it (gcc-4.8 is less permissive here).
-   */
-  static constexpr volatile Tp * value_ptr = reinterpret_cast<volatile Tp *>(addr);
-#endif
-
   /** Load (read) register value. */
   static __always_inline Tp load(void) {
     static_assert(permission != wo, "read access to a write-only register");
-#ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
-    return *value_ptr;
-#else
     return *reinterpret_cast<volatile Tp *>(addr);
-#endif
   }
 
   /** Store (write) a register value. */
   static __always_inline void store(Tp const value) {
     static_assert(permission != ro, "write access to a read-only register");
-#ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
-    *value_ptr = value;
-#else
     *reinterpret_cast<volatile Tp *>(addr) = value;
-#endif
   }
 
+  /** Set a single bit using bitband_periph::bitset<> */
   template<unsigned bit_no>
   static __always_inline void bitset() {
     static_assert(permission != ro, "write access to a read-only register");
     bitband_periph::bitset<addr, bit_no>();
   }
 
+  /** Clear a single bit using bitband_periph::bitclear<> */
   template<unsigned bit_no>
   static __always_inline void bitclear() {
     static_assert(permission != ro, "write access to a read-only register");
     bitband_periph::bitclear<addr, bit_no>();
   }
 
+  /** Returns the value of a single bit using bitband_periph::bittest<> */
   template<unsigned bit_no>
   static __always_inline bool bittest() {
     static_assert(permission != wo, "read access to a write-only register");
