@@ -56,12 +56,12 @@ class TEST
   };
 
 public:
-  using REG = __REG < regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x55555555 > >;
+  using REG = __REG < reg< uint32_t, base_addr + 0x00, rw, 0x55555555 > >;
 
   struct REG2
-  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >
+  : public reg< uint32_t, base_addr + 0x10, rw, 0xaaaaaaaa >
   {
-    using type = regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0xaaaaaaaa >;
+    using type = reg< uint32_t, base_addr + 0x10, rw, 0xaaaaaaaa >;
 
     using BITS_0_7 = regbits< type, 0,  8 >;
   };
@@ -112,7 +112,7 @@ int main()
                 >::type::set_mask ==         0x7d935917, "");
 
 #ifdef UNITTEST_MUST_FAIL
-#warning "UNITTEST_MUST_FAIL: template argument is not of same regdef<> type"
+#warning "UNITTEST_MUST_FAIL: template argument is not of same reg<> type"
   using merge_fail = TEST::REG::merge<
     regmask<TEST::REG, 0x11111111, 0x11111111>,
     regmask<TEST::REG, 0x24824800, 0x24824800>,
@@ -122,13 +122,13 @@ int main()
 #endif
 
 #ifdef UNITTEST_MUST_FAIL
-#warning "UNITTEST_MUST_FAIL: template argument is not of same regdef<> type"
+#warning "UNITTEST_MUST_FAIL: template argument is not of same reg<> type"
   using merge_fail = regmask<TEST::REG2, 0xabcd0000, 0xabcd0000>::merge<TEST::REG::BITS_4_7::CONST_d>::type;
 #endif
 
 
 
-  /* regdef */
+  /* reg */
   TEST::REG::store(0xffff0000);
   assert(TEST::REG::test(0x000f0000) == 0x000f0000);
   assert(TEST::REG::test(0x0000c000) == 0x00000000);
@@ -278,7 +278,7 @@ int main()
   assert(TEST::REG::load() == 0x555555ff);
 
 #ifdef UNITTEST_MUST_FAIL
-#warning "UNITTEST_MUST_FAIL: merged template arguments have different regdef<> type"
+#warning "UNITTEST_MUST_FAIL: merged template arguments have different reg<> type"
   TEST::REG::clear<TEST::REG2::BITS_0_7>();
 #endif
 

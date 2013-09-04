@@ -36,7 +36,7 @@ struct FLASH
    * Flash access control register
    */
   struct ACR
-  : public regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x00, rw, 0x00000000 >
   {
     using DCRST    = regbits< type, 12,  1 >;  /**< Data cache reset          */
     using ICRST    = regbits< type, 11,  1 >;  /**< Instruction cache reset   */
@@ -49,18 +49,18 @@ struct FLASH
   /**
    * Flash key register
    */
-  using KEYR     = regdef< uint32_t, base_addr + 0x04, reg_access::wo, 0x00000000 >;
+  using KEYR     = reg< uint32_t, base_addr + 0x04, wo, 0x00000000 >;
 
   /**
    * Flash option key register
    */
-  using OPTKEYR  = regdef< uint32_t, base_addr + 0x08, reg_access::wo, 0x00000000 >;
+  using OPTKEYR  = reg< uint32_t, base_addr + 0x08, wo, 0x00000000 >;
 
   /**
    * Status register
    */
   struct SR
-  : public regdef< uint32_t, base_addr + 0x0C, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x0C, rw, 0x00000000 >
   {
     using BSY     = regbits< type, 16,  1 >;  /**< Busy                           */
     using PGSERR  = regbits< type,  7,  1 >;  /**< Programming sequence error     */
@@ -75,7 +75,7 @@ struct FLASH
    * Control register
    */
   struct CR
-  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x80000000 >
+  : public reg< uint32_t, base_addr + 0x10, rw, 0x80000000 >
   {
     using LOCK   = regbits< type, 31,  1 >;  /**< Lock                               */
     using ERRIE  = regbits< type, 25,  1 >;  /**< Error interrupt enable             */
@@ -92,7 +92,7 @@ struct FLASH
    * Flash option control register
    */
   struct OPTCR
-  : public regdef< uint32_t, base_addr + 0x14, reg_access::rw, 0x00000014 >
+  : public reg< uint32_t, base_addr + 0x14, rw, 0x00000014 >
   {
     /** User option bytes  */
     template<typename Rb>

@@ -48,16 +48,16 @@ struct GPIO
                                               port == 'B' ? 0x00000100 :
                                               0x00000000 );
 
-  using MODER    = regdef< uint32_t, base_addr + 0x00, reg_access::rw, moder_reset   >;  /**< GPIO port mode register               */
-  using OTYPER   = regdef< uint32_t, base_addr + 0x04, reg_access::rw                >;  /**< GPIO port output type register        */
-  using OSPEEDR  = regdef< uint32_t, base_addr + 0x08, reg_access::rw, ospeedr_reset >;  /**< GPIO port output speed register       */
-  using PUPDR    = regdef< uint32_t, base_addr + 0x0c, reg_access::rw, pupdr_reset   >;  /**< GPIO port pull-up/pull-down register  */
-  using IDR      = regdef< uint32_t, base_addr + 0x10, reg_access::ro /*0x0000XXXX*/ >;  /**< GPIO port input data register         */
-  using ODR      = regdef< uint32_t, base_addr + 0x14, reg_access::rw                >;  /**< GPIO port output data register        */
-  using BSRR     = regdef< uint32_t, base_addr + 0x18, reg_access::wo                >;  /**< GPIO port bit set/reset register      */
-  using LCKR     = regdef< uint32_t, base_addr + 0x1c, reg_access::rw                >;  /**< GPIO port configuration lock register */
-  using AFRL     = regdef< uint32_t, base_addr + 0x20, reg_access::rw                >;  /**< GPIO alternate function low register  */
-  using AFRH     = regdef< uint32_t, base_addr + 0x24, reg_access::rw                >;  /**< GPIO alternate function high register */
+  using MODER    = reg< uint32_t, base_addr + 0x00, rw, moder_reset   >;  /**< GPIO port mode register               */
+  using OTYPER   = reg< uint32_t, base_addr + 0x04, rw                >;  /**< GPIO port output type register        */
+  using OSPEEDR  = reg< uint32_t, base_addr + 0x08, rw, ospeedr_reset >;  /**< GPIO port output speed register       */
+  using PUPDR    = reg< uint32_t, base_addr + 0x0c, rw, pupdr_reset   >;  /**< GPIO port pull-up/pull-down register  */
+  using IDR      = reg< uint32_t, base_addr + 0x10, ro /*0x0000XXXX*/ >;  /**< GPIO port input data register         */
+  using ODR      = reg< uint32_t, base_addr + 0x14, rw                >;  /**< GPIO port output data register        */
+  using BSRR     = reg< uint32_t, base_addr + 0x18, wo                >;  /**< GPIO port bit set/reset register      */
+  using LCKR     = reg< uint32_t, base_addr + 0x1c, rw                >;  /**< GPIO port configuration lock register */
+  using AFRL     = reg< uint32_t, base_addr + 0x20, rw                >;  /**< GPIO alternate function low register  */
+  using AFRH     = reg< uint32_t, base_addr + 0x24, rw                >;  /**< GPIO alternate function high register */
 
   template< unsigned pin_no > using MODERx   = regbits< MODER  , pin_no * 2      , 2 >;
   template< unsigned pin_no > using OTYPERx  = regbits< OTYPER , pin_no          , 1 >;

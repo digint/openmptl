@@ -35,7 +35,7 @@ struct PWR
    * Power control register
    */
   struct CR
-  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00004000 >
+  : public reg< uint32_t, base_addr + 0x0, rw, 0x00004000 >
   {
     using VOS   = regbits< type, 14,  1 >;  /**< Regulator voltage scaling output selection */
     using FPDS  = regbits< type,  9,  1 >;  /**< Flash power down in Stop mode              */
@@ -52,7 +52,7 @@ struct PWR
    * Power control/status register
    */
   struct CSR
-  : public regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x4, rw, 0x00000000 >
   {
     using VOSRDY  = regbits< type, 14,  1 >;  /**< Regulator voltage scaling output selection ready bit  */
     using BRE     = regbits< type,  9,  1 >;  /**< Backup regulator enable                               */

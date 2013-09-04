@@ -33,11 +33,13 @@ namespace mptl {
 
 #ifndef OPENMPTL_SIMULATION
 
-template< typename   Tp,
-          reg_addr_t _addr,
-          reg_access _access,
-          Tp         reset_value >
-struct regdef_backend
+template<
+  typename   Tp,
+  reg_addr_t _addr,
+  reg_perm   _permission,
+  Tp         reset_value
+  >
+struct reg_backend
 {
   static_assert(std::is_integral<Tp>::value,  "Tp is not an integral type");
   static_assert(std::is_unsigned<Tp>::value,  "Tp is not an unsigned type");
@@ -46,8 +48,8 @@ struct regdef_backend
   /** Integral type used for register access. */
   using value_type = Tp;
 
-  static constexpr reg_access access = _access;
-  static constexpr reg_addr_t addr   = _addr;
+  static constexpr reg_addr_t addr       = _addr;
+  static constexpr reg_perm   permission = _permission;
 
   static constexpr bool bitop_enabled = bitband_periph::covered(addr);
 
@@ -62,7 +64,7 @@ struct regdef_backend
 
   /** Load (read) register value. */
   static __always_inline Tp load(void) {
-    static_assert(access != reg_access::wo, "read access to a write-only register");
+    static_assert(permission != wo, "read access to a write-only register");
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
     return *value_ptr;
 #else
@@ -72,7 +74,7 @@ struct regdef_backend
 
   /** Store (write) a register value. */
   static __always_inline void store(Tp const value) {
-    static_assert(access != reg_access::ro, "write access to a read-only register");
+    static_assert(permission != ro, "write access to a read-only register");
 #ifdef CONSTEXPR_REINTERPRET_CAST_ALLOWED
     *value_ptr = value;
 #else
@@ -82,19 +84,19 @@ struct regdef_backend
 
   template<unsigned bit_no>
   static __always_inline void bitset() {
-    static_assert(access != reg_access::ro, "write access to a read-only register");
+    static_assert(permission != ro, "write access to a read-only register");
     bitband_periph::bitset<addr, bit_no>();
   }
 
   template<unsigned bit_no>
   static __always_inline void bitclear() {
-    static_assert(access != reg_access::ro, "write access to a read-only register");
+    static_assert(permission != ro, "write access to a read-only register");
     bitband_periph::bitclear<addr, bit_no>();
   }
 
   template<unsigned bit_no>
   static __always_inline bool bittest() {
-    static_assert(access != reg_access::wo, "read access to a write-only register");
+    static_assert(permission != wo, "read access to a write-only register");
     return bitband_periph::bittest<addr, bit_no>();
   }
 };
@@ -103,14 +105,16 @@ struct regdef_backend
 #else  ////////////////////  OPENMPTL_SIMULATION  ////////////////////
 
 
-template< typename   Tp,
-          reg_addr_t _addr,
-          reg_access _access,
-          Tp         reset_value >
-class regdef_backend
+template<
+  typename   Tp,
+  reg_addr_t _addr,
+  reg_perm   _permission,
+  Tp         reset_value
+  >
+class reg_backend
 {
   static void store_impl(Tp const value) {
-    static_assert(access != reg_access::ro, "write access to a read-only register");
+    static_assert(permission != ro, "write access to a read-only register");
 
 #ifdef CONFIG_REGISTER_REACTION
     sim::reg_reaction reaction(addr, reg_value);
@@ -125,8 +129,8 @@ public:
   using value_type = Tp;
   static Tp reg_value;
 
-  static constexpr reg_access access = _access;
-  static constexpr reg_addr_t addr   = _addr;
+  static constexpr reg_addr_t addr       = _addr;
+  static constexpr reg_perm   permission = _permission;
 
   static constexpr bool bitop_enabled = bitband_periph::covered(addr);
 
@@ -135,7 +139,7 @@ public:
 #endif
 
   static Tp load() {
-    static_assert(access != reg_access::wo, "read access to a write-only register");
+    static_assert(permission != wo, "read access to a write-only register");
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
     dumper::dump_register_load(reg_value);
 #endif // CONFIG_DUMP_REGISTER_ACCESS
@@ -169,7 +173,7 @@ public:
 
   template<unsigned bit_no>
   static __always_inline bool bittest() {
-    static_assert(access != reg_access::wo, "read access to a write-only register");
+    static_assert(permission != wo, "read access to a write-only register");
     value_type value = reg_value & (1 << bit_no);
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
     dumper::dump_register_bittest(value);
@@ -179,11 +183,13 @@ public:
 };
 
 /* initialize reg_value to the reset value */
-template< typename   Tp,
-          reg_addr_t addr,
-          reg_access access,
-          Tp         reset_value >
-Tp regdef_backend<Tp, addr, access, reset_value>::reg_value = reset_value;
+template<
+  typename   Tp,
+  reg_addr_t addr,
+  reg_perm   permission,
+  Tp         reset_value
+  >
+Tp reg_backend<Tp, addr, permission, reset_value>::reg_value = reset_value;
 
 #endif // OPENMPTL_SIMULATION
 

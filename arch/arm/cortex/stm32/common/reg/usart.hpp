@@ -45,14 +45,14 @@ struct USART_common
    * Status register
    */
   struct SR
-  : public regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >
+  : public reg< std::uint_fast16_t, base_addr + 0x00, rw, 0x00c0 >
   {
     // TODO: document why it sucks to have to define a typedef "type"
     // here again.  This is required here (by the standard) because
     // the template parameter "base_addr" is used as
-    // template-parameter in our regdef<> base class:
+    // template-parameter in our reg<> base class:
     //
-    //   regdef< ..., base_addr + 0x00, ... >
+    //   reg< ..., base_addr + 0x00, ... >
     //                ^^^
     // C++ Standard says that you should fully qualify
     // name according to 14.6.2/3:
@@ -64,13 +64,13 @@ struct USART_common
     //   point of definition of the class template or member or
     //   during an instantiation of the class template or member.
     //
-    // This all has to do with specialization: the regdef<>
+    // This all has to do with specialization: the reg<>
     // template could be specialized later on, possibly making
     // "type" unavailable.
     // 
     // see discussion here: http://stackoverflow.com/questions/1643035/propagating-typedef-from-based-to-derived-class-for-template
     //
-    using type = regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x00c0 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x00, rw, 0x00c0 >;
 
     using CTS   = regbits< type,  9,  1 >;   /**< CTS flag                      */
     using LBD   = regbits< type,  8,  1 >;   /**< LIN break detection flag      */
@@ -88,9 +88,9 @@ struct USART_common
    * Data register
    */
   struct DR
-  : public regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x04, rw, 0x00000000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x00000000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x04, rw, 0x00000000 >;
 
     using regbits_type = regbits< type,  0,  9 >;   /**< Data value  */
   };
@@ -99,9 +99,9 @@ struct USART_common
    * Baud rate register
    */
   struct BRR
-  : public regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x08, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x08, rw, 0x0000 >;
 
     using DIV_Mantissa = regbits< type,  4, 12 >;   /**< mantissa of USARTDIV  */
     using DIV_Fraction = regbits< type,  0,  4 >;   /**< fraction of USARTDIV  */
@@ -111,9 +111,9 @@ struct USART_common
    * Control register 1
    */
   struct CR1
-  : public regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x0c, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x0c, rw, 0x0000 >;
 
     using UE      = regbits< type, 13,  1 >;   /**< USART enable                            */
     using M       = regbits< type, 12,  1 >;   /**< Word length                             */
@@ -135,9 +135,9 @@ struct USART_common
    * Control register 2
    */
   struct CR2
-  : public regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x10, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x10, rw, 0x0000 >;
 
     using LINEN  = regbits< type, 14,  1 >;   /**< LIN mode enable                       */
     using STOP   = regbits< type, 12,  2 >;   /**< STOP bits                             */
@@ -154,9 +154,9 @@ struct USART_common
    * Control register 3
    */
   struct CR3
-  : public regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x14, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x14, rw, 0x0000 >;
 
     using CTSIE  = regbits< type, 10,  1 >;   /**< CTS interrupt enable    */
     using CTSE   = regbits< type,  9,  1 >;   /**< CTS enable              */
@@ -175,9 +175,9 @@ struct USART_common
    * Guard time and prescaler register
    */
   struct GTPR
-  : public regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x18, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x18, rw, 0x0000 >;
 
     using GT   = regbits< type,  8,  8 >;   /**< Guard time value  */
     using PSC  = regbits< type,  0,  8 >;   /**< Prescaler value   */

@@ -36,7 +36,7 @@ struct RCC
    * Clock control register
    */
   struct CR
-  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000083 >
+  : public reg< uint32_t, base_addr + 0x0, rw, 0x00000083 >
   {
     using HSION    = regbits< type,  0,  1 >;  /**< Internal High Speed clock enable       */
     using HSIRDY   = regbits< type,  1,  1 >;  /**< Internal High Speed clock ready flag   */
@@ -58,7 +58,7 @@ struct RCC
    * Clock configuration register (RCC_CFGR)
    */
   struct CFGR
-  : public regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x4, rw, 0x00000000 >
   {
     /** System clock switch  */
     struct SW
@@ -208,7 +208,7 @@ struct RCC
    * Clock interrupt register (RCC_CIR)
    */
   struct CIR
-  : public regdef< uint32_t, base_addr + 0x8, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x8, rw, 0x00000000 >
   {
     using LSIRDYF    = regbits< type,  0,  1 >;  /**< LSI Ready Interrupt flag  */
     using LSERDYF    = regbits< type,  1,  1 >;  /**< LSE Ready Interrupt flag  */
@@ -239,7 +239,7 @@ struct RCC
    * APB2 peripheral reset register (RCC_APB2RSTR)
    */
   struct APB2RSTR
-  : public regdef< uint32_t, base_addr + 0xc, reg_access::rw, 0x000000000 >
+  : public reg< uint32_t, base_addr + 0xc, rw, 0x000000000 >
   {
     using AFIORST    = regbits< type,  0,  1 >;  /**< Alternate function I/O reset  */
     using IOPARST    = regbits< type,  2,  1 >;  /**< IO port A reset               */
@@ -268,7 +268,7 @@ struct RCC
    * APB1 peripheral reset register (RCC_APB1RSTR)
    */
   struct APB1RSTR
-  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x10, rw, 0x00000000 >
   {
     using TIM2RST    = regbits< type,  0,  1 >;  /**< Timer 2 reset         */
     using TIM3RST    = regbits< type,  1,  1 >;  /**< Timer 3 reset         */
@@ -301,7 +301,7 @@ struct RCC
    * AHB Peripheral Clock enable register (RCC_AHBENR)
    */
   struct AHBENR
-  : public regdef< uint32_t, base_addr + 0x14, reg_access::rw, 0x00000014 >
+  : public reg< uint32_t, base_addr + 0x14, rw, 0x00000014 >
   {
     using DMA1EN      = regbits< type,  0,  1 >;  /**< DMA1 clock enable             */
     using DMA2EN      = regbits< type,  1,  1 >;  /**< DMA2 clock enable (only available on high-density and connectivity line devices!)  */
@@ -320,7 +320,7 @@ struct RCC
    * APB2 peripheral clock enable register (RCC_APB2ENR)
    */
   struct APB2ENR
-  : public regdef< uint32_t, base_addr + 0x18, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x18, rw, 0x00000000 >
   {
     using AFIOEN    = regbits< type,  0,  1 >;  /**< Alternate function I/O clock enable  */
     using IOPAEN    = regbits< type,  2,  1 >;  /**< I/O port A clock enable              */
@@ -349,7 +349,7 @@ struct RCC
    * APB1 peripheral clock enable register (RCC_APB1ENR)
    */
   struct APB1ENR
-  : public regdef< uint32_t, base_addr + 0x1c, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x1c, rw, 0x00000000 >
   {
     using TIM2EN    = regbits< type,  0,  1 >;  /**< Timer 2 clock enable           */
     using TIM3EN    = regbits< type,  1,  1 >;  /**< Timer 3 clock enable           */
@@ -383,7 +383,7 @@ struct RCC
    * Backup domain control register (RCC_BDCR)
    */
   struct BDCR
-  : public regdef< uint32_t, base_addr + 0x20, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x20, rw, 0x00000000 >
   {
     using LSEON   = regbits< type,  0,  1 >;  /**< External Low Speed oscillator enable  */
     using LSERDY  = regbits< type,  1,  1 >;  /**< External Low Speed oscillator ready   */
@@ -406,7 +406,7 @@ struct RCC
    * Control/status register (RCC_CSR)
    */
   struct CSR
-  : public regdef< uint32_t, base_addr + 0x24, reg_access::rw, 0x0C000000 >
+  : public reg< uint32_t, base_addr + 0x24, rw, 0x0C000000 >
   {
     using LSION     = regbits< type,  0,  1 >;  /**< Internal low speed oscillator enable  */
     using LSIRDY    = regbits< type,  1,  1 >;  /**< Internal low speed oscillator ready   */
@@ -424,7 +424,7 @@ struct RCC
    * (only available on connectivity line devices!)
    */
   struct AHBRSTR
-  : public regdef< uint32_t, base_addr + 0x28, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x28, rw, 0x00000000 >
   {
     using OTGFSRST   = regbits< type, 12,  1 >;  /**< USB OTG FS reset    */
     using ETHMACRST  = regbits< type, 14,  1 >;  /**< Ethernet MAC reset  */
@@ -435,7 +435,7 @@ struct RCC
    * (only available on connectivity line devices!)
    */
   struct CFGR2
-  : public regdef< uint32_t, base_addr + 0x2c, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x2c, rw, 0x00000000 >
   {
     using PREDIV1     = regbits< type,  0,  4 >;  /**< PREDIV1 division factor     */
     using PREDIV2     = regbits< type,  4,  4 >;  /**< PREDIV2 division factor     */

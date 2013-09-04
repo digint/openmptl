@@ -34,39 +34,39 @@ namespace mptl {
 struct NVIC
 {
   /** Interrupt Controller Type Register */
-  using ICTR  = regdef< uint32_t, 0xE000E004, reg_access::ro >;
+  using ICTR  = reg< uint32_t, 0xE000E004, ro >;
 
   // TODO: The following registers are actually only 8bit wide.
   //       Check if access is better using 32bit or 8bit pointer
 
   /** Interrupt Set-Enable Registers */
   template<unsigned reg_index>
-  class ISER : public regdef<uint32_t, 0xE000E100 + 4 * reg_index, reg_access::rw >
+  class ISER : public reg<uint32_t, 0xE000E100 + 4 * reg_index, rw >
   { static_assert(reg_index < 8, "invalid index for register"); };
 
   /** Interrupt Set-Enable Registers */
   template<unsigned reg_index>
-  class ICER : public regdef<uint32_t, 0xE000E180 + 4 * reg_index, reg_access::rw >
+  class ICER : public reg<uint32_t, 0xE000E180 + 4 * reg_index, rw >
   { static_assert(reg_index < 8, "invalid index for register"); };
 
   /** Interrupt Set-Pending Registers */
   template<unsigned reg_index>
-  class ISPR : public regdef<uint32_t, 0xE000E200 + 4 * reg_index, reg_access::rw >
+  class ISPR : public reg<uint32_t, 0xE000E200 + 4 * reg_index, rw >
   { static_assert(reg_index < 8, "invalid index for register"); };
 
   /** Interrupt Clear-Pending Registers */
   template<unsigned reg_index>
-  class ICPR : public regdef<uint32_t, 0xE000E280 + 4 * reg_index, reg_access::rw >
+  class ICPR : public reg<uint32_t, 0xE000E280 + 4 * reg_index, rw >
   { static_assert(reg_index < 8, "invalid index for register"); };
 
   /** Interrupt Active Bit Register */
   template<unsigned reg_index>
-  class IABR : public regdef<uint32_t, 0xE000E300 + 4 * reg_index, reg_access::ro >
+  class IABR : public reg<uint32_t, 0xE000E300 + 4 * reg_index, ro >
   { static_assert(reg_index < 8, "invalid index for register"); };
 
   /** Interrupt Priority Register */
   template<unsigned reg_index>
-  class IPR  : public regdef<uint32_t, 0xE000E400 + 4 * reg_index, reg_access::rw >
+  class IPR  : public reg<uint32_t, 0xE000E400 + 4 * reg_index, rw >
   { static_assert(reg_index < 60, "invalid index for register"); };
 };
 

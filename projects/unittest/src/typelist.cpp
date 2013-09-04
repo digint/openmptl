@@ -30,10 +30,10 @@ std::ostream & mptl::sim::regdump_ostream = std::cout;
 
 using namespace mptl;
 
-struct A : regdef< uint32_t, 0x1000, reg_access::rw, 0 > {};
-struct B : regdef< uint32_t, 0x2000, reg_access::rw, 0x44444444 > {};
-struct C : regdef< uint8_t,  0x3000, reg_access::rw, 0 > {};
-struct D : regdef< uint32_t, 0x4000, reg_access::rw, 0x55555555 > {};
+struct A : reg< uint32_t, 0x1000, rw, 0 > {};
+struct B : reg< uint32_t, 0x2000, rw, 0x44444444 > {};
+struct C : reg< uint8_t,  0x3000, rw, 0 > {};
+struct D : reg< uint32_t, 0x4000, rw, 0x55555555 > {};
 
 using test_a_0 = regmask< A, 0x00000011, 0x000000ff >;
 using test_a_1 = regmask< A, 0x00001100, 0x0000ff00 >;

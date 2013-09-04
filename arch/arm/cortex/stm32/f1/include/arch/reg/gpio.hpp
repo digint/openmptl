@@ -36,13 +36,13 @@ struct GPIO
   static constexpr unsigned    gpio_no   = port - 'A';
   static constexpr reg_addr_t  base_addr = 0x40010800 + gpio_no * 0x0400;
 
-  using CRL   = regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x44444444 >;  /**< Port configuration register low    */
-  using CRH   = regdef< uint32_t, base_addr + 0x04, reg_access::rw, 0x44444444 >;  /**< Port configuration register high   */
-  using IDR   = regdef< uint32_t, base_addr + 0x08, reg_access::ro, 0x00000000 >;  /**< Port input data register           */
-  using ODR   = regdef< uint32_t, base_addr + 0x0c, reg_access::rw, 0x00000000 >;  /**< Port output data register          */
-  using BSRR  = regdef< uint32_t, base_addr + 0x10, reg_access::wo, 0x00000000 >;  /**< Port bit set/reset register        */
-  using BRR   = regdef< uint32_t, base_addr + 0x14, reg_access::wo, 0x00000000 >;  /**< Port bit reset register            */
-  using LCKR  = regdef< uint32_t, base_addr + 0x18, reg_access::rw, 0x00000000 >;  /**< Port configuration lock register   */
+  using CRL   = reg< uint32_t, base_addr + 0x00, rw, 0x44444444 >;  /**< Port configuration register low    */
+  using CRH   = reg< uint32_t, base_addr + 0x04, rw, 0x44444444 >;  /**< Port configuration register high   */
+  using IDR   = reg< uint32_t, base_addr + 0x08, ro, 0x00000000 >;  /**< Port input data register           */
+  using ODR   = reg< uint32_t, base_addr + 0x0c, rw, 0x00000000 >;  /**< Port output data register          */
+  using BSRR  = reg< uint32_t, base_addr + 0x10, wo, 0x00000000 >;  /**< Port bit set/reset register        */
+  using BRR   = reg< uint32_t, base_addr + 0x14, wo, 0x00000000 >;  /**< Port bit reset register            */
+  using LCKR  = reg< uint32_t, base_addr + 0x18, rw, 0x00000000 >;  /**< Port configuration lock register   */
 
   /**
    * GPIO port configuration register: returns CRL or CRH type dependent on pin_no.

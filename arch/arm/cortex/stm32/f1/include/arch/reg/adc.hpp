@@ -42,9 +42,9 @@ struct ADC
    * Status register
    */
   struct SR
-  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x0, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x0, rw, 0x00000000 >;
 
     using STRT   = regbits< type,  4,  1 >;  /**< Regular channel start flag          */
     using JSTRT  = regbits< type,  3,  1 >;  /**< Injected channel start flag         */
@@ -57,9 +57,9 @@ struct ADC
    * Control register 1
    */
   struct CR1
-  : public regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x4, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x4, rw, 0x00000000 >;
 
     using AWDEN    = regbits< type, 23,  1 >;  /**< Analog watchdog enable on regular channels            */
     using JAWDEN   = regbits< type, 22,  1 >;  /**< Analog watchdog enable on injected channels           */
@@ -80,9 +80,9 @@ struct ADC
    * Control register 2
    */
   struct CR2
-  : public regdef< uint32_t, base_addr + 0x8, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x8, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x8, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x8, rw, 0x00000000 >;
 
     using TSVREFE   = regbits< type, 23,  1 >;  /**< Temperature sensor and VREFINT enable                   */
     using SWSTART   = regbits< type, 22,  1 >;  /**< Start conversion of regular channels                    */
@@ -103,9 +103,9 @@ struct ADC
    * Sample time register 1
    */
   struct SMPR1
-  : public regdef< uint32_t, base_addr + 0xc, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0xc, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0xc, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0xc, rw, 0x00000000 >;
 
     using SMP10  = regbits< type,  0,  3 >;  /**< Channel 10 sample time selection  */
     using SMP11  = regbits< type,  3,  3 >;  /**< Channel 11 sample time selection  */
@@ -121,9 +121,9 @@ struct ADC
    * Sample time register 2
    */
   struct SMPR2
-  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x10, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x10, rw, 0x00000000 >;
 
     using SMP0  = regbits< type,  0,  3 >;  /**< Channel 0 sample time selection  */
     using SMP1  = regbits< type,  3,  3 >;  /**< Channel 1 sample time selection  */
@@ -156,10 +156,10 @@ struct ADC
    */
   template<unsigned jofr_no>
   struct JOFR
-  : public regdef< uint32_t, base_addr + 0x14 + (jofr_no - 1) * 4, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x14 + (jofr_no - 1) * 4, rw, 0x00000000 >
   {
     static_assert((jofr_no >= 1) && (jofr_no <= 4), "invalid index for JOFR register");
-    using type = regdef< uint32_t, base_addr + 0x14 + (jofr_no - 1) * 4, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x14 + (jofr_no - 1) * 4, rw, 0x00000000 >;
 
     using JOFFSET  = regbits< type,  0, 12 >;  /**< Data offset for injected channel x  */
   };
@@ -168,9 +168,9 @@ struct ADC
    * Watchdog higher threshold register
    */
   struct HTR
-  : public regdef< uint32_t, base_addr + 0x24, reg_access::rw, 0x00000FFF >
+  : public reg< uint32_t, base_addr + 0x24, rw, 0x00000FFF >
   {
-    using type = regdef< uint32_t, base_addr + 0x24, reg_access::rw, 0x00000FFF >;
+    using type = reg< uint32_t, base_addr + 0x24, rw, 0x00000FFF >;
 
     using HT  = regbits< type,  0, 12 >;  /**< Analog watchdog higher threshold  */
   };
@@ -179,9 +179,9 @@ struct ADC
    * Watchdog lower threshold register
    */
   struct LTR
-  : public regdef< uint32_t, base_addr + 0x28, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x28, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x28, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x28, rw, 0x00000000 >;
 
     using LT  = regbits< type,  0, 12 >;  /**< Analog watchdog lower threshold  */
   };
@@ -190,9 +190,9 @@ struct ADC
    * Regular sequence register 1
    */
   struct SQR1
-  : public regdef< uint32_t, base_addr + 0x2c, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x2c, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x2c, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x2c, rw, 0x00000000 >;
 
     using L     = regbits< type, 20,  4 >;  /**< Regular channel sequence length      */
     using SQ16  = regbits< type, 15,  5 >;  /**< 16th conversion in regular sequence  */
@@ -205,9 +205,9 @@ struct ADC
    * Regular sequence register 2
    */
   struct SQR2
-  : public regdef< uint32_t, base_addr + 0x30, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x30, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x30, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x30, rw, 0x00000000 >;
 
     using SQ12  = regbits< type, 25,  5 >;  /**< 12th conversion in regular sequence  */
     using SQ11  = regbits< type, 20,  5 >;  /**< 11th conversion in regular sequence  */
@@ -221,9 +221,9 @@ struct ADC
    * Regular sequence register 3
    */
   struct SQR3
-  : public regdef< uint32_t, base_addr + 0x34, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x34, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x34, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x34, rw, 0x00000000 >;
 
     using SQ6  = regbits< type, 25,  5 >;  /**< 6th conversion in regular sequence  */
     using SQ5  = regbits< type, 20,  5 >;  /**< 5th conversion in regular sequence  */
@@ -255,9 +255,9 @@ struct ADC
    * Injected sequence register
    */
   struct JSQR
-  : public regdef< uint32_t, base_addr + 0x38, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x38, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x38, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x38, rw, 0x00000000 >;
 
     using JL    = regbits< type, 20,  2 >;  /**< Injected sequence length             */
     using JSQ4  = regbits< type, 15,  5 >;  /**< 4th conversion in injected sequence  */
@@ -271,10 +271,10 @@ struct ADC
    */
   template<unsigned jdr_no>
   struct JDR
-  : public regdef< uint32_t, base_addr + 0x3c + (jdr_no - 1) * 4, reg_access::ro, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x3c + (jdr_no - 1) * 4, ro, 0x00000000 >
   {
     static_assert((jdr_no >= 1) && (jdr_no <= 4), "invalid index for JDR register");
-    using type = regdef< uint32_t, base_addr + 0x3c + (jdr_no - 1) * 4, reg_access::ro, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x3c + (jdr_no - 1) * 4, ro, 0x00000000 >;
 
     using JDATA  = regbits< type,  0, 16 >;  /**< Injected data  */
   };
@@ -283,9 +283,9 @@ struct ADC
    * regular data register
    */
   struct DR
-  : public regdef< uint32_t, base_addr + 0x4c, reg_access::ro, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x4c, ro, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x4c, reg_access::ro, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x4c, ro, 0x00000000 >;
 
     using DATA      = regbits< type,  0, 16 >;  /**< Regular data  */
     using ADC2DATA  = regbits< type, 16, 16 >;  /**< ADC2 data     */

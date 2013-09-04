@@ -25,8 +25,8 @@
 
 namespace mptl {
 
-/** Register access */
-enum class reg_access { ro, wo, rw };
+/** Register access permission */
+enum reg_perm { ro, wo, rw };
 
 #ifndef OPENMPTL_SIMULATION
 /** Register address type (uintptr_t: unsigned integer type capable of holding a pointer)  */

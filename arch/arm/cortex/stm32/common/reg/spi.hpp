@@ -43,9 +43,9 @@ struct SPI_Common
    * Control register 1
    */
   struct CR1
-  : public regdef< std::uint_fast16_t, base_addr + 0x00, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x00, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x0, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x0, rw, 0x0000 >;
 
     /** Baud Rate Control  */
     template<typename Rb>
@@ -92,9 +92,9 @@ struct SPI_Common
    * Control register 2
    */
   struct CR2
-  : public regdef< std::uint_fast16_t, base_addr + 0x04, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x04, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x4, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x4, rw, 0x0000 >;
 
     using TXEIE    = regbits< type,  7,  1 >;  /**< Tx buffer empty interrupt enable      */
     using RXNEIE   = regbits< type,  6,  1 >;  /**< Rx buffer not empty interrupt enable  */
@@ -108,9 +108,9 @@ struct SPI_Common
    * Status register
    */
   struct SR
-  : public regdef< std::uint_fast16_t, base_addr + 0x08, reg_access::rw, 0x0002 >
+  : public reg< std::uint_fast16_t, base_addr + 0x08, rw, 0x0002 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x8, reg_access::rw, 0x0002 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x8, rw, 0x0002 >;
 
     using BSY     = regbits< type,  7,  1 >;  /**< Busy flag                 */
     using OVR     = regbits< type,  6,  1 >;  /**< Overrun flag              */
@@ -125,30 +125,30 @@ struct SPI_Common
   /**
    * Data register
    */
-  using DR = regdef< std::uint_fast16_t, base_addr + 0x0c, reg_access::rw, 0x0000 >;
+  using DR = reg< std::uint_fast16_t, base_addr + 0x0c, rw, 0x0000 >;
 
   /**
    * CRC polynomial register
    */
-  using CRCPR = regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0007 >;
+  using CRCPR = reg< std::uint_fast16_t, base_addr + 0x10, rw, 0x0007 >;
 
   /**
    * Rx CRC register
    */
-  using RXCRCR = regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::ro, 0x0000 >;
+  using RXCRCR = reg< std::uint_fast16_t, base_addr + 0x14, ro, 0x0000 >;
 
   /**
    * Tx CRC register
    */
-  using TXCRCR = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::ro, 0x0000 >;
+  using TXCRCR = reg< std::uint_fast16_t, base_addr + 0x18, ro, 0x0000 >;
 
   /**
    * I2S configuration register
    */
   struct I2SCFGR
-  : public regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x1c, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x1c, rw, 0x0000 >;
 
     using I2SMOD   = regbits< type, 11,  1 >;  /**< I2S mode selection                                 */
     using I2SE     = regbits< type, 10,  1 >;  /**< I2S Enable                                         */
@@ -164,9 +164,9 @@ struct SPI_Common
    * I2S prescaler register
    */
   struct I2SPR
-  : public regdef< std::uint_fast16_t, base_addr + 0x20, reg_access::rw, 00000010 >
+  : public reg< std::uint_fast16_t, base_addr + 0x20, rw, 00000010 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x20, reg_access::rw, 00000010 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x20, rw, 00000010 >;
 
     using MCKOE    = regbits< type,  9,  1 >;  /**< Master clock output enable    */
     using ODD      = regbits< type,  8,  1 >;  /**< Odd factor for the prescaler  */

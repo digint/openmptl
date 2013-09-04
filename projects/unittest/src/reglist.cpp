@@ -26,9 +26,9 @@ using namespace mptl;
 
 std::ostream & mptl::sim::regdump_ostream = std::cout;
 
-using A = regdef< uint8_t,  0x00, reg_access::rw, 0 >;
-using B = regdef< uint16_t, 0x04, reg_access::rw, 0 >;
-using C = regdef< uint8_t,  0x08, reg_access::rw, 0xff >;
+using A = reg< uint8_t,  0x00, rw, 0 >;
+using B = reg< uint16_t, 0x04, rw, 0 >;
+using C = reg< uint8_t,  0x08, rw, 0xff >;
 
 template<> struct address_map< 0x00 > { static constexpr const char * name_str = "TEST::A"; };
 template<> struct address_map< 0x04 > { static constexpr const char * name_str = "TEST::B"; };
@@ -61,15 +61,15 @@ int main()
   using list_dirty     = typelist< B0, list_A, Dummy, B2, void, list_AB, B2 >;
   using list_converted = make_reglist< list_dirty, B0, list_A >;
 
-  static_assert(list_A::all_regdef_type< A >::value, "");
-  static_assert(list_A::all_regdef_type< B >::value == false, "");
+  static_assert(list_A::all_reg_type< A >::value, "");
+  static_assert(list_A::all_reg_type< B >::value == false, "");
 
-  static_assert(list_AB::all_regdef_type< A, B >::value, "");
-  static_assert(list_AB::all_regdef_type< A, B, C >::value, "");
-  static_assert(list_AB::all_regdef_type< A >::value == false, "");
-  static_assert(list_AB::all_regdef_type< B >::value == false, "");
+  static_assert(list_AB::all_reg_type< A, B >::value, "");
+  static_assert(list_AB::all_reg_type< A, B, C >::value, "");
+  static_assert(list_AB::all_reg_type< A >::value == false, "");
+  static_assert(list_AB::all_reg_type< B >::value == false, "");
 
-  static_assert(list_empty::all_regdef_type< A >::value, "");  // no elements are ok
+  static_assert(list_empty::all_reg_type< A >::value, "");  // no elements are ok
 
   A::store(0xf0); 
   list_A::set();
@@ -109,7 +109,7 @@ int main()
   assert(C::load() == 0xff);
 
 #ifdef UNITTEST_MUST_FAIL
-#warning UNITTEST_MUST_FAIL: static_assert failed "one or more elements (aka: Tp...) are not of regdef_type listed in strict_regdef_type"
+#warning UNITTEST_MUST_FAIL: static_assert failed "one or more elements (aka: Tp...) are not of reg_type listed in strict_reg_type"
   list_AB::strict_reset_to< A >();
 #endif
 

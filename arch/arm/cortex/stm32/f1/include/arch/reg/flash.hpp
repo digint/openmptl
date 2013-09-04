@@ -40,9 +40,9 @@ struct FLASH
    * Flash access control register
    */
   struct ACR
-  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000030 >
+  : public reg< uint32_t, base_addr + 0x0, rw, 0x00000030 >
   {
-    using type = regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000030 >;
+    using type = reg< uint32_t, base_addr + 0x0, rw, 0x00000030 >;
 
     using LATENCY  = regbits< type,  0,  3 >;  /**< Latency                         */
     using HLFCYA   = regbits< type,  3,  1 >;  /**< Flash half cycle access enable  */
@@ -54,9 +54,9 @@ struct FLASH
    * Flash key register
    */
   struct KEYR
-  : public regdef< uint32_t, base_addr + 0x4, reg_access::wo, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x4, wo, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x4, reg_access::wo, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x4, wo, 0x00000000 >;
 
     using KEY  = regbits< type,  0, 32 >;  /**< FPEC key  */
   };
@@ -65,9 +65,9 @@ struct FLASH
    * Flash option key register
    */
   struct OPTKEYR
-  : public regdef< uint32_t, base_addr + 0x8, reg_access::wo, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x8, wo, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x8, reg_access::wo, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x8, wo, 0x00000000 >;
 
     using OPTKEY  = regbits< type,  0, 32 >;  /**< Option byte key  */
   };
@@ -76,9 +76,9 @@ struct FLASH
    * Status register
    */
   struct SR
-  : public regdef< uint32_t, base_addr + 0xc, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0xc, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0xc, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0xc, rw, 0x00000000 >;
 
     using EOP       = regbits< type,  5,  1 >;  /**< End of operation        */
     using WRPRTERR  = regbits< type,  4,  1 >;  /**< Write protection error  */
@@ -90,9 +90,9 @@ struct FLASH
    * Control register
    */
   struct CR
-  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x00000080 >
+  : public reg< uint32_t, base_addr + 0x10, rw, 0x00000080 >
   {
-    using type = regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x00000080 >;
+    using type = reg< uint32_t, base_addr + 0x10, rw, 0x00000080 >;
 
     using PG      = regbits< type,  0,  1 >;  /**< Programming                        */
     using PER     = regbits< type,  1,  1 >;  /**< Page Erase                         */
@@ -110,9 +110,9 @@ struct FLASH
    * Flash address register
    */
   struct AR
-  : public regdef< uint32_t, base_addr + 0x14, reg_access::wo, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x14, wo, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x14, reg_access::wo, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x14, wo, 0x00000000 >;
 
     using FAR  = regbits< type,  0, 32 >;  /**< Flash Address  */
   };
@@ -121,9 +121,9 @@ struct FLASH
    * Option byte register
    */
   struct OBR
-  : public regdef< uint32_t, base_addr + 0x1c, reg_access::ro, 0x03FFFFFC >
+  : public reg< uint32_t, base_addr + 0x1c, ro, 0x03FFFFFC >
   {
-    using type = regdef< uint32_t, base_addr + 0x1c, reg_access::ro, 0x03FFFFFC >;
+    using type = reg< uint32_t, base_addr + 0x1c, ro, 0x03FFFFFC >;
 
     using OPTERR      = regbits< type,  0,  1 >;  /**< Option byte error  */
     using RDPRT       = regbits< type,  1,  1 >;  /**< Read protection    */
@@ -138,9 +138,9 @@ struct FLASH
    * Write protection register
    */
   struct WRPR
-  : public regdef< uint32_t, base_addr + 0x20, reg_access::ro, 0xFFFFFFFF >
+  : public reg< uint32_t, base_addr + 0x20, ro, 0xFFFFFFFF >
   {
-    using type = regdef< uint32_t, base_addr + 0x20, reg_access::ro, 0xFFFFFFFF >;
+    using type = reg< uint32_t, base_addr + 0x20, ro, 0xFFFFFFFF >;
 
     using WRP  = regbits< type,  0, 32 >;  /**< Write protect  */
   };
@@ -153,7 +153,7 @@ struct FLASH
    * NOTE: only available for XL-density Flash modules
    */
   struct KEYR2
-  : public regdef< uint32_t, base_addr + 0x44, reg_access::rw >
+  : public reg< uint32_t, base_addr + 0x44, rw >
   { };
 
   /**
@@ -162,7 +162,7 @@ struct FLASH
    * NOTE: only available for XL-density Flash modules
    */
   struct SR2
-  : public regdef< uint32_t, base_addr + 0x4c, reg_access::rw >
+  : public reg< uint32_t, base_addr + 0x4c, rw >
   { };
 
   /**
@@ -171,7 +171,7 @@ struct FLASH
    * NOTE: only available for XL-density Flash modules
    */
   struct CR2
-  : public regdef< uint32_t, base_addr + 0x50, reg_access::rw >
+  : public reg< uint32_t, base_addr + 0x50, rw >
   { };
 
   /**
@@ -180,7 +180,7 @@ struct FLASH
    * NOTE: only available for XL-density Flash modules
    */
   struct AR2
-  : public regdef< uint32_t, base_addr + 0x54, reg_access::rw >
+  : public reg< uint32_t, base_addr + 0x54, rw >
   { };
 #endif
 };

@@ -34,13 +34,13 @@ namespace mptl {
 struct SCB
 {
   /** Auxiliary Control Register, ACTLR  */
-  using ACTLR  = regdef< uint32_t, 0xE000E008, reg_access::rw >;
+  using ACTLR  = reg< uint32_t, 0xE000E008, rw >;
 
   /**
    * SysTick Control and Status Register
    */
   struct STCSR
-  : public regdef< uint32_t, 0xE000E010, reg_access::rw >
+  : public reg< uint32_t, 0xE000E010, rw >
   {
     using ENABLE     = regbits< type,  0,  1 >;  /**< [ 0: 0] Counter enable                                 */
     using TICKINT    = regbits< type,  1,  1 >;  /**< [ 1: 1] Counting down to 0 pends the SysTick handler   */
@@ -52,7 +52,7 @@ struct SCB
    * SysTick Reload Value Register
    */
   struct STRVR
-  : public regdef< uint32_t, 0xE000E014, reg_access::rw >
+  : public reg< uint32_t, 0xE000E014, rw >
   {
     using regbits_type = regbits< type, 0, 24 >;
   };
@@ -61,7 +61,7 @@ struct SCB
    * SysTick Current Value Register
    */
   struct STCVR
-  : public regdef< uint32_t, 0xE000E018, reg_access::rw >
+  : public reg< uint32_t, 0xE000E018, rw >
   {
     using regbits_type = regbits< type, 0, 24 >;
   };
@@ -70,7 +70,7 @@ struct SCB
    * SysTick Calilbration Value Register
    */
   struct STCR
-  : public regdef< uint32_t, 0xE000E01C, reg_access::ro >
+  : public reg< uint32_t, 0xE000E01C, ro >
   {
     using SKEW   = regbits< type, 30,  1 >;  /**< [30:30] Calibration value is not exactly 10 ms   */
     using NOREF  = regbits< type, 31,  1 >;  /**< [31:31] The reference clock is not provided      */
@@ -80,7 +80,7 @@ struct SCB
    * CPUID Base Register, CPUID
    */
   struct CPUID
-  : public regdef< uint32_t, 0xE000ED00, reg_access::ro >
+  : public reg< uint32_t, 0xE000ED00, ro >
   {
     using REVISION     = regbits< type,  0,  4 >;  /**< [ 3: 0] Implementation defined revision number   */
     using PARTNO       = regbits< type,  4, 12 >;  /**< [15: 4] Number of processor within family        */
@@ -93,7 +93,7 @@ struct SCB
    * Interrupt Control and State Register
    */
   struct ICSR
-  : public regdef< uint32_t, 0xE000ED04, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED04, rw >
   {
     using VECTACTIVE   = regbits< type,  0,  9 >;  /**< [ 8: 0] Active ISR number field                                                          */
     using RETTOBASE    = regbits< type, 11,  1 >;  /**< [11:11] All active exceptions minus the IPSR_current_exception yields the empty set      */
@@ -111,7 +111,7 @@ struct SCB
    * Vector Table Offset Register
    */
   struct VTOR
-  : public regdef< uint32_t, 0xE000ED08, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED08, rw >
   {
     using TBLOFF   = regbits< type,  7, 22 >;  /**< [28: 7] Vector table base offset field    */
     using TBLBASE  = regbits< type, 29,  1 >;  /**< [29:29] Table base in code(0) or RAM(1)   */
@@ -121,7 +121,7 @@ struct SCB
    * Application Interrupt and Reset Control Register
    */
   struct AIRCR
-  : public regdef< uint32_t, 0xE000ED0C, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED0C, rw >
   {
     using VECTRESET      = regbits< type,  0,  1 >;  /**< [ 0: 0] System Reset bit                                         */
     using VECTCLRACTIVE  = regbits< type,  1,  1 >;  /**< [ 1: 1] Clear active vector bit                                  */
@@ -135,7 +135,7 @@ struct SCB
    * System Control Register
    */
   struct SCR
-  : public regdef< uint32_t, 0xE000ED10, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED10, rw >
   {
     using SLEEPONEXIT  = regbits< type,  1,  1 >;  /**< [ 1: 1] Sleep on exit bit   */
     using SLEEPDEEP    = regbits< type,  2,  1 >;  /**< [ 2: 2] Sleep deep bit      */
@@ -146,7 +146,7 @@ struct SCB
    * Configuration and Control Register
    */
   struct CCR
-  : public regdef< uint32_t, 0xE000ED14, reg_access::rw, 0x00000200 >
+  : public reg< uint32_t, 0xE000ED14, rw, 0x00000200 >
   {
     using NONBASETHRDENA  = regbits< type,  0,  1 >;  /**< [ 0: 0] Thread mode can be entered from any level in Handler mode by controlled return value                    */
     using USERSETMPEND    = regbits< type,  1,  1 >;  /**< [ 1: 1] Enables user code to write the Software Trigger Interrupt register to trigger (pend) a Main exception   */
@@ -161,11 +161,11 @@ struct SCB
    */
   template<unsigned reg_index>
   struct SHPR
-  : public regdef< uint32_t, 0xE000ED18 + 4 * reg_index, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED18 + 4 * reg_index, rw >
   {
     static_assert(reg_index < 3, "invalid index for register");
 
-    using type = regdef< uint32_t, 0xE000ED18 + 4 * reg_index, reg_access::rw >;
+    using type = reg< uint32_t, 0xE000ED18 + 4 * reg_index, rw >;
 
     // TODO: template PRIx
     using PRI_N   = regbits< type,  0,  8 >;  /**< [ 7: 0] Priority of system handler 4,8, and 12. Mem Manage, reserved and Debug Monitor   */
@@ -178,7 +178,7 @@ struct SCB
    * System Handler Control and State Register
    */
   struct SHCSR
-  : public regdef< uint32_t, 0xE000ED24, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED24, rw >
   {
     using MEMFAULTACT     = regbits< type,  0,  1 >;  /**< [ 0: 0] MemManage is active     */
     using BUSFAULTACT     = regbits< type,  1,  1 >;  /**< [ 1: 1] BusFault is active      */
@@ -200,7 +200,7 @@ struct SCB
    * Configurable Fault Status Registers
    */
   struct CFSR
-  : public regdef< uint32_t, 0xE000ED28, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED28, rw >
   {
     /* MFSR */
     // TODO: byte-accessible registers
@@ -231,7 +231,7 @@ struct SCB
    * HardFault Status Register
    */
   struct HFSR
-  : public regdef< uint32_t, 0xE000ED2C, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED2C, rw >
   {
     using VECTTBL   = regbits< type,  1,  1 >;  /**< [ 1: 1] Fault occures because of vector table read on exception processing                */
     using FORCED    = regbits< type, 30,  1 >;  /**< [30:30] Hard Fault activated when a configurable Fault was received and cannot activate   */
@@ -242,7 +242,7 @@ struct SCB
    * Debug Fault Status Register
    */
   struct DFSR
-  : public regdef< uint32_t, 0xE000ED30, reg_access::rw >
+  : public reg< uint32_t, 0xE000ED30, rw >
   {
     using HALTED    = regbits< type,  0,  1 >;  /**< [ 0: 0] Halt request flag                      */
     using BKPT      = regbits< type,  1,  1 >;  /**< [ 1: 1] BKPT flag                              */
@@ -252,24 +252,24 @@ struct SCB
   };
 
 
-  using MMFAR     = regdef< uint32_t, 0xE000ED34, reg_access::rw             >;  /**< MemManage Fault Address Register[b]     */
-  using BFAR      = regdef< uint32_t, 0xE000ED38, reg_access::rw             >;  /**< BusFault Address Register[b]            */
-  using AFSR      = regdef< uint32_t, 0xE000ED3C, reg_access::rw             >;  /**< Auxiliary Fault Status Register, AFSR   */
-  using ID_PFR0   = regdef< uint32_t, 0xE000ED40, reg_access::ro, 0x00000030 >;  /**< Processor Feature Register 0            */
-  using ID_PFR1   = regdef< uint32_t, 0xE000ED44, reg_access::ro, 0x00000200 >;  /**< Processor Feature Register 1            */
-  using ID_DFR0   = regdef< uint32_t, 0xE000ED48, reg_access::ro, 0x00100000 >;  /**< Debug Features Register 0[c]            */
-  using ID_AFR0   = regdef< uint32_t, 0xE000ED4C, reg_access::ro             >;  /**< Auxiliary Features Register 0           */
-  using ID_MMFR0  = regdef< uint32_t, 0xE000ED50, reg_access::ro, 0x00100030 >;  /**< Memory Model Feature Register 0         */
-  using ID_MMFR1  = regdef< uint32_t, 0xE000ED54, reg_access::ro             >;  /**< Memory Model Feature Register 1         */
-  using ID_MMFR2  = regdef< uint32_t, 0xE000ED58, reg_access::ro, 0x01000000 >;  /**< Memory Model Feature Register 2         */
-  using ID_MMFR3  = regdef< uint32_t, 0xE000ED5C, reg_access::ro             >;  /**< Memory Model Feature Register 3         */
-  using ID_ISAR0  = regdef< uint32_t, 0xE000ED60, reg_access::ro, 0x01100110 >;  /**< Instruction Set Attributes Register 0   */
-  using ID_ISAR1  = regdef< uint32_t, 0xE000ED64, reg_access::ro, 0x02111000 >;  /**< Instruction Set Attributes Register 1   */
-  using ID_ISAR2  = regdef< uint32_t, 0xE000ED68, reg_access::ro, 0x21112231 >;  /**< Instruction Set Attributes Register 2   */
-  using ID_ISAR3  = regdef< uint32_t, 0xE000ED6C, reg_access::ro, 0x01111110 >;  /**< Instruction Set Attributes Register 3   */
-  using ID_ISAR4  = regdef< uint32_t, 0xE000ED70, reg_access::ro, 0x01310132 >;  /**< Instruction Set Attributes Register 4   */
-  using CPACR     = regdef< uint32_t, 0xE000ED88, reg_access::rw             >;  /**< Coprocessor Access Control Register     */
-  using STIR      = regdef< uint32_t, 0xE000EF00, reg_access::wo             >;  /**< Software Triggered Interrupt Register   */
+  using MMFAR     = reg< uint32_t, 0xE000ED34, rw             >;  /**< MemManage Fault Address Register[b]     */
+  using BFAR      = reg< uint32_t, 0xE000ED38, rw             >;  /**< BusFault Address Register[b]            */
+  using AFSR      = reg< uint32_t, 0xE000ED3C, rw             >;  /**< Auxiliary Fault Status Register, AFSR   */
+  using ID_PFR0   = reg< uint32_t, 0xE000ED40, ro, 0x00000030 >;  /**< Processor Feature Register 0            */
+  using ID_PFR1   = reg< uint32_t, 0xE000ED44, ro, 0x00000200 >;  /**< Processor Feature Register 1            */
+  using ID_DFR0   = reg< uint32_t, 0xE000ED48, ro, 0x00100000 >;  /**< Debug Features Register 0[c]            */
+  using ID_AFR0   = reg< uint32_t, 0xE000ED4C, ro             >;  /**< Auxiliary Features Register 0           */
+  using ID_MMFR0  = reg< uint32_t, 0xE000ED50, ro, 0x00100030 >;  /**< Memory Model Feature Register 0         */
+  using ID_MMFR1  = reg< uint32_t, 0xE000ED54, ro             >;  /**< Memory Model Feature Register 1         */
+  using ID_MMFR2  = reg< uint32_t, 0xE000ED58, ro, 0x01000000 >;  /**< Memory Model Feature Register 2         */
+  using ID_MMFR3  = reg< uint32_t, 0xE000ED5C, ro             >;  /**< Memory Model Feature Register 3         */
+  using ID_ISAR0  = reg< uint32_t, 0xE000ED60, ro, 0x01100110 >;  /**< Instruction Set Attributes Register 0   */
+  using ID_ISAR1  = reg< uint32_t, 0xE000ED64, ro, 0x02111000 >;  /**< Instruction Set Attributes Register 1   */
+  using ID_ISAR2  = reg< uint32_t, 0xE000ED68, ro, 0x21112231 >;  /**< Instruction Set Attributes Register 2   */
+  using ID_ISAR3  = reg< uint32_t, 0xE000ED6C, ro, 0x01111110 >;  /**< Instruction Set Attributes Register 3   */
+  using ID_ISAR4  = reg< uint32_t, 0xE000ED70, ro, 0x01310132 >;  /**< Instruction Set Attributes Register 4   */
+  using CPACR     = reg< uint32_t, 0xE000ED88, rw             >;  /**< Coprocessor Access Control Register     */
+  using STIR      = reg< uint32_t, 0xE000EF00, wo             >;  /**< Software Triggered Interrupt Register   */
 };
 
 } // namespace mptl

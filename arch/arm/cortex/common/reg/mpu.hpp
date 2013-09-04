@@ -33,17 +33,17 @@ namespace mptl {
  */
 struct MPU
 {
-  using TYPE     = regdef< uint32_t, 0xE000ED90, reg_access::ro, 0x00000800 >;  /**< MPU Type Register                        */
-  using CTRL     = regdef< uint32_t, 0xE000ED94, reg_access::rw             >;  /**< MPU Control Register                     */
-  using RNR      = regdef< uint32_t, 0xE000ED98, reg_access::rw             >;  /**< MPU Region Number Register               */
-  using RBAR     = regdef< uint32_t, 0xE000ED9C, reg_access::rw             >;  /**< MPU Region Base Address Register         */
-  using RASR     = regdef< uint32_t, 0xE000EDA0, reg_access::rw             >;  /**< MPU Region Attribute and Size Register   */
-  using RBAR_A1  = regdef< uint32_t, 0xE000EDA4, reg_access::rw             >;  /**< MPU alias registers                      */
-  using RASR_A1  = regdef< uint32_t, 0xE000EDA8, reg_access::rw             >;  /**<                                          */
-  using RBAR_A2  = regdef< uint32_t, 0xE000EDAC, reg_access::rw             >;  /**<                                          */
-  using RASR_A2  = regdef< uint32_t, 0xE000EDB0, reg_access::rw             >;  /**<                                          */
-  using RBAR_A3  = regdef< uint32_t, 0xE000EDB4, reg_access::rw             >;  /**<                                          */
-  using RASR_A3  = regdef< uint32_t, 0xE000EDB8, reg_access::rw             >;  /**<                                          */
+  using TYPE     = reg< uint32_t, 0xE000ED90, ro, 0x00000800 >;  /**< MPU Type Register                        */
+  using CTRL     = reg< uint32_t, 0xE000ED94, rw             >;  /**< MPU Control Register                     */
+  using RNR      = reg< uint32_t, 0xE000ED98, rw             >;  /**< MPU Region Number Register               */
+  using RBAR     = reg< uint32_t, 0xE000ED9C, rw             >;  /**< MPU Region Base Address Register         */
+  using RASR     = reg< uint32_t, 0xE000EDA0, rw             >;  /**< MPU Region Attribute and Size Register   */
+  using RBAR_A1  = reg< uint32_t, 0xE000EDA4, rw             >;  /**< MPU alias registers                      */
+  using RASR_A1  = reg< uint32_t, 0xE000EDA8, rw             >;  /**<                                          */
+  using RBAR_A2  = reg< uint32_t, 0xE000EDAC, rw             >;  /**<                                          */
+  using RASR_A2  = reg< uint32_t, 0xE000EDB0, rw             >;  /**<                                          */
+  using RBAR_A3  = reg< uint32_t, 0xE000EDB4, rw             >;  /**<                                          */
+  using RASR_A3  = reg< uint32_t, 0xE000EDB8, rw             >;  /**<                                          */
 };
 
 } // namespace mptl

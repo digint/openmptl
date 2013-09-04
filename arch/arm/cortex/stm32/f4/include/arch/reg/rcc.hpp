@@ -37,7 +37,7 @@ struct RCC
    * Clock control register
    */
   struct CR
-  : public regdef< uint32_t, base_addr + 0x00, reg_access::rw, 0x00000083 >
+  : public reg< uint32_t, base_addr + 0x00, rw, 0x00000083 >
   {
     using PLLI2SRDY  = regbits< type, 27,  1 >;  /**< PLLI2S clock ready flag                */
     using PLLI2SON   = regbits< type, 26,  1 >;  /**< PLLI2S enable                          */
@@ -57,7 +57,7 @@ struct RCC
    * PLL configuration register
    */
   struct PLLCFGR
-  : public regdef< uint32_t, base_addr + 0x04, reg_access::rw, 0x24003010 >
+  : public reg< uint32_t, base_addr + 0x04, rw, 0x24003010 >
   {
     using PLLQ    = regbits< type, 24,  4 >;  /**< Main PLL division factor for USB OTG FS, SDIO and random number generator clocks  */
     using PLLSRC  = regbits< type, 22,  1 >;  /**< Main PLL and audio PLL entry clock source                                         */
@@ -70,7 +70,7 @@ struct RCC
    * Clock configuration register
    */
   struct CFGR
-  : public regdef< uint32_t, base_addr + 0x08, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x08, rw, 0x00000000 >
   {
     /** APB1/2 prescaler  */
     template<typename Rb>
@@ -127,7 +127,7 @@ struct RCC
    * Clock interrupt register
    */
   struct CIR
-  : public regdef< uint32_t, base_addr + 0x0C, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x0C, rw, 0x00000000 >
   {
     using CSSC         = regbits< type, 23,  1 >;  /**< Clock security system interrupt clear  */
     using PLLI2SRDYC   = regbits< type, 21,  1 >;  /**< PLLI2S ready interrupt clear           */
@@ -155,7 +155,7 @@ struct RCC
    * AHB1 peripheral reset register
    */
   struct AHB1RSTR
-  : public regdef< uint32_t, base_addr + 0x10, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x10, rw, 0x00000000 >
   {
     using OTGHSRST   = regbits< type, 29,  1 >;  /**< USB OTG HS module reset  */
     using ETHMACRST  = regbits< type, 25,  1 >;  /**< Ethernet MAC reset       */
@@ -177,7 +177,7 @@ struct RCC
    * AHB2 peripheral reset register
    */
   struct AHB2RSTR
-  : public regdef< uint32_t, base_addr + 0x14, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x14, rw, 0x00000000 >
   {
     using OTGFSRST  = regbits< type,  7,  1 >;  /**< USB OTG FS module reset               */
     using RNGRST    = regbits< type,  6,  1 >;  /**< Random number generator module reset  */
@@ -188,7 +188,7 @@ struct RCC
    * AHB3 peripheral reset register
    */
   struct AHB3RSTR
-  : public regdef< uint32_t, base_addr + 0x18, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x18, rw, 0x00000000 >
   {
     using FSMCRST  = regbits< type,  0,  1 >;  /**< Flexible static memory controller module reset  */
   };
@@ -197,7 +197,7 @@ struct RCC
    * APB1 peripheral reset register
    */
   struct APB1RSTR
-  : public regdef< uint32_t, base_addr + 0x20, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x20, rw, 0x00000000 >
   {
     using DACRST    = regbits< type, 29,  1 >;  /**< DAC reset              */
     using PWRRST    = regbits< type, 28,  1 >;  /**< Power interface reset  */
@@ -228,7 +228,7 @@ struct RCC
    * APB2 peripheral reset register
    */
   struct APB2RSTR
-  : public regdef< uint32_t, base_addr + 0x24, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x24, rw, 0x00000000 >
   {
     using TIM11RST   = regbits< type, 18,  1 >;  /**< TIM11 reset                               */
     using TIM10RST   = regbits< type, 17,  1 >;  /**< TIM10 reset                               */
@@ -247,7 +247,7 @@ struct RCC
    * AHB1 peripheral clock register
    */
   struct AHB1ENR
-  : public regdef< uint32_t, base_addr + 0x30, reg_access::rw, 0x00100000 >
+  : public reg< uint32_t, base_addr + 0x30, rw, 0x00100000 >
   {
     using OTGHSULPIEN  = regbits< type, 30,  1 >;  /**< USB OTG HSULPI clock enable         */
     using OTGHSEN      = regbits< type, 29,  1 >;  /**< USB OTG HS clock enable             */
@@ -274,7 +274,7 @@ struct RCC
    * AHB2 peripheral clock enable register
    */
   struct AHB2ENR
-  : public regdef< uint32_t, base_addr + 0x34, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x34, rw, 0x00000000 >
   {
     using OTGFSEN  = regbits< type,  7,  1 >;  /**< USB OTG FS clock enable               */
     using RNGEN    = regbits< type,  6,  1 >;  /**< Random number generator clock enable  */
@@ -285,7 +285,7 @@ struct RCC
    * AHB3 peripheral clock enable register
    */
   struct AHB3ENR
-  : public regdef< uint32_t, base_addr + 0x38, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x38, rw, 0x00000000 >
   {
     using FSMCEN  = regbits< type,  0,  1 >;  /**< Flexible static memory controller module clock enable  */
   };
@@ -294,7 +294,7 @@ struct RCC
    * APB1 peripheral clock enable register
    */
   struct APB1ENR
-  : public regdef< uint32_t, base_addr + 0x40, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x40, rw, 0x00000000 >
   {
     using DACEN     = regbits< type, 29,  1 >;  /**< DAC interface clock enable    */
     using PWREN     = regbits< type, 28,  1 >;  /**< Power interface clock enable  */
@@ -325,7 +325,7 @@ struct RCC
    * APB2 peripheral clock enable register
    */
   struct APB2ENR
-  : public regdef< uint32_t, base_addr + 0x44, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x44, rw, 0x00000000 >
   {
     using TIM11EN   = regbits< type, 18,  1 >;  /**< TIM11 clock enable                            */
     using TIM10EN   = regbits< type, 17,  1 >;  /**< TIM10 clock enable                            */
@@ -346,7 +346,7 @@ struct RCC
    * AHB1 peripheral clock enable in low power mode register
    */
   struct AHB1LPENR
-  : public regdef< uint32_t, base_addr + 0x50, reg_access::rw, 0x7E6791FF >
+  : public reg< uint32_t, base_addr + 0x50, rw, 0x7E6791FF >
   {
     using OTGHSULPILPEN  = regbits< type, 30,  1 >;  /**< USB OTG HS ULPI clock enable during sleep mode        */
     using OTGHSLPEN      = regbits< type, 29,  1 >;  /**< USB OTG HS clock enable during sleep mode             */
@@ -376,7 +376,7 @@ struct RCC
    * AHB2 peripheral clock enable in low power mode register
    */
   struct AHB2LPENR
-  : public regdef< uint32_t, base_addr + 0x54, reg_access::rw, 0x000000F1 >
+  : public reg< uint32_t, base_addr + 0x54, rw, 0x000000F1 >
   {
     using OTGFSLPEN  = regbits< type,  7,  1 >;  /**< USB OTG FS clock enable during sleep mode               */
     using RNGLPEN    = regbits< type,  6,  1 >;  /**< Random number generator clock enable during sleep mode  */
@@ -387,7 +387,7 @@ struct RCC
    * AHB3 peripheral clock enable in low power mode register
    */
   struct AHB3LPENR
-  : public regdef< uint32_t, base_addr + 0x58, reg_access::rw, 0x00000001 >
+  : public reg< uint32_t, base_addr + 0x58, rw, 0x00000001 >
   {
     using FSMCLPEN  = regbits< type,  0,  1 >;  /**< Flexible static memory controller module clock enable during sleep mode  */
   };
@@ -396,7 +396,7 @@ struct RCC
    * APB1 peripheral clock enable in low power mode register
    */
   struct APB1LPENR
-  : public regdef< uint32_t, base_addr + 0x60, reg_access::rw, 0x36FEC9FF >
+  : public reg< uint32_t, base_addr + 0x60, rw, 0x36FEC9FF >
   {
     using DACLPEN     = regbits< type, 29,  1 >;  /**< DAC interface clock enable during sleep mode    */
     using PWRLPEN     = regbits< type, 28,  1 >;  /**< Power interface clock enable during sleep mode  */
@@ -427,7 +427,7 @@ struct RCC
    * APB2 peripheral clock enabled in low power mode register
    */
   struct APB2LPENR
-  : public regdef< uint32_t, base_addr + 0x64, reg_access::rw, 0x00075F33 >
+  : public reg< uint32_t, base_addr + 0x64, rw, 0x00075F33 >
   {
     using TIM11LPEN   = regbits< type, 18,  1 >;  /**< TIM11 clock enable during sleep mode                            */
     using TIM10LPEN   = regbits< type, 17,  1 >;  /**< TIM10 clock enable during sleep mode                            */
@@ -448,7 +448,7 @@ struct RCC
    * Backup domain control register
    */
   struct BDCR
-  : public regdef< uint32_t, base_addr + 0x70, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x70, rw, 0x00000000 >
   {
     using BDRST    = regbits< type, 16,  1 >;  /**< Backup domain software reset          */
     using RTCEN    = regbits< type, 15,  1 >;  /**< RTC clock enable                      */
@@ -463,7 +463,7 @@ struct RCC
    * Clock control and status register
    */
   struct CSR
-  : public regdef< uint32_t, base_addr + 0x74, reg_access::rw, 0x0E000000 >
+  : public reg< uint32_t, base_addr + 0x74, rw, 0x0E000000 >
   {
     using LPWRRSTF  = regbits< type, 31,  1 >;  /**< Low-power reset flag                  */
     using WWDGRSTF  = regbits< type, 30,  1 >;  /**< Window watchdog reset flag            */
@@ -481,7 +481,7 @@ struct RCC
    * Spread spectrum clock generation register
    */
   struct SSCGR
-  : public regdef< uint32_t, base_addr + 0x80, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x80, rw, 0x00000000 >
   {
     using SSCGEN     = regbits< type, 31,  1 >;  /**< Spread spectrum modulation enable  */
     using SPREADSEL  = regbits< type, 30,  1 >;  /**< Spread Select                      */
@@ -493,7 +493,7 @@ struct RCC
    * PLLI2S configuration register
    */
   struct PLLI2SCFGR
-  : public regdef< uint32_t, base_addr + 0x84, reg_access::rw, 0x20003000 >
+  : public reg< uint32_t, base_addr + 0x84, rw, 0x20003000 >
   {
     using PLLI2SR  = regbits< type, 28,  3 >;  /**< PLLI2S division factor for I2S clocks  */
     using PLLI2SN  = regbits< type,  6,  9 >;  /**< PLLI2S multiplication factor for VCO   */

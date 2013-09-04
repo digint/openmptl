@@ -33,16 +33,16 @@ namespace mptl {
  */
 struct DEBUG
 {
-  using DFSR   = regdef<uint32_t, 0xE000ED30, reg_access::rw>;  /**< Debug Fault Status Register                   */
-  using DHCSR  = regdef<uint32_t, 0xE000EDF0, reg_access::rw>;  /**< Debug Halting Control and Status Register     */
-  using DCRSR  = regdef<uint32_t, 0xE000EDF4, reg_access::wo>;  /**< Debug Core Register Selector Register         */
-  using DCRDR  = regdef<uint32_t, 0xE000EDF8, reg_access::rw>;  /**< Debug Core Register Data Register             */
+  using DFSR   = reg<uint32_t, 0xE000ED30, rw>;  /**< Debug Fault Status Register                   */
+  using DHCSR  = reg<uint32_t, 0xE000EDF0, rw>;  /**< Debug Halting Control and Status Register     */
+  using DCRSR  = reg<uint32_t, 0xE000EDF4, wo>;  /**< Debug Core Register Selector Register         */
+  using DCRDR  = reg<uint32_t, 0xE000EDF8, rw>;  /**< Debug Core Register Data Register             */
 
   /**
    * Debug Exception and Monitor Control Register
    */
   struct DEMCR
-  : public regdef<uint32_t, 0xE000EDFC, reg_access::rw>
+  : public reg<uint32_t, 0xE000EDFC, rw>
   {
     using TRCENA  = regbits< type, 24,  1 >;   /**< Enable DWT */
   };

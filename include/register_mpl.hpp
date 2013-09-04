@@ -38,10 +38,10 @@ struct regmask_base
 
 /**
  * Merge all regmask types (Tp...) into a new regmask type of same
- * regdef_type. Silently ignores void types in Tp. Returns void type
+ * reg_type. Silently ignores void types in Tp. Returns void type
  * on an empty list.
  *
- * NOTE: all template arguments must be of same regdef_type, or void.
+ * NOTE: all template arguments must be of same reg_type, or void.
  */
 template<typename... Tp>
 struct merged_regmask;
@@ -70,12 +70,12 @@ struct merged_regmask<T0, Tp...> {
 
 /**
  * Provides a list, whose types all share the same underlying
- * regdef_type = Tp
+ * reg_type = Tp
  */
 template<typename Tp>
-struct filter_regdef_type {
+struct filter_reg_type {
   template<typename Tf>
-  using filter = std::is_same< typename Tp::regdef_type, typename Tf::regdef_type >;
+  using filter = std::is_same< typename Tp::reg_type, typename Tf::reg_type >;
 };
 
 
@@ -83,7 +83,7 @@ struct filter_regdef_type {
  * Packs elements to a merged_regmask (aka: regmask<>).
  *
  * NOTE: merged_regmask<> asserts at compile-time that ALL the
- * elements in Tp... are of same regdef_type.
+ * elements in Tp... are of same reg_type.
  */
 struct pack_merged_regmask {
   template<typename... Tp>
@@ -95,12 +95,12 @@ struct pack_merged_regmask {
 
 /**
  * Map each element in list to a merged_regmask of all elements in
- * list having the same regdef_type.
+ * list having the same reg_type.
  */
 struct map_merged_regmask {
   template<typename Tp, typename list_type>
   struct map {
-    using filtered_list = typename list_type::template filter< filter_regdef_type<Tp> >::type;
+    using filtered_list = typename list_type::template filter< filter_reg_type<Tp> >::type;
     using type = typename filtered_list::template pack< pack_merged_regmask >::type;
   };
 };
@@ -108,19 +108,19 @@ struct map_merged_regmask {
 
 /**
  * Map each element (aka: Tp) in list to a
- * std::integral_constant<bool,v> type, with v=true if the Tregdef
+ * std::integral_constant<bool,v> type, with v=true if the Treg
  * list contains at least one element of type Tp.
  *
  * Used in conjunction with typelist::all_true to check a list for
- * multiple regdef types.
+ * multiple reg types.
  */
-template< typename... Tregdef >
-struct map_contains_regdef_type {
+template< typename... Treg >
+struct map_contains_reg_type {
   template<typename Tp, typename list_type>
   struct map {
     using type = std::integral_constant<
       bool,
-      typelist< typename Tregdef::regdef_type... >::template contains< typename Tp::regdef_type >::value
+      typelist< typename Treg::reg_type... >::template contains< typename Tp::reg_type >::value
       >;
   };
 };
@@ -133,17 +133,17 @@ struct map_contains_regdef_type {
  * member (e.g. regmask<> type), so you might want to filter your
  * typelist first.
  *
- * Sets a register to its reset value (regdef::reset_value), merged
+ * Sets a register to its reset value (reg::reset_value), merged
  * with the set/clear mask of the given regmask element type
  * (list_element_type).
  *
- * This results in a single write (regdef_backend::store())
+ * This results in a single write (reg_backend::store())
  * instruction, NOT a read-modify-write!.
  *
  * Used e.g. in core::configure() on typelist::for_each<>() in order
  * to reset all register from the accumulated resources list at once.
  *
- * See regdef::reset_to<>() documentation for more information.
+ * See reg::reset_to<>() documentation for more information.
  */
 struct functor_reg_reset_to {
   template<typename list_element_type>
@@ -187,7 +187,7 @@ enum class write_strategy {
 
 #if 0
 /**
- * Call regdef::reset_to() on each distinct merged regmask from list.
+ * Call reg::reset_to() on each distinct merged regmask from list.
  * Ignores all non-regmask<> types in list.
  *
  * Also see the "functor_reg_reset_to" documentation in

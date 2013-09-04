@@ -36,9 +36,9 @@ struct PWR
    * Power control register (PWR_CR)
    */
   struct CR
-  : public regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x0, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x0, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x0, rw, 0x00000000 >;
 
     using LPDS  = regbits< type,  0,  1 >;    /**< Low Power Deep Sleep                    */
     using PDDS  = regbits< type,  1,  1 >;    /**< Power Down Deep Sleep                   */
@@ -62,9 +62,9 @@ struct PWR
    * Power control register (PWR_CR)
    */
   struct CSR
-  : public regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >
+  : public reg< uint32_t, base_addr + 0x4, rw, 0x00000000 >
   {
-    using type = regdef< uint32_t, base_addr + 0x4, reg_access::rw, 0x00000000 >;
+    using type = reg< uint32_t, base_addr + 0x4, rw, 0x00000000 >;
 
     using WUF   = regbits< type,  0,  1 >;  /**< Wake-Up Flag     */
     using SBF   = regbits< type,  1,  1 >;  /**< STANDBY Flag     */

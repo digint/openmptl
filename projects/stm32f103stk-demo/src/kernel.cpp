@@ -42,10 +42,10 @@
 #include <arch/reg/rcc.hpp>
 #include <arch/reg/gpio.hpp>
 
-static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::RCC::APB1ENR   >::set_mask == 0x18020000, "apb1enr");
-static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::RCC::APB2ENR   >::set_mask == 0x0000121c, "apb2enr");
-static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::GPIO<'C'>::CRL >::set_mask == 0x34000000, "crl");
-static_assert(mptl::make_reglist< Kernel::resources >::merged_regdef_type< mptl::GPIO<'C'>::CRH >::set_mask == 0x00020383, "crh");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_reg_type< mptl::RCC::APB1ENR   >::set_mask == 0x18020000, "apb1enr");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_reg_type< mptl::RCC::APB2ENR   >::set_mask == 0x0000121c, "apb2enr");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_reg_type< mptl::GPIO<'C'>::CRL >::set_mask == 0x34000000, "crl");
+static_assert(mptl::make_reglist< Kernel::resources >::merged_reg_type< mptl::GPIO<'C'>::CRH >::set_mask == 0x00020383, "crh");
 
 #endif // DEBUG_ASSERT_REGISTER_AGAINST_FIXED_VALUES
 

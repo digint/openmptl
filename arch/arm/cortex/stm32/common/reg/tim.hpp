@@ -49,9 +49,9 @@ struct TIM_common
    * Control register 1
    */
   struct CR1
-  : public regdef< std::uint_fast16_t, base_addr + 0x0, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x0, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x0, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x0, rw, 0x0000 >;
 
     using CKD   = regbits< type,  8,  2 >;  /**< Clock division                 */
     using ARPE  = regbits< type,  7,  1 >;  /**< Auto-reload preload enable     */
@@ -67,9 +67,9 @@ struct TIM_common
    * Control register 2
    */
   struct CR2
-  : public regdef< std::uint_fast16_t, base_addr + 0x4, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x4, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x4, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x4, rw, 0x0000 >;
 
     using OIS4   = regbits< type, 14,  1 >;  /**< Output Idle state 4                       */
     using OIS3N  = regbits< type, 13,  1 >;  /**< Output Idle state 3                       */
@@ -89,9 +89,9 @@ struct TIM_common
    * Slave mode control register
    */
   struct SMCR
-  : public regdef< std::uint_fast16_t, base_addr + 0x8, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x8, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x8, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x8, rw, 0x0000 >;
 
     using ETP   = regbits< type, 15,  1 >;  /**< External trigger polarity   */
     using ECE   = regbits< type, 14,  1 >;  /**< External clock enable       */
@@ -106,9 +106,9 @@ struct TIM_common
    * DMA/Interrupt enable register
    */
   struct DIER
-  : public regdef< std::uint_fast16_t, base_addr + 0xc, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0xc, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0xc, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0xc, rw, 0x0000 >;
 
     using TDE    = regbits< type, 14,  1 >;  /**< Trigger DMA request enable            */
     using COMDE  = regbits< type, 13,  1 >;  /**< COM DMA request enable                */
@@ -131,9 +131,9 @@ struct TIM_common
    * Status register
    */
   struct SR
-  : public regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x10, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x10, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x10, rw, 0x0000 >;
 
     using CC4OF  = regbits< type, 12,  1 >;  /**< Capture/Compare 4 overcapture flag  */
     using CC3OF  = regbits< type, 11,  1 >;  /**< Capture/Compare 3 overcapture flag  */
@@ -153,9 +153,9 @@ struct TIM_common
    * Event generation register
    */
   struct EGR
-  : public regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::wo, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x14, wo, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x14, reg_access::wo, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x14, wo, 0x0000 >;
 
     using BG    = regbits< type,  7,  1 >;  /**< Break generation                           */
     using TG    = regbits< type,  6,  1 >;  /**< Trigger generation                         */
@@ -171,9 +171,9 @@ struct TIM_common
    * Capture/compare mode register 1 (output mode)
    */
   struct CCMR1_Output
-  : public regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x18, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x18, rw, 0x0000 >;
 
     using OC2CE  = regbits< type, 15,  1 >;  /**< Output Compare 2 clear enable    */
     using OC2M   = regbits< type, 12,  3 >;  /**< Output Compare 2 mode            */
@@ -191,9 +191,9 @@ struct TIM_common
    * Capture/compare mode register 1 (input mode)
    */
   struct CCMR1_Input
-  : public regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x18, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x18, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x18, rw, 0x0000 >;
 
     using IC2F    = regbits< type, 12,  4 >;  /**< Input capture 2 filter       */
     using IC2PSC  = regbits< type, 10,  2 >;  /**< Input capture 2 prescaler    */
@@ -207,9 +207,9 @@ struct TIM_common
    * Capture/compare mode register 2 (output mode)
    */
   struct CCMR2_Output
-  : public regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x1c, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x1c, rw, 0x0000 >;
 
     using OC4CE  = regbits< type, 15,  1 >;  /**< Output compare 4 clear enable    */
     using OC4M   = regbits< type, 12,  3 >;  /**< Output compare 4 mode            */
@@ -227,9 +227,9 @@ struct TIM_common
    * Capture/compare mode register 2 (input mode)
    */
   struct CCMR2_Input
-  : public regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x1c, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x1c, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x1c, rw, 0x0000 >;
 
     using IC4F    = regbits< type, 12,  4 >;  /**< Input capture 4 filter       */
     using IC4PSC  = regbits< type, 10,  2 >;  /**< Input capture 4 prescaler    */
@@ -243,9 +243,9 @@ struct TIM_common
    * Capture/compare enable register
    */
   struct CCER
-  : public regdef< std::uint_fast16_t, base_addr + 0x20, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x20, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x20, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x20, rw, 0x0000 >;
 
     using CC4P   = regbits< type, 13,  1 >;  /**< Capture/Compare 3 output Polarity              */
     using CC4E   = regbits< type, 12,  1 >;  /**< Capture/Compare 4 output enable                */
@@ -266,45 +266,45 @@ struct TIM_common
   /**
    * Counter
    */
-  using CNT = regdef< std::uint_fast16_t, base_addr + 0x24, reg_access::rw, 0x0000 >;
+  using CNT = reg< std::uint_fast16_t, base_addr + 0x24, rw, 0x0000 >;
 
   /**
    * Prescaler
    */
-  using PSC = regdef< std::uint_fast16_t, base_addr + 0x28, reg_access::rw, 0x0000 >;
+  using PSC = reg< std::uint_fast16_t, base_addr + 0x28, rw, 0x0000 >;
 
   /**
    * Auto-reload register
    */
-  using ARR = regdef< std::uint_fast16_t, base_addr + 0x2c, reg_access::rw, 0x0000 >;
+  using ARR = reg< std::uint_fast16_t, base_addr + 0x2c, rw, 0x0000 >;
 
   /**
    * Capture/compare register 1
    */
-  using CCR1 = regdef< std::uint_fast16_t, base_addr + 0x34, reg_access::rw, 0x0000 >;
+  using CCR1 = reg< std::uint_fast16_t, base_addr + 0x34, rw, 0x0000 >;
 
   /**
    * Capture/compare register 2
    */
-  using CCR2 = regdef< std::uint_fast16_t, base_addr + 0x38, reg_access::rw, 0x0000 >;
+  using CCR2 = reg< std::uint_fast16_t, base_addr + 0x38, rw, 0x0000 >;
 
   /**
    * Capture/compare register 3
    */
-  using CCR3 = regdef< std::uint_fast16_t, base_addr + 0x3c, reg_access::rw, 0x0000 >;
+  using CCR3 = reg< std::uint_fast16_t, base_addr + 0x3c, rw, 0x0000 >;
 
   /**
    * Capture/compare register 4
    */
-  using CCR4 = regdef< std::uint_fast16_t, base_addr + 0x40, reg_access::rw, 0x0000 >;
+  using CCR4 = reg< std::uint_fast16_t, base_addr + 0x40, rw, 0x0000 >;
 
   /**
    * DMA control register
    */
   struct DCR
-  : public regdef< std::uint_fast16_t, base_addr + 0x48, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x48, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x48, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x48, rw, 0x0000 >;
 
     using DBL  = regbits< type,  8,  5 >;  /**< DMA burst length  */
     using DBA  = regbits< type,  0,  5 >;  /**< DMA base address  */
@@ -313,15 +313,15 @@ struct TIM_common
   /**
    * DMA address for full transfer
    */
-  using DMAR = regdef< std::uint_fast16_t, base_addr + 0x4c, reg_access::rw, 0x0000 >;
+  using DMAR = reg< std::uint_fast16_t, base_addr + 0x4c, rw, 0x0000 >;
 
   /**
    * Repetition counter register
    */
   struct RCR
-  : public regdef< std::uint_fast16_t, base_addr + 0x30, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x30, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x30, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x30, rw, 0x0000 >;
 
     using REP  = regbits< type,  0,  8 >;  /**< Repetition counter value  */
   };
@@ -330,9 +330,9 @@ struct TIM_common
    * Break and dead-time register
    */
   struct BDTR
-  : public regdef< std::uint_fast16_t, base_addr + 0x44, reg_access::rw, 0x0000 >
+  : public reg< std::uint_fast16_t, base_addr + 0x44, rw, 0x0000 >
   {
-    using type = regdef< std::uint_fast16_t, base_addr + 0x44, reg_access::rw, 0x0000 >;
+    using type = reg< std::uint_fast16_t, base_addr + 0x44, rw, 0x0000 >;
 
     using MOE   = regbits< type, 15,  1 >;  /**< Main output enable                 */
     using AOE   = regbits< type, 14,  1 >;  /**< Automatic output enable            */
