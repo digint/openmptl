@@ -24,7 +24,6 @@
 PROJECT        = stm32f4discovery-demo
 
 OPENMPTL_TOP   = ../..
-TINYFSM_TOP    = ../../../tinyfsm
 
 OPENMPTL_ARCH  = arm/cortex/stm32/f4
 

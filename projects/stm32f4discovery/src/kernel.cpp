@@ -58,7 +58,7 @@ void Kernel::init(void)
 #ifdef DYNAMIC_BAUD_RATE
   /* set the baud rate, since it is not set in usart<> peripheral
    * configuration (and thus was NOT set by
-   * "mptl::core::configure<resources>()" above).
+   * "mptl::make_reglist<resources>::reset_to()" above).
    */
   usart::set_baudrate(115200);
 #endif
