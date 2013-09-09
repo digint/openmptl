@@ -25,14 +25,16 @@
 
 namespace mptl {
 
-template<typename charT>
+template< typename Tp >
 class fifo {
 public:
-  using char_type = charT;
+  using char_type = Tp;
 
+#if 0 // virtuals are not needed for now. disabled.
   virtual bool push(char_type c) = 0;
   virtual bool pushs(const char_type * c) = 0;
   virtual bool pop(char_type &c) = 0;
+#endif
 };
 
 
@@ -43,11 +45,13 @@ public:
  * dependent variables.
  * see: <http://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync>
  */
-template<typename T, unsigned int size>
-class ring_buffer : public fifo<T> {
+template< typename Tp, unsigned int size >
+class ring_buffer
+: public fifo< Tp >
+{
   std::atomic<unsigned int> atomic_write_index;
   std::atomic<unsigned int> atomic_read_index;
-  T buf[size];
+  Tp buf[size];
 
   unsigned int increment(unsigned int arg) {
     unsigned int ret = arg + 1;
@@ -57,9 +61,24 @@ class ring_buffer : public fifo<T> {
   }
 
 public:
-  ring_buffer() : atomic_write_index(0), atomic_read_index(0) {}
 
-  bool push(T data) {
+#if 0 // no constructor. read "why constructors suck for static member variables of template classes" (TODO)
+  ring_buffer() {
+    SIM_TRACE("*** ring_buffer() ***");
+    clear();
+  }
+#endif
+
+  /**
+   * NOTE: This function is not thread-safe. Make sure to call it
+   * while no consumer/producer is accessing the fifo!
+   */
+  void reset(void) {
+    atomic_write_index.store(0, std::memory_order_relaxed);
+    atomic_read_index.store(0, std::memory_order_relaxed);
+  }
+
+  bool push(Tp data) {
     /* producer only: updates write_index after writing */
     unsigned int write_index = atomic_write_index.load(std::memory_order_acquire);
 
@@ -73,7 +92,7 @@ public:
     return true;
   }
 
-  bool pop(T &data) {
+  bool pop(Tp &data) {
     /* Consumer only: updates read_index after reading */
     unsigned int write_index = atomic_write_index.load(std::memory_order_acquire);
     unsigned int read_index = atomic_read_index.load(std::memory_order_acquire);
@@ -89,7 +108,7 @@ public:
   }
 
   /* NOTE: this does write nothing if the string does not fit into the buffer! */
-  bool pushs(const T * data) {
+  bool pushs(const Tp * data) {
     /* producer only: updates write_index after writing */
     unsigned int write_index = atomic_write_index.load(std::memory_order_acquire);
     unsigned int read_index = atomic_read_index.load(std::memory_order_acquire);
@@ -111,7 +130,7 @@ public:
   }
 
   /* NOTE: this does write nothing if the string does not fit into the buffer! */
-  bool pushs(const T * data, unsigned int count) {
+  bool pushs(const Tp * data, unsigned int count) {
     /* producer only: updates write_index after writing */
     unsigned int write_index = atomic_write_index.load(std::memory_order_acquire);
     unsigned int read_index = atomic_read_index.load(std::memory_order_acquire);
@@ -151,17 +170,34 @@ public:
 
 
 
-template<typename T, unsigned int size>
-class counted_ring_buffer : public ring_buffer<T, size> {
+template< typename Tp, unsigned int size >
+class counted_ring_buffer
+: public ring_buffer< Tp, size >
+{
   unsigned int total;
   unsigned int overrun;
   unsigned int underrun;
 
-public:
-  counted_ring_buffer() : ring_buffer<T, size>(), overrun(0), underrun(0) {}
+  using base_type = ring_buffer< Tp, size >;
 
-  bool push(T c) {
-    if(ring_buffer<T, size>::push(c) == false) {
+public:
+#if 0 // no constructor. read "why constructors suck for static member variables of template classes" (TODO)
+  counted_ring_buffer() : ring_buffer<Tp, size>(), overrun(0), underrun(0) {}
+#endif
+
+  void reset_counter(void) {
+    total = 0;
+    overrun = 0;
+    underrun = 0;
+  };
+
+  void reset(void) {
+    base_type::reset();
+    reset_counter();
+  }
+
+  bool push(Tp c) {
+    if(base_type::push(c) == false) {
       overrun++;
       return false;
     }
@@ -169,8 +205,8 @@ public:
     return true;
   }
 
-  bool pop(T &c) {
-    if(ring_buffer<T, size>::pop(c) == false) {
+  bool pop(Tp &c) {
+    if(base_type::pop(c) == false) {
       underrun++;
       return false;
     }
