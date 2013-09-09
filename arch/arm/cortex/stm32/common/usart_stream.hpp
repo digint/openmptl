@@ -26,18 +26,38 @@
 
 namespace mptl {
 
-template<typename usart_type>
-class usart_irq_transport
+template<
+  typename usart_type,
+  typename _fifo_type, // = ring_buffer<char, 256>,
+  bool     _crlf      = true,
+  bool     debug_irqs = false
+  >
+class usart_irq_stream
 {
+public:
+  static constexpr bool crlf = _crlf;
+  using fifo_type = _fifo_type;
+  using char_type = char;
+
+  static fifo_type rx_fifo;
+  static fifo_type tx_fifo;
+
+  static volatile unsigned int irq_count;
+  static volatile unsigned int irq_errors;
+
+private:
+
   using SR = typename usart_type::USARTx::SR;
 
-  const typename SR::value_type flags;
+  static void isr(void) {
+    auto flags = SR::load();
 
-public:
+    if(debug_irqs) {
+      irq_count++;
+      if(flags & (SR::ORE::value | SR::FE::value | SR::NE::value | SR::PE::value))
+        irq_errors++;
+    }
 
-  usart_irq_transport(void) : flags(SR::load()) { };
-
-  void process_io(fifo<char> &rx_fifo, fifo<char> &tx_fifo) {
     if(flags & SR::RXNE::value) {
       uint32_t data = usart_type::receive(); /* implicitely clears RXNE flag */
       rx_fifo.push(data);
@@ -53,49 +73,7 @@ public:
     }
   }
 
-  bool has_errors(void) {
-    if(flags & (SR::ORE::value | SR::FE::value | SR::NE::value | SR::PE::value))
-      return true;
-    return false;
-  }
-
-  bool overrun_error(void) { return (flags & SR::ORE::value) ? true : false; }
-  bool framing_error(void) { return (flags & SR::FE::value)  ? true : false; }
-  bool noise_error(void)   { return (flags & SR::NE::value)  ? true : false; }
-  bool parity_error(void)  { return (flags & SR::PE::value)  ? true : false; }
-};
-
-
-template<typename usart_type,
-         typename _fifo_type = ring_buffer<char, 256>,
-         bool     _crlf      = true,
-         bool     debug_irqs = false>
-class usart_irq_stream
-{
-  using char_type = char;
-
-  static void isr(void) {
-    usart_irq_transport<usart_type> transport;
-
-    if(debug_irqs) {
-      irq_count++;
-      if(transport.has_errors()) {
-        irq_errors++;
-      }
-    }
-    transport.process_io(rx_fifo, tx_fifo);
-  }
-
 public:
-  static constexpr bool crlf = _crlf;
-
-  using fifo_type = _fifo_type;
-
-  static fifo_type rx_fifo;
-  static fifo_type tx_fifo;
-
-  static volatile unsigned int irq_count;
-  static volatile unsigned int irq_errors;
 
   using irq_resources = typelist<
     irq_handler< typename usart_type::irq, isr >
@@ -113,14 +91,17 @@ public:
   /** 
    * open the stream
    *
-   * - enable USARTx
-   * - enable usart irq channel
-   * - enable RXNE and PE interrupts
+   *   - enable USARTx
+   *   - enable usart irq channel
+   *   - enable RXNE and PE interrupts
    *
    * NOTE: Make sure the device is correctly setup before calling this
    *       function. e.g. by calling usart_device.configure()
    */
   static void open(void) {
+    tx_fifo.reset();
+    rx_fifo.reset();
+
     usart_type::enable();
     usart_type::irq::enable();
     usart_type::enable_interrupt(true, false, true, false, false);
@@ -129,9 +110,9 @@ public:
   /**
    * close the stream
    *
-   * - disable interrupts enabled by open()
-   * - disable the usartX irq
-   * - disable USARTx
+   *   - disable interrupts enabled by open()
+   *   - disable the usartX irq
+   *   - disable USARTx
    */
   static void close(void) {
     usart_type::disable_interrupt(true, false, true, false, false);
@@ -141,16 +122,16 @@ public:
 };
 
 template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int usart_irq_stream<usart_type,  fifo_type, crlf, debug_irqs>::irq_count;
-
-template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
-volatile unsigned int usart_irq_stream<usart_type,  fifo_type, crlf, debug_irqs>::irq_errors;
-
-template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
 fifo_type usart_irq_stream<usart_type, fifo_type, crlf, debug_irqs>::rx_fifo;
 
 template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
 fifo_type usart_irq_stream<usart_type, fifo_type, crlf, debug_irqs>::tx_fifo;
+
+template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
+volatile unsigned int usart_irq_stream<usart_type, fifo_type, crlf, debug_irqs>::irq_count;
+
+template<typename usart_type, typename fifo_type, bool crlf, bool debug_irqs>
+volatile unsigned int usart_irq_stream<usart_type, fifo_type, crlf, debug_irqs>::irq_errors;
 
 
 } // namespace mptl
