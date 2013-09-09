@@ -21,6 +21,7 @@
 #ifndef RCC_HPP_INCLUDED
 #define RCC_HPP_INCLUDED
 
+#include <simulation.hpp>
 #include <arch/reg/rcc.hpp>
 #include <typelist.hpp>
 #include <freq.hpp>

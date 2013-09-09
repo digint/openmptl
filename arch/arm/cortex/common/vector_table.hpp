@@ -23,6 +23,7 @@
 
 #include <arch/nvic.hpp>
 #include <typelist.hpp>
+#include <simulation.hpp>
 #include <type_traits>
 #include <compiler.h>
 
@@ -145,6 +146,22 @@ struct vector_table
   static_assert(irq::numof_interrupt_channels >= 0, "invalid irq::numof_interrupt_channels");
   static_assert(sizeof(vector_table<stack_top, irq_handler_list, default_isr>::isr_vector) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + -irq::reset::irqn),
                 "IRQ vector table size error");
+
+#ifdef OPENMPTL_SIMULATION
+  void dump(void) {
+    std::cout << "vector table array elements: " << this->size << " (" <<
+      "1 stack_top_ptr, " <<
+      irq::numof_interrupt_channels << " irq_channels)" << std::endl;
+    std::cout << "vector table dump" << std::endl;
+    std::cout << "----------------------" << std::endl;
+
+    for(int i = 0; i < this->size; i++) {
+      std::cout << std::dec << std::setw(3) << i << " " <<
+        "(" << std::setw(3) << i - this->irq_channel_offset << ")" <<
+        " :  0x" << std::hex << (unsigned long)this->isr_vector[i] << std::endl;
+    }
+  }
+#endif // OPENMPTL_SIMULATION
 };
 
 } // namespace mptl

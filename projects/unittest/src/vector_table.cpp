@@ -54,20 +54,7 @@ int main()
   assert((unsigned long)isr_vector[vt.irq_channel_offset + 41] == (unsigned long)default_isr);
   assert((unsigned long)isr_vector[vt.irq_channel_offset + 42] == (unsigned long)isr_42);
 
-
-  std::cout << "vector table size = " << vt.size << " (" <<
-    "1 stack_top_ptr, " <<
-    irq::numof_interrupt_channels << " irq_channels)" << std::endl;
-
-  std::cout << std::endl;
-  std::cout << "vector table dump" << std::endl;
-  std::cout << "----------------------" << std::endl;
-
-  for(unsigned i = 0; i < vt.size; i++) {
-    std::cout << std::dec << std::setw(3) << i << " " <<
-      "(" << std::setw(3) << (int)i - (int)vt.irq_channel_offset << ")" <<
-      " :  0x" << std::hex << (unsigned long)isr_vector[i] << std::endl;
-  }
+  vt.dump();
 
   return 0;
 }
