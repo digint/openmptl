@@ -37,10 +37,12 @@ extern uint32_t _sdata;
 extern uint32_t _edata;
 extern uint32_t _sbss;
 extern uint32_t _ebss;
-extern void (*__init_array_start []) (void);
-extern void (*__init_array_end   []) (void);
-extern void (*__fini_array_start []) (void);
-extern void (*__fini_array_end   []) (void);
+extern void (*__preinit_array_start []) (void);
+extern void (*__preinit_array_end   []) (void);
+extern void (*__init_array_start    []) (void);
+extern void (*__init_array_end      []) (void);
+extern void (*__fini_array_start    []) (void);
+extern void (*__fini_array_end      []) (void);
 
 namespace crt
 {
@@ -57,14 +59,24 @@ namespace crt
       *(dst++) = 0;
   }
 
-  static inline void call_ctors(void) {
+  /** call functions in preinit_array */
+  static inline void run_preinit_array(void) {
+    uintptr_t n = __preinit_array_end - __preinit_array_start;
+    uintptr_t i = 0;
+    while(i < n)
+      __preinit_array_start[i++]();
+  }
+
+  /** call functions in init_array (constructors) */
+  static inline void run_init_array(void) {
     uintptr_t n = __init_array_end - __init_array_start;
     uintptr_t i = 0;
     while(i < n)
       __init_array_start[i++]();
   }
 
-  static inline void call_dtors(void) {
+  /** call functions in fini_array (destructors) */
+  static inline void run_fini_array(void) {
     uintptr_t n = __fini_array_end - __fini_array_start;
     uintptr_t i = 0;
     while(i < n)
@@ -78,8 +90,9 @@ namespace crt
 {
   static inline void init_data_section(void) { }
   static inline void init_bss_section(void) { }
-  static inline void call_ctors(void) { }
-  static inline void call_dtors(void) { }
+  static inline void run_preinit_array(void) { }
+  static inline void run_init_array(void) { }
+  static inline void run_fini_array(void) { }
 } // namespace crt
 
 #endif //OPENMPTL_SIMULATION

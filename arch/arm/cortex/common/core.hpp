@@ -71,7 +71,8 @@ struct core_base
     reglist< early_cfg_list... >::reset_to();
     system_clock_type::configure();
 
-    crt::call_ctors();
+    crt::run_preinit_array();
+    crt::run_init_array();    /* call ctors */
   }
 };
 
