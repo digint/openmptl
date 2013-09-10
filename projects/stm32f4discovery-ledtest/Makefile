@@ -87,12 +87,14 @@ include $(OPENMPTL_TOP)/config/simulation.mk
 # NOTE: For this to work, you will need to download compiler-rt from
 # <http://llvm.org/releases> and unpack it to OPENMPTL_TOP.
 
-COMPILER_RT_TOP     = $(OPENMPTL_TOP)/compiler-rt
-COMPILER_RT_SRC_DIR = $(COMPILER_RT_TOP)/lib/arm
+ifndef SIMULATION
+  COMPILER_RT_TOP     = $(OPENMPTL_TOP)/compiler-rt
+  COMPILER_RT_SRC_DIR = $(COMPILER_RT_TOP)/lib/arm
 
-ifdef CLANG
-  SRCS        += $(COMPILER_RT_SRC_DIR)/aeabi_memset.S
-  vpath %.S   $(COMPILER_RT_SRC_DIR)
+  ifdef CLANG
+    SRCS        += $(COMPILER_RT_SRC_DIR)/aeabi_memset.S
+    vpath %.S   $(COMPILER_RT_SRC_DIR)
+  endif
 endif
 
 
