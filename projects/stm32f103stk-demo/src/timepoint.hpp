@@ -21,7 +21,6 @@
 #ifndef TIMEPOINT_HPP_INCLUDED
 #define TIMEPOINT_HPP_INCLUDED
 
-#include "printf.h"
 #include "time.hpp"
 #include "kernel.hpp"
 
@@ -74,11 +73,6 @@ public:
     if(counter > tp.counter)
       return true;
     return false;
-  }
-
-  char * c_str(char * buf) const {
-    sprintf(buf, "%u:%08x", systick, counter_base - counter);
-    return buf;
   }
 };
 

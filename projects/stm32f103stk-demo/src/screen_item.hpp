@@ -72,9 +72,12 @@ class TextRow
 
 public:
   TextRow(const char * _text, bool _inverted = false)
-    : ScreenItem(_inverted), text(_text) { }
+    : ScreenItem(_inverted), text(_text)
+  { }
+
   TextRow(ScreenItemList & item_list, const char * _text, bool _inverted = false)
-    : ScreenItem(item_list, _inverted), text(_text) { }
+    : ScreenItem(item_list, _inverted), text(_text)
+  { }
 
   virtual const char * c_str(void) const {
     return text;
@@ -86,21 +89,37 @@ class DataRow
 : public ScreenItem
 {
 protected:
-  const char * name;
+  static constexpr unsigned name_width  = 4;
+  static constexpr unsigned colon_width = 2;
+  static constexpr unsigned value_width = 8;
+
   uint32_t value;
-  static char buf[]; /* static! NEVER use DataRows non-linear */
+  char buf[name_width + colon_width + value_width + 1];
+
+  void init(const char * name);
 
 public:
-  DataRow(const char * _name, bool _inverted = false)
-    : ScreenItem(_inverted), name(_name) { }
-  DataRow(ScreenItemList & item_list, const char * _name, bool _inverted = false)
-    : ScreenItem(item_list, _inverted), name(_name) { }
+  DataRow(const char * name)
+    : ScreenItem(false)
+  {
+    init(name);
+  };
 
-  virtual const char * c_str(void) const;
+  DataRow(const char * name, uint32_t _value)
+    : DataRow(name)
+  {
+    set(_value);
+  };
 
-  void set(uint32_t _value) {
-    value = _value;
+  DataRow(ScreenItemList & item_list, const char * name, bool _inverted = false)
+    : ScreenItem(item_list, _inverted)
+  {
+    init(name);
   }
+
+  virtual const char * c_str(void) const final { return buf; };
+
+  void set(uint32_t _value);
 
   void operator=(uint32_t _value) {
     set(_value);
@@ -112,12 +131,21 @@ class DataRowHex
 : public DataRow
 {
 public:
-  DataRowHex(const char * _name, bool _inverted = false)
-    : DataRow(_name, _inverted) { }
-  DataRowHex(ScreenItemList & item_list, const char * _name, bool _inverted = false)
-    : DataRow(item_list, _name, _inverted) { }
+  DataRowHex(const char * name)
+    : DataRow(name)
+  { }
 
-  virtual const char * c_str(void) const;
+  DataRowHex(const char * name, uint32_t _value)
+    : DataRow(name)
+  {
+    set(_value);
+  }
+
+  DataRowHex(ScreenItemList & item_list, const char * name, bool _inverted = false)
+    : DataRow(item_list, name, _inverted)
+  { }
+
+  void set(uint32_t _value);
 
   void operator=(uint32_t _value) {
     set(_value);

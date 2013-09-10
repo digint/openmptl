@@ -19,16 +19,33 @@
  */
 
 #include "screen_item.hpp"
-#include "printf.h"
+#include <poorman_cstring.hpp>
 
-const char * DataRow::c_str() const {
-  sprintf(buf, "%4s: %08u", name, value); /* strlen = 14 */
-  return buf;
+void DataRow::init(const char * name) {
+  unsigned i = 0;
+  value = 0;
+
+  while(*name)
+    buf[i++] = *name++;
+  while(i < name_width)
+    buf[i++] = ' ';
+  buf[i++] = ':';
+  buf[i++] = ' ';
+  while(i < name_width + colon_width + value_width)
+    buf[i++] = '0';
+  buf[i++] = 0;
 }
-const char * DataRowHex::c_str() const {
-  sprintf(buf, "%4s: %08x", name, value); /* strlen = 14 */
-  return buf;
+
+void DataRow::set(uint32_t _value) {
+  if(value != _value) {
+    value = _value;
+    poorman::itoa(&buf[name_width + colon_width], value, value_width);
+  }
 }
 
-char DataRow::buf[15]; /* used for DataRow and DataRowHex */
-
+void DataRowHex::set(uint32_t _value) {
+  if(value != _value) {
+    value = _value;
+    poorman::itoa_hex(&buf[name_width + colon_width], value);
+  }
+}

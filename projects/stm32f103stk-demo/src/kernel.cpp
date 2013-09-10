@@ -26,7 +26,6 @@
 #include "screen.hpp"
 #include "time.hpp"
 
-#include "printf.h"
 #include <terminal.hpp>
 #include <debouncer.hpp>
 #include <arch/dwt.hpp>  // cycle_counter
@@ -69,8 +68,11 @@ void Kernel::init(void)
 
 void Kernel::run(void)
 {
-  char joytext_buf[16] = { 0 };
-  const char * joypos_text = "center";
+  char joytext_buf[16];
+  std::strcpy(joytext_buf, "joy : o center");
+
+  char * joypos_text = &joytext_buf[8];
+
   mptl::cycle_counter cycle_counter;
   debouncer< joy::position,
              joy::get_position_blocking,
@@ -120,27 +122,27 @@ void Kernel::run(void)
       switch(joypos) {
       case joy::position::up:
         send_event(EvJoystickUp());
-        joypos_text = "up";
+        std::strcpy(joypos_text, "up");
         break;
       case joy::position::down:
         send_event(EvJoystickDown());
-        joypos_text = "down";
+        std::strcpy(joypos_text, "down");
         break;
       case joy::position::left:
         send_event(EvJoystickLeft());
-        joypos_text = "left";
+        std::strcpy(joypos_text, "left");
         break;
       case joy::position::right:
         send_event(EvJoystickRight());
-        joypos_text = "right";
+        std::strcpy(joypos_text, "right");
         break;
       case joy::position::center:
         send_event(EvJoystickCenter());
-        joypos_text = "center";
+        std::strcpy(joypos_text, "center");
         break;
       }
     }
-    sprintf(joytext_buf, " joy: %s %s", (joy::button_pressed() ? "x" : "o"), joypos_text);
+    joytext_buf[6] = joy::button_pressed() ? 'x' : 'o';
 
     /* poll terminal */
     terminal.process_input< terminal_hooks::commands >();

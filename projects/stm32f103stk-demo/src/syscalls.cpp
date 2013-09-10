@@ -21,7 +21,7 @@
 #ifndef OPENMPTL_SIMULATION
 
 #include "kernel.hpp"
-#include "printf.h"
+#include "screen.hpp"
 
 #include <unistd.h>
 #include <stdint.h>
@@ -73,20 +73,15 @@ void _exit(int status)
 
   /* Try to print out-of-memory message to LCD */
   Kernel::lcd lcd;
-  char buf[16];
 
   lcd.enable();
   lcd.clear();
   lcd.print_line(0, "oops...");
-  lcd.print_line_inv(1, "OUT OF MEMORY");
-  sprintf(buf, "stat: %08x", status);
-  lcd.print_line(2, buf);
-  sprintf(buf, "err#: %08u", errno);
-  lcd.print_line(3, buf);
-  sprintf(buf, "heap: %08x", heap_ptr);
-  lcd.print_line(4, buf);
-  sprintf(buf, "hend: %08x", heap_end);
-  lcd.print_line(5, buf);
+  lcd.print_line_inv(1, "out of memory!");
+  lcd.print_line(2, DataRowHex("stat", status            ).c_str());
+  lcd.print_line(3, DataRowHex("err#", errno             ).c_str());
+  lcd.print_line(4, DataRowHex("heap", (uint32_t)heap_ptr).c_str());
+  lcd.print_line(5, DataRowHex("hend", (uint32_t)heap_end).c_str());
   lcd.update();
 
   while(1);
