@@ -18,6 +18,7 @@
  *
  */
 
+#include <arch/vector_table.hpp>
 #include <arch/core.hpp>
 #include <arch/rcc.hpp>
 #include <arch/pwr.hpp>
@@ -26,6 +27,8 @@
 #include <arch/reg/gpio.hpp>
 #include <typelist.hpp>
 #include <simulation.hpp>
+
+extern const uint32_t _stack_top;  /* provided by linker script */
 
 static constexpr char     led_port = 'D';
 static constexpr unsigned led_pin  = 12;
@@ -59,10 +62,10 @@ void __naked reset_isr(void) {
   mptl::make_reglist< resources >::reset_to();
 
 #ifdef HIGH_LEVEL
-  led_green ::on();
+  led_green::on();
 #else
   static constexpr uint32_t pin_mask = (uint32_t)0x1 << led_pin;
-  mptl::RCC::AHB1ENR::GPIODEN::reset_to();  // enable AHB1 clock for GPIO D
+  mptl::RCC::AHB1ENR::GPIODEN::set();  // enable AHB1 clock for GPIO D
   mptl::regval< mptl::GPIO< led_port >::MODERx< led_pin >, 1 >::set();  // configure GPIOD::MODERx (set GPIOD12 to output mode)
   mptl::GPIO< led_port >::BSRR::store(pin_mask);  // enable led
 #endif
@@ -74,24 +77,25 @@ void __naked reset_isr(void) {
   }
 }
 
+/* Build the vector table:
+ * - use irq handler from irq_handler<> traits in "resources"
+ * - use null_isr as default isr
+ */
+mptl::vector_table< &_stack_top, resources, null_isr > vector_table;
 
-#ifndef OPENMPTL_SIMULATION
-
-#include <arch/vector_table.hpp>
-extern const uint32_t _stack_top;  /* provided by linker script */
-mptl::vector_table<&_stack_top, resources, null_isr > vector_table;
 
 #ifdef CONFIG_CLANG
 // clang-3.3 ignores "__attribute__((used))" on vector_table_impl::isr_vector[]
-// WORKAROUND: use something from isr_vector[] in an unused function
+// WORKAROUND: use something from isr_vector[] in order to provide the symbol
 mptl::isr_t clang_workaround_attribute_used(void) {
   return vector_table.isr_vector[0];
 }
 #endif // CONFIG_CLANG
 
 
-#else // OPENMPTL_SIMULATION
+#ifdef OPENMPTL_SIMULATION
 
+const uint32_t _stack_top = 0;
 
 void mptl::sim::reg_reaction::react() {
   /* simulate the system clock setup */
@@ -107,6 +111,12 @@ void mptl::sim::reg_reaction::react() {
 int main(void)
 {
   std::cout << "*** stm32f4discovery ledtest: starting simulation..." << std::endl;
+
+#ifdef DUMP_VECTOR_TABLE
+  vector_table.dump_size();
+  vector_table.dump_types();
+  // vector_table.dump_vector();
+#endif
 
   reset_isr();
 }

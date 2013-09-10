@@ -18,8 +18,12 @@
  *
  */
 
+#include <simulation.hpp>
 #include <arch/core.hpp>
+#include <arch/vector_table.hpp>
 #include "kernel.hpp"
+
+extern const uint32_t _stack_top;  /* provided by linker script */
 
 /* Reset exception: triggered on system startup (system entry point). */
 void Kernel::reset_isr(void) {
@@ -29,28 +33,27 @@ void Kernel::reset_isr(void) {
   Kernel::run();
 }
 
-#ifndef OPENMPTL_SIMULATION
-
-#include <arch/vector_table.hpp>
-
-extern const uint32_t _stack_top;  /* provided by linker script */
-
 /* Build the vector table:
  * - use irq handler from irq_handler<> traits in Kernel::resources
  * - use Kernel::error_isr as default isr
  */
-mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr> vector_table;
+mptl::vector_table< &_stack_top, Kernel::resources, Kernel::error_isr > vector_table;
 
 
-#else // OPENMPTL_SIMULATION
+#ifdef OPENMPTL_SIMULATION
 
-
-#include <iostream>
+const uint32_t _stack_top = 0;
 
 //int main(int argc, char *argv[])
 int main(void)
 {
   std::cout << "*** stm32f103stk demo: starting simulation..." << std::endl;
+
+#ifdef DUMP_VECTOR_TABLE
+  vector_table.dump_size();
+  vector_table.dump_types();
+  // vector_table.dump_vector();
+#endif
 
   Kernel::reset_isr();
 }

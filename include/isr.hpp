@@ -22,6 +22,7 @@
 #define ISR_HPP_INCLUDED
 
 #include <typelist.hpp>
+#include <simulation.hpp>
 
 namespace mptl {
 
@@ -36,6 +37,13 @@ struct irq_handler : irq_handler_base
 {
   using irq_type = Tp;
   static constexpr isr_t value = isr;
+
+#ifdef OPENMPTL_SIMULATION
+  static void dump_type(void) {
+    std::string s = __PRETTY_FUNCTION__;
+    std::cout << "irq_handler<Tp, isr> " << s.substr(s.find('['), s.rfind(']')) << std::endl;
+  }
+#endif
 };
 
 
@@ -65,6 +73,22 @@ namespace mpl
    */
   template<typename typelist_type, int irqn>
   using unique_irq_handler = typename irqn_list<typelist_type, irqn>::unique_element::type;
+
+#ifdef OPENMPTL_SIMULATION
+  template<typename... Tp>
+  struct dump_irq_types {
+    void operator()() { };
+  };
+
+  template<typename Head, typename... Tp>
+  struct dump_irq_types<Head, Tp...> {
+    void operator()() {
+      std::cout << std::setw(3) << Head::irq_type::irqn << " : ";
+      Head::dump_type();
+      dump_irq_types<Tp...>()();
+    };
+  };
+#endif // OPENMPTL_SIMULATION
 
 } // namespace mpl
 

@@ -51,6 +51,15 @@ namespace mpl
     static constexpr std::size_t size = sizeof...(Tp) + 1;
 
     static __used isr_t isr_vector[size] __attribute__ ((section(".isr_vector")));
+
+#ifdef OPENMPTL_SIMULATION
+    /** Dump demangled irq_handler types to std::cout */
+    static void dump_types(void) {
+      std::cout << "*** irq handler types:" << std::endl;
+    //      std::cout << "------------------" << std::endl;
+      dump_irq_types<Tp...>()();
+    }
+#endif
   };
 
   template<const uint32_t *stack_top, typename... Tp>
@@ -71,7 +80,7 @@ namespace mpl
   {
     static constexpr int irqn = (N - 1) + irqn_offset;
     using irq_handler_resource = mpl::unique_irq_handler<irq_handler_list, irqn>;
-    using irq_handler_default = irq_handler< void, default_isr >;
+    using irq_handler_default = irq_handler< irq_base< irqn >, default_isr >;
 
     /** irq_handler<> from irq_handler<irqn> in irq_handler_list if
      *  present, default_isr if not. default_isr if irqn is a
@@ -148,14 +157,26 @@ struct vector_table
                 "IRQ vector table size error");
 
 #ifdef OPENMPTL_SIMULATION
-  void dump(void) {
-    std::cout << "vector table array elements: " << this->size << " (" <<
-      "1 stack_top_ptr, " <<
-      irq::numof_interrupt_channels << " irq_channels)" << std::endl;
-    std::cout << "vector table dump" << std::endl;
-    std::cout << "----------------------" << std::endl;
+  void dump_size(void) {
+    int w = 3;
+    std::cout << "*** vector table size:" << std::endl;
+    std::cout << "stack_top pointer:      " << std::setw(w) << 1 << std::endl;
+    std::cout << "cortex core exceptions: " << std::setw(w) << (this->size - irq::numof_interrupt_channels - 1) << std::endl;
+    std::cout << "irq channels:           " << std::setw(w) << irq::numof_interrupt_channels << std::endl;
+    std::cout << "total size:             " << std::setw(w) << this->size << std::endl;
+  }
 
-    for(int i = 0; i < this->size; i++) {
+  /**
+   * Dump the isr_vector table.
+   *
+   * Not very useful, as it prints the pointers to irq_handler from
+   * simulation functions.
+   */
+  void dump_vector(void) {
+    std::cout << "*** vector table dump:" << std::endl;
+    //    std::cout << "-----------------" << std::endl;
+
+    for(int i = 0; i < (int)this->size; i++) {
       std::cout << std::dec << std::setw(3) << i << " " <<
         "(" << std::setw(3) << i - this->irq_channel_offset << ")" <<
         " :  0x" << std::hex << (unsigned long)this->isr_vector[i] << std::endl;

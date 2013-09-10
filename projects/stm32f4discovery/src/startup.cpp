@@ -17,10 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #include <simulation.hpp>
 #include <arch/core.hpp>
 #include <arch/vector_table.hpp>
 #include "kernel.hpp"
+
+extern const uint32_t _stack_top;  /* provided by linker script */
 
 /* Reset exception: triggered on system startup (system entry point). */
 void Kernel::reset_isr(void) {
@@ -29,8 +32,6 @@ void Kernel::reset_isr(void) {
   Kernel::init();
   Kernel::run();
 }
-
-extern const uint32_t _stack_top;  /* provided by linker script */
 
 /* Build the vector table:
  * - use irq handler from irq_handler<> traits in Kernel::resources
@@ -49,7 +50,9 @@ int main(void)
   std::cout << "*** stm32f4discovery demo: starting simulation..." << std::endl;
 
 #ifdef DUMP_VECTOR_TABLE
-  vector_table.dump();
+  vector_table.dump_size();
+  vector_table.dump_types();
+  // vector_table.dump_vector();
 #endif
 
   Kernel::reset_isr();
