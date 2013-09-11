@@ -21,36 +21,72 @@
 #ifndef POORMAN_CSTRING_HPP_INCLUDED
 #define POORMAN_CSTRING_HPP_INCLUDED
 
+#include <type_traits>
+
 namespace poorman {
 
 /**
- * Prints "value" as hexadecimal number to buf, zero terminated.
+ * Prints "value" as hexadecimal number to buf, '0'-padded, zero
+ * terminated.
  *
- * NOTE: sizeof(buf) must be at least sizeof(Tp)*2+1
+ * Negative values are printed as two's complement.
+ *
+ * NOTE: sizeof(buf) must be at least n+1
  */
 template<typename Tp>
-void itoa_hex(char * buf, Tp value) {
+void itoa_hex(char * buf, Tp value, int n = sizeof(Tp)*2, char padding = '0') {
+  using value_type = typename std::make_unsigned<Tp>::type;
+  value_type val = (value_type)value;
   unsigned v;
-  for(int i = sizeof(Tp) * 8 - 4; i >= 0; i -= 4) {
-    v = (value >> i) & 0xf;
-    *buf++ = v < 10 ? '0' + v : 'a' + v - 10;
+
+  buf[n--] = 0;
+  if(val == 0)
+    buf[n--] = '0';
+  while(n >= 0 && val) {
+    v = val & 0xf;
+    buf[n--] = v < 10 ? '0' + v : 'a' + v - 10;
+    val >>= 4;
+  };
+  while(n >= 0) {
+    buf[n--] = padding;
   }
-  *buf = 0;
+  if(val) {
+    buf[0] = '~';
+  }
 }
 
 /**
- * Prints n digits of "value" to buf, right aligned, zero terminated.
+ * Prints n digits of "value" to buf, right aligned, "padding"-padded,
+ * zero terminated.
+ *
+ * Prints '~' as first character if "value" has more digits than n.
  *
  * NOTE: sizeof(buf) must be at least n+1
- * Simple, but terrible performance.
  */
 template<typename Tp>
-void itoa(char * buf, Tp value, int n) {
-  buf[n] = 0;
-  while(--n >= 0) {
-    buf[n] = '0' + (value % 10);
-    value /= 10;
+typename std::enable_if< std::is_unsigned< Tp >::value >::type
+itoa(char * buf, Tp value, int n, char padding = '0') {
+  buf[n--] = 0;
+  if(value == 0)
+    buf[n--] = '0';
+  else {
+    while(n >= 0 && value > 0) {
+      buf[n--] = '0' + (value % 10);
+      value /= 10;
+    }
   }
+  while(n >= 0) {
+    buf[n--] = padding;
+  }
+  if(value > 0) {
+    buf[0] = '~';
+  }
+}
+template<typename Tp>
+typename std::enable_if< std::is_signed< Tp >::value >::type
+itoa(char * buf, Tp value, int n, char padding = '0') {
+  *buf++ = '-';
+  itoa(buf, (unsigned)(-value), n-1, padding);
 }
 
 } // namespace poorman
