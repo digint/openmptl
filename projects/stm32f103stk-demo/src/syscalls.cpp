@@ -78,10 +78,10 @@ void _exit(int status)
   lcd.clear();
   lcd.print_line(0, "oops...");
   lcd.print_line_inv(1, "out of memory!");
-  lcd.print_line(2, DataRowHex("stat", status            ).c_str());
-  lcd.print_line(3, DataRowHex("err#", errno             ).c_str());
-  lcd.print_line(4, DataRowHex("heap", (uint32_t)heap_ptr).c_str());
-  lcd.print_line(5, DataRowHex("hend", (uint32_t)heap_end).c_str());
+  lcd.print_line(2, DataRow("stat", status            , NumberBase::hex).c_str());
+  lcd.print_line(3, DataRow("err#", errno             , NumberBase::hex).c_str());
+  lcd.print_line(4, DataRow("heap", (uint32_t)heap_ptr, NumberBase::hex).c_str());
+  lcd.print_line(5, DataRow("hend", (uint32_t)heap_end, NumberBase::hex).c_str());
   lcd.update();
 
   while(1);

@@ -22,6 +22,7 @@
 #define SCREENITEM_HPP_INCLUDED
 
 #include <cstdint>
+#include <poorman_cstring.hpp>
 
 class ScreenItem;
 
@@ -34,7 +35,7 @@ using ScreenItemList = boost::intrusive::list<
 #else
 # include <list>
 using ScreenItemList = std::list<ScreenItem*>;
-#endif
+#endif // OPENMPTL_USE_BOOST
 
 
 
@@ -85,6 +86,8 @@ public:
 };
 
 
+enum class NumberBase { hex, decimal };
+
 class DataRow
 : public ScreenItem
 {
@@ -93,64 +96,25 @@ protected:
   static constexpr unsigned colon_width = 2;
   static constexpr unsigned value_width = 8;
 
+  static constexpr char padding_dec = '0';
+  static constexpr char padding_hex = '0';
+
   uint32_t value;
   char buf[name_width + colon_width + value_width + 1];
 
-  void init(const char * name);
+  NumberBase numbase;
+
+  void init_buf(const char * name);
+  void print_value(void);
 
 public:
-  DataRow(const char * name)
-    : ScreenItem(false)
-  {
-    init(name);
-  };
-
-  DataRow(const char * name, uint32_t _value)
-    : DataRow(name)
-  {
-    set(_value);
-  };
-
-  DataRow(ScreenItemList & item_list, const char * name, bool _inverted = false)
-    : ScreenItem(item_list, _inverted)
-  {
-    init(name);
-  }
+  DataRow(const char * name, uint32_t _value = 0, NumberBase _numbase = NumberBase::decimal, bool _inverted = false);
+  DataRow(ScreenItemList & item_list, const char * name, uint32_t _value = 0, NumberBase _numbase = NumberBase::decimal, bool _inverted = false);
 
   virtual const char * c_str(void) const final { return buf; };
 
   void set(uint32_t _value);
-
-  void operator=(uint32_t _value) {
-    set(_value);
-  }
+  void operator=(uint32_t _value) { set(_value); }
 };
-
-
-class DataRowHex
-: public DataRow
-{
-public:
-  DataRowHex(const char * name)
-    : DataRow(name)
-  { }
-
-  DataRowHex(const char * name, uint32_t _value)
-    : DataRow(name)
-  {
-    set(_value);
-  }
-
-  DataRowHex(ScreenItemList & item_list, const char * name, bool _inverted = false)
-    : DataRow(item_list, name, _inverted)
-  { }
-
-  void set(uint32_t _value);
-
-  void operator=(uint32_t _value) {
-    set(_value);
-  }
-};
-
 
 #endif

@@ -69,9 +69,8 @@ void Kernel::init(void)
 void Kernel::run(void)
 {
   char joytext_buf[16];
+  char * const joypos_text = &joytext_buf[8];
   std::strcpy(joytext_buf, "joy : o center");
-
-  char * joypos_text = &joytext_buf[8];
 
   mptl::cycle_counter cycle_counter;
   debouncer< joy::position,
@@ -81,29 +80,24 @@ void Kernel::run(void)
              10 > joypos(joy::position::center);
 
   /* define the screen item list */
-#ifdef OPENMPTL_USE_BOOST
-  // also works with std::list<>, but slower, bigger
   ScreenItemList item_list;
   TextRow    title0    (item_list, ">> OpenMPTL <<");
   TextRow    title1    (item_list, "--------------");
   TextRow    joytext   (item_list, joytext_buf);
   DataRow    rtc_sec   (item_list, "rtc");
-  DataRowHex tick      (item_list, "tick");
+  DataRow    tick      (item_list, "tick", 0, NumberBase::hex);
   DataRow    cycle     (item_list, "cyc");
-  DataRowHex irq_count (item_list, "#irq");
-  DataRowHex eirq      (item_list, "eirq");
-#else
-  // this is much faster, and reduces code size by 100 (list) to 200 (vector) bytes!
-  TextRow    title0    (">> OpenMPTL <<");
-  TextRow    title1    ("--------------");
-  TextRow    joytext   (joytext_buf);
-  DataRow    rtc_sec   ("rtc");
-  DataRowHex tick      ("tick");
-  DataRow    cycle     ("cyc");
-  DataRowHex irq_count ("#irq");
-  DataRowHex eirq      ("eirq");
-  ScreenItemList item_list{&title0, &title1, &joytext, &rtc_sec, &tick, &cycle, &irq_count, &eirq};
-#endif
+  DataRow    irq_count (item_list, "#irq", 0, NumberBase::hex);
+  DataRow    eirq      (item_list, "eirq", 0, NumberBase::hex);
+
+  // Note: it is also possible to define the ScreenItems without the
+  // item_list, and use an initializer list. Initializer
+  // lists are faster, and reduce code size by 100 (list) to 200
+  // (vector) bytes! We don't care here in favor of code-beauty.
+  //
+  // TextRow title0(">> OpenMPTL <<");
+  //  <...>
+  //  ScreenItemList item_list{ &title0, <...> };
 
   Screen::set_item_list(item_list);
 

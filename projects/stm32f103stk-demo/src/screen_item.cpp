@@ -19,11 +19,9 @@
  */
 
 #include "screen_item.hpp"
-#include <poorman_cstring.hpp>
 
-void DataRow::init(const char * name) {
+void DataRow::init_buf(const char * name) {
   unsigned i = 0;
-  value = 0;
 
   while(*name)
     buf[i++] = *name++;
@@ -31,21 +29,32 @@ void DataRow::init(const char * name) {
     buf[i++] = ' ';
   buf[i++] = ':';
   buf[i++] = ' ';
-  while(i < name_width + colon_width + value_width)
-    buf[i++] = '0';
-  buf[i++] = 0;
+
+  print_value();
+}
+
+DataRow::DataRow(const char * name, uint32_t _value, NumberBase _numbase, bool _inverted)
+  : ScreenItem(_inverted), value(_value), numbase(_numbase)
+{
+  init_buf(name);
+}
+
+DataRow::DataRow(ScreenItemList & item_list, const char * name, uint32_t _value, NumberBase _numbase, bool _inverted)
+  : ScreenItem(item_list, _inverted), value(_value), numbase(_numbase)
+{
+  init_buf(name);
+}
+
+void DataRow::print_value(void) {
+  if(numbase == NumberBase::decimal)
+    poorman::itoa(&buf[name_width + colon_width], value, value_width, padding_dec);
+  else
+    poorman::itoa_hex(&buf[name_width + colon_width], value, value_width, padding_hex);
 }
 
 void DataRow::set(uint32_t _value) {
   if(value != _value) {
     value = _value;
-    poorman::itoa(&buf[name_width + colon_width], value, value_width);
-  }
-}
-
-void DataRowHex::set(uint32_t _value) {
-  if(value != _value) {
-    value = _value;
-    poorman::itoa_hex(&buf[name_width + colon_width], value);
+    print_value();
   }
 }
