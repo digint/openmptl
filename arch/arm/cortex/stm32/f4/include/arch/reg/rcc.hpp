@@ -31,7 +31,6 @@ namespace mptl {
 struct RCC
 {
   static constexpr reg_addr_t base_addr = 0x40023800;
-  static constexpr const char * name_str = "RCC";
 
   /**
    * Clock control register
