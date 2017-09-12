@@ -44,12 +44,18 @@ static void systick_thread() {
 void mptl::sim::reg_reaction::react()
 {
   /* simulate the system clock setup */
-  if(bits_set< RCC::CR::HSEON >())
+  if(bits_set< RCC::CR::HSEON >()) {
+    info("reacting to RCC::CR::HSEON, by setting RCC::CR::HSERDY");
     RCC::CR::HSERDY::set();
-  if(bits_set< RCC::CR::PLLON >())
+  }
+  if(bits_set< RCC::CR::PLLON >()) {
+    info("reacting to RCC::CR::PLLON, by setting RCC::CR::PLLRDY");
     RCC::CR::PLLRDY::set();
-  if(bits_set< RCC::CFGR::SW::PLL >())
+  }
+  if(bits_set< RCC::CFGR::SW::PLL >()) {
+    info("reacting to RCC::CFGR::SW::PLL, by setting RCC::CFGR::SWS::PLL");
     RCC::CFGR::SWS::PLL::set();
+  }
 
   /* start/stop systick thread on SCB::STCSR::TICKINT */
   if(bits_set< SCB::STCSR::TICKINT >()) {

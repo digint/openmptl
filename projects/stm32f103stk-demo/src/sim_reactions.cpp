@@ -28,12 +28,18 @@
 void mptl::sim::reg_reaction::react()
 {
   /* RCC: simulate the system clock setup */
-  if(bits_set< RCC::CR::HSEON >())
+  if(bits_set< RCC::CR::HSEON >()) {
+    info("reacting to RCC::CR::HSEON, by setting RCC::CR::HSERDY");
     RCC::CR::HSERDY::set();
-  if(bits_set< RCC::CR::PLLON >())
+  }
+  if(bits_set< RCC::CR::PLLON >()) {
+    info("reacting to RCC::CR::PLLON, by setting RCC::CR::PLLRDY");
     RCC::CR::PLLRDY::set();
-  if(bits_set< RCC::CFGR::SW::PLL >())
+  }
+  if(bits_set< RCC::CFGR::SW::PLL >()) {
+    info("reacting to RCC::CFGR::SW::PLL, by setting RCC::CFGR::SWS::PLL");
     RCC::CFGR::SWS::PLL::set();
+  }
 
   /* RTC: simulate synchronisation */
   if(bits_set< RCC::BDCR::RTCEN >()) {

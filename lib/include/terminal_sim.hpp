@@ -106,19 +106,23 @@ public:
   {
     /* start/stop terminal rx thread on rx_trigger_regmask_type */
     if(reaction.bits_set< rx_trigger_regmask_type >()) {
+      reaction.info("terminal: starting RX thread");
       terminal_rx_thread_terminate = false;
       std::thread(terminal_rx_thread).detach();
     }
     else if(reaction.bits_cleared< rx_trigger_regmask_type >()) {
+      reaction.info("terminal: stopping RX thread");
       terminal_rx_thread_terminate = true;
     }
 
     /* start/stop terminal tx thread on tx_trigger_regmask_type */
     if(reaction.bits_set< tx_trigger_regmask_type >()) {
+      reaction.info("terminal: starting TX thread");
       terminal_tx_thread_terminate = false;
       std::thread(terminal_tx_thread).detach();
     }
     else if(reaction.bits_cleared< tx_trigger_regmask_type >()) {
+      reaction.info("terminal: stopping TX thread");
       terminal_tx_thread_terminate = true;
     }
   }
