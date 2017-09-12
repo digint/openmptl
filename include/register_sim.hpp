@@ -22,6 +22,7 @@
 #define REGISTER_SIM_HPP_INCLUDED
 
 #include <arch/reg/address_map.hpp>
+#include <algorithm>
 #include <ostream>
 #include <iomanip>
 #include <typeinfo>
@@ -42,6 +43,13 @@ extern std::mutex regdump_mutex;
 #  define REGDUMP_UNLOCK
 #endif // CONFIG_SIM_THREADED
 
+#ifdef CONFIG_REGISTER_REACTION
+#  define RETURN_IF_REACTION if(regdump_reaction_running != 0) { return; }
+#  define REACTION_CONDITIONAL(a,b) ((regdump_reaction_running == 0) ? a : b)
+#else
+#  define RETURN_IF_REACTION
+#  define REACTION_CONDITIONAL(a,b) a
+#endif
 
 ////////////////////  reg_reaction  ////////////////////
 
@@ -67,15 +75,16 @@ public:
     return ((old_value & Tp::value) && !Tp::test());
   }
 
-  reg_reaction(reg_addr_t _addr, uint32_t _old_value) : addr(_addr), old_value(_old_value) {
-    regdump_reaction_running++;
-  };
-  ~reg_reaction(void) {
-    regdump_reaction_running--;
-  };
+  reg_reaction(reg_addr_t _addr, uint32_t _old_value) : addr(_addr), old_value(_old_value) { };
 
   /** Reaction function, must be implemented per-project */
   void react();
+
+  void info(const std::string & str) const {
+    REGDUMP_LOCK;
+    regdump_ostream << "[INFO] " << str << std::endl;
+    REGDUMP_UNLOCK;
+  }
 };
 
 
@@ -101,17 +110,20 @@ class reg_dumper
     return "[ " + s + " ]";
   }
 
-  static void print_value(value_type const value) {
+  static std::string bitmask_str(value_type const value, const char bitmask_char = '1') {
+    std::string s = bitfield_str(value);
+    std::replace(s.begin(), s.end(), '0', '.');
+    if(bitmask_char != '1')
+      std::replace(s.begin(), s.end(), '1', bitmask_char);
+    return s;
+  }
+
+  static void print_hex_value(value_type const value) {
     static constexpr std::size_t size = sizeof(value_type);
     static constexpr std::size_t print_size = size > (max_bits / 8) ? (max_bits / 8) : size;
 
     regdump_ostream << std::setw((4 - print_size) * 2 + 2) << std::hex << std::right << "0x"
                     << std::setfill('0') << std::setw(print_size * 2) << +value;  // '+value' makes sure a char is printed as number
-
-#ifdef CONFIG_DUMP_REGISTER_BITFIELD
-    regdump_ostream << "   ";
-    regdump_ostream << bitfield_str(value);
-#endif // CONFIG_DUMP_REGISTER_BITFIELD
 
 #if 0    // mark cropped register with '~'
     if(print_size < size)
@@ -132,63 +144,88 @@ class reg_dumper
     regdump_ostream << std::left << std::setfill(' ') << std::setw(desc_max_width) << desc;
   }
 
-
-  static void print_info_line(const std::string & desc, value_type value) {
+  static void print_action(const std::string & desc, value_type value, value_type bitfield_value, const char bitmask_char = 0) {
     print_address();
     print_desc(desc);
-    print_value(value);
+    print_hex_value(value);
+#ifdef CONFIG_DUMP_REGISTER_BITFIELD
+    regdump_ostream << "   " << (bitmask_char ? bitmask_str(bitfield_value, bitmask_char) : bitfield_str(bitfield_value));
+#else
+    // silence "unused parameter" warning
+    (void)bitfield_value;
+    (void)bitmask_char;
+#endif // CONFIG_DUMP_REGISTER_BITFIELD
     regdump_ostream << std::endl;
   }
 
+  static void print_action(const std::string & desc, value_type value) {
+    print_action(desc, value, value, 0);
+  }
+
+#ifdef CONFIG_DUMP_CURRENT_REGISTER_VALUE
+  static void print_reg_value(value_type value) {
+    print_action("", value);
+  }
+#else
+  static void print_reg_value(value_type) { }
+#endif
+
 public:
 
-  static void dump_register_access(const std::string & desc, value_type value, bool print_current_value = false) {
+  static void dump_register_load(value_type value) {
+    RETURN_IF_REACTION;
+
     REGDUMP_LOCK;
-    if(print_current_value) {
-#ifdef CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
-      print_info_line("==", reg_value);
-#endif // CONFIG_DEBUG_DUMP_CURRENT_REGISTER_VALUE
-    }
-    print_info_line(desc, value);
+    print_action("::load()", value);
     REGDUMP_UNLOCK;
   }
 
-  static void dump_register_load(value_type value, const std::string & suffix = "") {
-#ifdef CONFIG_REGISTER_REACTION
-    if(regdump_reaction_running != 0)
-      return;
-#endif
-
-    std::string s("::load()");
-    s.append(suffix);
-    dump_register_access(s, value);
-  }
-
-  static void dump_register_store(value_type cur_value, value_type new_value, const std::string & suffix = "") {
-#ifdef CONFIG_REGISTER_REACTION
-    if(regdump_reaction_running != 0) {
-      dump_register_access("++react", new_value, true);
-      return;
-    }
-#endif // CONFIG_REGISTER_REACTION
-
-    std::string s("::store()");
-    s.append(suffix);
+  static void dump_register_store(value_type cur_value, value_type new_value) {
+    std::string desc = REACTION_CONDITIONAL("::store()", "##store()");
     if(cur_value == new_value)  // notify with '~' if cur=new (candidates for optimization!)
-      s.append("~");
-    dump_register_access(s, new_value, true);
+      desc.append("~");
+
+    REGDUMP_LOCK;
+    print_reg_value(cur_value);
+    print_action(desc, new_value);
+    REGDUMP_UNLOCK;
   }
 
-  static void dump_register_bitset(value_type cur_value, value_type new_value) {
-    dump_register_store(cur_value, new_value, "+");
+  static void dump_register_bitset(value_type cur_value, unsigned bit_no) {
+    std::string desc = REACTION_CONDITIONAL("::bitset()", "##bitset()");
+    value_type mask = 1 << bit_no;
+    if(cur_value & (mask))  // notify with '~' if bit is already set (candidates for optimization!)
+      desc.append("~");
+
+    REGDUMP_LOCK;
+    print_reg_value(cur_value);
+    print_action(desc, mask, mask, '1');
+    REGDUMP_UNLOCK;
   }
 
-  static void dump_register_bitclear(value_type cur_value, value_type new_value) {
-    dump_register_store(cur_value, new_value, "-");
+  static void dump_register_bitclear(value_type cur_value, unsigned bit_no) {
+    std::string desc = REACTION_CONDITIONAL("::bitclear()", "##bitclear()");
+    value_type mask = 1 << bit_no;
+    if((cur_value & mask) == 0)  // notify with '~' if bit is already cleared (candidates for optimization!)
+      desc.append("~");
+
+    REGDUMP_LOCK;
+    print_reg_value(cur_value);
+    print_action(desc, mask, mask, 'X');
+    REGDUMP_UNLOCK;
   }
 
-  static void dump_register_bittest(value_type value) {
-    dump_register_load(value, "+");
+  static void dump_register_bittest(value_type cur_value, value_type bit_no) {
+    RETURN_IF_REACTION;
+
+    value_type mask = 1 << bit_no;
+    value_type value = cur_value & mask;
+    const char bitmask_char = (value) ? '1' : '0';
+
+    REGDUMP_LOCK;
+    print_reg_value(cur_value);
+    print_action("::bittest()", value, mask, bitmask_char);
+    REGDUMP_UNLOCK;
   }
 };
 

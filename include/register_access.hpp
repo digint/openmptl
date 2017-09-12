@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef REGISTER_BACKEND_HPP_INCLUDED
-#define REGISTER_BACKEND_HPP_INCLUDED
+#ifndef REGISTER_ACCESS_HPP_INCLUDED
+#define REGISTER_ACCESS_HPP_INCLUDED
 
 #include <compiler.h>
 #include <register_type.hpp>
@@ -107,7 +107,9 @@ class reg_access
 #endif
     reg_value = value;
 #ifdef CONFIG_REGISTER_REACTION
+    sim::regdump_reaction_running++;
     reaction.react();
+    sim::regdump_reaction_running--;
 #endif
   }
 
@@ -143,7 +145,7 @@ public:
   static __always_inline void bitset() {
     value_type value = reg_value | (1 << bit_no);
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
-    dumper::dump_register_bitset(reg_value, value);
+    dumper::dump_register_bitset(reg_value, bit_no);
 #endif
     store_impl(value);
   }
@@ -152,7 +154,7 @@ public:
   static __always_inline void bitclear() {
     value_type value = reg_value & ~(1 << bit_no);
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
-    dumper::dump_register_bitclear(reg_value, value);
+    dumper::dump_register_bitclear(reg_value, bit_no);
 #endif
     store_impl(value);
   }
@@ -162,7 +164,7 @@ public:
     static_assert(permission != wo, "read access to a write-only register");
     value_type value = reg_value & (1 << bit_no);
 #ifdef CONFIG_DUMP_REGISTER_ACCESS
-    dumper::dump_register_bittest(value);
+    dumper::dump_register_bittest(reg_value, bit_no);
 #endif
     return value;
   }
@@ -181,4 +183,4 @@ Tp reg_access<Tp, addr, permission, reset_value>::reg_value = reset_value;
 
 } // namespace mptl
 
-#endif // REGISTER_BACKEND_HPP_INCLUDED
+#endif // REGISTER_ACCESS_HPP_INCLUDED
