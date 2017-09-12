@@ -147,7 +147,7 @@ public:
    */
   static constexpr value_type cropped_clear_mask = clear_mask & ~set_mask;
 
-#if !defined(CONFIG_DISABLE_AUTO_BITBAND_WRITE) && !defined(CONFIG_DISABLE_AUTO_BITBAND_READ)
+#if !defined(CONFIG_DISABLE_AUTO_BITBAND_WRITE) || !defined(CONFIG_DISABLE_AUTO_BITBAND_READ)
   using bitcount = mpl::bitcount<clear_mask>;
   static constexpr bool bitop_enabled = reg_type::bitop_enabled && (bitcount::value == 1);
 #endif
