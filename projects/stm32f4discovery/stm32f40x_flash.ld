@@ -27,7 +27,7 @@ SECTIONS
     {
         . = ALIGN(4);
         KEEP(*(.isr_vector))
-    } >FLASH
+    } > FLASH
 
     .text : {
         . = ALIGN(4);
@@ -55,19 +55,19 @@ SECTIONS
         *(.glue_7)  /* ARM code calling Thumb code */
         *(.glue_7t) /* Thumb code calling ARM code */
         . = ALIGN(4);
-    } >FLASH
+    } > FLASH
 
 
     /* exception handling/unwind - some Newlib functions (in common with C++ and STDC++) use this. */
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } >FLASH
+    } > FLASH
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } >FLASH
+    } > FLASH
     __exidx_end = .;
 
     _etext = .;
@@ -85,7 +85,7 @@ SECTIONS
 	*(.ram_functions)
         . = ALIGN(4);
         _edata = .;
-    } >RAM
+    } > RAM
 
     .bss :
     {
@@ -98,14 +98,14 @@ SECTIONS
         _ebss = .;
         _end = .;
         PROVIDE(end = .);
-    } >RAM
+    } > RAM
 
     .ccm (NOLOAD) :
     {
         . = ALIGN(4);
         *(.ccm)
         *(.ccm.*)
-    } >CCM
+    } > CCM
 
 
 /* TODO: play around with non-volatile ram
@@ -114,7 +114,7 @@ SECTIONS
         . = ALIGN(4);
         *(.nvram)
         *(.nvram.*)
-    } >NVRAM
+    } > NVRAM
 */
 
 /*

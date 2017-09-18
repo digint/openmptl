@@ -18,7 +18,7 @@ SECTIONS
     {
         . = ALIGN(4);
         KEEP(*(.isr_vector))
-    } >FLASH
+    } > FLASH
 
     .text : {
         . = ALIGN(4);
@@ -46,19 +46,19 @@ SECTIONS
         *(.glue_7)  /* ARM code calling Thumb code */
         *(.glue_7t) /* Thumb code calling ARM code */
         . = ALIGN(4);
-    } >FLASH
+    } > FLASH
 
 
     /* exception handling/unwind - some Newlib functions (in common with C++ and STDC++) use this. */
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } >FLASH
+    } > FLASH
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } >FLASH
+    } > FLASH
     __exidx_end = .;
 
     _etext = .;
@@ -74,7 +74,7 @@ SECTIONS
         *(.data.*)
         . = ALIGN(4);
         _edata = .;
-    } >RAM
+    } > RAM
 
     .bss :
     {
@@ -87,7 +87,7 @@ SECTIONS
         _ebss = .;
         _end = .;
         PROVIDE(end = .);
-    } >RAM
+    } > RAM
 
 
 /*
