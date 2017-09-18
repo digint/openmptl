@@ -28,19 +28,22 @@ OPENMPTL_TOP   = ../..
 OPENMPTL_ARCH  = arm/cortex/stm32/f4
 
 ifdef SIMULATION
-  CROSS        = /usr/x86_64-pc-linux-gnu/gcc-bin/4.8.1/x86_64-pc-linux-gnu-
   FLAGS       += -DOPENMPTL_SIMULATION
   FLAGS       += -DCONFIG_SIM_THREADED
   FLAGS       += -DCONFIG_REGISTER_REACTION
   FLAGS       += -DCONFIG_DUMP_REGISTER_ACCESS
   FLAGS       += -DCONFIG_DUMP_REGISTER_BITFIELD
-#  FLAGS       += -DCONFIG_DUMP_CURRENT_REGISTER_VALUE
+  FLAGS       += -DCONFIG_DUMP_CURRENT_REGISTER_VALUE
+
+  FLAGS       += -DDUMP_VECTOR_TABLE
 else
-  CROSS        = armv7m-none-eabi-
+  #CROSS        = armv7m-none-eabi-
   CPUFLAGS     = -mcpu=cortex-m4 -mthumb
 endif
 
 # HINT: g++ -Q -O2 --help=optimizers
+# NOTE: for some reason, using -Os does not work in conjunction with -flto
+#OPTIMIZER      = -O2 -flto
 OPTIMIZER      = -Os
 
 LD_SCRIPT      = stm32f40x_flash.ld
@@ -59,7 +62,7 @@ OPENOCD_CONFIG = -f board/stm32f4discovery.cfg
 # FLAGS  += -DCONFIG_DISABLE_AUTO_BITBAND
 
 #
-# experimental features
+# experimental features:
 #
 # FLAGS  += -DCONFIG_USE_STD_TUPLE
 # FLAGS  += -DCONFIG_USE_FRIENDS
@@ -142,8 +145,8 @@ ifndef CLANG
 endif
 
 ifndef SIMULATION
-  # Place each function or data item into its own section
-  OPTIMIZER += -ffunction-sections -fdata-sections
+  # Place each function or data item into its own section; this is slower in most cases.
+  #OPTIMIZER += -ffunction-sections -fdata-sections
 endif
 
 CFLAGS      += $(FLAGS)
@@ -167,14 +170,25 @@ CXXFLAGS    += -std=c++11
 CXXFLAGS    += -g
 CXXFLAGS    += -fno-exceptions
 CXXFLAGS    += -fno-rtti
+CXXFLAGS    += -fshort-enums
 ifndef CLANG
   CXXFLAGS  += -funsigned-bitfields
 endif
-CXXFLAGS    += -fshort-enums
+ifndef SIMULATION
+  # NOTE: Implicit templates are used in this project (terminal/usart stream), so we cannot use -fno-implicit-templates.
+  # TODO: Use explicit template instantiation where possible (extern template ...).
+  # see: https://gcc.gnu.org/onlinedocs/gcc-7.2.0/gcc/Template-Instantiation.html#Template-Instantiation
+  #CXXFLAGS  += -fno-implicit-templates
+  CXXFLAGS  += -fimplicit-templates
+
+  # Enable automatic template instantiation at link time. This can
+  # reduce overall program size, but has no impact on performance.
+  #CXXFLAGS  += -frepo
+endif
+
 #CXXFLAGS    += -fomit-frame-pointer
 #CXXFLAGS    += -fno-elide-constructors
 #CXXFLAGS    += -finline-limit=60    # number of pseudo-instructions, default is 600
-#CXXFLAGS    += -frepo     # Enable automatic template instantiation at link time
 #CXXFLAGS    += -fdump-class-hierarchy
 #CXXFLAGS    += -ffreestanding
 #CXXFLAGS    += -nostdinc++
@@ -200,7 +214,6 @@ LDFLAGS     += $(CPUFLAGS)
 LDFLAGS     += $(OPTIMIZER)
 LDFLAGS     += -fno-exceptions
 LDFLAGS     += -fno-rtti
-#! LDFLAGS  += -frepo     # Enable automatic template instantiation at link time
 ifdef SIMULATION
   LDFLAGS   += -pthread
 else
@@ -263,6 +276,7 @@ clean:
 	$(RM) $(OBJ_DIR)/*.bc
 	$(RM) $(OBJ_DIR)/*.s
 	$(RM) $(OBJ_DIR)/*.o
+	$(RM) $(OBJ_DIR)/*.rpo
 	$(RM) $(OBJ_DIR)/*.d
 	$(RM) $(OBJ_DIR)/*.lst
 
