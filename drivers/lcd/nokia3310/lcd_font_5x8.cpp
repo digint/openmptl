@@ -22,13 +22,13 @@
 
 namespace mptl { namespace device {
 
-/* partial specialization for 8x5 font */
+/* partial specialization for 5x8 font */
 template<>
-const unsigned char lcd_font< 6 >::font_illegal_char[5] = 
+const unsigned char lcd_font< 5 >::font_illegal_char[5] =
   { 0x7E, 0x7E, 0x7E, 0x7E, 0x7E };   // square
 
 template<>
-const unsigned char lcd_font< 6 >::font[128 - 32][5] = 
+const unsigned char lcd_font< 5 >::font[128 - 32][5] =
 {
   { 0x00, 0x00, 0x00, 0x00, 0x00 },   // sp
   { 0x00, 0x00, 0x2f, 0x00, 0x00 },   // !

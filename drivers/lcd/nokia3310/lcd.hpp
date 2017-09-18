@@ -27,15 +27,19 @@
 
 namespace mptl { namespace device {
 
-/* NOTE: font_width is the font INCLUDING character separator (e.g. use 6 for 8x5 font) */
 template<unsigned font_width>
 class lcd_font
 {
+public:
+
+  static constexpr unsigned width = font_width;
+  static constexpr unsigned height = 8;
+
 private:
   static constexpr unsigned char_width = font_width - 1;
 
-  static const unsigned char font[128 - 32][char_width]; /* chars from 32 - 128 */
-  static const unsigned char font_illegal_char[char_width];
+  static const unsigned char font[128 - 32][width]; /* chars from 32 - 128 */
+  static const unsigned char font_illegal_char[width];
 
   static const unsigned char * char_ptr(const char ch) {
     if(ch < 32)
@@ -47,7 +51,7 @@ public:
 
   static void copy_char(unsigned char *dst, const char ch) {
     const unsigned char * font_char = char_ptr(ch);
-    for(unsigned i = 0; i < char_width; i++) {
+    for(unsigned i = 0; i < width; i++) {
       *dst++ = font_char[i];
     }
     *dst = 0x00;
@@ -55,7 +59,7 @@ public:
 
   static void copy_char_inv(unsigned char *dst, const char ch) {
     const unsigned char * font_char = char_ptr(ch);
-    for(unsigned i = 0; i < char_width; i++) {
+    for(unsigned i = 0; i < width; i++) {
       *dst++ = ~(font_char[i]);
     }
     *dst = 0xff;
@@ -65,9 +69,10 @@ public:
 
 template< unsigned res_x,
           unsigned res_y,
-          unsigned font_width = 6 /* NOTE: actual font width is 8x5, one bit is for character separator */
+          typename font,
+          unsigned font_spacing = 1
           >
-class lcd_base
+class lcd_screen
 {
 protected:
   static constexpr unsigned lcdbuf_size = ((res_x * res_y) / 8); /* 1 bit per pixel */
@@ -81,12 +86,10 @@ private:
 
 public:
 
-  using font = lcd_font<font_width>;
-
   static constexpr unsigned resolution_x = res_x;
   static constexpr unsigned resolution_y = res_y;
-  static constexpr unsigned rows = res_y / 8;
-  static constexpr unsigned columns = res_x / font_width;
+  static constexpr unsigned rows = res_y / font::height;
+  static constexpr unsigned columns = res_x / (font::width + font_spacing);
 
   void clear(void) {
     for (unsigned i = 0; i < lcdbuf_size; i++) {
@@ -149,7 +152,7 @@ template<
   typename lcd_reset, /* reset pin (active low) */
   typename lcd_e      /* display controller spi enable (active low) */
   >
-class nokia3310 : public lcd_base< 84, 48 >
+class nokia3310 : public lcd_screen< 84, 48, lcd_font< 5 >, 1 >
 {
   using spi_cfg = mptl::typelist<
     typename spi_type::master,
@@ -273,5 +276,6 @@ public:
 };
 
 } } // namespace mptl::device
+
 
 #endif // LCD_HPP_INCLUDED
