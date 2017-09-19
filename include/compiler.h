@@ -8,7 +8,14 @@
 # define __always_inline  inline __attribute__((always_inline))
 #endif
 
-#define __naked                 __attribute__((naked)) __attribute__((noinline))
+// NOTE: While non-ASM statement in naked function is not supported,
+// it works fine in our projects (arm). Use with care!
+#ifdef CONFIG_CLANG
+# define __naked                __attribute__((noinline))
+#else
+# define __naked                __attribute__((naked)) __attribute__((noinline))
+#endif // CONFIG_CLANG
+
 #define __noreturn              __attribute__((noreturn))
 
 /* Variable attributes */
