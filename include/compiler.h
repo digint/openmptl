@@ -19,6 +19,8 @@
 #define __noreturn              __attribute__((noreturn))
 
 /* Variable attributes */
-#define __used                  __attribute__((used))
+#ifndef __used
+# define __used                  __attribute__((used))
+#endif
 
 #endif // COMPILER_H_INCLUDED
