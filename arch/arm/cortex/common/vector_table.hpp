@@ -187,13 +187,13 @@ struct vector_table
                 "IRQ vector table size error");
 
 #ifdef OPENMPTL_SIMULATION
-  void dump_size(void) {
+  static void dump_size(void) {
     int w = 3;
     std::cout << "*** vector table size:" << std::endl;
     std::cout << "stack_top pointer:      " << std::setw(w) << 1 << std::endl;
-    std::cout << "cortex core exceptions: " << std::setw(w) << (this->size - irq::numof_interrupt_channels - 1) << std::endl;
+    std::cout << "cortex core exceptions: " << std::setw(w) << numof_core_exceptions << std::endl;
     std::cout << "irq channels:           " << std::setw(w) << irq::numof_interrupt_channels << std::endl;
-    std::cout << "total size:             " << std::setw(w) << this->size << std::endl;
+    std::cout << "total size:             " << std::setw(w) << type::size << std::endl;
   }
 
   /**
@@ -202,14 +202,16 @@ struct vector_table
    * Not very useful, as it prints the pointers to irq_handler from
    * simulation functions.
    */
-  void dump_vector(void) {
-    std::cout << "*** vector table dump:" << std::endl;
-    //    std::cout << "-----------------" << std::endl;
+  static void dump_vector(void) {
+    int vt_size = type::vt_size;
+    auto vt = type::value;
 
-    for(int i = 0; i < (int)this->size; i++) {
-      std::cout << std::dec << std::setw(3) << i << " " <<
-        "(" << std::setw(3) << i - this->irq_channel_offset << ")" <<
-        " :  0x" << std::hex << (unsigned long)this->isr_vector[i] << std::endl;
+    std::cout << "*** vector table dump:" << std::endl;
+    std::cout << std::dec << "  0 (TOS) :  0x" << std::hex << (unsigned long)vt.stack_top << std::endl;
+    for(int i = 0; i < vt_size; i++) {
+      std::cout << std::dec << std::setw(3) << (1 + i) << " " <<
+        "(" << std::setw(3) << (i - irq_channel_offset) << ")" <<
+        " :  0x" << std::hex << (unsigned long)vt.isr_vector[i] << std::endl;
     }
   }
 #endif // OPENMPTL_SIMULATION

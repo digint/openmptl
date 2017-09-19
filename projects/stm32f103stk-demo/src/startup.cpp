@@ -48,14 +48,13 @@ const uint32_t _stack_top = 0;
 //int main(int argc, char *argv[])
 int main(void)
 {
-  std::cout << "*** stm32f103stk demo: starting simulation..." << std::endl;
-
 #ifdef DUMP_VECTOR_TABLE
-  vector_table.dump_size();
-  vector_table.dump_types();
-  // vector_table.dump_vector();
+  vector_table::dump_size();
+  vector_table::dump_types();
+  // vector_table::dump_vector();
 #endif
 
+  std::cout << "*** stm32f103stk demo: starting simulation..." << std::endl;
   Kernel::reset_isr();
 }
 

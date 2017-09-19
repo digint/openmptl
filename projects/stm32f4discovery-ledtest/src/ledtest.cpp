@@ -108,14 +108,13 @@ void mptl::sim::reg_reaction::react() {
 //int main(int argc, char *argv[])
 int main(void)
 {
-  std::cout << "*** stm32f4discovery ledtest: starting simulation..." << std::endl;
-
 #ifdef DUMP_VECTOR_TABLE
-  vector_table.dump_size();
-  vector_table.dump_types();
-  // vector_table.dump_vector();
+  vector_table::dump_size();
+  vector_table::dump_types();
+  // vector_table::dump_vector();
 #endif
 
+  std::cout << "*** stm32f4discovery ledtest: starting simulation..." << std::endl;
   reset_isr();
 }
 
