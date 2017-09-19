@@ -37,7 +37,8 @@ void Kernel::reset_isr(void) {
  * - use irq handler from irq_handler<> traits in Kernel::resources
  * - use Kernel::error_isr as default isr
  */
-mptl::vector_table< &_stack_top, Kernel::resources, Kernel::error_isr > vector_table;
+using vector_table = mptl::vector_table<&_stack_top, Kernel::resources, Kernel::error_isr>;
+const auto isr_vector __attribute__((used,section(".isr_vector"))) = vector_table::value;
 
 
 #ifdef OPENMPTL_SIMULATION

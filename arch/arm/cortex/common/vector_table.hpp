@@ -30,16 +30,25 @@
 namespace mptl {
 
 #ifndef OPENMPTL_SIMULATION
-static_assert(sizeof(isr_t)  == 4, "wrong size for isr function pointer");
-static_assert(alignof(isr_t) == 4, "wrong alignment for isr function pointer table");
+static_assert(sizeof(isr_t)       == 4, "wrong size for isr function pointer");
+static_assert(alignof(isr_t)      == 4, "wrong alignment for isr function pointer table");
+static_assert(sizeof(uint32_t *)  == 4, "wrong size for top-of-stack pointer");
+static_assert(alignof(uint32_t *) == 4, "wrong alignment for top-of-stack pointer");
 #endif
+
+template<std::size_t vt_size>
+struct arm_cortex_vector_table {
+  const uint32_t * stack_top;
+  isr_t isr_vector[vt_size];
+};
+
 
 namespace mpl
 {
   /**
-   * Provides a static vector table isr_vector[] in section
-   * ".isr_vector", containing stack_top and all values of the
-   * mptl::irq_handler<> traits.
+   * Provides a arm_cortex_vector_table in static member "value" which
+   * can be used to fill linker section ".isr_vector", containing
+   * stack_top and all values of the mptl::irq_handler<> traits.
    *
    * Template arguments:
    *
@@ -48,26 +57,42 @@ namespace mpl
    */
   template<const uint32_t *stack_top, typename... Tp>
   struct vector_table_impl {
-    static constexpr std::size_t size = sizeof...(Tp) + 1;
-
-    static __used isr_t isr_vector[size] __attribute__ ((section(".isr_vector")));
+    static constexpr std::size_t vt_size = sizeof...(Tp);
+    static constexpr std::size_t size = vt_size + 1;
+    static constexpr arm_cortex_vector_table<vt_size> value = { stack_top, { Tp::value... } };
 
 #ifdef OPENMPTL_SIMULATION
     /** Dump demangled irq_handler types to std::cout */
     static void dump_types(void) {
       std::cout << "*** irq handler types:" << std::endl;
-    //      std::cout << "------------------" << std::endl;
       dump_irq_types<Tp...>()();
     }
 #endif
+
+#if 0
+    /* With gcc 4.x, the section attribute was honored within static
+     * template member variables. To create the vector table, the
+     * following statement was used:
+     *
+     *     mptl::vector_table< &_stack_top, resources > vector_table;
+     *
+     * As of gcc 5.x (as well as clang), this does not work any more,
+     * section attributes are not honored for static template
+     * variables. Maybe related to:
+     * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70435
+     */
+    static isr_t isr_vector[size] __used __attribute__ ((section(".isr_vector")));
+#endif
   };
 
+#if 0
+  /* see comment above */
   template<const uint32_t *stack_top, typename... Tp>
   isr_t vector_table_impl<stack_top, Tp...>::isr_vector[size] = {
     (isr_t)stack_top,
     Tp::value...
   };
-
+#endif
 
   /** recursively build the vector table  */
   template< unsigned int N,
@@ -116,12 +141,18 @@ namespace mpl
 
 
 /**
- * Provides a static vector table isr_vector[] in section
- * ".isr_vector".
+ * Provides a static vector table (value[], see vector_table_impl
+ * above), to be initialized in section ".isr_vector".
  *
- * NOTE: If your compiler does not support the "used" attribute, you
- * will have to instantiate this class somewhere so that the compiler
- * does not strip the unreferenced symbol.
+ * Example:
+ *
+ *     extern const uint32_t _stack_top; // provided by linker script
+ *     using resources = mptl::typelist<
+ *       mptl::irq_handler< typename mptl::irq::reset, my_reset_isr >,
+ *       ...
+ *       >;
+ *     using vector_table = mptl::vector_table<&_stack_top, resources>;
+ *     const auto isr_vector __attribute__((used, section(".isr_vector"))) = vector_table::value;
  *
  * Template arguments:
  *
@@ -133,10 +164,6 @@ namespace mpl
  *   - default_isr: isr_t function pointer, used for all irq's which
  *        are not listed in irq_handler_list. Defaults to "nullptr".
  *
- * Members:
- * 
- *   - isr_vector[]: interrupt vector table, "__used" in section
- *       ".isr_vector" (__attribute__((used)) __attribute__ ((section(".isr_vector"))).
  */
 template<const uint32_t *stack_top, typename irq_handler_list, isr_t default_isr = nullptr >
 struct vector_table
@@ -148,12 +175,15 @@ struct vector_table
   stack_top
   >::type
 {
-  /** offset of irq_channel<0> in isr_vector[] */
-  static constexpr int irq_channel_offset = -irq::reset::irqn + 1;
+  using type = vector_table<stack_top, irq_handler_list, default_isr>;
+
+  /** offset of irq_channel<0> in arm_cortex_vector_table::isr_vector[] */
+  static constexpr int irq_channel_offset = -irq::reset::irqn;
+  static constexpr int numof_core_exceptions = -irq::reset::irqn;
 
   static_assert(irq::reset::irqn < 0, "irq::reset::irqn must be a negative value");
   static_assert(irq::numof_interrupt_channels >= 0, "invalid irq::numof_interrupt_channels");
-  static_assert(sizeof(vector_table<stack_top, irq_handler_list, default_isr>::isr_vector) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + -irq::reset::irqn),
+  static_assert(sizeof(type::value) == sizeof(isr_t) * (1 + irq::numof_interrupt_channels + numof_core_exceptions),
                 "IRQ vector table size error");
 
 #ifdef OPENMPTL_SIMULATION

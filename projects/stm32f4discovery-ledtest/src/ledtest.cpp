@@ -79,18 +79,10 @@ void __naked reset_isr(void) {
 
 /* Build the vector table:
  * - use irq handler from irq_handler<> traits in "resources"
- * - use null_isr as default isr
+ * - use null_isr as default isr (useful for debugging)
  */
-mptl::vector_table< &_stack_top, resources, null_isr > vector_table;
-
-
-#ifdef CONFIG_CLANG
-// clang-3.3 ignores "__attribute__((used))" on vector_table_impl::isr_vector[]
-// WORKAROUND: use something from isr_vector[] in order to provide the symbol
-mptl::isr_t clang_workaround_attribute_used(void) {
-  return vector_table.isr_vector[0];
-}
-#endif // CONFIG_CLANG
+using vector_table = mptl::vector_table<&_stack_top, resources, null_isr>;
+const auto isr_vector __attribute__((used,section(".isr_vector"))) = vector_table::value;
 
 
 #ifdef OPENMPTL_SIMULATION
