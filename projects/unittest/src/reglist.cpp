@@ -30,9 +30,11 @@ using A = reg< uint8_t,  0x00, rw, 0 >;
 using B = reg< uint16_t, 0x04, rw, 0 >;
 using C = reg< uint8_t,  0x08, rw, 0xff >;
 
-template<> struct address_map< 0x00 > { static constexpr const char * name_str = "TEST::A"; };
-template<> struct address_map< 0x04 > { static constexpr const char * name_str = "TEST::B"; };
-template<> struct address_map< 0x08 > { static constexpr const char * name_str = "TEST::C"; };
+namespace mptl {
+  template<> struct address_map< 0x00 > { static constexpr const char * name_str = "TEST::A"; };
+  template<> struct address_map< 0x04 > { static constexpr const char * name_str = "TEST::B"; };
+  template<> struct address_map< 0x08 > { static constexpr const char * name_str = "TEST::C"; };
+}
 
 using A0 = regmask< A, 0x01, 0x01 >;
 using A1 = regmask< A, 0x02, 0x02 >;

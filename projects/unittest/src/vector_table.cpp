@@ -38,23 +38,25 @@ using resource_fail_list = mptl::typelist < irq42, irq42 >;
 
 int main()
 {
-  vector_table<&stack_top, resource_list, default_isr> vt;
-
 #ifdef UNITTEST_MUST_FAIL
 #warning UNITTEST_MUST_FAIL: list contains more than one element
-  vector_table<&stack_top, resource_fail_list, default_isr> vt_fail;
+  using vt_fail = vector_table<&stack_top, resource_fail_list, default_isr>;
+  auto arm_vector_table_fail = vt_fail::value;
 #endif
 
   //  resource_list::check();
   //  resource_list::configure();
 
-  isr_t *isr_vector = vt.isr_vector;
+  using vt = vector_table<&stack_top, resource_list, default_isr>;
+  mptl::arm_cortex_vector_table<vt::vt_size> arm_vector_table = vt::value;
 
-  assert((unsigned long)isr_vector[0] == (unsigned long)&stack_top);
-  assert((unsigned long)isr_vector[vt.irq_channel_offset + 41] == (unsigned long)default_isr);
-  assert((unsigned long)isr_vector[vt.irq_channel_offset + 42] == (unsigned long)isr_42);
+  assert((unsigned long)arm_vector_table.stack_top == (unsigned long)&stack_top);
+  assert((unsigned long)arm_vector_table.isr_vector[vt::irq_channel_offset + 41] == (unsigned long)default_isr);
+  assert((unsigned long)arm_vector_table.isr_vector[vt::irq_channel_offset + 42] == (unsigned long)isr_42);
 
-  vt.dump();
+  vt::dump_size();
+  vt::dump_types();
+  vt::dump_vector();
 
   return 0;
 }
