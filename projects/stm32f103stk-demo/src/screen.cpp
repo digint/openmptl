@@ -78,5 +78,4 @@ ScreenItemList::iterator Screen::item_top;
 // ----------------------------------------------------------------------------
 // Initial state definition
 //
-FSM_INITIAL_STATE(Screen, Main);
-
+FSM_INITIAL_STATE(Screen, Main)
