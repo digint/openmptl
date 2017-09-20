@@ -1384,4 +1384,4 @@ template<> struct address_map< 0xe004200c > { static constexpr const char * name
 
 } // namespace mptl
 
-#endif // REG_ADDR_MAP_HPP_INCLUDED
+#endif // ARCH_REG_ADDRESS_MAP_HPP_INCLUDED

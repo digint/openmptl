@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef ADC_HPP_INCLUDED
-#define ADC_HPP_INCLUDED
+#ifndef ARCH_ADC_HPP_INCLUDED
+#define ARCH_ADC_HPP_INCLUDED
 
 #include <arch/rcc.hpp>
 #include <arch/reg/adc.hpp>
@@ -253,4 +253,4 @@ public:  /* ------ static member functions ------ */
 
 } // namespace mptl
 
-#endif // ADC_HPP_INCLUDED
+#endif // ARCH_ADC_HPP_INCLUDED

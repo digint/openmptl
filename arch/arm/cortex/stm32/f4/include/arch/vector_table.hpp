@@ -18,9 +18,9 @@
  *
  */
 
-#ifndef VECTOR_TABLE_HPP_INCLUDED
-#define VECTOR_TABLE_HPP_INCLUDED
+#ifndef ARCH_VECTOR_TABLE_HPP_INCLUDED
+#define ARCH_VECTOR_TABLE_HPP_INCLUDED
 
 #include "../../../../common/vector_table.hpp"
 
-#endif // VECTOR_TABLE_HPP_INCLUDED
+#endif // ARCH_VECTOR_TABLE_HPP_INCLUDED

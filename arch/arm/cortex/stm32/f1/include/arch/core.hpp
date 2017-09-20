@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef CORE_HPP_INCLUDED
-#define CORE_HPP_INCLUDED
+#ifndef ARCH_CORE_HPP_INCLUDED
+#define ARCH_CORE_HPP_INCLUDED
 
 #include "../../../../common/core.hpp"
 
@@ -29,4 +29,4 @@ using core = core_base;
 
 } // namespace mptl
 
-#endif // CORE_HPP_INCLUDED
+#endif // ARCH_CORE_HPP_INCLUDED

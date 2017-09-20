@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef NVIC_HPP_INCLUDED
-#define NVIC_HPP_INCLUDED
+#ifndef ARCH_NVIC_HPP_INCLUDED
+#define ARCH_NVIC_HPP_INCLUDED
 
 #include "../../../../common/nvic.hpp"
 
@@ -124,4 +124,4 @@ static constexpr int numof_interrupt_channels = 82;
 
 } } // namespace mptl::irq
 
-#endif // NVIC_HPP_INCLUDED
+#endif // ARCH_NVIC_HPP_INCLUDED

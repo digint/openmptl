@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef FLASH_HPP_INCLUDED
-#define FLASH_HPP_INCLUDED
+#ifndef ARCH_FLASH_HPP_INCLUDED
+#define ARCH_FLASH_HPP_INCLUDED
 
 #include <arch/reg/flash.hpp>
 #include <freq.hpp>
@@ -114,6 +114,6 @@ public:  /* ------ static member functions ------ */
 
 } // namespace mptl
 
-#endif // FLASH_HPP_INCLUDED
+#endif // ARCH_FLASH_HPP_INCLUDED
 
 

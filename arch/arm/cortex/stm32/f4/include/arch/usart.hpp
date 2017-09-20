@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef USART_HPP_INCLUDED
-#define USART_HPP_INCLUDED
+#ifndef ARCH_USART_HPP_INCLUDED
+#define ARCH_USART_HPP_INCLUDED
 
 #include <arch/gpio.hpp>
 #include "../../../common/usart.hpp"
@@ -85,4 +85,4 @@ public:
 } // namespace mptl
 
 
-#endif // USART_HPP_INCLUDED
+#endif // ARCH_USART_HPP_INCLUDED

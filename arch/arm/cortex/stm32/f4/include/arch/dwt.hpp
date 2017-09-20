@@ -18,9 +18,9 @@
  *
  */
 
-#ifndef DWT_HPP_INCLUDED
-#define DWT_HPP_INCLUDED
+#ifndef ARCH_DWT_HPP_INCLUDED
+#define ARCH_DWT_HPP_INCLUDED
 
 #include "../../../../common/dwt.hpp"
 
-#endif // DWT_HPP_INCLUDED
+#endif // ARCH_DWT_HPP_INCLUDED

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef RCC_HPP_INCLUDED
-#define RCC_HPP_INCLUDED
+#ifndef ARCH_RCC_HPP_INCLUDED
+#define ARCH_RCC_HPP_INCLUDED
 
 #include <arch/reg/rcc.hpp>
 #include <typelist.hpp>
@@ -264,4 +264,4 @@ template<> struct rcc_adc_clock_resources<1> : RCC::APB2ENR::ADC3EN { };
 
 } // namespace mptl
 
-#endif // RCC_HPP_INCLUDED
+#endif // ARCH_RCC_HPP_INCLUDED

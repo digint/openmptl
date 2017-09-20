@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef GPIO_HPP_INCLUDED
-#define GPIO_HPP_INCLUDED
+#ifndef ARCH_GPIO_HPP_INCLUDED
+#define ARCH_GPIO_HPP_INCLUDED
 
 // === GPIO Ports ===
 //
@@ -269,4 +269,4 @@ public:
 
 } // namespace mptl
 
-#endif // GPIO_HPP_INCLUDED
+#endif // ARCH_GPIO_HPP_INCLUDED

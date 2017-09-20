@@ -18,9 +18,9 @@
  *
  */
 
-#ifndef SPI_HPP_INCLUDED
-#define SPI_HPP_INCLUDED
+#ifndef ARCH_SPI_HPP_INCLUDED
+#define ARCH_SPI_HPP_INCLUDED
 
 #include "../../../common/spi.hpp"
 
-#endif // SPI_HPP_INCLUDED
+#endif // ARCH_SPI_HPP_INCLUDED

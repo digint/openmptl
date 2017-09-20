@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef PWR_HPP_INCLUDED
-#define PWR_HPP_INCLUDED
+#ifndef ARCH_PWR_HPP_INCLUDED
+#define ARCH_PWR_HPP_INCLUDED
 
 #include <arch/reg/pwr.hpp>
 
@@ -36,4 +36,4 @@ public:
 
 } // namespace mptl
 
-#endif // PWR_HPP_INCLUDED
+#endif // ARCH_PWR_HPP_INCLUDED

@@ -18,9 +18,9 @@
  *
  */
 
-#ifndef SYSTICK_HPP_INCLUDED
-#define SYSTICK_HPP_INCLUDED
+#ifndef ARCH_SYSTICK_HPP_INCLUDED
+#define ARCH_SYSTICK_HPP_INCLUDED
 
 #include "../../../../common/systick.hpp"
 
-#endif // SYSTICK_HPP_INCLUDED
+#endif // ARCH_SYSTICK_HPP_INCLUDED

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef NVIC_HPP_INCLUDED
-#define NVIC_HPP_INCLUDED
+#ifndef ARCH_NVIC_HPP_INCLUDED
+#define ARCH_NVIC_HPP_INCLUDED
 
 #include "../../../../common/nvic.hpp"
 
@@ -298,4 +298,4 @@ template<> class spi<2> : public spi2 { };
 
 } } // namespace mptl::irq
 
-#endif // NVIC_HPP_INCLUDED
+#endif // ARCH_NVIC_HPP_INCLUDED

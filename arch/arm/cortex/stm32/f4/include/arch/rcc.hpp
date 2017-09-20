@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef RCC_HPP_INCLUDED
-#define RCC_HPP_INCLUDED
+#ifndef ARCH_RCC_HPP_INCLUDED
+#define ARCH_RCC_HPP_INCLUDED
 
 #include <simulation.hpp>
 #include <arch/reg/rcc.hpp>
@@ -218,4 +218,4 @@ template<> struct rcc_usart_clock_resources<6>  : RCC::APB2ENR::USART6EN { };
 
 } // namespace mptl
 
-#endif // RCC_HPP_INCLUDED
+#endif // ARCH_RCC_HPP_INCLUDED

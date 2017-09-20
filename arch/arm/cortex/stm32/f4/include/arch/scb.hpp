@@ -18,9 +18,9 @@
  *
  */
 
-#ifndef SCB_HPP_INCLUDED
-#define SCB_HPP_INCLUDED
+#ifndef ARCH_SCB_HPP_INCLUDED
+#define ARCH_SCB_HPP_INCLUDED
 
 #include "../../../../common/scb.hpp"
 
-#endif // SCB_HPP_INCLUDED
+#endif // ARCH_SCB_HPP_INCLUDED

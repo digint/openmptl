@@ -18,9 +18,9 @@
  *
  */
 
-#ifndef BITBAND_HPP_INCLUDED
-#define BITBAND_HPP_INCLUDED
+#ifndef ARCH_BITBAND_HPP_INCLUDED
+#define ARCH_BITBAND_HPP_INCLUDED
 
 #include "../../../../common/bitband.hpp"
 
-#endif // BITBAND_HPP_INCLUDED
+#endif // ARCH_BITBAND_HPP_INCLUDED

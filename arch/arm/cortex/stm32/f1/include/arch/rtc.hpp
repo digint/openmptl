@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef RTC_HPP_INCLUDED
-#define RTC_HPP_INCLUDED
+#ifndef ARCH_RTC_HPP_INCLUDED
+#define ARCH_RTC_HPP_INCLUDED
 
 #include <arch/nvic.hpp>
 #include <arch/pwr.hpp>
@@ -151,4 +151,4 @@ public:
 
 } // namespace mptl
 
-#endif // RTC_HPP_INCLUDED
+#endif // ARCH_RTC_HPP_INCLUDED
