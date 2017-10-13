@@ -24,7 +24,9 @@
 PROJECT        = stm32f103stk-demo
 
 OPENMPTL_TOP   = ../..
-TINYFSM_TOP    = ../../../tinyfsm
+
+#TINYFSM_TOP    = resources/tinyfsm-git
+TINYFSM_TOP    = resources/tinyfsm-0.2.0
 
 OPENMPTL_ARCH  = arm/cortex/stm32/f1
 
