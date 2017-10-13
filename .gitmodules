@@ -1,0 +1,3 @@
+[submodule "projects/stm32f103stk-demo/resources/tinyfsm-git"]
+	path = projects/stm32f103stk-demo/resources/tinyfsm-git
+	url = https://dev.tty0.ch/tinyfsm.git
