@@ -18,6 +18,13 @@
  *
  */
 
+/*
+ * This program contains derivative representations of CMSIS System
+ * View Description (SVD) files, and is subject to the "End User
+ * License Agreement for STMicroelectronics" (see "STM_License.html"
+ * in the containing directory).
+ */
+
 #ifndef ARM_CORTEX_STM32_COMMON_REG_TIM_HPP_INCLUDED
 #define ARM_CORTEX_STM32_COMMON_REG_TIM_HPP_INCLUDED
 
