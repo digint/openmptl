@@ -1,7 +1,7 @@
 /*
  * OpenMPTL - C++ Microprocessor Template Library
  *
- * Copyright 2013 Axel Burri <axel@tty0.ch>
+ * Copyright (C) 2012-2017 Axel Burri <axel@tty0.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
