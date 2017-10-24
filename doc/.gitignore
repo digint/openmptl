@@ -1,1 +1,8 @@
-/doxygen_html
+/*.tag
+/openmptl
+/lib
+/drivers
+/arm_cortex_common
+/stm32_common
+/stm32f10x
+/stm32f4

@@ -1,7 +1,23 @@
-DOXYGEN        = doxygen
-DOXY_CONFIG    = doxygen.conf
+#OUTPUT_DIRECTORY = /tmp/doxygen
+OUTPUT_DIRECTORY =
 
-all: doxygen
+DOCS = openmptl \
+       lib \
+       drivers \
+       arm_cortex_common \
+       stm32_common \
+       stm32f10x \
+       stm32f4
 
-doxygen:
-	$(DOXYGEN) $(DOXY_CONFIG)
+DOXYGEN = doxygen
+
+all: $(DOCS)
+
+$(DOCS):
+	@echo "*** Checking $@.conf"
+	grep -q -e "^HTML_OUTPUT\s*=\s*$@" $@.conf
+	@echo "*** Building $@"
+	( cat $@.conf ; echo "OUTPUT_DIRECTORY=$(OUTPUT_DIRECTORY)" ) | $(DOXYGEN) -
+
+clean:
+	rm -f *.tag
