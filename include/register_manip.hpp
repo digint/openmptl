@@ -33,6 +33,7 @@
 #include <compiler.h>
 
 namespace mptl {
+namespace experimental {
 
 // TODO: rename reg<>
 template<typename T>
@@ -76,6 +77,7 @@ private:
   value_type reg;
 };
 
+} // namespace experimental
 } // namespace mptl
 
 #endif // REGISTER_MANIP_HPP_INCLUDED

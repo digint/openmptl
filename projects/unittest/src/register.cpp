@@ -79,7 +79,7 @@ void unittest_register_manip()
 
   TEST::REG::reset();
 
-  reg_manip<TEST::REG> reg;
+  experimental::reg_manip<TEST::REG> reg;
   reg |= 0xff;
   reg &= 0x00ffffff;
   reg.set<TEST::REG::BITS_4_7::CONST_d>();
