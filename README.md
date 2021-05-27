@@ -178,7 +178,7 @@ If you would like to contribute or have found bugs:
 
   * Visit the [OpenMPTL project page on GitHub] and use the
     [issues tracker] there.
-  * Talk to us on Freenode in `#openmptl`.
+  * Talk to us on [Libera.Chat] in `#openmptl`.
   * Contact the author via email (the email address can be found in
     the sources).
 
@@ -186,6 +186,7 @@ Any feedback is appreciated!
 
   [OpenMPTL project page on GitHub]: http://github.com/digint/openmptl
   [issues tracker]: http://github.com/digint/openmptl/issues
+  [Libera.Chat]: https://libera.chat
 
 
 License
